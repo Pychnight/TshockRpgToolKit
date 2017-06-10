@@ -84,10 +84,14 @@ namespace CustomQuests
             }
 
             GeneralHooks.ReloadEvent += OnReload;
+            GetDataHandlers.PlayerTeam += OnPlayerTeam;
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
             ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
 
-            Commands.ChatCommands.Add(new Command("customquests.party", Party, "qparty"));
+            Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
+            Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
+            Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
+            Commands.ChatCommands.Add(new Command("customquests.party", Party, "party"));
             Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
         }
 
@@ -105,6 +109,7 @@ namespace CustomQuests
                 File.WriteAllText(QuestInfosPath, JsonConvert.SerializeObject(_questInfos, Formatting.Indented));
 
                 GeneralHooks.ReloadEvent -= OnReload;
+                GetDataHandlers.PlayerTeam -= OnPlayerTeam;
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
             }
@@ -131,12 +136,14 @@ namespace CustomQuests
                 {
                     var session2 = GetSession(player2);
                     session2.Party = null;
+                    party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
                 }
                 _parties.Remove(party.Name);
             }
             else
             {
                 session.Party = null;
+                party.SendData(PacketTypes.PlayerTeam, "", player.Index);
                 party.Remove(player);
                 party.SendInfoMessage($"{player.Name} left the party.");
             }
@@ -159,6 +166,19 @@ namespace CustomQuests
             }
         }
 
+        private void OnPlayerTeam(object sender, GetDataHandlers.PlayerTeamEventArgs args)
+        {
+            var player = TShock.Players[args.PlayerId];
+            if (player != null)
+            {
+                args.Handled = true;
+                var session = GetSession(player);
+                player.TPlayer.team = session.Party != null ? 1 : 0;
+                player.SendData(PacketTypes.PlayerTeam, "", player.Index);
+                player.TPlayer.team = 0;
+            }
+        }
+
         private void OnReload(ReloadEventArgs args)
         {
             if (File.Exists(ConfigPath))
@@ -178,6 +198,33 @@ namespace CustomQuests
                 var session = GetSession(player);
                 session.UpdateQuest();
             }
+        }
+
+        private void P(CommandArgs args)
+        {
+            var player = args.Player;
+            if (args.Message.Length < 2)
+            {
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}p <message>");
+                return;
+            }
+
+            if (player.mute)
+            {
+                player.SendErrorMessage("You are muted.");
+                return;
+            }
+
+            var session = GetSession(player);
+            var party = session.Party;
+            if (party == null)
+            {
+                player.SendErrorMessage("You are not in a party.");
+                return;
+            }
+
+            var message = args.Message.Substring(2);
+            party.SendMessage($"<{player.Name}> {message}", Main.teamColor[1]);
         }
 
         private void Party(CommandArgs args)
@@ -242,6 +289,9 @@ namespace CustomQuests
             var party = new Party(inputName, player);
             _parties[inputName] = party;
             session.Party = party;
+            player.TPlayer.team = 1;
+            player.SendData(PacketTypes.PlayerTeam, "", player.Index);
+            player.TPlayer.team = 0;
             player.SendSuccessMessage($"Formed the '{inputName}' party.");
         }
 
@@ -295,6 +345,9 @@ namespace CustomQuests
             {
                 party.SendInfoMessage($"{player2.Name} has joined the party.");
                 party.Add(player2);
+                player2.TPlayer.team = 1;
+                party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
+                player2.TPlayer.team = 0;
                 player2.SendSuccessMessage($"Joined the '{party.Name}' party.");
                 player2.AwaitingResponse.Remove("decline");
             });
@@ -355,6 +408,7 @@ namespace CustomQuests
                 return;
             }
 
+            party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
             party.Remove(player2);
             party.SendInfoMessage($"{player.Name} kicked {player2.Name} from the party.");
             player2.SendInfoMessage("You have been kicked from the party.");
@@ -558,8 +612,7 @@ namespace CustomQuests
             var session = GetSession(player);
             var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
             var completedQuests = session.CompletedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
-            var failedQuests = session.FailedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
-            var totalQuestCount = availableQuests.Count + completedQuests.Count + failedQuests.Count;
+            var totalQuestCount = availableQuests.Count + completedQuests.Count;
             var maxPage = (totalQuestCount - 1) / QuestsPerPage + 1;
             var inputPageNumber = parameters.Count == 1 ? "1" : parameters[1];
             if (!int.TryParse(inputPageNumber, out var pageNumber) || pageNumber <= 0 || pageNumber > maxPage)
@@ -586,15 +639,10 @@ namespace CustomQuests
                         ? $"{questInfo.FriendlyName} (IN PROGRESS): {questInfo.Description}"
                         : $"{questInfo.FriendlyName} ({i + 1}): {questInfo.Description}");
                 }
-                else if (i < availableQuests.Count + completedQuests.Count)
+                else
                 {
                     var questInfo = completedQuests[i - availableQuests.Count];
                     player.SendSuccessMessage($"{questInfo.FriendlyName} (COMPLETED): {questInfo.Description}");
-                }
-                else
-                {
-                    var questInfo = failedQuests[i - availableQuests.Count - completedQuests.Count];
-                    player.SendErrorMessage($"{questInfo.FriendlyName} (FAILED): {questInfo.Description}");
                 }
             }
             if (pageNumber != maxPage)

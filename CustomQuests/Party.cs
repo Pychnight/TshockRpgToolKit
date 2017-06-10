@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Xna.Framework;
 using TShockAPI;
 
 namespace CustomQuests
@@ -85,6 +86,25 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Sends data to the party.
+        /// </summary>
+        /// <param name="packetType">The packet type.</param>
+        /// <param name="text">The text.</param>
+        /// <param name="number">The first number.</param>
+        /// <param name="number2">The second number.</param>
+        /// <param name="number3">The third number.</param>
+        /// <param name="number4">The fourth number.</param>
+        /// <param name="number5">The fifth number.</param>
+        public void SendData(PacketTypes packetType, string text = "", int number = 0, float number2 = 0,
+            float number3 = 0, float number4 = 0, int number5 = 0)
+        {
+            foreach (var player in _players)
+            {
+                player.SendData(packetType, text, number, number2, number3, number4, number5);
+            }
+        }
+
+        /// <summary>
         ///     Sends an error message to the party.
         /// </summary>
         /// <param name="message">The message, which must not be <c>null</c>.</param>
@@ -119,6 +139,48 @@ namespace CustomQuests
             foreach (var player in _players)
             {
                 player.SendInfoMessage(message);
+            }
+        }
+
+        /// <summary>
+        ///     Sends a message to the party.
+        /// </summary>
+        /// <param name="message">The message, which must not be <c>null</c>.</param>
+        /// <param name="color">The color.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void SendMessage([NotNull] string message, Color color)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            foreach (var player in _players)
+            {
+                player.SendMessage(message, color);
+            }
+        }
+
+        /// <summary>
+        ///     Sends a message to the party.
+        /// </summary>
+        /// <param name="message">The message, which must not be <c>null</c>.</param>
+        /// <param name="r">The red component.</param>
+        /// <param name="g">The green component.</param>
+        /// <param name="b">The blue component.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void SendMessage([NotNull] string message, byte r, byte g, byte b)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            foreach (var player in _players)
+            {
+                player.SendMessage(message, r, g, b);
             }
         }
 

@@ -66,13 +66,6 @@ namespace CustomQuests.Sessions
         public string CurrentQuestName => SessionInfo.CurrentQuestName;
 
         /// <summary>
-        ///     Gets a read-only view of the failed quest names.
-        /// </summary>
-        [NotNull]
-        [ItemNotNull]
-        public ReadOnlyCollection<string> FailedQuestNames => SessionInfo.FailedQuestNames.AsReadOnly();
-
-        /// <summary>
         ///     Gets or sets the party.
         /// </summary>
         [CanBeNull]
@@ -171,14 +164,10 @@ namespace CustomQuests.Sessions
             CurrentQuest.Update();
             if (CurrentQuest.IsEnded)
             {
-                SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
                 if (CurrentQuest.IsSuccessful)
                 {
+                    SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
                     SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
-                }
-                else
-                {
-                    SessionInfo.FailedQuestNames.Add(CurrentQuestName);
                 }
 
                 CurrentQuest?.Dispose();

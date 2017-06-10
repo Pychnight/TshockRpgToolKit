@@ -31,11 +31,5 @@ namespace CustomQuests.Sessions
         /// </summary>
         [CanBeNull]
         public string CurrentQuestState { get; set; }
-
-        /// <summary>
-        ///     Gets the failed quest names.
-        /// </summary>
-        [NotNull]
-        public List<string> FailedQuestNames { get; } = new List<string>();
     }
 }
