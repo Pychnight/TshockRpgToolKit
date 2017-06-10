@@ -55,7 +55,7 @@ namespace CustomQuests.Sessions
             set
             {
                 _currentQuest = value;
-                SessionInfo.CurrentQuestName = _currentQuest?.QuestInfo.Name;
+                SessionInfo.CurrentQuestName = _currentQuest?.Name;
             }
         }
 
@@ -92,28 +92,25 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets the quest state.
         /// </summary>
-        /// <returns>The quest state.</returns>
+        /// <returns>The state.</returns>
         [LuaGlobal]
         [UsedImplicitly]
         public string GetQuestState() => SessionInfo.CurrentQuestState;
 
         /// <summary>
-        ///     Loads the specified quest information as the current quest.
+        ///     Loads the quest with the specified name.
         /// </summary>
-        /// <param name="questInfo">The quest information, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
-        public void LoadQuest([NotNull] QuestInfo questInfo)
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        public void LoadQuest([NotNull] string name)
         {
-            if (questInfo == null)
+            if (name == null)
             {
-                throw new ArgumentNullException(nameof(questInfo));
+                throw new ArgumentNullException(nameof(name));
             }
 
-            var quest = new Quest(questInfo);
-            var lua = new Lua
-            {
-                ["player"] = _player
-            };
+            var quest = new Quest(name);
+            var lua = new Lua {["player"] = _player};
             lua.LoadCLRPackage();
             lua.DoString("import('System')");
             lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
@@ -121,7 +118,7 @@ namespace CustomQuests.Sessions
             LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
 
-            var path = Path.Combine("quests", $"{questInfo.Name}.lua");
+            var path = Path.Combine("quests", $"{name}.lua");
             lua.DoFile(path);
             CurrentQuest = quest;
             _currentLua = lua;
@@ -130,29 +127,29 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Sets the quest state.
         /// </summary>
-        /// <param name="questState">The quest state.</param>
+        /// <param name="state">The state.</param>
         [LuaGlobal]
         [UsedImplicitly]
-        public void SetQuestState([CanBeNull] string questState)
+        public void SetQuestState([CanBeNull] string state)
         {
-            SessionInfo.CurrentQuestState = questState;
+            SessionInfo.CurrentQuestState = state;
         }
 
         /// <summary>
-        ///     Unlocks the specified quest.
+        ///     Unlocks the quest with the specified name.
         /// </summary>
-        /// <param name="questName">The quest name, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="questName" /> is <c>null</c>.</exception>
+        /// <param name="name">The quest name, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public void UnlockQuest([NotNull] string questName)
+        public void UnlockQuest([NotNull] string name)
         {
-            if (questName == null)
+            if (name == null)
             {
-                throw new ArgumentNullException(nameof(questName));
+                throw new ArgumentNullException(nameof(name));
             }
 
-            SessionInfo.AvailableQuestNames.Add(questName);
+            SessionInfo.AvailableQuestNames.Add(name);
         }
 
         /// <summary>
@@ -166,24 +163,17 @@ namespace CustomQuests.Sessions
             }
 
             CurrentQuest.Update();
-            var questName = CurrentQuest.QuestInfo.Name;
             if (CurrentQuest.IsCompleted)
             {
-                SessionInfo.AvailableQuestNames.Remove(questName);
-                SessionInfo.CompletedQuestNames.Add(questName);
-                CurrentQuest?.Dispose();
-                CurrentQuest = null;
-                _currentLua?.Dispose();
-                _currentLua = null;
+                SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
+                SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                Dispose();
             }
             else if (CurrentQuest.IsFailed)
             {
-                SessionInfo.AvailableQuestNames.Remove(questName);
-                SessionInfo.FailedQuestNames.Add(questName);
-                CurrentQuest?.Dispose();
-                CurrentQuest = null;
-                _currentLua?.Dispose();
-                _currentLua = null;
+                SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
+                SessionInfo.FailedQuestNames.Add(CurrentQuestName);
+                Dispose();
             }
         }
     }

@@ -91,13 +91,11 @@ namespace CustomQuests
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _sessionManager = new SessionManager(this, _config);
+            _sessionManager = new SessionManager(_config);
             if (File.Exists(QuestInfosPath))
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
             }
-
-            _questInfos.Add(new QuestInfo {Description = "TestDesc", FriendlyName = "Friendly Name!", Name = "name"});
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
@@ -245,7 +243,7 @@ namespace CustomQuests
 
             try
             {
-                session.LoadQuest(questInfo);
+                session.LoadQuest(questInfo.Name);
                 player.SendSuccessMessage($"Started quest '{questInfo.FriendlyName}'!");
             }
             catch (LuaException ex)
@@ -292,8 +290,7 @@ namespace CustomQuests
                 if (i < availableQuests.Count)
                 {
                     var questInfo = availableQuests[i];
-                    var currentQuestInfo = session.CurrentQuest?.QuestInfo;
-                    player.SendInfoMessage(questInfo == currentQuestInfo
+                    player.SendInfoMessage(questInfo.Name == session.CurrentQuestName
                         // ReSharper disable once PossibleNullReferenceException
                         ? $"{questInfo.FriendlyName} (IN PROGRESS): {questInfo.Description}"
                         : $"{questInfo.FriendlyName} ({i + 1}): {questInfo.Description}");

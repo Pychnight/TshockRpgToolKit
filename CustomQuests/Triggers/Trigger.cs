@@ -15,7 +15,7 @@ namespace CustomQuests.Triggers
         /// </summary>
         [CanBeNull]
         [UsedImplicitly]
-        public LuaFunction CompletedCallback { get; set; }
+        public LuaFunction Callback { get; set; }
 
         /// <summary>
         ///     Gets a value indicating whether the trigger is completed.
@@ -52,7 +52,7 @@ namespace CustomQuests.Triggers
 
             if (UpdateImpl())
             {
-                CompletedCallback?.Call();
+                Callback?.Call();
                 IsCompleted = true;
             }
         }
@@ -65,8 +65,8 @@ namespace CustomQuests.Triggers
         {
             if (disposing)
             {
-                CompletedCallback?.Dispose();
-                CompletedCallback = null;
+                Callback?.Dispose();
+                Callback = null;
             }
         }
 

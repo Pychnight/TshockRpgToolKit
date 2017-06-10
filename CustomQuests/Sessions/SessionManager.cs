@@ -14,20 +14,15 @@ namespace CustomQuests.Sessions
     public sealed class SessionManager : IDisposable
     {
         private readonly Config _config;
-        private readonly CustomQuestsPlugin _plugin;
         private readonly Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SessionManager" /> class with the specified plugin and configuration.
+        ///     Initializes a new instance of the <see cref="SessionManager" /> class with the specified configuration.
         /// </summary>
-        /// <param name="plugin">The plugin, which must not be <c>null</c>.</param>
         /// <param name="config">The configuration, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     Either <paramref name="plugin" /> or <paramref name="config" /> is <c>null</c>.
-        /// </exception>
-        public SessionManager([NotNull] CustomQuestsPlugin plugin, [NotNull] Config config)
+        /// <exception cref="ArgumentNullException"><paramref name="config" /> is <c>null</c>.</exception>
+        public SessionManager([NotNull] Config config)
         {
-            _plugin = plugin ?? throw new ArgumentNullException(nameof(plugin));
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
@@ -71,20 +66,14 @@ namespace CustomQuests.Sessions
                 }
                 else
                 {
-                    session = new Session(player, new SessionInfo());
-                    foreach (var questName in _config.DefaultQuestNames)
-                    {
-                        session.UnlockQuest(questName);
-                    }
+                    var sessionInfo = new SessionInfo();
+                    sessionInfo.AvailableQuestNames.AddRange(_config.DefaultQuestNames);
+                    session = new Session(player, sessionInfo);
                 }
 
                 if (session.CurrentQuestName != null)
                 {
-                    var questInfo = _plugin.FindQuestInfo(session.CurrentQuestName);
-                    if (questInfo != null)
-                    {
-                        session.LoadQuest(questInfo);
-                    }
+                    session.LoadQuest(session.CurrentQuestName);
                 }
 
                 _sessions[username] = session;
