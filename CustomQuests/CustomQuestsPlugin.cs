@@ -205,6 +205,7 @@ namespace CustomQuests
 
             quest.Dispose();
             session.CurrentQuest = null;
+            session.SetQuestState(null);
             player.SendSuccessMessage("Aborted quest.");
         }
 

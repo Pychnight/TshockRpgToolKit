@@ -114,7 +114,9 @@ namespace CustomQuests.Sessions
             {
                 ["player"] = _player
             };
-            LuaRegistrationHelper.TaggedInstanceMethods(lua, new QuestFunctions(_player));
+            lua.LoadCLRPackage();
+            lua.DoString("import('System')");
+            lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
             LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
             LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
@@ -137,13 +139,13 @@ namespace CustomQuests.Sessions
         }
 
         /// <summary>
-        ///     Unlocks the specified quest name.
+        ///     Unlocks the specified quest.
         /// </summary>
         /// <param name="questName">The quest name, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="questName" /> is <c>null</c>.</exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public void UnlockQuestName([NotNull] string questName)
+        public void UnlockQuest([NotNull] string questName)
         {
             if (questName == null)
             {

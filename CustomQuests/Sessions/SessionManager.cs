@@ -74,7 +74,7 @@ namespace CustomQuests.Sessions
                     session = new Session(player, new SessionInfo());
                     foreach (var questName in _config.DefaultQuestNames)
                     {
-                        session.UnlockQuestName(questName);
+                        session.UnlockQuest(questName);
                     }
                 }
 

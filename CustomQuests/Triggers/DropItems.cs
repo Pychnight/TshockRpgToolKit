@@ -7,7 +7,7 @@ using TShockAPI.Localization;
 namespace CustomQuests.Triggers
 {
     /// <summary>
-    ///     Represents a drop item trigger.
+    ///     Represents a drop items trigger.
     /// </summary>
     [UsedImplicitly]
     public sealed class DropItems : Trigger
