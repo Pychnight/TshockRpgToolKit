@@ -16,13 +16,13 @@ namespace CustomQuests.Triggers
         [CanBeNull]
         [UsedImplicitly]
         public LuaFunction CompletedCallback { get; set; }
-        
+
         /// <summary>
         ///     Gets a value indicating whether the trigger is completed.
         /// </summary>
         [LuaHide]
         public bool IsCompleted { get; private set; }
-        
+
         /// <summary>
         ///     Disposes the trigger.
         /// </summary>
@@ -38,7 +38,7 @@ namespace CustomQuests.Triggers
         /// </summary>
         [LuaHide]
         public abstract void Initialize();
-        
+
         /// <summary>
         ///     Updates the trigger.
         /// </summary>

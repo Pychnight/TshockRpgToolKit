@@ -73,6 +73,7 @@
     <Compile Include="Quest.cs" />
     <Compile Include="QuestInfo.cs" />
     <Compile Include="Sessions\Session.cs" />
+    <Compile Include="Sessions\SessionInfo.cs" />
     <Compile Include="Sessions\SessionManager.cs" />
     <Compile Include="Triggers\All.cs" />
     <Compile Include="Triggers\Any.cs" />

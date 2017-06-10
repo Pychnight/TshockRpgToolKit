@@ -6,7 +6,6 @@ using System.Reflection;
 using CustomQuests.Sessions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using NLua;
 using NLua.Exceptions;
 using Terraria;
 using TerrariaApi.Server;
@@ -66,6 +65,23 @@ namespace CustomQuests
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
         /// <summary>
+        ///     Finds the quest information with the specified name.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <returns>The quest information, or <c>null</c> if it does not exist.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [CanBeNull]
+        public QuestInfo FindQuestInfo([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return _questInfos.Find(q => q.Name == name);
+        }
+
+        /// <summary>
         ///     Initializes the plugin.
         /// </summary>
         public override void Initialize()
@@ -75,7 +91,7 @@ namespace CustomQuests
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _sessionManager = new SessionManager(_config);
+            _sessionManager = new SessionManager(this, _config);
             if (File.Exists(QuestInfosPath))
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
@@ -111,19 +127,14 @@ namespace CustomQuests
             base.Dispose(disposing);
         }
 
-        private Session GetSession(TSPlayer player)
-        {
-            var username = player.User?.Name ?? player.Name;
-            return _sessionManager.GetOrCreate(username);
-        }
+        private Session GetSession(TSPlayer player) => _sessionManager.GetOrCreate(player);
 
         private void OnLeave(LeaveEventArgs args)
         {
             var player = TShock.Players[args.Who];
             if (player != null)
             {
-                var username = player.User?.Name ?? player.Name;
-                _sessionManager.Remove(username);
+                _sessionManager.Remove(player);
             }
         }
 
@@ -231,29 +242,14 @@ namespace CustomQuests
                 return;
             }
 
-            var quest = new Quest(questInfo);
-            var lua = new Lua
-            {
-                ["player"] = player,
-                ["quest"] = quest,
-                ["session"] = session
-            };
-            LuaRegistrationHelper.TaggedInstanceMethods(lua, new QuestFunctions(player));
-            LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
-            LuaRegistrationHelper.TaggedInstanceMethods(lua, session);
-            LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
-
             try
             {
-                lua.DoFile(path);
-                session.CurrentQuest = quest;
-                session.Lua = lua;
+                session.LoadQuest(questInfo);
                 player.SendSuccessMessage($"Started quest '{questInfo.FriendlyName}'!");
             }
             catch (LuaException ex)
             {
                 player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                lua.Dispose();
                 TShock.Log.ConsoleError(ex.ToString());
                 TShock.Log.ConsoleError(ex.InnerException?.ToString());
             }

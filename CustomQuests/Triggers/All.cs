@@ -12,7 +12,7 @@ namespace CustomQuests.Triggers
     public sealed class All : Trigger
     {
         private readonly List<Trigger> _triggers;
-        
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="All" /> class with the specified triggers.
         /// </summary>
