@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Terraria;
 using TShockAPI;
@@ -13,24 +14,24 @@ namespace CustomQuests.Triggers
     public sealed class DropItems : Trigger
     {
         private readonly string _itemName;
-        private readonly TSPlayer _player;
+        private readonly Party _party;
 
         private int _amount;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DropItems" /> class with the specified player, item name, and amount.
+        ///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party, item name, and amount.
         /// </summary>
-        /// <param name="player">The player, which must not be <c>null</c>.</param>
-        /// <param name="itemName">The item name, which must not be <c>null</c>.</param>
+        /// <param name="party">The party, which must not be <c>null</c>.</param>
+        /// <param name="itemName">The item name, or <c>null</c> for any item.</param>
         /// <param name="amount">The amount, which must be positive.</param>
         /// <exception cref="ArgumentNullException">
-        ///     Either <paramref name="player" /> or <paramref name="itemName" /> is <c>null</c>.
+        ///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
         /// </exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-        public DropItems([NotNull] TSPlayer player, [NotNull] string itemName, int amount = 1)
+        public DropItems([NotNull] Party party, [CanBeNull] string itemName = null, int amount = 1)
         {
-            _player = player ?? throw new ArgumentNullException(nameof(player));
-            _itemName = itemName ?? throw new ArgumentNullException(nameof(itemName));
+            _party = party ?? throw new ArgumentNullException(nameof(party));
+            _itemName = itemName;
             _amount = amount > 0
                 ? amount
                 : throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
@@ -58,18 +59,19 @@ namespace CustomQuests.Triggers
 
         private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
         {
-            if (args.Handled || args.Player.Index != _player.Index || args.ID != Main.maxItems)
+            var player = args.Player;
+            if (args.Handled || args.ID != Main.maxItems || _party.All(p => p.Index != player.Index))
             {
                 return;
             }
 
             var itemIdName = EnglishLanguage.GetItemNameById(args.Type);
-            if (itemIdName.Equals(_itemName, StringComparison.OrdinalIgnoreCase))
+            if (_itemName?.Equals(itemIdName, StringComparison.OrdinalIgnoreCase) ?? true)
             {
                 _amount -= args.Stacks;
                 if (_amount < 0)
                 {
-                    _player.GiveItem(args.Type, "", 20, 42, -_amount, args.Prefix);
+                    player.GiveItem(args.Type, "", 20, 42, -_amount, args.Prefix);
                     _amount = 0;
                 }
                 args.Handled = true;

@@ -24,14 +24,14 @@ namespace CustomQuests
         }
 
         /// <summary>
-        ///     Gets a value indicating whether the quest is completed.
+        ///     Gets a value indicating whether the quest is ended.
         /// </summary>
-        public bool IsCompleted { get; private set; }
+        public bool IsEnded { get; private set; }
 
         /// <summary>
-        ///     Gets a value indicating whether the quest is failed.
+        ///     Gets a value indicating whether the quest is successful.
         /// </summary>
-        public bool IsFailed { get; private set; }
+        public bool IsSuccessful { get; private set; }
 
         /// <summary>
         ///     Gets the name.
@@ -71,23 +71,13 @@ namespace CustomQuests
         /// <summary>
         ///     Completes the quest.
         /// </summary>
+        /// <param name="isSuccess"><c>true</c> to complete successfully; otherwise, <c>false</c>.</param>
         [LuaGlobal]
         [UsedImplicitly]
-        public void Complete()
+        public void Complete(bool isSuccess)
         {
-            IsCompleted = true;
-            IsFailed = false;
-        }
-
-        /// <summary>
-        ///     Fails the quest.
-        /// </summary>
-        [LuaGlobal]
-        [UsedImplicitly]
-        public void Fail()
-        {
-            IsCompleted = false;
-            IsFailed = true;
+            IsEnded = true;
+            IsSuccessful = isSuccess;
         }
 
         /// <summary>
@@ -95,7 +85,7 @@ namespace CustomQuests
         /// </summary>
         public void Update()
         {
-            if (IsCompleted || IsFailed || _triggers.Count == 0)
+            if (IsEnded || _triggers.Count == 0)
             {
                 return;
             }

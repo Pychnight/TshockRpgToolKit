@@ -73,6 +73,12 @@ namespace CustomQuests.Sessions
         public ReadOnlyCollection<string> FailedQuestNames => SessionInfo.FailedQuestNames.AsReadOnly();
 
         /// <summary>
+        ///     Gets or sets the party.
+        /// </summary>
+        [CanBeNull]
+        public Party Party { get; set; }
+
+        /// <summary>
         ///     Gets the session information.
         /// </summary>
         [NotNull]
@@ -110,7 +116,7 @@ namespace CustomQuests.Sessions
             }
 
             var quest = new Quest(name);
-            var lua = new Lua {["player"] = _player};
+            var lua = new Lua {["party"] = Party ?? new Party(_player.Name, _player)};
             lua.LoadCLRPackage();
             lua.DoString("import('System')");
             lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
@@ -163,17 +169,22 @@ namespace CustomQuests.Sessions
             }
 
             CurrentQuest.Update();
-            if (CurrentQuest.IsCompleted)
+            if (CurrentQuest.IsEnded)
             {
                 SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
-                SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
-                Dispose();
-            }
-            else if (CurrentQuest.IsFailed)
-            {
-                SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
-                SessionInfo.FailedQuestNames.Add(CurrentQuestName);
-                Dispose();
+                if (CurrentQuest.IsSuccessful)
+                {
+                    SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                }
+                else
+                {
+                    SessionInfo.FailedQuestNames.Add(CurrentQuestName);
+                }
+
+                CurrentQuest?.Dispose();
+                CurrentQuest = null;
+                _currentLua?.Dispose();
+                _currentLua = null;
             }
         }
     }
