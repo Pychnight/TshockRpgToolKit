@@ -52,7 +52,7 @@ namespace CustomQuests.Sessions
         public Quest CurrentQuest
         {
             get => _currentQuest;
-            set
+            private set
             {
                 _currentQuest = value;
                 SessionInfo.CurrentQuestName = _currentQuest?.Name;

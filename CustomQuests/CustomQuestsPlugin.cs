@@ -130,7 +130,6 @@ namespace CustomQuests
 
             if (player == party.Leader)
             {
-                session.Party = null;
                 party.SendInfoMessage($"{player.Name} disbanded the party.");
                 foreach (var player2 in party)
                 {
@@ -250,10 +249,10 @@ namespace CustomQuests
             }
             else
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty form <name>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty invite <player>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty kick <player>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty leave");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave");
             }
         }
 
@@ -263,7 +262,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty form <name>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>");
                 return;
             }
 
@@ -301,7 +300,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty invite <player>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>");
                 return;
             }
 
@@ -366,7 +365,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty invite <player>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>");
                 return;
             }
 
@@ -420,7 +419,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 1)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}qparty leave");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave");
                 return;
             }
 
@@ -581,7 +580,7 @@ namespace CustomQuests
             {
                 if (questInfo.MinPartySize > 1)
                 {
-                    player.SendErrorMessage("Quest requires a party.");
+                    player.SendErrorMessage($"Quest requires a party size of {questInfo.MinPartySize}.");
                     return;
                 }
 
@@ -635,7 +634,6 @@ namespace CustomQuests
                 {
                     var questInfo = availableQuests[i];
                     player.SendInfoMessage(questInfo.Name == session.CurrentQuestName
-                        // ReSharper disable once PossibleNullReferenceException
                         ? $"{questInfo.FriendlyName} (IN PROGRESS): {questInfo.Description}"
                         : $"{questInfo.FriendlyName} ({i + 1}): {questInfo.Description}");
                 }
