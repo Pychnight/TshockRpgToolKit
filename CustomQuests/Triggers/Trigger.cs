@@ -20,13 +20,11 @@ namespace CustomQuests.Triggers
         /// <summary>
         ///     Gets a value indicating whether the trigger is completed.
         /// </summary>
-        [LuaHide]
         public bool IsCompleted { get; private set; }
 
         /// <summary>
         ///     Disposes the trigger.
         /// </summary>
-        [LuaHide]
         public void Dispose()
         {
             Dispose(true);
@@ -36,13 +34,11 @@ namespace CustomQuests.Triggers
         /// <summary>
         ///     Initializes the trigger.
         /// </summary>
-        [LuaHide]
         public abstract void Initialize();
 
         /// <summary>
         ///     Updates the trigger.
         /// </summary>
-        [LuaHide]
         public void Update()
         {
             if (IsCompleted)

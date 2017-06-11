@@ -78,6 +78,7 @@
     <Compile Include="Sessions\SessionManager.cs" />
     <Compile Include="Triggers\All.cs" />
     <Compile Include="Triggers\Any.cs" />
+    <Compile Include="Triggers\Condition.cs" />
     <Compile Include="Triggers\DropItems.cs" />
     <Compile Include="Triggers\InArea.cs" />
     <Compile Include="Triggers\KillNpcs.cs" />

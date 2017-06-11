@@ -70,6 +70,26 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Buffs the party with the specified type.
+        /// </summary>
+        /// <param name="buffType">The type.</param>
+        /// <param name="seconds">The number of seconds, which must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="seconds" /> is not positive.</exception>
+        [UsedImplicitly]
+        public void Buff(int buffType, int seconds)
+        {
+            if (seconds <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
+            }
+
+            foreach (var player in _players)
+            {
+                player.SetBuff(buffType, seconds * 60);
+            }
+        }
+
+        /// <summary>
         ///     Removes the specified player.
         /// </summary>
         /// <param name="player">The player, which must not be <c>null</c>.</param>
@@ -200,6 +220,20 @@ namespace CustomQuests
             foreach (var player in _players)
             {
                 player.SendSuccessMessage(message);
+            }
+        }
+
+        /// <summary>
+        ///     Teleports the party to the specified coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        [UsedImplicitly]
+        public void Teleport(int x, int y)
+        {
+            foreach (var player in _players)
+            {
+                player.Teleport(x, y + 3);
             }
         }
     }
