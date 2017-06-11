@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.ID;
 using TShockAPI;
+using TShockAPI.Localization;
 
 namespace CustomQuests
 {
@@ -54,6 +57,19 @@ namespace CustomQuests
         /// <returns>An enumerator.</returns>
         public IEnumerator<TSPlayer> GetEnumerator() => _players.GetEnumerator();
 
+        private static int? GetItemIdFromName(string name)
+        {
+            for (var i = 0; i < Main.maxItemTypes; ++i)
+            {
+                var itemName = EnglishLanguage.GetItemNameById(i);
+                if (itemName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return i;
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         ///     Adds the specified player.
         /// </summary>
@@ -86,6 +102,45 @@ namespace CustomQuests
             foreach (var player in _players)
             {
                 player.SetBuff(buffType, seconds * 60);
+            }
+        }
+
+        /// <summary>
+        ///     Gives the specified item to the party.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <param name="stackSize">The stack size, which must be positive.</param>
+        /// <param name="prefix">The prefix, which must be within range.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Either <paramref name="stackSize" /> is not positive or
+        ///     <paramref name="prefix" /> is too large.
+        /// </exception>
+        [UsedImplicitly]
+        public void GiveItem([NotNull] string name, int stackSize = 1, byte prefix = 0)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (stackSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(stackSize), "Stack size must be positive.");
+            }
+            if (prefix > PrefixID.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(prefix), "Prefix must be within range.");
+            }
+
+            var itemId = GetItemIdFromName(name);
+            if (itemId == null)
+            {
+                throw new FormatException($"Invalid item name '{name}'.");
+            }
+
+            foreach (var player in _players)
+            {
+                player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
             }
         }
 
