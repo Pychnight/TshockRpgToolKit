@@ -15,6 +15,8 @@ namespace CustomQuests
     /// </summary>
     public static class QuestFunctions
     {
+        private static readonly Random Random = new Random();
+
         /// <summary>
         ///     Broadcasts the specified message.
         /// </summary>
@@ -81,6 +83,25 @@ namespace CustomQuests
         [Pure]
         [UsedImplicitly]
         public static ITile GetTile(int x, int y) => Main.tile[x, y];
+
+        /// <summary>
+        ///     Returns a random integer in the specified range.
+        /// </summary>
+        /// <param name="min">The minimum.</param>
+        /// <param name="max">The maximum, which must be at least the minimum.</param>
+        /// <returns>The random integer.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static int RandomInt(int min, int max)
+        {
+            if (max < min)
+            {
+                throw new ArgumentOutOfRangeException(nameof(max), "Maximum is smaller than the minimum.");
+            }
+
+            return Random.Next(min, max);
+        }
 
         /// <summary>
         ///     Spawns the custom mob with the specified name, coordinates, and amount.
