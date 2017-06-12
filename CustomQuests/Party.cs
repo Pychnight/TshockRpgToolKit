@@ -316,6 +316,27 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Sends the tile square to the party.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <param name="radius">The radius, which must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void SendTileSquare(int x, int y, int radius = 1)
+        {
+            if (radius <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+            }
+
+            foreach (var player in _players)
+            {
+                player.SendTileSquare(x, y, radius);
+            }
+        }
+
+        /// <summary>
         ///     Sends a warning message to the party.
         /// </summary>
         /// <param name="message">The message, which must not be <c>null</c>.</param>
