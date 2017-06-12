@@ -1,0 +1,56 @@
+﻿using System;
+using JetBrains.Annotations;
+using TerrariaApi.Server;
+
+namespace CustomQuests.Triggers
+{
+    /// <summary>
+    ///     Represents a chat response trigger.
+    /// </summary>
+    [UsedImplicitly]
+    public sealed class ChatResponse : Trigger
+    {
+        private readonly string _message;
+        private readonly Party _party;
+
+        private bool _responded;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ChatResponse" /> class with the specified party and message.
+        /// </summary>
+        /// <param name="party">The party, which must not be <c>null</c>.</param>
+        /// <param name="message">The message, which must not be <c>null</c>.</param>
+        public ChatResponse([NotNull] Party party, [NotNull] string message)
+        {
+            _party = party ?? throw new ArgumentNullException(nameof(party));
+            _message = message ?? throw new ArgumentNullException(nameof(message));
+        }
+
+        /// <inheritdoc />
+        public override void Initialize()
+        {
+            ServerApi.Hooks.ServerChat.Register(CustomQuestsPlugin.Instance, OnChat, int.MaxValue);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ServerApi.Hooks.ServerChat.Deregister(CustomQuestsPlugin.Instance, OnChat);
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <inheritdoc />
+        protected override bool UpdateImpl() => _responded;
+
+        private void OnChat(ServerChatEventArgs args)
+        {
+            if (args.Who == _party.Leader.Index && args.Text.Equals(_message, StringComparison.OrdinalIgnoreCase))
+            {
+                _responded = true;
+            }
+        }
+    }
+}

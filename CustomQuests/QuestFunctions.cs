@@ -78,6 +78,7 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <returns>The tile.</returns>
         [LuaGlobal]
+        [Pure]
         [UsedImplicitly]
         public static ITile GetTile(int x, int y) => Main.tile[x, y];
 
@@ -166,7 +167,7 @@ namespace CustomQuests
                 NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
             }
         }
-
+        
         private static int? GetNpcIdFromName(string name)
         {
             for (var i = -65; i < Main.maxNPCTypes; ++i)

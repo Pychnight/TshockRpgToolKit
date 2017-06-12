@@ -106,6 +106,25 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Damages the party.
+        /// </summary>
+        /// <param name="damage">The damage, which must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="damage" /> is not positive.</exception>
+        [UsedImplicitly]
+        public void Damage(int damage)
+        {
+            if (damage <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be positive.");
+            }
+
+            foreach (var player in _players)
+            {
+                player.DamagePlayer(damage);
+            }
+        }
+
+        /// <summary>
         ///     Gives the specified item to the party.
         /// </summary>
         /// <param name="name">The name, which must not be <c>null</c>.</param>
@@ -113,8 +132,7 @@ namespace CustomQuests
         /// <param name="prefix">The prefix, which must be within range.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        ///     Either <paramref name="stackSize" /> is not positive or
-        ///     <paramref name="prefix" /> is too large.
+        ///     Either <paramref name="stackSize" /> is not positive or <paramref name="prefix" /> is too large.
         /// </exception>
         [UsedImplicitly]
         public void GiveItem([NotNull] string name, int stackSize = 1, byte prefix = 0)
@@ -141,6 +159,25 @@ namespace CustomQuests
             foreach (var player in _players)
             {
                 player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
+            }
+        }
+
+        /// <summary>
+        ///     Heals the party.
+        /// </summary>
+        /// <param name="health">The health, which must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="health" /> is not positive.</exception>
+        [UsedImplicitly]
+        public void Heal(int health)
+        {
+            if (health <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
+            }
+
+            foreach (var player in _players)
+            {
+                player.Heal(health);
             }
         }
 
@@ -279,6 +316,25 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Sends a warning message to the party.
+        /// </summary>
+        /// <param name="message">The message, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void SendWarningMessage([NotNull] string message)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            foreach (var player in _players)
+            {
+                player.SendWarningMessage(message);
+            }
+        }
+
+        /// <summary>
         ///     Teleports the party to the specified coordinates.
         /// </summary>
         /// <param name="x">The X coordinate.</param>
@@ -288,7 +344,7 @@ namespace CustomQuests
         {
             foreach (var player in _players)
             {
-                player.Teleport(x, y + 3);
+                player.Teleport(16 * x, 16 * y);
             }
         }
     }
