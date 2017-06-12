@@ -167,7 +167,7 @@ namespace CustomQuests
                 NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
             }
         }
-        
+
         private static int? GetNpcIdFromName(string name)
         {
             for (var i = -65; i < Main.maxNPCTypes; ++i)
