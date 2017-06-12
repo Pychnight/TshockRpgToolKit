@@ -596,6 +596,15 @@ namespace CustomQuests
                 return;
             }
 
+            var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
+                .Count(s => s.CurrentQuest?.Name == inputName);
+            if (concurrentParties >= questInfo.MaxConcurrentParties)
+            {
+                player.SendErrorMessage(
+                    $"There are too many parties currently performing the quest '{questInfo.FriendlyName}'.");
+                return;
+            }
+
             var party = session.Party;
             if (party != null)
             {

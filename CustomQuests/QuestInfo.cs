@@ -16,6 +16,11 @@
         public string FriendlyName { get; set; }
 
         /// <summary>
+        ///     Gets or sets the maximum number of parties that can concurrently do the quest.
+        /// </summary>
+        public int MaxConcurrentParties { get; set; }
+
+        /// <summary>
         ///     Gets or sets the maximum party size.
         /// </summary>
         public int MaxPartySize { get; set; }
