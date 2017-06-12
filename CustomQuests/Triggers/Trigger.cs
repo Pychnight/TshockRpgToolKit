@@ -1,6 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
 using NLua;
+using NLua.Exceptions;
+using TShockAPI;
 
 namespace CustomQuests.Triggers
 {
@@ -10,6 +12,8 @@ namespace CustomQuests.Triggers
     // TODO: show progress
     public abstract class Trigger : IDisposable
     {
+        private bool _isInitialized;
+
         /// <summary>
         ///     Gets or sets the callback to run after the trigger is completed for the first time.
         /// </summary>
@@ -41,6 +45,12 @@ namespace CustomQuests.Triggers
         /// </summary>
         public void Update()
         {
+            if (!_isInitialized)
+            {
+                Initialize();
+                _isInitialized = true;
+            }
+
             if (IsCompleted)
             {
                 return;
@@ -48,7 +58,15 @@ namespace CustomQuests.Triggers
 
             if (UpdateImpl())
             {
-                Callback?.Call();
+                try
+                {
+                    Callback?.Call();
+                }
+                catch (LuaException ex)
+                {
+                    TShock.Log.ConsoleError(ex.ToString());
+                    TShock.Log.ConsoleError(ex.InnerException?.ToString());
+                }
                 IsCompleted = true;
             }
         }

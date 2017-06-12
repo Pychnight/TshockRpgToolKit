@@ -173,7 +173,7 @@ namespace CustomQuests
             for (var i = -65; i < Main.maxNPCTypes; ++i)
             {
                 var npcName = EnglishLanguage.GetNpcNameById(i);
-                if (npcName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     return i;
                 }

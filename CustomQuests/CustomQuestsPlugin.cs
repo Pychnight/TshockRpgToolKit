@@ -348,8 +348,16 @@ namespace CustomQuests
                     return;
                 }
 
+                var session2 = GetSession(player2);
+                session2.Party = party;
                 party.SendInfoMessage($"{player2.Name} has joined the party.");
                 party.Add(player2);
+                foreach (var player3 in party)
+                {
+                    player3.TPlayer.team = 1;
+                    player.SendData(PacketTypes.PlayerTeam, "", player3.Index);
+                    player3.TPlayer.team = 0;
+                }
                 player2.TPlayer.team = 1;
                 party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
                 player2.TPlayer.team = 0;
@@ -571,8 +579,8 @@ namespace CustomQuests
                     var session2 = GetSession(player2);
                     try
                     {
+                        player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                         session2.LoadQuest(questInfo.Name);
-                        player2.SendSuccessMessage($"Started quest '{questInfo.FriendlyName}'!");
                     }
                     catch (LuaException ex)
                     {
@@ -592,8 +600,8 @@ namespace CustomQuests
 
                 try
                 {
+                    player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                     session.LoadQuest(questInfo.Name);
-                    player.SendSuccessMessage($"Started quest '{questInfo.FriendlyName}'!");
                 }
                 catch (LuaException ex)
                 {

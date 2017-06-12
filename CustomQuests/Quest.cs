@@ -51,7 +51,7 @@ namespace CustomQuests
         }
 
         /// <summary>
-        ///     Adds and initializes the specified trigger.
+        ///     Adds the specified trigger.
         /// </summary>
         /// <param name="trigger">The trigger to add, which must not be <c>null</c>.</param>
         /// <param name="prioritize"><c>true</c> to prioritize the trigger; otherwise, <c>false</c>.</param>
@@ -64,8 +64,7 @@ namespace CustomQuests
             {
                 throw new ArgumentNullException(nameof(trigger));
             }
-
-            trigger.Initialize();
+            
             if (prioritize)
             {
                 _triggers.Insert(0, trigger);

@@ -62,7 +62,7 @@ namespace CustomQuests
             for (var i = 0; i < Main.maxItemTypes; ++i)
             {
                 var itemName = EnglishLanguage.GetItemNameById(i);
-                if (itemName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                if (itemName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     return i;
                 }

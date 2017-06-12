@@ -169,6 +169,11 @@ namespace CustomQuests.Sessions
                 {
                     SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
                     SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                    _player.SendSuccessMessage("Quest completed!");
+                }
+                else
+                {
+                    _player.SendErrorMessage("Quest failed.");
                 }
 
                 CurrentQuest?.Dispose();
