@@ -342,6 +342,12 @@ namespace CustomQuests
             player2.SendInfoMessage("Use /accept or /decline.");
             player2.AwaitingResponse.Add("accept", args2 =>
             {
+                if (session.CurrentQuest != null)
+                {
+                    player.SendErrorMessage("You cannot accept the invite while the party is on a quest.");
+                    return;
+                }
+
                 party.SendInfoMessage($"{player2.Name} has joined the party.");
                 party.Add(player2);
                 player2.TPlayer.team = 1;
