@@ -206,7 +206,7 @@ namespace CustomQuests
 
         private void OnUpdate(EventArgs args)
         {
-            foreach (var player in TShock.Players.Where(p => p != null))
+            foreach (var player in TShock.Players.Where(p => p != null && p.User != null))
             {
                 var session = GetSession(player);
                 session.UpdateQuest();
@@ -263,10 +263,10 @@ namespace CustomQuests
             }
             else
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>.");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>.");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>.");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave.");
             }
         }
 
@@ -276,7 +276,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>.");
                 return;
             }
 
@@ -314,7 +314,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>.");
                 return;
             }
 
@@ -346,9 +346,10 @@ namespace CustomQuests
             }
 
             var player2 = players[0];
-            if (party.Contains(player2))
+            var session2 = GetSession(player2);
+            if (session2.Party != null)
             {
-                player.SendErrorMessage($"{player2.Name} is already in the party.");
+                player.SendErrorMessage($"{player2.Name} is already in a party.");
                 return;
             }
 
@@ -362,7 +363,6 @@ namespace CustomQuests
                     return;
                 }
 
-                var session2 = GetSession(player2);
                 session2.Party = party;
                 party.SendInfoMessage($"{player2.Name} has joined the party.");
                 party.Add(player2);
@@ -393,7 +393,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>.");
                 return;
             }
 
@@ -435,10 +435,18 @@ namespace CustomQuests
                 return;
             }
 
+            var session2 = GetSession(player2);
+            session2.Party = null;
             party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
             party.Remove(player2);
             party.SendInfoMessage($"{player.Name} kicked {player2.Name} from the party.");
             player2.SendInfoMessage("You have been kicked from the party.");
+            if (session2.CurrentQuest != null)
+            {
+                session2.Dispose();
+                session2.SetQuestState(null);
+                player2.SendInfoMessage("Aborted quest.");
+            }
         }
 
         private void PartyLeave(CommandArgs args)
@@ -447,7 +455,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 1)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave.");
                 return;
             }
 
@@ -466,6 +474,7 @@ namespace CustomQuests
         {
             var parameters = args.Parameters;
             var player = args.Player;
+            var isAdmin = player.HasPermission("customquests.quest.admin");
             var subcommand = parameters.Count == 0 ? "" : parameters[0];
             if (subcommand.Equals("abort", StringComparison.OrdinalIgnoreCase))
             {
@@ -479,11 +488,36 @@ namespace CustomQuests
             {
                 QuestList(args);
             }
+            else if (subcommand.Equals("revoke", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!isAdmin)
+                {
+                    player.SendErrorMessage("You do not have access to this command.");
+                    return;
+                }
+
+                QuestRevoke(args);
+            }
+            else if (subcommand.Equals("unlock", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!isAdmin)
+                {
+                    player.SendErrorMessage("You do not have access to this command.");
+                    return;
+                }
+
+                QuestUnlock(args);
+            }
             else
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <number>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page]");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort.");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
+                if (isAdmin)
+                {
+                    player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
+                    player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
+                }
             }
         }
 
@@ -493,7 +527,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 1)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort.");
                 return;
             }
 
@@ -535,7 +569,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <number>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
                 return;
             }
 
@@ -547,15 +581,14 @@ namespace CustomQuests
             }
 
             var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
-            var inputNumber = parameters[1];
-            if (!int.TryParse(inputNumber, out var questNumber) || questNumber <= 0 ||
-                questNumber > availableQuests.Count)
+            var inputName = parameters[1];
+            var questInfo = availableQuests.FirstOrDefault(q => q.Name == inputName);
+            if (questInfo == null)
             {
-                player.SendErrorMessage($"Invalid quest number '{inputNumber}'.");
+                player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
-
-            var questInfo = availableQuests[questNumber - 1];
+            
             var path = Path.Combine("quests", $"{questInfo.Name}.lua");
             if (!File.Exists(path))
             {
@@ -632,7 +665,7 @@ namespace CustomQuests
             var player = args.Player;
             if (parameters.Count > 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page]");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
                 return;
             }
 
@@ -663,7 +696,7 @@ namespace CustomQuests
                     var questInfo = availableQuests[i];
                     player.SendInfoMessage(questInfo.Name == session.CurrentQuestName
                         ? $"{questInfo.FriendlyName} (IN PROGRESS): {questInfo.Description}"
-                        : $"{questInfo.FriendlyName} ({i + 1}): {questInfo.Description}");
+                        : $"{questInfo.FriendlyName} ({questInfo.Name}): {questInfo.Description}");
                 }
                 else
                 {
@@ -674,6 +707,115 @@ namespace CustomQuests
             if (pageNumber != maxPage)
             {
                 player.SendSuccessMessage($"Type {Commands.Specifier}quest list {pageNumber + 1} for more.");
+            }
+        }
+
+        private void QuestRevoke(CommandArgs args)
+        {
+            var parameters = args.Parameters;
+            var player = args.Player;
+            if (parameters.Count != 2 && parameters.Count != 3)
+            {
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
+                return;
+            }
+
+            var player2 = args.Player;
+            if (parameters.Count == 3)
+            {
+                var inputPlayer = parameters[1];
+                var players = TShock.Utils.FindPlayer(inputPlayer);
+                if (players.Count == 0)
+                {
+                    player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
+                    return;
+                }
+                if (players.Count > 1)
+                {
+                    TShock.Utils.SendMultipleMatchError(player, players);
+                    return;
+                }
+
+                player2 = players[0];
+            }
+
+            var session2 = GetSession(player2);
+            var inputName = parameters.Last();
+            if (!session2.AvailableQuestNames.Contains(inputName) && !session2.CompletedQuestNames.Contains(inputName))
+            {
+                player.SendErrorMessage(
+                    $"{(player2 == player ? "You have" : $"{player2.Name} has")} not unlocked quest '{inputName}'.");
+                return;
+            }
+            if (_questInfos.All(q => q.Name != inputName))
+            {
+                player.SendErrorMessage($"Invalid quest name '{inputName}'.");
+                return;
+            }
+
+            session2.RevokeQuest(inputName);
+            var questInfo = _questInfos.First(q => q.Name == inputName);
+            player2.SendSuccessMessage($"Revoked quest '{questInfo.Name}'.");
+            if (player2 != player)
+            {
+                player.SendSuccessMessage($"Revoked quest '{questInfo.Name}' for {player2.Name}.");
+            }
+        }
+        private void QuestUnlock(CommandArgs args)
+        {
+            var parameters = args.Parameters;
+            var player = args.Player;
+            if (parameters.Count != 2 && parameters.Count != 3)
+            {
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
+                return;
+            }
+
+            var player2 = args.Player;
+            if (parameters.Count == 3)
+            {
+                var inputPlayer = parameters[1];
+                var players = TShock.Utils.FindPlayer(inputPlayer);
+                if (players.Count == 0)
+                {
+                    player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
+                    return;
+                }
+                if (players.Count > 1)
+                {
+                    TShock.Utils.SendMultipleMatchError(player, players);
+                    return;
+                }
+
+                player2 = players[0];
+            }
+
+            var session2 = GetSession(player2);
+            var inputName = parameters.Last();
+            if (session2.AvailableQuestNames.Contains(inputName))
+            {
+                player.SendErrorMessage(
+                    $"{(player2 == player ? "You have" : $"{player2.Name} has")} already unlocked quest '{inputName}'.");
+                return;
+            }
+            if (session2.CompletedQuestNames.Contains(inputName))
+            {
+                player.SendErrorMessage(
+                    $"{(player2 == player ? "You have" : $"{player2.Name} has")} already completed quest '{inputName}'.");
+                return;
+            }
+            if (_questInfos.All(q => q.Name != inputName))
+            {
+                player.SendErrorMessage($"Invalid quest name '{inputName}'.");
+                return;
+            }
+
+            session2.UnlockQuest(inputName);
+            var questInfo = _questInfos.First(q => q.Name == inputName);
+            player2.SendSuccessMessage($"Unlocked quest '{questInfo.Name}'.");
+            if (player2 != player)
+            {
+                player.SendSuccessMessage($"Unlocked quest '{questInfo.Name}' for {player2.Name}.");
             }
         }
     }

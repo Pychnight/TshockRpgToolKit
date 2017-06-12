@@ -125,6 +125,24 @@ namespace CustomQuests.Sessions
         }
 
         /// <summary>
+        ///     Revokes the quest with the specified name.
+        /// </summary>
+        /// <param name="name">The quest name, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public void RevokeQuest([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            SessionInfo.AvailableQuestNames.Remove(name);
+            SessionInfo.CompletedQuestNames.Remove(name);
+        }
+
+        /// <summary>
         ///     Sets the quest state.
         /// </summary>
         /// <param name="state">The state.</param>
