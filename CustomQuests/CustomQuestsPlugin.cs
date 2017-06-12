@@ -134,6 +134,13 @@ namespace CustomQuests
                 foreach (var player2 in party)
                 {
                     var session2 = GetSession(player2);
+                    if (session2.CurrentQuest != null)
+                    {
+                        session2.Dispose();
+                        session2.SetQuestState(null);
+                        player2.SendInfoMessage("Aborted quest.");
+                    }
+
                     session2.Party = null;
                     party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
                 }
@@ -141,6 +148,13 @@ namespace CustomQuests
             }
             else
             {
+                if (session.CurrentQuest != null)
+                {
+                    session.Dispose();
+                    session.SetQuestState(null);
+                    player.SendInfoMessage("Aborted quest.");
+                }
+
                 session.Party = null;
                 party.SendData(PacketTypes.PlayerTeam, "", player.Index);
                 party.Remove(player);
