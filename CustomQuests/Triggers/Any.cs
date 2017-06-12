@@ -17,6 +17,14 @@ namespace CustomQuests.Triggers
         ///     Initializes a new instance of the <see cref="Any" /> class with the specified triggers.
         /// </summary>
         /// <param name="triggers">The triggers, which must not be <c>null</c> or contain <c>null</c>.</param>
+        public Any([NotNull] [ItemNotNull] params Trigger[] triggers) : this((IEnumerable<Trigger>)triggers)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Any" /> class with the specified triggers.
+        /// </summary>
+        /// <param name="triggers">The triggers, which must not be <c>null</c> or contain <c>null</c>.</param>
         /// <exception cref="ArgumentException"><paramref name="triggers" /> contains <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="triggers" /> is <c>null</c>.</exception>
         public Any([NotNull] [ItemNotNull] IEnumerable<Trigger> triggers)
