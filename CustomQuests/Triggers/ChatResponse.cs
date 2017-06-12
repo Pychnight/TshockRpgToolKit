@@ -50,6 +50,7 @@ namespace CustomQuests.Triggers
             if (args.Who == _party.Leader.Index && args.Text.Equals(_message, StringComparison.OrdinalIgnoreCase))
             {
                 _responded = true;
+                args.Handled = true;
             }
         }
     }

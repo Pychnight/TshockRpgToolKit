@@ -54,10 +54,11 @@ namespace CustomQuests
         ///     Adds and initializes the specified trigger.
         /// </summary>
         /// <param name="trigger">The trigger to add, which must not be <c>null</c>.</param>
+        /// <param name="prioritize"><c>true</c> to prioritize the trigger; otherwise, <c>false</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="trigger" /> is <c>null</c>.</exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public void AddTrigger([NotNull] Trigger trigger)
+        public void AddTrigger([NotNull] Trigger trigger, bool prioritize = false)
         {
             if (trigger == null)
             {
@@ -65,7 +66,14 @@ namespace CustomQuests
             }
 
             trigger.Initialize();
-            _triggers.Add(trigger);
+            if (prioritize)
+            {
+                _triggers.Insert(0, trigger);
+            }
+            else
+            {
+                _triggers.Add(trigger);
+            }
         }
 
         /// <summary>
