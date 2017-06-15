@@ -133,6 +133,7 @@ namespace CustomQuests.Sessions
             lua.DoString("import('System')");
             lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
             lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
+            lua.DoString("import('OTAPI', 'Terraria')");
             LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
             LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));

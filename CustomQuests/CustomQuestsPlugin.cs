@@ -681,7 +681,7 @@ namespace CustomQuests
 
             var session = GetSession(player);
             var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
-                .Where(session.CanSeeQuest).ToList();
+                .Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name).ToList();
             var completedQuests = session.CompletedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
             var totalQuestCount = availableQuests.Count + completedQuests.Count;
             var maxPage = (totalQuestCount - 1) / QuestsPerPage + 1;

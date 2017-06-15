@@ -126,13 +126,14 @@ function SetBlock(x, y, id)
 	end
 end
 
--- Sets the blocks in the area.
+-- Sets the blocks in the area. This will automatically send a tile square.
 function SetBlocks(x, y, x2, y2, id)
 	for i = x, x2 do
 		for j = y, y2 do
 			SetBlock(i, j, id)
 		end
 	end
+	party:SendTileSquare((x2 + x) // 2, (y2 + y) // 2, math.max((x2 - x) // 2, (y2 - y) // 2))
 end
 
 -- Sets the walls at the coordinates.
@@ -141,11 +142,12 @@ function SetWall(x, y, id)
 	tile.wall = id
 end
 
--- Sets the walls in the area.
+-- Sets the walls in the area. This will automatically send a tile square.
 function SetWalls(x, y, x2, y2, id)
 	for i = x, x2 do
 		for j = y, y2 do
 			SetWall(i, j, id)
 		end
 	end
+	party:SendTileSquare((x2 + x) // 2, (y2 + y) // 2, math.max((x2 - x) // 2, (y2 - y) // 2))
 end

@@ -85,6 +85,34 @@ namespace CustomQuests
         public static ITile GetTile(int x, int y) => Main.tile[x, y];
 
         /// <summary>
+        ///     Gets the type of the specified tile.
+        /// </summary>
+        /// <param name="tile">The tile, which must not be <c>null</c>.</param>
+        /// <returns>The type.</returns>
+        /// <remarks>
+        ///     This method is required since we can't get the type property in Lua since it is an unsigned short.
+        /// </remarks>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static int GetTileType([NotNull] ITile tile) => tile.type;
+
+        /// <summary>
+        ///     Places a chest at the specified coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
+        /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
+        /// <param name="style">The style.</param>
+        /// <returns>The resulting chest.</returns>
+        [CanBeNull]
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static Chest PlaceChest(int x, int y, int style)
+        {
+            var chestId = WorldGen.PlaceChest(x, y, style: style);
+            return chestId < 0 ? null : Main.chest[chestId];
+        }
+
+        /// <summary>
         ///     Returns a random integer in the specified range.
         /// </summary>
         /// <param name="min">The minimum.</param>
@@ -101,6 +129,21 @@ namespace CustomQuests
             }
 
             return Random.Next(min, max);
+        }
+
+        /// <summary>
+        ///     Sets the type of the specified tile.
+        /// </summary>
+        /// <param name="tile">The tile, which must not be <c>null</c>.</param>
+        /// <param name="type">The type.</param>
+        /// <remarks>
+        ///     This method is required, since we can't set the type property in Lua since it is an unsigned short.
+        /// </remarks>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void SetTileType([NotNull] ITile tile, int type)
+        {
+            tile.type = (ushort)type;
         }
 
         /// <summary>
