@@ -25,14 +25,12 @@ function CountWalls(x, y, x2, y2, id)
 end
 
 -- Runs a callback for each player in a party.
-function ForEachPlayer(party, callback)
+function ForEachPlayer(callback)
 	local enumerator = party:GetEnumerator()
 	while enumerator:MoveNext() do
 		callback(enumerator.Current)
 	end
 end
-
-
 
 -- Determines if the block at the coordinates matches the ID.
 function MatchesBlock(x, y, id)
