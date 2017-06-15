@@ -32,6 +32,8 @@ function ForEachPlayer(party, callback)
 	end
 end
 
+
+
 -- Determines if the block at the coordinates matches the ID.
 function MatchesBlock(x, y, id)
 	local tile = GetTile(x, y)
@@ -44,7 +46,7 @@ function MatchesBlock(x, y, id)
 	elseif id == "honey" then
 		return not tile:active() and tile.liquid > 0 and tile:liquidType() == 2
 	else
-		return tile:active() and tile.type == id
+		return tile:active() and GetTileType(tile) == id
 	end
 end
 
@@ -119,21 +121,19 @@ function SetBlock(x, y, id)
 		tile:liquidType(2)
 		tile.type = 0
 	else
-    	local tile = GetTile(x, y)
 		tile:active(true)
 		tile.liquid = 0
-		tile.type = id
+		SetTileType(tile, id)
 	end
 end
 
--- Sets the blocks in the area. This will automatically send a tile square.
+-- Sets the blocks in the area.
 function SetBlocks(x, y, x2, y2, id)
 	for i = x, x2 do
 		for j = y, y2 do
 			SetBlock(i, j, id)
 		end
 	end
-	party:SendTileSquare((x2 + x) // 2, (y2 + y) // 2, math.max((x2 - x) // 2, (y2 - y) // 2))
 end
 
 -- Sets the walls at the coordinates.
@@ -142,12 +142,11 @@ function SetWall(x, y, id)
 	tile.wall = id
 end
 
--- Sets the walls in the area. This will automatically send a tile square.
+-- Sets the walls in the area.
 function SetWalls(x, y, x2, y2, id)
 	for i = x, x2 do
 		for j = y, y2 do
 			SetWall(i, j, id)
 		end
 	end
-	party:SendTileSquare((x2 + x) // 2, (y2 + y) // 2, math.max((x2 - x) // 2, (y2 - y) // 2))
 end
