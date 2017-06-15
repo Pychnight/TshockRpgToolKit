@@ -34,5 +34,10 @@
         ///     Gets or sets the name.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the required region name.
+        /// </summary>
+        public string RequiredRegionName { get; set; }
     }
 }

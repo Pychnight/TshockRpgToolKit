@@ -64,7 +64,7 @@ namespace CustomQuests
             {
                 throw new ArgumentNullException(nameof(trigger));
             }
-            
+
             if (prioritize)
             {
                 _triggers.Insert(0, trigger);

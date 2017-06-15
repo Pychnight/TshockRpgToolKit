@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using NLua;
 using TShockAPI;
@@ -76,6 +77,24 @@ namespace CustomQuests.Sessions
         /// </summary>
         [NotNull]
         public SessionInfo SessionInfo { get; }
+
+        /// <summary>
+        /// Determines whether the session can see the specified quest.
+        /// </summary>
+        /// <param name="questInfo">The quest information, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if the session can see the quest; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="questInfo"/> is <c>null</c>.</exception>
+        public bool CanSeeQuest([NotNull] QuestInfo questInfo)
+        {
+            if (questInfo == null)
+            {
+                throw new ArgumentNullException(nameof(questInfo));
+            }
+
+            return questInfo.RequiredRegionName == null ||
+                   TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
+                       .Any(r => r.Name == questInfo.RequiredRegionName);
+        }
 
         /// <summary>
         ///     Disposes the session.

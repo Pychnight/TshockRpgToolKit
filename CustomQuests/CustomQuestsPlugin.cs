@@ -580,7 +580,8 @@ namespace CustomQuests
                 return;
             }
 
-            var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
+            var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
+                .Where(session.CanSeeQuest).ToList();
             var inputName = parameters[1];
             var questInfo = availableQuests.FirstOrDefault(q => q.Name == inputName);
             if (questInfo == null)
@@ -588,7 +589,7 @@ namespace CustomQuests
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
-            
+
             var path = Path.Combine("quests", $"{questInfo.Name}.lua");
             if (!File.Exists(path))
             {
@@ -613,8 +614,8 @@ namespace CustomQuests
                     player.SendErrorMessage("Only the party leader can accept a quest.");
                     return;
                 }
-                if (party.Select(GetSession)
-                    .Any(session2 => !session2.AvailableQuestNames.Contains(questInfo.Name)))
+                if (party.Select(GetSession).Any(s => !s.AvailableQuestNames.Contains(questInfo.Name)) ||
+                    party.Select(GetSession).Any(s => !s.CanSeeQuest(questInfo)))
                 {
                     player.SendErrorMessage($"Not everyone can start the quest '{questInfo.FriendlyName}'.");
                     return;
@@ -679,7 +680,8 @@ namespace CustomQuests
             }
 
             var session = GetSession(player);
-            var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
+            var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
+                .Where(session.CanSeeQuest).ToList();
             var completedQuests = session.CompletedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
             var totalQuestCount = availableQuests.Count + completedQuests.Count;
             var maxPage = (totalQuestCount - 1) / QuestsPerPage + 1;
@@ -770,6 +772,7 @@ namespace CustomQuests
                 player.SendSuccessMessage($"Revoked quest '{questInfo.Name}' for {player2.Name}.");
             }
         }
+
         private void QuestUnlock(CommandArgs args)
         {
             var parameters = args.Parameters;
