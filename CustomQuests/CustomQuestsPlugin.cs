@@ -567,7 +567,7 @@ namespace CustomQuests
         {
             var parameters = args.Parameters;
             var player = args.Player;
-            if (parameters.Count != 2)
+            if (parameters.Count < 2)
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
                 return;
@@ -582,8 +582,9 @@ namespace CustomQuests
 
             var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
                 .Where(session.CanSeeQuest).ToList();
-            var inputName = parameters[1];
-            var questInfo = availableQuests.FirstOrDefault(q => q.Name == inputName);
+            var inputName = string.Join(" ", parameters.Skip(1));
+            var questInfo = availableQuests.FirstOrDefault(
+                q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
             if (questInfo == null)
             {
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");

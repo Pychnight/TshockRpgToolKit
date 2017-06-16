@@ -69,7 +69,7 @@ namespace CustomQuests
             {
                 throw new ArgumentNullException(nameof(command));
             }
-
+            
             return Commands.HandleCommand(TSPlayer.Server, command);
         }
 
