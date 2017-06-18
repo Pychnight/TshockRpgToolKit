@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -198,6 +199,25 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Revokes the quest with the specified name for the party.
+        /// </summary>
+        /// <param name="name">The quest name, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void RevokeQuest([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            foreach (var session in _players.Select(CustomQuestsPlugin.Instance.GetSession))
+            {
+                session.RevokeQuest(name);
+            }
+        }
+
+        /// <summary>
         ///     Sends data to the party.
         /// </summary>
         /// <param name="packetType">The packet type.</param>
@@ -366,6 +386,25 @@ namespace CustomQuests
             foreach (var player in _players)
             {
                 player.Teleport(16 * x, 16 * y);
+            }
+        }
+
+        /// <summary>
+        ///     Unlocks the quest with the specified name for the party.
+        /// </summary>
+        /// <param name="name">The quest name, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void UnlockQuest([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            foreach (var session in _players.Select(CustomQuestsPlugin.Instance.GetSession))
+            {
+                session.UnlockQuest(name);
             }
         }
     }

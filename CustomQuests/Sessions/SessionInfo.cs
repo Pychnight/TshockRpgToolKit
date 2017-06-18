@@ -12,13 +12,13 @@ namespace CustomQuests.Sessions
         ///     Gets the available quest names.
         /// </summary>
         [NotNull]
-        public List<string> AvailableQuestNames { get; } = new List<string>();
+        public HashSet<string> AvailableQuestNames { get; } = new HashSet<string>();
 
         /// <summary>
         ///     Gets the completed quest names.
         /// </summary>
         [NotNull]
-        public List<string> CompletedQuestNames { get; } = new List<string>();
+        public HashSet<string> CompletedQuestNames { get; } = new HashSet<string>();
 
         /// <summary>
         ///     Gets or sets the current quest name.

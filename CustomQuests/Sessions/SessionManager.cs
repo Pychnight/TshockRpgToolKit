@@ -67,7 +67,10 @@ namespace CustomQuests.Sessions
                 else
                 {
                     var sessionInfo = new SessionInfo();
-                    sessionInfo.AvailableQuestNames.AddRange(_config.DefaultQuestNames);
+                    foreach (var questName in _config.DefaultQuestNames)
+                    {
+                        sessionInfo.AvailableQuestNames.Add(questName);
+                    }
                     session = new Session(player, sessionInfo);
                 }
 

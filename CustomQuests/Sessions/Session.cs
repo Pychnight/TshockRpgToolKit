@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -37,14 +37,14 @@ namespace CustomQuests.Sessions
         /// </summary>
         [ItemNotNull]
         [NotNull]
-        public ReadOnlyCollection<string> AvailableQuestNames => SessionInfo.AvailableQuestNames.AsReadOnly();
+        public IEnumerable<string> AvailableQuestNames => SessionInfo.AvailableQuestNames;
 
         /// <summary>
         ///     Gets a read-only view of the completed quest names.
         /// </summary>
         [ItemNotNull]
         [NotNull]
-        public ReadOnlyCollection<string> CompletedQuestNames => SessionInfo.CompletedQuestNames.AsReadOnly();
+        public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
 
         /// <summary>
         ///     Gets or sets the current quest.
@@ -53,7 +53,7 @@ namespace CustomQuests.Sessions
         public Quest CurrentQuest
         {
             get => _currentQuest;
-            private set
+            set
             {
                 _currentQuest = value;
                 SessionInfo.CurrentQuestName = _currentQuest?.Name;
@@ -79,11 +79,22 @@ namespace CustomQuests.Sessions
         public SessionInfo SessionInfo { get; }
 
         /// <summary>
-        /// Determines whether the session can see the specified quest.
+        ///     Disposes the session.
+        /// </summary>
+        public void Dispose()
+        {
+            CurrentQuest?.Dispose();
+            CurrentQuest = null;
+            _currentLua?.Dispose();
+            _currentLua = null;
+        }
+
+        /// <summary>
+        ///     Determines whether the session can see the specified quest.
         /// </summary>
         /// <param name="questInfo">The quest information, which must not be <c>null</c>.</param>
         /// <returns><c>true</c> if the session can see the quest; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="questInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
         public bool CanSeeQuest([NotNull] QuestInfo questInfo)
         {
             if (questInfo == null)
@@ -94,17 +105,6 @@ namespace CustomQuests.Sessions
             return questInfo.RequiredRegionName == null ||
                    TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
                        .Any(r => r.Name == questInfo.RequiredRegionName);
-        }
-
-        /// <summary>
-        ///     Disposes the session.
-        /// </summary>
-        public void Dispose()
-        {
-            CurrentQuest?.Dispose();
-            CurrentQuest = null;
-            _currentLua?.Dispose();
-            _currentLua = null;
         }
 
         /// <summary>
@@ -149,8 +149,6 @@ namespace CustomQuests.Sessions
         /// </summary>
         /// <param name="name">The quest name, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        [LuaGlobal]
-        [UsedImplicitly]
         public void RevokeQuest([NotNull] string name)
         {
             if (name == null)
@@ -178,8 +176,6 @@ namespace CustomQuests.Sessions
         /// </summary>
         /// <param name="name">The quest name, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        [LuaGlobal]
-        [UsedImplicitly]
         public void UnlockQuest([NotNull] string name)
         {
             if (name == null)
@@ -200,7 +196,10 @@ namespace CustomQuests.Sessions
                 return;
             }
 
-            CurrentQuest.Update();
+            if (Party == null || _player == Party.Leader)
+            {
+                CurrentQuest.Update();
+            }
             if (CurrentQuest.IsEnded)
             {
                 if (CurrentQuest.IsSuccessful)
@@ -214,10 +213,7 @@ namespace CustomQuests.Sessions
                     _player.SendErrorMessage("Quest failed.");
                 }
 
-                CurrentQuest?.Dispose();
-                CurrentQuest = null;
-                _currentLua?.Dispose();
-                _currentLua = null;
+                Dispose();
             }
         }
     }

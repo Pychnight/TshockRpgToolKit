@@ -68,6 +68,22 @@ namespace CustomQuests
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
         /// <summary>
+        ///     Gets the corresponding session for the specified player.
+        /// </summary>
+        /// <param name="player">The player, which must not be <c>null</c>.</param>
+        /// <returns>The session.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
+        public Session GetSession([NotNull] TSPlayer player)
+        {
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            return _sessionManager.GetOrCreate(player);
+        }
+
+        /// <summary>
         ///     Initializes the plugin.
         /// </summary>
         public override void Initialize()
@@ -116,8 +132,6 @@ namespace CustomQuests
 
             base.Dispose(disposing);
         }
-
-        private Session GetSession(TSPlayer player) => _sessionManager.GetOrCreate(player);
 
         private void LeaveParty(TSPlayer player)
         {
@@ -632,20 +646,23 @@ namespace CustomQuests
                     return;
                 }
 
-                foreach (var player2 in party)
+                try
                 {
-                    var session2 = GetSession(player2);
-                    try
+                    player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
+                    session.LoadQuest(questInfo.Name);
+
+                    foreach (var player2 in party.Where(p => p != player))
                     {
                         player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
-                        session2.LoadQuest(questInfo.Name);
+                        var session2 = GetSession(player2);
+                        session2.CurrentQuest = session.CurrentQuest;
                     }
-                    catch (LuaException ex)
-                    {
-                        player2.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                        TShock.Log.ConsoleError(ex.ToString());
-                        TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                    }
+                }
+                catch (LuaException ex)
+                {
+                    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+                    TShock.Log.ConsoleError(ex.ToString());
+                    TShock.Log.ConsoleError(ex.InnerException?.ToString());
                 }
             }
             else
