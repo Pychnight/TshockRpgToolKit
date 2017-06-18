@@ -56,15 +56,22 @@ namespace CustomQuests.Sessions
             set
             {
                 _currentQuest = value;
-                SessionInfo.CurrentQuestName = _currentQuest?.Name;
+                CurrentQuestInfo = _currentQuest?.QuestInfo;
+                SessionInfo.CurrentQuestInfo = CurrentQuestInfo;
             }
         }
+
+        /// <summary>
+        ///     Gets the current quest info.
+        /// </summary>
+        [CanBeNull]
+        public QuestInfo CurrentQuestInfo { get; private set; }
 
         /// <summary>
         ///     Gets the current quest name.
         /// </summary>
         [CanBeNull]
-        public string CurrentQuestName => SessionInfo.CurrentQuestName;
+        public string CurrentQuestName => CurrentQuestInfo?.Name;
 
         /// <summary>
         ///     Gets or sets the party.
@@ -116,18 +123,18 @@ namespace CustomQuests.Sessions
         public string GetQuestState() => SessionInfo.CurrentQuestState;
 
         /// <summary>
-        ///     Loads the quest with the specified name.
+        ///     Loads the quest with the specified info.
         /// </summary>
-        /// <param name="name">The name, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        public void LoadQuest([NotNull] string name)
+        /// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
+        public void LoadQuest([NotNull] QuestInfo questInfo)
         {
-            if (name == null)
+            if (questInfo == null)
             {
-                throw new ArgumentNullException(nameof(name));
+                throw new ArgumentNullException(nameof(questInfo));
             }
 
-            var quest = new Quest(name);
+            var quest = new Quest(questInfo);
             var lua = new Lua {["party"] = Party ?? new Party(_player.Name, _player)};
             lua.LoadCLRPackage();
             lua.DoString("import('System')");
@@ -138,9 +145,10 @@ namespace CustomQuests.Sessions
             LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
 
-            var path = Path.Combine("quests", $"{name}.lua");
+            var path = Path.Combine("quests", $"{questInfo.Name}.lua");
             lua.DoFile(path);
             CurrentQuest = quest;
+            CurrentQuestInfo = questInfo;
             _currentLua = lua;
         }
 
@@ -204,8 +212,25 @@ namespace CustomQuests.Sessions
             {
                 if (CurrentQuest.IsSuccessful)
                 {
-                    SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
-                    SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                    var repeatedQuests = SessionInfo.RepeatedQuestNames;
+                    // ReSharper disable once PossibleNullReferenceException
+                    if (CurrentQuestInfo.MaxRepeats >= 0)
+                    {
+                        // ReSharper disable once AssignNullToNotNullAttribute
+                        if (repeatedQuests.TryGetValue(CurrentQuestName, out var repeats))
+                        {
+                            repeatedQuests[CurrentQuestName] = repeats + 1;
+                        }
+                        else
+                        {
+                            repeatedQuests[CurrentQuestName] = 1;
+                        }
+                        if (repeatedQuests[CurrentQuestName] > CurrentQuestInfo.MaxRepeats)
+                        {
+                            SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
+                            SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                        }
+                    }
                     _player.SendSuccessMessage("Quest completed!");
                 }
                 else

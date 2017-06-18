@@ -613,7 +613,7 @@ namespace CustomQuests
             }
 
             var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
-                .Count(s => s.CurrentQuest?.Name == inputName);
+                .Count(s => s.CurrentQuestName == inputName);
             if (concurrentParties >= questInfo.MaxConcurrentParties)
             {
                 player.SendErrorMessage(
@@ -649,7 +649,7 @@ namespace CustomQuests
                 try
                 {
                     player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
-                    session.LoadQuest(questInfo.Name);
+                    session.LoadQuest(questInfo);
 
                     foreach (var player2 in party.Where(p => p != player))
                     {
@@ -676,7 +676,7 @@ namespace CustomQuests
                 try
                 {
                     player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
-                    session.LoadQuest(questInfo.Name);
+                    session.LoadQuest(questInfo);
                 }
                 catch (LuaException ex)
                 {

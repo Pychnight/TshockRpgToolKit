@@ -74,9 +74,9 @@ namespace CustomQuests.Sessions
                     session = new Session(player, sessionInfo);
                 }
 
-                if (session.CurrentQuestName != null)
+                if (session.CurrentQuestInfo != null)
                 {
-                    session.LoadQuest(session.CurrentQuestName);
+                    session.LoadQuest(session.CurrentQuestInfo);
                 }
 
                 _sessions[username] = session;

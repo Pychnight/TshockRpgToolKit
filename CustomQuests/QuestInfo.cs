@@ -26,6 +26,11 @@
         public int MaxPartySize { get; set; }
 
         /// <summary>
+        ///     Gets or sets the maximum number of repeats.
+        /// </summary>
+        public int MaxRepeats { get; set; }
+
+        /// <summary>
         ///     Gets or sets the minimum party size.
         /// </summary>
         public int MinPartySize { get; set; }

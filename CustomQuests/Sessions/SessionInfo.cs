@@ -21,15 +21,21 @@ namespace CustomQuests.Sessions
         public HashSet<string> CompletedQuestNames { get; } = new HashSet<string>();
 
         /// <summary>
-        ///     Gets or sets the current quest name.
+        ///     Gets or sets the current quest info.
         /// </summary>
         [CanBeNull]
-        public string CurrentQuestName { get; set; }
+        public QuestInfo CurrentQuestInfo { get; set; }
 
         /// <summary>
         ///     Gets or sets the current quest state.
         /// </summary>
         [CanBeNull]
         public string CurrentQuestState { get; set; }
+
+        /// <summary>
+        ///     Gets the repeated quest names.
+        /// </summary>
+        [NotNull]
+        public Dictionary<string, int> RepeatedQuestNames { get; } = new Dictionary<string, int>();
     }
 }

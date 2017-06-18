@@ -14,13 +14,13 @@ namespace CustomQuests
         private readonly List<Trigger> _triggers = new List<Trigger>();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Quest" /> class with the specified name.
+        ///     Initializes a new instance of the <see cref="Quest" /> class with the specified quest info.
         /// </summary>
-        /// <param name="name">The name, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        public Quest([NotNull] string name)
+        /// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
+        public Quest([NotNull] QuestInfo questInfo)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            QuestInfo = questInfo ?? throw new ArgumentNullException(nameof(questInfo));
         }
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace CustomQuests
         public bool IsSuccessful { get; private set; }
 
         /// <summary>
-        ///     Gets the name.
+        ///     Gets the quest info.
         /// </summary>
         [NotNull]
-        public string Name { get; }
+        public QuestInfo QuestInfo { get; }
 
         /// <summary>
         ///     Disposes the quest.
