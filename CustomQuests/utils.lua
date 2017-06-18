@@ -75,6 +75,13 @@ function QuickDropItems(name, amount, callback)
 	AddTrigger(trigger)
 end
 
+-- Adds a gather items trigger.
+function QuickGatherItems(name, amount, callback)
+	local trigger = GatherItems(party, name, amount)
+	trigger.Callback = callback
+	AddTrigger(trigger)
+end
+
 -- Adds an in area trigger.
 function QuickInArea(x, y, x2, y2, isEveryone, callback)
 	local trigger = InArea(party, x, y, x2, y2, isEveryone)

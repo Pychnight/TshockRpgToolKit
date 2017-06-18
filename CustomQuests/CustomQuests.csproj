@@ -79,6 +79,7 @@
     <Compile Include="Triggers\Any.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
     <Compile Include="Triggers\Condition.cs" />
+    <Compile Include="Triggers\GatherItems.cs" />
     <Compile Include="Triggers\DropItems.cs" />
     <Compile Include="Triggers\InArea.cs" />
     <Compile Include="Triggers\KillNpcs.cs" />
