@@ -229,6 +229,7 @@ namespace CustomQuests.Sessions
                         {
                             SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
                             SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                            repeatedQuests.Remove(CurrentQuestName);
                         }
                     }
                     _player.SendSuccessMessage("Quest completed!");
