@@ -31,7 +31,7 @@ namespace CustomQuests.Triggers
         {
             if (disposing)
             {
-                _condition.Dispose();
+                _condition?.Dispose();
                 _condition = null;
             }
 

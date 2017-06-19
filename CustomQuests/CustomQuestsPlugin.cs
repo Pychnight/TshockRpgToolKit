@@ -144,34 +144,34 @@ namespace CustomQuests
             {
                 return;
             }
-
-            if (player == party.Leader)
+            
+            var questSession = player == party.Leader ? session : GetSession(party.Leader);
+            if (questSession.CurrentQuest != null)
             {
-                party.SendInfoMessage($"{player.Name} disbanded the party.");
+                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+                onAbortFunction?.Call();
                 foreach (var player2 in party)
                 {
                     var session2 = GetSession(player2);
-                    if (session2.CurrentQuest != null)
-                    {
-                        session2.Dispose();
-                        session2.SetQuestState(null);
-                        player2.SendInfoMessage("Aborted quest.");
-                    }
+                    session2.Dispose();
+                    session2.SetQuestState(null);
+                }
+                party.SendInfoMessage("Aborted quest.");
+            }
 
+            if (player == party.Leader)
+            {
+                foreach (var player2 in party)
+                {
+                    var session2 = GetSession(player2);
                     session2.Party = null;
                     party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
                 }
                 _parties.Remove(party.Name);
+                party.SendInfoMessage($"{player.Name} disbanded the party.");
             }
             else
             {
-                if (session.CurrentQuest != null)
-                {
-                    session.Dispose();
-                    session.SetQuestState(null);
-                    player.SendInfoMessage("Aborted quest.");
-                }
-
                 session.Party = null;
                 party.SendData(PacketTypes.PlayerTeam, "", player.Index);
                 party.Remove(player);
@@ -440,6 +440,11 @@ namespace CustomQuests
                 player.SendErrorMessage("You are not the leader of your party.");
                 return;
             }
+            if (session.CurrentQuest != null)
+            {
+                player.SendErrorMessage("You cannot kick a player while in a quest.");
+                return;
+            }
 
             var inputPlayer = parameters[1];
             var players = TShock.Utils.FindPlayer(inputPlayer);
@@ -495,6 +500,11 @@ namespace CustomQuests
             if (party == null)
             {
                 player.SendErrorMessage("You are not in a party.");
+                return;
+            }
+            if (session.CurrentQuest != null)
+            {
+                player.SendErrorMessage("You cannot leave the party while in a quest.");
                 return;
             }
 
