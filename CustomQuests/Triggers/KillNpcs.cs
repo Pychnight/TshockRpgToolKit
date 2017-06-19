@@ -67,7 +67,6 @@ namespace CustomQuests.Triggers
             if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
                 (_npcName?.Equals(npc.FullName, StringComparison.OrdinalIgnoreCase) ?? true))
             {
-                Console.WriteLine($"Killed {npc.whoAmI} (counted)");
                 LastStrucks.Remove(npc.whoAmI);
                 --_amount;
             }
@@ -110,7 +109,6 @@ namespace CustomQuests.Triggers
             var actualNpc = npc.realLife >= 0 ? Main.npc[npc.realLife] : npc;
             if (actualNpc.life - damage <= 0)
             {
-                Console.WriteLine($"Killed {npc.whoAmI} (counted)");
                 LastStrucks.Remove(npcId);
                 --_amount;
             }
