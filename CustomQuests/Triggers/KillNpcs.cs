@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Streams;
 using System.Linq;
 using JetBrains.Annotations;
+using Terraria;
 using TerrariaApi.Server;
 
 namespace CustomQuests.Triggers
@@ -43,8 +42,8 @@ namespace CustomQuests.Triggers
         /// <inheritdoc />
         public override void Initialize()
         {
-            ServerApi.Hooks.NetGetData.Register(CustomQuestsPlugin.Instance, OnNetGetData);
             ServerApi.Hooks.NpcKilled.Register(CustomQuestsPlugin.Instance, OnNpcKilled);
+            ServerApi.Hooks.NpcStrike.Register(CustomQuestsPlugin.Instance, OnNpcStrike);
         }
 
         /// <inheritdoc />
@@ -52,8 +51,8 @@ namespace CustomQuests.Triggers
         {
             if (disposing)
             {
-                ServerApi.Hooks.NetGetData.Deregister(CustomQuestsPlugin.Instance, OnNetGetData);
                 ServerApi.Hooks.NpcKilled.Deregister(CustomQuestsPlugin.Instance, OnNpcKilled);
+                ServerApi.Hooks.NpcStrike.Deregister(CustomQuestsPlugin.Instance, OnNpcStrike);
             }
 
             base.Dispose(disposing);
@@ -62,30 +61,57 @@ namespace CustomQuests.Triggers
         /// <inheritdoc />
         protected override bool UpdateImpl() => _amount == 0;
 
-        private void OnNetGetData(GetDataEventArgs args)
-        {
-            if (args.Handled || _party.All(p => p.Index != args.Msg.whoAmI))
-            {
-                return;
-            }
-
-            if (args.MsgID == PacketTypes.NpcStrike || args.MsgID == PacketTypes.NpcItemStrike)
-            {
-                using (var data = new MemoryStream(args.Msg.readBuffer, args.Index, args.Length))
-                {
-                    var npcId = data.ReadInt16();
-                    LastStrucks[npcId] = args.Msg.whoAmI;
-                }
-            }
-        }
-
         private void OnNpcKilled(NpcKilledEventArgs args)
         {
             var npc = args.npc;
             if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
                 (_npcName?.Equals(npc.FullName, StringComparison.OrdinalIgnoreCase) ?? true))
             {
+                Console.WriteLine($"Killed {npc.whoAmI} (counted)");
                 LastStrucks.Remove(npc.whoAmI);
+                --_amount;
+            }
+        }
+
+        private void OnNpcStrike(NpcStrikeEventArgs args)
+        {
+            var playerIndex = args.Player.whoAmI;
+            if (args.Handled || _party.All(p => p.Index != playerIndex))
+            {
+                return;
+            }
+
+            var npc = args.Npc;
+            if (!_npcName?.Equals(npc.FullName, StringComparison.OrdinalIgnoreCase) ?? false)
+            {
+                return;
+            }
+
+            var npcId = npc.whoAmI;
+            LastStrucks[npcId] = playerIndex;
+
+            var defense = npc.defense;
+            if (npc.ichor)
+            {
+                defense -= 20;
+            }
+            if (npc.betsysCurse)
+            {
+                defense -= 40;
+            }
+            defense = Math.Max(0, defense);
+            var damage = Main.CalculateDamage(args.Damage, defense);
+            if (args.Critical)
+            {
+                damage *= 2.0;
+            }
+            damage *= Math.Max(1.0, npc.takenDamageMultiplier);
+
+            var actualNpc = npc.realLife >= 0 ? Main.npc[npc.realLife] : npc;
+            if (actualNpc.life - damage <= 0)
+            {
+                Console.WriteLine($"Killed {npc.whoAmI} (counted)");
+                LastStrucks.Remove(npcId);
                 --_amount;
             }
         }
