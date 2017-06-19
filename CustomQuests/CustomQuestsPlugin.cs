@@ -102,6 +102,7 @@ namespace CustomQuests
 
             GeneralHooks.ReloadEvent += OnReload;
             GetDataHandlers.PlayerTeam += OnPlayerTeam;
+            ServerApi.Hooks.NetSendData.Register(this, OnSendData);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
             ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
 
@@ -127,6 +128,7 @@ namespace CustomQuests
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 GetDataHandlers.PlayerTeam -= OnPlayerTeam;
+                ServerApi.Hooks.NetSendData.Deregister(this, OnSendData);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
             }
@@ -216,6 +218,20 @@ namespace CustomQuests
             if (File.Exists(QuestInfosPath))
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
+            }
+        }
+
+        private void OnSendData(SendDataEventArgs args)
+        {
+            if (args.Handled || args.MsgId != PacketTypes.Status)
+            {
+                return;
+            }
+            
+            // Just don't send this
+            if (args.text.ToString() == "Receiving tile data")
+            {
+                args.Handled = true;
             }
         }
 

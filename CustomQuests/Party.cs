@@ -164,6 +164,41 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Heals the party.
+        /// </summary>
+        /// <param name="health">The health, which must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="health" /> is not positive.</exception>
+        [UsedImplicitly]
+        public void Heal(int health)
+        {
+            if (health <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
+            }
+
+            foreach (var player in _players)
+            {
+                player.Heal(health);
+            }
+        }
+
+        /// <summary>
+        ///     Removes the specified player.
+        /// </summary>
+        /// <param name="player">The player, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if the player was removed; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
+        public void Remove([NotNull] TSPlayer player)
+        {
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            _players.Remove(player);
+        }
+
+        /// <summary>
         ///     Removes the specified item from the party. This requires SSC to work.
         /// </summary>
         /// <param name="name">The name, which must not be <c>null</c>.</param>
@@ -227,41 +262,6 @@ namespace CustomQuests
                 Check(new[] {tplayer.trashItem});
                 Check(tplayer.bank3.item);
             }
-        }
-
-        /// <summary>
-        ///     Heals the party.
-        /// </summary>
-        /// <param name="health">The health, which must be positive.</param>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="health" /> is not positive.</exception>
-        [UsedImplicitly]
-        public void Heal(int health)
-        {
-            if (health <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
-            }
-
-            foreach (var player in _players)
-            {
-                player.Heal(health);
-            }
-        }
-
-        /// <summary>
-        ///     Removes the specified player.
-        /// </summary>
-        /// <param name="player">The player, which must not be <c>null</c>.</param>
-        /// <returns><c>true</c> if the player was removed; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
-        public void Remove([NotNull] TSPlayer player)
-        {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
-            _players.Remove(player);
         }
 
         /// <summary>
@@ -379,6 +379,27 @@ namespace CustomQuests
             foreach (var player in _players)
             {
                 player.SendMessage(message, r, g, b);
+            }
+        }
+
+        /// <summary>
+        ///     Sends a status to the party.
+        /// </summary>
+        /// <param name="status">The status, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="status" /> is <c>null</c>.</exception>
+        [UsedImplicitly]
+        public void SendStatus([NotNull] string status)
+        {
+            if (status == null)
+            {
+                throw new ArgumentNullException(nameof(status));
+            }
+
+            foreach (var player in _players)
+            {
+                var text = status + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
+                                    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+                player.SendData(PacketTypes.Status, text);
             }
         }
 
