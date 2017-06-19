@@ -14,8 +14,7 @@ namespace CustomQuests.Sessions
     public sealed class Session : IDisposable
     {
         private readonly TSPlayer _player;
-
-        private Lua _currentLua;
+        
         private Quest _currentQuest;
 
         /// <summary>
@@ -45,6 +44,12 @@ namespace CustomQuests.Sessions
         [ItemNotNull]
         [NotNull]
         public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
+
+        /// <summary>
+        /// Gets or sets the current Lua instance.
+        /// </summary>
+        [CanBeNull]
+        public Lua CurrentLua { get; private set; }
 
         /// <summary>
         ///     Gets or sets the current quest.
@@ -92,8 +97,8 @@ namespace CustomQuests.Sessions
         {
             CurrentQuest?.Dispose();
             CurrentQuest = null;
-            _currentLua?.Dispose();
-            _currentLua = null;
+            CurrentLua?.Dispose();
+            CurrentLua = null;
         }
 
         /// <summary>
@@ -149,7 +154,7 @@ namespace CustomQuests.Sessions
             lua.DoFile(path);
             CurrentQuest = quest;
             CurrentQuestInfo = questInfo;
-            _currentLua = lua;
+            CurrentLua = lua;
         }
 
         /// <summary>

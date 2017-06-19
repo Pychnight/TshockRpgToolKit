@@ -6,6 +6,7 @@ using System.Reflection;
 using CustomQuests.Sessions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using NLua;
 using NLua.Exceptions;
 using Terraria;
 using TerrariaApi.Server;
@@ -383,7 +384,7 @@ namespace CustomQuests
                 foreach (var player3 in party)
                 {
                     player3.TPlayer.team = 1;
-                    player.SendData(PacketTypes.PlayerTeam, "", player3.Index);
+                    player2.SendData(PacketTypes.PlayerTeam, "", player3.Index);
                     player3.TPlayer.team = 0;
                 }
                 player2.TPlayer.team = 1;
@@ -561,6 +562,10 @@ namespace CustomQuests
                     player.SendErrorMessage("Only the party leader can abort the quest.");
                     return;
                 }
+
+                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+                onAbortFunction?.Call();
+
                 foreach (var player2 in party)
                 {
                     var session2 = GetSession(player2);
@@ -571,6 +576,9 @@ namespace CustomQuests
             }
             else
             {
+                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+                onAbortFunction?.Call();
+
                 session.Dispose();
                 session.SetQuestState(null);
                 player.SendSuccessMessage("Aborted quest.");

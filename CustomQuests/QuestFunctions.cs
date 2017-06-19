@@ -169,6 +169,20 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Places a 2x3 object on a wall (usually a painting).
+        /// </summary>
+        /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
+        /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="style">The style.</param>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void Place2x3Wall(int x, int y, int type, int style)
+        {
+            WorldGen.Place2x3Wall(x, y, (ushort)type, style);
+        }
+
+        /// <summary>
         ///     Places a 2xX object.
         /// </summary>
         /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>

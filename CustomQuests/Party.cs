@@ -164,6 +164,72 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Removes the specified item from the party. This requires SSC to work.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <param name="stackSize">The stack size, which must be positive.</param>
+        /// <param name="prefix">The prefix, which must be within range.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Either <paramref name="stackSize" /> is not positive or <paramref name="prefix" /> is too large.
+        /// </exception>
+        [UsedImplicitly]
+        public void RemoveItems([NotNull] string name, int stackSize = 1, byte prefix = 0)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (stackSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(stackSize), "Stack size must be positive.");
+            }
+            if (prefix > PrefixID.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(prefix), "Prefix must be within range.");
+            }
+
+            var itemId = GetItemIdFromName(name);
+            if (itemId == null)
+            {
+                throw new FormatException($"Invalid item name '{name}'.");
+            }
+
+            foreach (var player in _players)
+            {
+                var required = stackSize;
+                var offset = 0;
+
+                void Check(IReadOnlyList<Item> items)
+                {
+                    for (var i = 0; i < items.Count && required > 0; ++i)
+                    {
+                        var item = items[i];
+                        if (item.type == itemId && item.prefix == prefix)
+                        {
+                            var loss = Math.Min(item.stack, required);
+                            item.stack -= loss;
+                            required -= loss;
+                            player.SendData(PacketTypes.PlayerSlot, "", player.Index, offset + i);
+                        }
+                    }
+                    offset += items.Count;
+                }
+
+                var tplayer = player.TPlayer;
+                Check(tplayer.inventory);
+                Check(tplayer.armor);
+                Check(tplayer.dye);
+                Check(tplayer.miscEquips);
+                Check(tplayer.miscDyes);
+                Check(tplayer.bank.item);
+                Check(tplayer.bank2.item);
+                Check(new[] {tplayer.trashItem});
+                Check(tplayer.bank3.item);
+            }
+        }
+
+        /// <summary>
         ///     Heals the party.
         /// </summary>
         /// <param name="health">The health, which must be positive.</param>
