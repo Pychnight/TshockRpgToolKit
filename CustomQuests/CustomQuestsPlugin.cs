@@ -156,8 +156,7 @@ namespace CustomQuests
                 foreach (var player2 in party)
                 {
                     var session2 = GetSession(player2);
-                    session2.Dispose();
-                    session2.SetQuestState(null);
+                    session2.IsAborting = true;
                 }
                 party.SendInfoMessage("Aborted quest.");
             }
@@ -498,12 +497,6 @@ namespace CustomQuests
             party.Remove(player2);
             party.SendInfoMessage($"{player.Name} kicked {player2.Name} from the party.");
             player2.SendInfoMessage("You have been kicked from the party.");
-            if (session2.CurrentQuest != null)
-            {
-                session2.Dispose();
-                session2.SetQuestState(null);
-                player2.SendInfoMessage("Aborted quest.");
-            }
         }
 
         private void PartyLeave(CommandArgs args)
@@ -616,8 +609,7 @@ namespace CustomQuests
                 foreach (var player2 in party)
                 {
                     var session2 = GetSession(player2);
-                    session2.Dispose();
-                    session2.SetQuestState(null);
+                    session2.IsAborting = true;
                 }
                 party.SendSuccessMessage("Aborted quest.");
             }
@@ -626,8 +618,7 @@ namespace CustomQuests
                 var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
                 onAbortFunction?.Call();
 
-                session.Dispose();
-                session.SetQuestState(null);
+                session.IsAborting = true;
                 player.SendSuccessMessage("Aborted quest.");
             }
         }

@@ -79,6 +79,11 @@ namespace CustomQuests.Sessions
         public string CurrentQuestName => CurrentQuestInfo?.Name;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the session is aborting the quest.
+        /// </summary>
+        public bool IsAborting { get; set; }
+
+        /// <summary>
         ///     Gets or sets the party.
         /// </summary>
         [CanBeNull]
@@ -206,6 +211,14 @@ namespace CustomQuests.Sessions
         {
             if (CurrentQuest == null)
             {
+                return;
+            }
+
+            if (IsAborting)
+            {
+                IsAborting = false;
+                Dispose();
+                SetQuestState(null);
                 return;
             }
 
