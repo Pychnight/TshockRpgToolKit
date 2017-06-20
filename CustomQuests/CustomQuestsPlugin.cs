@@ -102,6 +102,7 @@ namespace CustomQuests
 
             GeneralHooks.ReloadEvent += OnReload;
             GetDataHandlers.PlayerTeam += OnPlayerTeam;
+            GetDataHandlers.TileEdit += OnTileEdit;
             ServerApi.Hooks.NetSendData.Register(this, OnSendData);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
             ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
@@ -111,6 +112,7 @@ namespace CustomQuests
             Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
             Commands.ChatCommands.Add(new Command("customquests.party", Party, "party"));
             Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
+            Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
         }
 
         /// <summary>
@@ -128,6 +130,7 @@ namespace CustomQuests
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 GetDataHandlers.PlayerTeam -= OnPlayerTeam;
+                GetDataHandlers.TileEdit -= OnTileEdit;
                 ServerApi.Hooks.NetSendData.Deregister(this, OnSendData);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
@@ -233,6 +236,24 @@ namespace CustomQuests
             {
                 args.Handled = true;
             }
+        }
+
+        private void OnTileEdit(object sender, GetDataHandlers.TileEditEventArgs args)
+        {
+            var player = args.Player;
+            if (args.Handled || player.AwaitingTempPoint != -1)
+            {
+                return;
+            }
+
+            var x = args.X;
+            var y = args.Y;
+            var tile = Main.tile[x, y];
+            player.SendInfoMessage($"X: {x}, Y: {y}");
+            player.SendInfoMessage($"Type: {tile.type}, FrameX: {tile.frameX}, FrameY: {tile.frameY}");
+            player.AwaitingTempPoint = 0;
+            args.Handled = true;
+            player.SendTileSquare(x, y, 5);
         }
 
         private void OnUpdate(EventArgs args)
@@ -881,6 +902,13 @@ namespace CustomQuests
             {
                 player.SendSuccessMessage($"Unlocked quest '{questInfo.Name}' for {player2.Name}.");
             }
+        }
+
+        private void TileInfo(CommandArgs args)
+        {
+            var player = args.Player;
+            player.AwaitingTempPoint = -1;
+            player.SendInfoMessage("Hit a block to get the tile info.");
         }
     }
 }

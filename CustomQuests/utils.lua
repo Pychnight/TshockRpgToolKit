@@ -11,6 +11,19 @@ function CountBlocks(x, y, x2, y2, id)
 	return count
 end
 
+-- Counts the number of blocks in the area matching the ID and frames.
+function CountBlocks(x, y, x2, y2, id, frameX, frameY)
+	local count = 0
+	for i = x, x2 do
+		for j = y, y2 do
+			if MatchesBlock(x, y, id, frameX, frameY) then
+				count = count + 1
+			end
+		end
+	end
+	return count
+end
+
 -- Counts the number of walls in the area matching the ID.
 function CountWalls(x, y, x2, y2, id)
 	local count = 0
@@ -46,6 +59,12 @@ function MatchesBlock(x, y, id)
 	else
 		return tile:active() and GetTileType(tile) == id
 	end
+end
+
+-- Determines if the block at the coordinates matches the ID and frames.
+function MatchesBlock(x, y, id, frameX, frameY)
+	local tile = GetTile(x, y)
+	return tile:active() and GetTileType(tile) == id and tile.frameX == frameX and tile.frameY == frameY
 end
 
 -- Determines if the wall at the coordinates matches the ID.
