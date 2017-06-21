@@ -139,6 +139,7 @@ namespace CustomNpcs.Definitions
             Main.npcLifeBytes[BaseType] = 4;
 
             npc.aiStyle = _baseOverride.AiStyle ?? npc.aiStyle;
+            npc.boss = _baseOverride.IsBoss ?? npc.boss;
             npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;
             // Don't set npc.lifeMax so that the correct life is always sent to clients.
             npc.life = _baseOverride.MaxHp ?? npc.life;
@@ -180,6 +181,7 @@ namespace CustomNpcs.Definitions
         {
             public int? AiStyle { get; set; }
             public int? Defense { get; set; }
+            public bool? IsBoss { get; set; }
             public int? MaxHp { get; set; }
             public string Name { get; set; }
             public float? NpcSlots { get; set; }

@@ -28,10 +28,10 @@ namespace CustomNpcs
         private readonly double[] _activeCustomNpcs = new double[Main.maxPlayers];
         private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
         private readonly object _luaLock = new object();
+        private readonly bool[] _npcSpawned = new bool[Main.maxNPCs];
         private readonly Random _random = new Random();
 
         private Config _config = new Config();
-        private int _ignoreSetDefaults;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
@@ -83,7 +83,6 @@ namespace CustomNpcs
             ServerApi.Hooks.NpcAIUpdate.Register(this, OnNpcAiUpdate);
             ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
             ServerApi.Hooks.NpcLootDrop.Register(this, OnNpcLootDrop);
-            ServerApi.Hooks.NpcSetDefaultsInt.Register(this, OnNpcSetDefaults);
             ServerApi.Hooks.NpcSpawn.Register(this, OnNpcSpawn);
             ServerApi.Hooks.NpcStrike.Register(this, OnNpcStrike);
 
@@ -109,7 +108,6 @@ namespace CustomNpcs
                 ServerApi.Hooks.NpcAIUpdate.Deregister(this, OnNpcAiUpdate);
                 ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
                 ServerApi.Hooks.NpcLootDrop.Deregister(this, OnNpcLootDrop);
-                ServerApi.Hooks.NpcSetDefaultsInt.Deregister(this, OnNpcSetDefaults);
                 ServerApi.Hooks.NpcSpawn.Deregister(this, OnNpcSpawn);
                 ServerApi.Hooks.NpcStrike.Deregister(this, OnNpcStrike);
             }
@@ -196,6 +194,37 @@ namespace CustomNpcs
 
         private void OnGameUpdate(EventArgs args)
         {
+            foreach (var npc in Main.npc.Where(n => n != null && n.active))
+            {
+                var npcId = npc.whoAmI;
+                if (_npcSpawned[npcId])
+                {
+                    continue;
+                }
+                _npcSpawned[npcId] = true;
+                
+                if (CustomNpcManager.GetCustomNpc(npc) != null)
+                {
+                    continue;
+                }
+
+                var baseType = npc.netID;
+                foreach (var definition in Definitions.Where(d => d.ReplacementTargetType == baseType))
+                {
+                    if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
+                    {
+                        npc.SetDefaults(definition.BaseType);
+                        var customNpc = CustomNpcManager.AttachCustomNpc(npc, definition);
+                        TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
+                        TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
+
+                        var onSpawn = customNpc.Definition.OnSpawn;
+                        Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
+                        break;
+                    }
+                }
+            }
+
             foreach (var player in TShock.Players.Where(p => p != null && p.Active))
             {
                 var maxSpawns = _config.MaxSpawns;
@@ -453,37 +482,7 @@ namespace CustomNpcs
 
             args.Handled = customNpc.Definition.LootOverride;
         }
-
-        private void OnNpcSetDefaults(SetDefaultsEventArgs<NPC, int> args)
-        {
-            if (args.Handled || _ignoreSetDefaults-- > 0)
-            {
-                return;
-            }
-
-            // If the ID is negative, we need to ignore the next two SetDefaults. This is because SetDefaultsFromNetId
-            // calls SetDefaults twice.
-            var baseType = args.Info;
-            if (baseType < 0)
-            {
-                _ignoreSetDefaults = 2;
-            }
-
-            var npc = args.Object;
-            foreach (var definition in Definitions.Where(d => d.ReplacementTargetType == baseType))
-            {
-                if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
-                {
-                    // Use SetDefaultsDirect to prevent infinite recursion.
-                    npc.SetDefaultsDirect(definition.BaseType);
-                    CustomNpcManager.AttachCustomNpc(npc, definition);
-                    args.Handled = true;
-                    return;
-                }
-            }
-            CustomNpcManager.RemoveCustomNpc(npc);
-        }
-
+        
         private void OnNpcSpawn(NpcSpawnEventArgs args)
         {
             if (args.Handled)
@@ -491,15 +490,8 @@ namespace CustomNpcs
                 return;
             }
 
-            var npc = Main.npc[args.NpcId];
-            var customNpc = CustomNpcManager.GetCustomNpc(npc);
-            if (customNpc == null)
-            {
-                return;
-            }
-
-            var onSpawn = customNpc.Definition.OnSpawn;
-            Utils.TryExecuteLua(() => { args.Handled = (bool)(onSpawn?.Call(customNpc)?[0] ?? false); });
+            var npcId = args.NpcId;
+            _npcSpawned[npcId] = false;
         }
 
         private void OnNpcStrike(NpcStrikeEventArgs args)
