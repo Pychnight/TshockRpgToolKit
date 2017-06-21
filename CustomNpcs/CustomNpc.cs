@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Terraria;
+using TShockAPI;
 
 namespace CustomNpcs
 {
@@ -35,9 +37,13 @@ namespace CustomNpcs
         public CustomNpcDefinition Definition { get; }
 
         /// <summary>
-        ///     Gets the HP.
+        ///     Gets or sets the HP.
         /// </summary>
-        public int Hp => Npc.life;
+        public int Hp
+        {
+            get => Npc.life;
+            set => Npc.life = value;
+        }
 
         /// <summary>
         ///     Gets the wrapped NPC.
@@ -48,6 +54,16 @@ namespace CustomNpcs
         ///     Gets the position.
         /// </summary>
         public Vector2 Position => Npc.position;
+
+        /// <summary>
+        ///     Gets or sets the target.
+        /// </summary>
+        [CanBeNull]
+        public TSPlayer Target
+        {
+            get => Npc.target < 0 || Npc.target > Main.maxPlayers ? null : TShock.Players[Npc.target];
+            set => Npc.target = value?.Index ?? -1;
+        }
 
         /// <summary>
         ///     Gets the variable with the specified name.
@@ -67,6 +83,13 @@ namespace CustomNpcs
         }
 
         /// <summary>
+        ///     Determines whether the NPC has line of sight to the specified position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns><c>true</c> if there is direct line of sight; otherwise, <c>false</c>.</returns>
+        public bool HasLineOfSight(Vector2 position) => Collision.CanHitLine(Position, 1, 1, position, 1, 1);
+
+        /// <summary>
         ///     Sets the variable with the specified name.
         /// </summary>
         /// <param name="variableName">The name, which must not be <c>null</c>.</param>
@@ -80,6 +103,33 @@ namespace CustomNpcs
             }
 
             _variables[variableName] = value;
+        }
+
+        /// <summary>
+        ///     Shoots a projectile at the specified position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="damage">The damage.</param>
+        /// <param name="speed">The speed.</param>
+        /// <param name="knockback">The knockback.</param>
+        public void ShootProjectileAt(Vector2 position, int type, int damage, float speed, float knockback)
+        {
+            var projectileId = Projectile.NewProjectile(Position,
+                (position - Position) * speed / Vector2.Distance(Position, position), type, damage,
+                knockback);
+            TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
+        }
+
+        /// <summary>
+        ///     Forces the NPC to target the nearest player.
+        /// </summary>
+        public void TargetNearestPlayer()
+        {
+            Target = TShock.Players
+                .Where(p => p != null && p.Active)
+                .OrderBy(p => Vector2.DistanceSquared(Position, p.TPlayer.position))
+                .FirstOrDefault();
         }
     }
 }

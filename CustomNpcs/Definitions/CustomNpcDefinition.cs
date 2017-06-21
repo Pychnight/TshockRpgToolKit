@@ -36,6 +36,7 @@ namespace CustomNpcs.Definitions
         ///     Gets the loot override.
         /// </summary>
         [CanBeNull]
+        [ItemNotNull]
         [JsonProperty]
         public List<LootDefinition> LootOverride { get; private set; } =
             new List<LootDefinition> {new LootDefinition()};
@@ -67,35 +68,69 @@ namespace CustomNpcs.Definitions
         public string NameOverride { get; private set; }
 
         /// <summary>
+        ///     Gets the NPC slots override.
+        /// </summary>
+        [CanBeNull]
+        [JsonProperty]
+        public double? NpcSlotsOverride { get; private set; }
+
+        /// <summary>
         ///     Gets or sets a function that is invoked when the NPC AI is updated.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnAiUpdate { get; set; }
+        public LuaFunction OnAiUpdate { get; private set; }
+
+        /// <summary>
+        ///     Gets or sets a function that is invoked when the NPC is checked for spawning.
+        /// </summary>
+        [CanBeNull]
+        public LuaFunction OnCheckSpawn { get; private set; }
 
         /// <summary>
         ///     Gets or sets a function that is invoked when NPC is killed.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnKilled { get; set; }
+        public LuaFunction OnKilled { get; private set; }
 
         /// <summary>
         ///     Gets or sets a function that is invoked when the NPC is struck.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnStrike { get; set; }
+        public LuaFunction OnStrike { get; private set; }
 
         /// <summary>
         ///     Gets the replacement chance.
         /// </summary>
+        [CanBeNull]
         [JsonProperty]
         public double? ReplacementChance { get; private set; }
+
+        /// <summary>
+        /// Gets the replacement target type.
+        /// </summary>
+        [CanBeNull]
+        [JsonProperty]
+        public int? ReplacementTargetType { get; private set; }
+
+        /// <summary>
+        ///     Gets the spawn rate multiplier.
+        /// </summary>
+        [CanBeNull]
+        [JsonProperty]
+        public double? SpawnRateMultiplier { get; private set; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the NPC spawns naturally.
+        /// </summary>
+        [JsonProperty]
+        public bool SpawnsNaturally { get; private set; } = true;
 
         /// <summary>
         ///     Gets the value override.
         /// </summary>
         [CanBeNull]
         [JsonProperty]
-        public int? ValueOverride { get; private set; }
+        public double? ValueOverride { get; private set; }
 
         /// <summary>
         ///     Disposes the definition.
@@ -105,6 +140,7 @@ namespace CustomNpcs.Definitions
             Lua?.Dispose();
             Lua = null;
             OnAiUpdate = null;
+            OnCheckSpawn = null;
             OnKilled = null;
             OnStrike = null;
         }
@@ -126,7 +162,10 @@ namespace CustomNpcs.Definitions
             // Don't set npc.lifeMax. This way, whenever packet 23 is sent, the correct life is always sent.
             npc.life = MaxHpOverride ?? npc.life;
             npc._givenName = NameOverride ?? npc._givenName;
-            npc.value = ValueOverride ?? npc.value;
+            // Set npcSlots to 0 if this is not a replacement, as we don't want custom NPCs to interfere with normal NPC
+            // spawning.
+            npc.npcSlots = ReplacementChance == null ? 0 : (float)(NpcSlotsOverride ?? npc.npcSlots);
+            npc.value = (float)(ValueOverride ?? npc.value);
         }
 
         /// <summary>
@@ -150,6 +189,7 @@ namespace CustomNpcs.Definitions
             Lua = lua;
 
             OnAiUpdate = Lua["OnAiUpdate"] as LuaFunction;
+            OnCheckSpawn = Lua["OnCheckSpawn"] as LuaFunction;
             OnKilled = Lua["OnKilled"] as LuaFunction;
             OnStrike = Lua["OnStrike"] as LuaFunction;
         }

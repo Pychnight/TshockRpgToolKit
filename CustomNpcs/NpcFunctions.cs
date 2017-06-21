@@ -2,12 +2,14 @@
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using NLua;
+using Terraria;
 using TShockAPI;
+using TShockAPI.Localization;
 
 namespace CustomNpcs
 {
     /// <summary>
-    ///     Provides functions for NPC scripts.
+    ///     Provides functions.
     /// </summary>
     public static class NpcFunctions
     {
@@ -27,6 +29,105 @@ namespace CustomNpcs
             }
 
             TShock.Utils.Broadcast(message, color);
+        }
+
+        /// <summary>
+        ///     Spawns the custom mob with the specified name, coordinates, and amount.
+        /// </summary>
+        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <param name="radius">The radius, which must be positive.</param>
+        /// <param name="amount">The amount, which must be positive.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
+        /// </exception>
+        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (radius <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+            }
+            if (amount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+            }
+
+            var definition = CustomNpcsPlugin.Instance.FindDefinition(name);
+            if (definition == null)
+            {
+                throw new FormatException($"Invalid custom NPC name '{name}'.");
+            }
+
+            for (var i = 0; i < amount; ++i)
+            {
+                TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
+                CustomNpcsPlugin.Instance.SpawnCustomMob(definition, 16 * spawnX, 16 * spawnY);
+            }
+        }
+
+        /// <summary>
+        ///     Spawns the mob with the specified name, coordinates, and amount.
+        /// </summary>
+        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <param name="radius">The radius, which must be positive.</param>
+        /// <param name="amount">The amount, which must be positive.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
+        /// </exception>
+        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void SpawnMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (radius <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+            }
+            if (amount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+            }
+
+            var npcId = GetNpcIdFromName(name);
+            if (npcId == null)
+            {
+                throw new FormatException($"Invalid NPC name '{name}'.");
+            }
+
+            for (var i = 0; i < amount; ++i)
+            {
+                TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
+                NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
+            }
+        }
+
+        private static int? GetNpcIdFromName(string name)
+        {
+            for (var i = -65; i < Main.maxNPCTypes; ++i)
+            {
+                var npcName = EnglishLanguage.GetNpcNameById(i);
+                if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
+                {
+                    return i;
+                }
+            }
+            return null;
         }
     }
 }
