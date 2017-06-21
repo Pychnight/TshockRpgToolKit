@@ -92,7 +92,7 @@ namespace CustomNpcs
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomSpawnMob, "cspawnmob", "csm"));
         }
-        
+
         /// <summary>
         ///     Disposes the plugin.
         /// </summary>
@@ -164,7 +164,13 @@ namespace CustomNpcs
                 return;
             }
 
-            NpcFunctions.SpawnCustomMob(inputName, player.TileX, player.TileY, 50, amount);
+            var x = player.TileX;
+            var y = player.TileY;
+            for (var i = 0; i < amount; ++i)
+            {
+                TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
+                CustomNpcManager.Instance.SpawnCustomMob(definition, 16 * spawnX, 16 * spawnY);
+            }
             player.SendSuccessMessage($"Spawned {amount} {inputName}(s).");
         }
 
@@ -509,7 +515,7 @@ namespace CustomNpcs
             TryExecuteLua(() =>
             {
                 if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ??
-                    false))
+                           false))
                 {
                     args.Handled = true;
                 }

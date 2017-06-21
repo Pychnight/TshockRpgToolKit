@@ -4,12 +4,13 @@ using Microsoft.Xna.Framework;
 using NLua;
 using Terraria;
 using TShockAPI;
+using TShockAPI.DB;
 using TShockAPI.Localization;
 
 namespace CustomNpcs
 {
     /// <summary>
-    ///     Provides functions.
+    ///     Provides functions for NPC scripts.
     /// </summary>
     public static class NpcFunctions
     {
@@ -29,6 +30,44 @@ namespace CustomNpcs
             }
 
             TShock.Utils.Broadcast(message, color);
+        }
+
+        /// <summary>
+        ///     Gets the region with the specified name.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <returns>The region, or <c>null</c> if it does not exist.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static Region GetRegion([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return TShock.Regions.GetRegionByName(name);
+        }
+
+        /// <summary>
+        ///     Determines whether the specified coordinates are in the region.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <param name="regionName">The name, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if the region exists and the coordinate are in the region; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="regionName" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static bool IsInRegion(int x, int y, [NotNull] string regionName)
+        {
+            if (regionName == null)
+            {
+                throw new ArgumentNullException(nameof(regionName));
+            }
+
+            return GetRegion(regionName)?.InArea(x, y) ?? false;
         }
 
         /// <summary>
