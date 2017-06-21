@@ -85,6 +85,12 @@ namespace CustomNpcs.Definitions
         public LuaFunction OnKilled { get; private set; }
 
         /// <summary>
+        ///     Gets or sets a function that is invoked when the NPC is spawned.
+        /// </summary>
+        [CanBeNull]
+        public LuaFunction OnSpawn { get; private set; }
+
+        /// <summary>
         ///     Gets or sets a function that is invoked when the NPC is struck.
         /// </summary>
         [CanBeNull]
@@ -111,6 +117,7 @@ namespace CustomNpcs.Definitions
             OnCheckSpawn = null;
             OnCollision = null;
             OnKilled = null;
+            OnSpawn = null;
             OnStrike = null;
             _lua?.Dispose();
             _lua = null;
@@ -164,11 +171,12 @@ namespace CustomNpcs.Definitions
             OnCheckSpawn = _lua["OnCheckSpawn"] as LuaFunction;
             OnCollision = _lua["OnCollision"] as LuaFunction;
             OnKilled = _lua["OnKilled"] as LuaFunction;
+            OnSpawn = _lua["OnSpawn"] as LuaFunction;
             OnStrike = _lua["OnStrike"] as LuaFunction;
         }
 
         [JsonObject]
-        private class BaseOverrideDefinition
+        private sealed class BaseOverrideDefinition
         {
             public int? AiStyle { get; set; }
             public int? Defense { get; set; }
@@ -179,14 +187,14 @@ namespace CustomNpcs.Definitions
         }
 
         [JsonObject]
-        private class LootDefinition
+        private sealed class LootDefinition
         {
             public List<LootEntryDefinition> Entries { get; set; }
             public bool Override { get; set; }
         }
 
         [JsonObject]
-        private class SpawningDefinition
+        private sealed class SpawningDefinition
         {
             public bool CustomSpawn { get; set; }
             public double? CustomSpawnRateMultiplier { get; set; }

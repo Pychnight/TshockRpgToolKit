@@ -243,14 +243,11 @@ namespace CustomNpcs
         }
 
         /// <summary>
-        ///     Forces the NPC to target the nearest player.
+        ///     Forces the NPC to target the closest player.
         /// </summary>
-        public void TargetNearestPlayer()
+        public void TargetClosestPlayer()
         {
-            Target = TShock.Players
-                .Where(p => p != null && p.Active)
-                .OrderBy(p => Vector2.DistanceSquared(Position, p.TPlayer.position))
-                .FirstOrDefault();
+            Npc.TargetClosest();
         }
     }
 }

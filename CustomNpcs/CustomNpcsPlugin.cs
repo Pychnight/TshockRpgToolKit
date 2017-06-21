@@ -8,7 +8,6 @@ using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using NLua.Exceptions;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -101,9 +100,9 @@ namespace CustomNpcs
         {
             if (disposing)
             {
-                TryExecuteLua(CustomNpcManager.Dispose);
                 File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented));
                 File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(Definitions, Formatting.Indented));
+                Utils.TryExecuteLua(CustomNpcManager.Dispose);
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
@@ -143,7 +142,7 @@ namespace CustomNpcs
         {
             var parameters = args.Parameters;
             var player = args.Player;
-            if (parameters.Count != 1 || parameters.Count != 2)
+            if (parameters.Count != 1 && parameters.Count != 2)
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnmob <name> [amount]");
                 return;
@@ -158,7 +157,7 @@ namespace CustomNpcs
             }
 
             var inputAmount = parameters.Count == 2 ? parameters[1] : "1";
-            if (!int.TryParse(inputAmount, out var amount) || amount < 0 || amount >= 200)
+            if (!int.TryParse(inputAmount, out var amount) || amount <= 0 || amount > 200)
             {
                 player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
                 return;
@@ -223,7 +222,7 @@ namespace CustomNpcs
                     if (npcRectangle.Intersects(playerRectangle) && !_ignoreHits[player.Index])
                     {
                         var onCollision = customNpc.Definition.OnCollision;
-                        TryExecuteLua(() => { onCollision?.Call(customNpc, player); });
+                        Utils.TryExecuteLua(() => { onCollision?.Call(customNpc, player); });
                         _ignoreHits[player.Index] = true;
                     }
 
@@ -328,18 +327,18 @@ namespace CustomNpcs
                 foreach (var definition in Definitions.Where(d => d.CustomSpawn))
                 {
                     var onCheckSpawn = definition.OnCheckSpawn;
-                    var spawned = false;
-                    TryExecuteLua(() =>
+                    var breakFromLoop = false;
+                    Utils.TryExecuteLua(() =>
                     {
                         if (_random.Next((int)(spawnRate * definition.CustomSpawnRateMultiplier ?? 1)) == 0 &&
                             (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
                         {
+                            breakFromLoop = true;
                             CustomNpcManager.SpawnCustomMob(definition, 16 * x + 8, 16 * y);
-                            spawned = true;
                         }
                     });
 
-                    if (spawned)
+                    if (breakFromLoop)
                     {
                         break;
                     }
@@ -362,7 +361,7 @@ namespace CustomNpcs
             }
 
             var onAiUpdate = customNpc.Definition.OnAiUpdate;
-            TryExecuteLua(() => { args.Handled = (bool)(onAiUpdate?.Call(customNpc)?[0] ?? false); });
+            Utils.TryExecuteLua(() => { args.Handled = (bool)(onAiUpdate?.Call(customNpc)?[0] ?? false); });
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
@@ -375,7 +374,7 @@ namespace CustomNpcs
             }
 
             var onKilled = customNpc.Definition.OnKilled;
-            TryExecuteLua(() => { onKilled?.Call(customNpc); });
+            Utils.TryExecuteLua(() => { onKilled?.Call(customNpc); });
 
             var lootEntries = customNpc.Definition.LootEntries;
             if (lootEntries == null)
@@ -493,7 +492,14 @@ namespace CustomNpcs
             }
 
             var npc = Main.npc[args.NpcId];
-            args.Handled = CustomNpcManager.GetCustomNpc(npc) != null;
+            var customNpc = CustomNpcManager.GetCustomNpc(npc);
+            if (customNpc == null)
+            {
+                return;
+            }
+
+            var onSpawn = customNpc.Definition.OnSpawn;
+            Utils.TryExecuteLua(() => { args.Handled = (bool)(onSpawn?.Call(customNpc)?[0] ?? false); });
         }
 
         private void OnNpcStrike(NpcStrikeEventArgs args)
@@ -512,7 +518,7 @@ namespace CustomNpcs
 
             var player = TShock.Players[args.Player.whoAmI];
             var onStrike = customNpc.Definition.OnStrike;
-            TryExecuteLua(() =>
+            Utils.TryExecuteLua(() =>
             {
                 if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ??
                            false))
@@ -524,7 +530,7 @@ namespace CustomNpcs
 
         private void OnReload(ReloadEventArgs args)
         {
-            TryExecuteLua(CustomNpcManager.Dispose);
+            Utils.TryExecuteLua(CustomNpcManager.Dispose);
             if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
@@ -535,27 +541,7 @@ namespace CustomNpcs
                 foreach (var definition in definitions)
                 {
                     CustomNpcManager.AddDefinition(definition);
-                    TryExecuteLua(definition.LoadLuaDefinition);
-                }
-            }
-        }
-
-        private void TryExecuteLua(Action action)
-        {
-            try
-            {
-                lock (_luaLock)
-                {
-                    action();
-                }
-            }
-            catch (LuaException e)
-            {
-                TShock.Log.ConsoleError("A Lua error occurred:");
-                TShock.Log.ConsoleError(e.ToString());
-                if (e.InnerException != null)
-                {
-                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                    Utils.TryExecuteLua(definition.LoadLuaDefinition);
                 }
             }
         }

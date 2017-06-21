@@ -69,7 +69,9 @@ namespace CustomNpcs
         /// <exception cref="ArgumentNullException">
         ///     Either <paramref name="npc" /> or <paramref name="definition" /> is <c>null</c>.
         /// </exception>
-        public void AttachCustomNpc([NotNull] NPC npc, [NotNull] CustomNpcDefinition definition)
+        /// <returns>The custom NPC.</returns>
+        [NotNull]
+        public CustomNpc AttachCustomNpc([NotNull] NPC npc, [NotNull] CustomNpcDefinition definition)
         {
             if (npc == null)
             {
@@ -85,7 +87,10 @@ namespace CustomNpcs
             {
                 _customNpcs.Remove(npc);
             }
-            _customNpcs.Add(npc, new CustomNpc(npc, definition));
+
+            var customNpc = new CustomNpc(npc, definition);
+            _customNpcs.Add(npc, customNpc);
+            return customNpc;
         }
 
         /// <summary>
@@ -137,7 +142,9 @@ namespace CustomNpcs
         /// <param name="x">The X coordinate.</param>
         /// <param name="y">The Y coordinate.</param>
         /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
-        public void SpawnCustomMob([NotNull] CustomNpcDefinition definition, int x, int y)
+        /// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
+        [CanBeNull]
+        public CustomNpc SpawnCustomMob([NotNull] CustomNpcDefinition definition, int x, int y)
         {
             if (definition == null)
             {
@@ -147,17 +154,15 @@ namespace CustomNpcs
             var npcId = NPC.NewNPC(x, y, definition.BaseType);
             if (npcId == Main.maxNPCs)
             {
-                return;
+                return null;
             }
 
             var npc = Main.npc[npcId];
-            definition.ApplyTo(npc);
-            if (_customNpcs.TryGetValue(npc, out _))
-            {
-                _customNpcs.Remove(npc);
-            }
-            _customNpcs.Add(npc, new CustomNpc(npc, definition));
+            var customNpc = AttachCustomNpc(npc, definition);
+            var onSpawn = customNpc.Definition.OnSpawn;
+            Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
             TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
+            return customNpc;
         }
     }
 }
