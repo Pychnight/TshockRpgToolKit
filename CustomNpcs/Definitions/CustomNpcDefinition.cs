@@ -109,6 +109,16 @@ namespace CustomNpcs.Definitions
         public int? ReplacementTargetType => _spawning.ReplacementTargetType;
 
         /// <summary>
+        ///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
+        /// </summary>
+        public bool ShouldAggressivelyUpdate => _baseOverride.AiStyle != null || _baseOverride.HasNoGravity != null;
+
+        /// <summary>
+        ///     Gets a value indicating whether the NPC should update on hit.
+        /// </summary>
+        public bool ShouldUpdateOnHit => _baseOverride.Defense != null || _baseOverride.KnockbackMultiplier != null;
+
+        /// <summary>
         ///     Disposes the definition.
         /// </summary>
         public void Dispose()
@@ -143,7 +153,9 @@ namespace CustomNpcs.Definitions
             npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;
             // Don't set npc.lifeMax so that the correct life is always sent to clients.
             npc.life = _baseOverride.MaxHp ?? npc.life;
+            npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
             npc._givenName = _baseOverride.Name ?? npc._givenName;
+            npc.noGravity = _baseOverride.HasNoGravity ?? npc.noGravity;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
         }
@@ -181,7 +193,9 @@ namespace CustomNpcs.Definitions
         {
             public int? AiStyle { get; set; }
             public int? Defense { get; set; }
+            public bool? HasNoGravity { get; set; }
             public bool? IsBoss { get; set; }
+            public float? KnockbackMultiplier { get; set; }
             public int? MaxHp { get; set; }
             public string Name { get; set; }
             public float? NpcSlots { get; set; }

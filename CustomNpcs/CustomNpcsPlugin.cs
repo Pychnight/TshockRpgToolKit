@@ -28,7 +28,7 @@ namespace CustomNpcs
         private readonly double[] _activeCustomNpcs = new double[Main.maxPlayers];
         private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
         private readonly object _luaLock = new object();
-        private readonly bool[] _npcSpawned = new bool[Main.maxNPCs];
+        private readonly bool[] _npcChecked = new bool[Main.maxNPCs];
         private readonly Random _random = new Random();
 
         private Config _config = new Config();
@@ -60,7 +60,7 @@ namespace CustomNpcs
         /// <summary>
         ///     Gets the name.
         /// </summary>
-        public override string Name => "CustomNpcsPlugin";
+        public override string Name => "CustomNpcs";
 
         /// <summary>
         ///     Gets the version.
@@ -85,6 +85,7 @@ namespace CustomNpcs
             ServerApi.Hooks.NpcLootDrop.Register(this, OnNpcLootDrop);
             ServerApi.Hooks.NpcSpawn.Register(this, OnNpcSpawn);
             ServerApi.Hooks.NpcStrike.Register(this, OnNpcStrike);
+            ServerApi.Hooks.NpcTransform.Register(this, OnNpcTransform);
 
             Commands.ChatCommands.Add(new Command("customnpcs.cmaxspawns", CustomMaxSpawns, "cmaxspawns"));
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
@@ -110,6 +111,7 @@ namespace CustomNpcs
                 ServerApi.Hooks.NpcLootDrop.Deregister(this, OnNpcLootDrop);
                 ServerApi.Hooks.NpcSpawn.Deregister(this, OnNpcSpawn);
                 ServerApi.Hooks.NpcStrike.Deregister(this, OnNpcStrike);
+                ServerApi.Hooks.NpcTransform.Deregister(this, OnNpcTransform);
             }
 
             base.Dispose(disposing);
@@ -196,17 +198,23 @@ namespace CustomNpcs
         {
             foreach (var npc in Main.npc.Where(n => n != null && n.active))
             {
+                var customNpc = CustomNpcManager.GetCustomNpc(npc);
+                if (customNpc != null)
+                {
+                    if (customNpc.Definition.ShouldAggressivelyUpdate)
+                    {
+                        npc.netUpdate = true;
+                    }
+                    continue;
+                }
+
                 var npcId = npc.whoAmI;
-                if (_npcSpawned[npcId])
+                if (_npcChecked[npcId])
                 {
                     continue;
                 }
-                _npcSpawned[npcId] = true;
-                
-                if (CustomNpcManager.GetCustomNpc(npc) != null)
-                {
-                    continue;
-                }
+                _npcChecked[npcId] = true;
+
 
                 var baseType = npc.netID;
                 foreach (var definition in Definitions.Where(d => d.ReplacementTargetType == baseType))
@@ -214,12 +222,12 @@ namespace CustomNpcs
                     if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
                     {
                         npc.SetDefaults(definition.BaseType);
-                        var customNpc = CustomNpcManager.AttachCustomNpc(npc, definition);
+                        var customNpc2 = CustomNpcManager.AttachCustomNpc(npc, definition);
                         TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
                         TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
 
-                        var onSpawn = customNpc.Definition.OnSpawn;
-                        Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
+                        var onSpawn = customNpc2.Definition.OnSpawn;
+                        Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc2); });
                         break;
                     }
                 }
@@ -482,7 +490,7 @@ namespace CustomNpcs
 
             args.Handled = customNpc.Definition.LootOverride;
         }
-        
+
         private void OnNpcSpawn(NpcSpawnEventArgs args)
         {
             if (args.Handled)
@@ -490,8 +498,7 @@ namespace CustomNpcs
                 return;
             }
 
-            var npcId = args.NpcId;
-            _npcSpawned[npcId] = false;
+            _npcChecked[args.NpcId] = false;
         }
 
         private void OnNpcStrike(NpcStrikeEventArgs args)
@@ -508,6 +515,11 @@ namespace CustomNpcs
                 return;
             }
 
+            if (customNpc.Definition.ShouldUpdateOnHit)
+            {
+                npc.netUpdate = true;
+            }
+
             var player = TShock.Players[args.Player.whoAmI];
             var onStrike = customNpc.Definition.OnStrike;
             Utils.TryExecuteLua(() =>
@@ -518,6 +530,16 @@ namespace CustomNpcs
                     args.Handled = true;
                 }
             });
+        }
+
+        private void OnNpcTransform(NpcTransformationEventArgs args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            _npcChecked[args.NpcId] = false;
         }
 
         private void OnReload(ReloadEventArgs args)
