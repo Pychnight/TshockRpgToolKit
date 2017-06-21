@@ -4,6 +4,7 @@ using System.Linq;
 using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
+using NLua;
 using Terraria;
 using TShockAPI;
 
@@ -61,7 +62,7 @@ namespace CustomNpcs
         [CanBeNull]
         public TSPlayer Target
         {
-            get => Npc.target < 0 || Npc.target > Main.maxPlayers ? null : TShock.Players[Npc.target];
+            get => Npc.target < 0 || Npc.target >= Main.maxPlayers ? null : TShock.Players[Npc.target];
             set => Npc.target = value?.Index ?? -1;
         }
 
@@ -118,6 +119,22 @@ namespace CustomNpcs
         public bool HasLineOfSight(Vector2 position) => Collision.CanHitLine(Position, 1, 1, position, 1, 1);
 
         /// <summary>
+        ///     Determines whether the variable with the specified name exists.
+        /// </summary>
+        /// <param name="variableName">The name, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if the variable exists; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
+        public bool HasVariable([NotNull] string variableName)
+        {
+            if (variableName == null)
+            {
+                throw new ArgumentNullException(nameof(variableName));
+            }
+
+            return _variables.ContainsKey(variableName);
+        }
+
+        /// <summary>
         ///     Messages the nearby players within the specified radius.
         /// </summary>
         /// <param name="message">The message, which must not be <c>null</c>.</param>
@@ -142,6 +159,55 @@ namespace CustomNpcs
             {
                 player.SendMessage(message, color);
             }
+        }
+
+        /// <summary>
+        ///     Ensures that the specified callback is run only once.
+        /// </summary>
+        /// <param name="key">The key, which must be unique.</param>
+        /// <param name="callback">The callback, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+        public void OnlyOnce(int key, [NotNull] LuaFunction callback)
+        {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
+            if (!HasVariable($"OnlyOnce{key}"))
+            {
+                SetVariable($"OnlyOnce{key}", true);
+                callback.Call();
+            }
+        }
+
+        /// <summary>
+        ///     Runs the specified callback periodically.
+        /// </summary>
+        /// <param name="key">The key, which must be unique.</param>
+        /// <param name="callback">The callback, which must not be <c>null</c>.</param>
+        /// <param name="period">The period, which must be positive.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="period" /> is not positive.</exception>
+        public void Periodically(int key, [NotNull] LuaFunction callback, int period)
+        {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+            if (period <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(period), "Period must be positive.");
+            }
+
+            var timer = (int)GetVariable($"Periodically{key}", 0);
+            if (timer++ == 0)
+            {
+                callback.Call();
+            }
+
+            timer %= period;
+            SetVariable($"Periodically{key}", timer);
         }
 
         /// <summary>

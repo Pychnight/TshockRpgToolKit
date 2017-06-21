@@ -8,6 +8,7 @@ using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using NLua.Exceptions;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -29,8 +30,9 @@ namespace CustomNpcs
         private readonly double[] _activeCustomNpcs = new double[Main.maxPlayers];
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
-
+        private readonly object _luaLock = new object();
         private readonly Random _random = new Random();
+
         private Config _config = new Config();
 
         private List<CustomNpcDefinition> _customNpcDefinitions =
@@ -293,7 +295,10 @@ namespace CustomNpcs
                     if (npcRectangle.Intersects(playerRectangle) && !_ignoreHits[player.Index])
                     {
                         var onCollision = customNpc.Definition.OnCollision;
-                        onCollision?.Call(customNpc, player);
+                        lock (_luaLock)
+                        {
+                            onCollision?.Call(customNpc, player);
+                        }
                         _ignoreHits[player.Index] = true;
                     }
 
@@ -398,11 +403,26 @@ namespace CustomNpcs
                 foreach (var definition in _customNpcDefinitions.Where(d => d.SpawnsNaturally))
                 {
                     var onCheckSpawn = definition.OnCheckSpawn;
-                    if (_random.Next((int)(spawnRate * definition.SpawnRateMultiplier ?? 1)) == 0 &&
-                        (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
+                    try
                     {
-                        SpawnCustomMob(definition, 16 * x + 8, 16 * y, player.Index);
-                        break;
+                        lock (_luaLock)
+                        {
+                            if (_random.Next((int)(spawnRate * definition.SpawnRateMultiplier ?? 1)) == 0 &&
+                                (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
+                            {
+                                SpawnCustomMob(definition, 16 * x + 8, 16 * y, player.Index);
+                                break;
+                            }
+                        }
+                    }
+                    catch (LuaException e)
+                    {
+                        TShock.Log.ConsoleError("An error occurred in the OnCheckSpawn trigger:");
+                        TShock.Log.ConsoleError(e.ToString());
+                        if (e.InnerException != null)
+                        {
+                            TShock.Log.ConsoleError(e.InnerException.ToString());
+                        }
                     }
                 }
             }
@@ -422,7 +442,22 @@ namespace CustomNpcs
             }
 
             var onAiUpdate = customNpc.Definition.OnAiUpdate;
-            onAiUpdate?.Call(customNpc);
+            try
+            {
+                lock (_luaLock)
+                {
+                    onAiUpdate?.Call(customNpc);
+                }
+            }
+            catch (LuaException e)
+            {
+                TShock.Log.ConsoleError("An error occurred in the OnAiUpdate trigger:");
+                TShock.Log.ConsoleError(e.ToString());
+                if (e.InnerException != null)
+                {
+                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                }
+            }
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
@@ -487,7 +522,22 @@ namespace CustomNpcs
             }
 
             var onKilled = customNpc.Definition.OnKilled;
-            onKilled?.Call(customNpc);
+            try
+            {
+                lock (_luaLock)
+                {
+                    onKilled?.Call(customNpc);
+                }
+            }
+            catch (LuaException e)
+            {
+                TShock.Log.ConsoleError("An error occurred in the OnKilled trigger:");
+                TShock.Log.ConsoleError(e.ToString());
+                if (e.InnerException != null)
+                {
+                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                }
+            }
         }
 
         private void OnNpcLootDrop(NpcLootDropEventArgs args)
@@ -569,9 +619,25 @@ namespace CustomNpcs
 
             var player = TShock.Players[args.Player.whoAmI];
             var onStrike = customNpc.Definition.OnStrike;
-            if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ?? false))
+            try
             {
-                args.Handled = true;
+                lock (_luaLock)
+                {
+                    if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ??
+                               false))
+                    {
+                        args.Handled = true;
+                    }
+                }
+            }
+            catch (LuaException e)
+            {
+                TShock.Log.ConsoleError("An error occurred in the OnStrike trigger:");
+                TShock.Log.ConsoleError(e.ToString());
+                if (e.InnerException != null)
+                {
+                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                }
             }
         }
 
