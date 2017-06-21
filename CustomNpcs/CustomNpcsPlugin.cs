@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
@@ -21,23 +21,17 @@ namespace CustomNpcs
     /// </summary>
     [ApiVersion(2, 1)]
     [PublicAPI]
-    [UsedImplicitly]
     public sealed class CustomNpcsPlugin : TerrariaPlugin
     {
         private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
 
         private readonly double[] _activeCustomNpcs = new double[Main.maxPlayers];
-        private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
         private readonly object _luaLock = new object();
         private readonly Random _random = new Random();
 
         private Config _config = new Config();
-
-        private List<CustomNpcDefinition> _customNpcDefinitions =
-            new List<CustomNpcDefinition> {new CustomNpcDefinition()};
-
         private int _ignoreSetDefaults;
 
         /// <summary>
@@ -74,21 +68,8 @@ namespace CustomNpcs
         /// </summary>
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        /// <summary>
-        ///     Finds the definition with the specified name.
-        /// </summary>
-        /// <param name="name">The name, which must not be <c>null</c>.</param>
-        /// <returns>The definition, or <c>null</c> if it does not exist.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        public CustomNpcDefinition FindDefinition([NotNull] string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            return _customNpcDefinitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
-        }
+        private CustomNpcManager CustomNpcManager => CustomNpcManager.Instance;
+        private ReadOnlyCollection<CustomNpcDefinition> Definitions => CustomNpcManager.Definitions;
 
         /// <summary>
         ///     Initializes the plugin.
@@ -96,27 +77,7 @@ namespace CustomNpcs
         public override void Initialize()
         {
             Directory.CreateDirectory("npcs");
-            if (File.Exists(ConfigPath))
-            {
-                _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-            else
-            {
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented));
-            }
-            if (File.Exists(NpcsPath))
-            {
-                _customNpcDefinitions =
-                    JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(NpcsPath));
-            }
-            else
-            {
-                File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(_customNpcDefinitions, Formatting.Indented));
-            }
-            foreach (var definition in _customNpcDefinitions)
-            {
-                definition.LoadLuaDefinition();
-            }
+            OnReload(new ReloadEventArgs(TSPlayer.Server));
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
@@ -131,38 +92,7 @@ namespace CustomNpcs
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomSpawnMob, "cspawnmob", "csm"));
         }
-
-        /// <summary>
-        ///     Spawns a custom mob at the specified coordinates.
-        /// </summary>
-        /// <param name="definition">The definition, which must not be <c>null</c>.</param>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <param name="target">The target.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
-        public void SpawnCustomMob([NotNull] CustomNpcDefinition definition, int x, int y, int target = Main.maxPlayers)
-        {
-            if (definition == null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
-
-            var npcId = NPC.NewNPC(x, y, definition.BaseType, Target: target);
-            if (npcId == Main.maxNPCs)
-            {
-                return;
-            }
-
-            var npc = Main.npc[npcId];
-            definition.ApplyTo(npc);
-            if (_customNpcs.TryGetValue(npc, out _))
-            {
-                _customNpcs.Remove(npc);
-            }
-            _customNpcs.Add(npc, new CustomNpc(npc, definition));
-            TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-        }
-
+        
         /// <summary>
         ///     Disposes the plugin.
         /// </summary>
@@ -171,12 +101,9 @@ namespace CustomNpcs
         {
             if (disposing)
             {
-                foreach (var definition in _customNpcDefinitions)
-                {
-                    definition.Dispose();
-                }
+                TryExecuteLua(CustomNpcManager.Dispose);
                 File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented));
-                File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(_customNpcDefinitions, Formatting.Indented));
+                File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(Definitions, Formatting.Indented));
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
@@ -216,22 +143,22 @@ namespace CustomNpcs
         {
             var parameters = args.Parameters;
             var player = args.Player;
-            if (parameters.Count != 2)
+            if (parameters.Count != 1 || parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnmob <name> <amount>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnmob <name> [amount]");
                 return;
             }
 
             var inputName = parameters[0];
-            var definition = FindDefinition(inputName);
+            var definition = CustomNpcManager.FindDefinition(inputName);
             if (definition == null)
             {
                 player.SendErrorMessage($"Invalid custom NPC name '{inputName}'.");
                 return;
             }
 
-            var inputAmount = parameters[1];
-            if (!int.TryParse(inputAmount, out var amount) || amount < 0)
+            var inputAmount = parameters.Count == 2 ? parameters[1] : "1";
+            if (!int.TryParse(inputAmount, out var amount) || amount < 0 || amount >= 200)
             {
                 player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
                 return;
@@ -280,7 +207,8 @@ namespace CustomNpcs
                 _activeCustomNpcs[player.Index] = 0;
                 foreach (var npc in Main.npc.Where(n => n != null && n.active))
                 {
-                    if (!_customNpcs.TryGetValue(npc, out var customNpc))
+                    var customNpc = CustomNpcManager.GetCustomNpc(npc);
+                    if (customNpc == null)
                     {
                         continue;
                     }
@@ -289,14 +217,11 @@ namespace CustomNpcs
                     if (npcRectangle.Intersects(playerRectangle) && !_ignoreHits[player.Index])
                     {
                         var onCollision = customNpc.Definition.OnCollision;
-                        lock (_luaLock)
-                        {
-                            onCollision?.Call(customNpc, player);
-                        }
+                        TryExecuteLua(() => { onCollision?.Call(customNpc, player); });
                         _ignoreHits[player.Index] = true;
                     }
 
-                    if (!customNpc.Definition.SpawnsNaturally)
+                    if (!customNpc.Definition.CustomSpawn)
                     {
                         continue;
                     }
@@ -306,7 +231,7 @@ namespace CustomNpcs
                         NPC.activeRangeY * 2);
                     if (activeRectangle.Intersects(playerRectangle))
                     {
-                        _activeCustomNpcs[player.Index] += customNpc.Definition.NpcSlotsOverride ?? 1;
+                        _activeCustomNpcs[player.Index] += npc.npcSlots;
                     }
                 }
                 if (_activeCustomNpcs[player.Index] > maxSpawns)
@@ -394,29 +319,23 @@ namespace CustomNpcs
                     continue;
                 }
 
-                foreach (var definition in _customNpcDefinitions.Where(d => d.SpawnsNaturally))
+                foreach (var definition in Definitions.Where(d => d.CustomSpawn))
                 {
                     var onCheckSpawn = definition.OnCheckSpawn;
-                    try
+                    var spawned = false;
+                    TryExecuteLua(() =>
                     {
-                        lock (_luaLock)
+                        if (_random.Next((int)(spawnRate * definition.CustomSpawnRateMultiplier ?? 1)) == 0 &&
+                            (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
                         {
-                            if (_random.Next((int)(spawnRate * definition.SpawnRateMultiplier ?? 1)) == 0 &&
-                                (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
-                            {
-                                SpawnCustomMob(definition, 16 * x + 8, 16 * y, player.Index);
-                                break;
-                            }
+                            CustomNpcManager.SpawnCustomMob(definition, 16 * x + 8, 16 * y);
+                            spawned = true;
                         }
-                    }
-                    catch (LuaException e)
+                    });
+
+                    if (spawned)
                     {
-                        TShock.Log.ConsoleError("An error occurred in the OnCheckSpawn trigger:");
-                        TShock.Log.ConsoleError(e.ToString());
-                        if (e.InnerException != null)
-                        {
-                            TShock.Log.ConsoleError(e.InnerException.ToString());
-                        }
+                        break;
                     }
                 }
             }
@@ -430,106 +349,85 @@ namespace CustomNpcs
             }
 
             var npc = args.Npc;
-            if (!_customNpcs.TryGetValue(npc, out var customNpc))
+            var customNpc = CustomNpcManager.GetCustomNpc(npc);
+            if (customNpc == null)
             {
                 return;
             }
 
             var onAiUpdate = customNpc.Definition.OnAiUpdate;
-            try
-            {
-                lock (_luaLock)
-                {
-                    onAiUpdate?.Call(customNpc);
-                }
-            }
-            catch (LuaException e)
-            {
-                TShock.Log.ConsoleError("An error occurred in the OnAiUpdate trigger:");
-                TShock.Log.ConsoleError(e.ToString());
-                if (e.InnerException != null)
-                {
-                    TShock.Log.ConsoleError(e.InnerException.ToString());
-                }
-            }
+            TryExecuteLua(() => { args.Handled = (bool)(onAiUpdate?.Call(customNpc)?[0] ?? false); });
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
         {
             var npc = args.npc;
-            if (!_customNpcs.TryGetValue(npc, out var customNpc))
+            var customNpc = CustomNpcManager.GetCustomNpc(npc);
+            if (customNpc == null)
             {
                 return;
             }
 
-            var loot = customNpc.Definition.LootOverride;
-            if (loot != null)
-            {
-                foreach (var definition in loot)
-                {
-                    if (_random.NextDouble() < definition.Chance)
-                    {
-                        var stackSize = _random.Next(definition.MinStackSize, definition.MaxStackSize);
-                        Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, definition.Type,
-                            stackSize, false, definition.Prefix);
-                    }
-                }
-
-                double coins = npc.value;
-                if (npc.midas)
-                {
-                    coins *= 1 + _random.Next(10, 50) * 0.01;
-                }
-                coins *= 1 + _random.Next(-20, 21) * 0.01;
-                coins = new[] {5, 10, 15, 20}
-                    .Where(w => _random.Next(w) == 0)
-                    .Aggregate(coins, (c, w) => c * (1 + _random.Next(w, 2 * w + 1) * 0.01));
-                coins += npc.extraValue;
-
-                while (coins > 0)
-                {
-                    var coinSizes = new[] {1000000, 10000, 100, 1};
-                    for (var i = 0; i < coinSizes.Length && coins > 0; ++i)
-                    {
-                        var coinSize = coinSizes[i];
-                        var stack = (int)(coins / coinSize);
-                        if (stack > 50 && _random.Next(5) == 0)
-                        {
-                            stack /= Main.rand.Next(3) + 1;
-                        }
-                        if (coinSize == 1)
-                        {
-                            if (Main.rand.Next(5) == 0)
-                            {
-                                stack /= Main.rand.Next(4) + 1;
-                            }
-                            stack = Math.Max(1, stack);
-                        }
-                        else if (Main.rand.Next(5) == 0)
-                        {
-                            stack /= Main.rand.Next(3) + 1;
-                        }
-                        coins -= coinSize * stack;
-                        Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, 74 - i, stack);
-                    }
-                }
-            }
-
             var onKilled = customNpc.Definition.OnKilled;
-            try
+            TryExecuteLua(() => { onKilled?.Call(customNpc); });
+
+            var lootEntries = customNpc.Definition.LootEntries;
+            if (lootEntries == null)
             {
-                lock (_luaLock)
+                return;
+            }
+
+            foreach (var lootEntry in lootEntries)
+            {
+                if (_random.NextDouble() < lootEntry.Chance)
                 {
-                    onKilled?.Call(customNpc);
+                    var stackSize = _random.Next(lootEntry.MinStackSize, lootEntry.MaxStackSize);
+                    Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, lootEntry.Type,
+                        stackSize, false, lootEntry.Prefix);
                 }
             }
-            catch (LuaException e)
+
+            if (!customNpc.Definition.LootOverride)
             {
-                TShock.Log.ConsoleError("An error occurred in the OnKilled trigger:");
-                TShock.Log.ConsoleError(e.ToString());
-                if (e.InnerException != null)
+                return;
+            }
+
+            double coins = npc.value;
+            if (npc.midas)
+            {
+                coins *= 1 + _random.Next(10, 50) * 0.01;
+            }
+            coins *= 1 + _random.Next(-20, 21) * 0.01;
+            coins = new[] {5, 10, 15, 20}
+                .Where(w => _random.Next(w) == 0)
+                .Aggregate(coins, (c, w) => c * (1 + _random.Next(w, 2 * w + 1) * 0.01));
+            coins += npc.extraValue;
+
+            while (coins > 0)
+            {
+                var coinSizes = new[] {1000000, 10000, 100, 1};
+                for (var i = 0; i < coinSizes.Length && coins > 0; ++i)
                 {
-                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                    var coinSize = coinSizes[i];
+                    var stack = (int)(coins / coinSize);
+                    if (stack > 50 && _random.Next(5) == 0)
+                    {
+                        stack /= Main.rand.Next(3) + 1;
+                    }
+                    if (coinSize == 1)
+                    {
+                        if (Main.rand.Next(5) == 0)
+                        {
+                            stack /= Main.rand.Next(4) + 1;
+                        }
+                        stack = Math.Max(1, stack);
+                    }
+                    else if (Main.rand.Next(5) == 0)
+                    {
+                        stack /= Main.rand.Next(3) + 1;
+                    }
+                    coins -= coinSize * stack;
+                    Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, 74 - i, stack);
                 }
             }
         }
@@ -542,12 +440,13 @@ namespace CustomNpcs
             }
 
             var npc = Main.npc[args.NpcArrayIndex];
-            if (!_customNpcs.TryGetValue(npc, out var customNpc))
+            var customNpc = CustomNpcManager.GetCustomNpc(npc);
+            if (customNpc == null)
             {
                 return;
             }
 
-            args.Handled = customNpc.Definition.LootOverride != null;
+            args.Handled = customNpc.Definition.LootOverride;
         }
 
         private void OnNpcSetDefaults(SetDefaultsEventArgs<NPC, int> args)
@@ -566,25 +465,18 @@ namespace CustomNpcs
             }
 
             var npc = args.Object;
-            foreach (var definition in _customNpcDefinitions.Where(d => d.ReplacementTargetType == baseType))
+            foreach (var definition in Definitions.Where(d => d.ReplacementTargetType == baseType))
             {
                 if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
                 {
                     // Use SetDefaultsDirect to prevent infinite recursion.
                     npc.SetDefaultsDirect(definition.BaseType);
-                    definition.ApplyTo(npc);
-                    if (_customNpcs.TryGetValue(npc, out _))
-                    {
-                        _customNpcs.Remove(npc);
-                    }
-                    _customNpcs.Add(npc, new CustomNpc(npc, definition));
-
+                    CustomNpcManager.AttachCustomNpc(npc, definition);
                     args.Handled = true;
                     return;
                 }
             }
-
-            _customNpcs.Remove(npc);
+            CustomNpcManager.RemoveCustomNpc(npc);
         }
 
         private void OnNpcSpawn(NpcSpawnEventArgs args)
@@ -595,7 +487,7 @@ namespace CustomNpcs
             }
 
             var npc = Main.npc[args.NpcId];
-            args.Handled = _customNpcs.TryGetValue(npc, out _);
+            args.Handled = CustomNpcManager.GetCustomNpc(npc) != null;
         }
 
         private void OnNpcStrike(NpcStrikeEventArgs args)
@@ -606,49 +498,59 @@ namespace CustomNpcs
             }
 
             var npc = args.Npc;
-            if (!_customNpcs.TryGetValue(npc, out var customNpc))
+            var customNpc = CustomNpcManager.GetCustomNpc(npc);
+            if (customNpc == null)
             {
                 return;
             }
 
             var player = TShock.Players[args.Player.whoAmI];
             var onStrike = customNpc.Definition.OnStrike;
-            try
+            TryExecuteLua(() =>
             {
-                lock (_luaLock)
+                if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ??
+                    false))
                 {
-                    if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ??
-                               false))
-                    {
-                        args.Handled = true;
-                    }
+                    args.Handled = true;
                 }
-            }
-            catch (LuaException e)
-            {
-                TShock.Log.ConsoleError("An error occurred in the OnStrike trigger:");
-                TShock.Log.ConsoleError(e.ToString());
-                if (e.InnerException != null)
-                {
-                    TShock.Log.ConsoleError(e.InnerException.ToString());
-                }
-            }
+            });
         }
 
-        private void OnReload(ReloadEventArgs e)
+        private void OnReload(ReloadEventArgs args)
         {
+            TryExecuteLua(CustomNpcManager.Dispose);
             if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
             if (File.Exists(NpcsPath))
             {
-                _customNpcDefinitions =
-                    JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(NpcsPath));
+                var definitions = JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(NpcsPath));
+                foreach (var definition in definitions)
+                {
+                    CustomNpcManager.AddDefinition(definition);
+                    TryExecuteLua(definition.LoadLuaDefinition);
+                }
             }
-            foreach (var definition in _customNpcDefinitions)
+        }
+
+        private void TryExecuteLua(Action action)
+        {
+            try
             {
-                definition.LoadLuaDefinition();
+                lock (_luaLock)
+                {
+                    action();
+                }
+            }
+            catch (LuaException e)
+            {
+                TShock.Log.ConsoleError("A Lua error occurred:");
+                TShock.Log.ConsoleError(e.ToString());
+                if (e.InnerException != null)
+                {
+                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                }
             }
         }
     }

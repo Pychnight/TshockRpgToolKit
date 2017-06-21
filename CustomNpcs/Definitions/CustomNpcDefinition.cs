@@ -14,65 +14,51 @@ namespace CustomNpcs.Definitions
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class CustomNpcDefinition : IDisposable
     {
-        /// <summary>
-        ///     Gets the AI style override.
-        /// </summary>
-        [JsonProperty]
-        public int? AiStyleOverride { get; private set; }
+        [JsonProperty("BaseOverride", Order = 2)]
+        private BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
+
+        [JsonProperty("Loot", Order = 3)]
+        private LootDefinition _loot = new LootDefinition();
+
+        private Lua _lua;
+
+        [JsonProperty("Spawning", Order = 4)]
+        private SpawningDefinition _spawning = new SpawningDefinition();
 
         /// <summary>
         ///     Gets the base type.
         /// </summary>
-        [JsonProperty]
-        public int BaseType { get; private set; } = 1;
+        [JsonProperty(Order = 1)]
+        public int BaseType { get; private set; }
 
         /// <summary>
-        ///     Gets the defense override.
+        ///     Gets a value indicating whether the NPC should have custom spawn.
         /// </summary>
-        [JsonProperty]
-        public int? DefenseOverride { get; private set; }
+        public bool CustomSpawn => _spawning.CustomSpawn;
 
         /// <summary>
-        ///     Gets the loot override.
+        ///     Gets the spawn rate multiplier.
         /// </summary>
         [CanBeNull]
+        public double? CustomSpawnRateMultiplier => _spawning.CustomSpawnRateMultiplier;
+
+        /// <summary>
+        ///     Gets the loot entries.
+        /// </summary>
         [ItemNotNull]
-        [JsonProperty]
-        public List<LootDefinition> LootOverride { get; private set; } =
-            new List<LootDefinition> {new LootDefinition()};
+        public List<LootEntryDefinition> LootEntries => _loot.Entries;
 
         /// <summary>
-        ///     Gets the Lua instance.
+        ///     Gets a value indicating whether to override loot.
         /// </summary>
-        [CanBeNull]
-        public Lua Lua { get; private set; }
-
-        /// <summary>
-        ///     Gets the maximum HP override.
-        /// </summary>
-        [JsonProperty]
-        public int? MaxHpOverride { get; private set; }
+        public bool LootOverride => _loot.Override;
 
         /// <summary>
         ///     Gets the internal name.
         /// </summary>
-        [JsonProperty]
-        [NotNull]
-        public string Name { get; private set; } = "example";
-
-        /// <summary>
-        ///     Gets the name override.
-        /// </summary>
+        [JsonProperty(Order = 0)]
         [CanBeNull]
-        [JsonProperty]
-        public string NameOverride { get; private set; }
-
-        /// <summary>
-        ///     Gets the NPC slots override.
-        /// </summary>
-        [CanBeNull]
-        [JsonProperty]
-        public double? NpcSlotsOverride { get; private set; }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     Gets or sets a function that is invoked when the NPC AI is updated.
@@ -108,48 +94,26 @@ namespace CustomNpcs.Definitions
         ///     Gets the replacement chance.
         /// </summary>
         [CanBeNull]
-        [JsonProperty]
-        public double? ReplacementChance { get; private set; }
+        public double? ReplacementChance => _spawning.ReplacementChance;
 
         /// <summary>
-        /// Gets the replacement target type.
+        ///     Gets the replacement target type.
         /// </summary>
         [CanBeNull]
-        [JsonProperty]
-        public int? ReplacementTargetType { get; private set; }
-
-        /// <summary>
-        ///     Gets the spawn rate multiplier.
-        /// </summary>
-        [CanBeNull]
-        [JsonProperty]
-        public double? SpawnRateMultiplier { get; private set; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the NPC spawns naturally.
-        /// </summary>
-        [JsonProperty]
-        public bool SpawnsNaturally { get; private set; } = true;
-
-        /// <summary>
-        ///     Gets the value override.
-        /// </summary>
-        [CanBeNull]
-        [JsonProperty]
-        public double? ValueOverride { get; private set; }
+        public int? ReplacementTargetType => _spawning.ReplacementTargetType;
 
         /// <summary>
         ///     Disposes the definition.
         /// </summary>
         public void Dispose()
         {
-            Lua?.Dispose();
-            Lua = null;
             OnAiUpdate = null;
             OnCheckSpawn = null;
             OnCollision = null;
             OnKilled = null;
             OnStrike = null;
+            _lua?.Dispose();
+            _lua = null;
         }
 
         /// <summary>
@@ -167,14 +131,13 @@ namespace CustomNpcs.Definitions
             // Set NPC to use four life bytes.
             Main.npcLifeBytes[BaseType] = 4;
 
-            npc.aiStyle = AiStyleOverride ?? npc.aiStyle;
-            npc.defense = npc.defDefense = DefenseOverride ?? npc.defense;
-            // Don't set npc.lifeMax. This way, whenever packet 23 is sent, the correct life is always sent.
-            npc.life = MaxHpOverride ?? npc.life;
-            npc._givenName = NameOverride ?? npc._givenName;
-            // Set npcSlots to 0 if this spawns naturally to not interfere with normal NPC spawning.
-            npc.npcSlots = SpawnsNaturally ? 0 : (float)(NpcSlotsOverride ?? npc.npcSlots);
-            npc.value = (float)(ValueOverride ?? npc.value);
+            npc.aiStyle = _baseOverride.AiStyle ?? npc.aiStyle;
+            npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;
+            // Don't set npc.lifeMax so that the correct life is always sent to clients.
+            npc.life = _baseOverride.MaxHp ?? npc.life;
+            npc._givenName = _baseOverride.Name ?? npc._givenName;
+            npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
+            npc.value = _baseOverride.Value ?? npc.value;
         }
 
         /// <summary>
@@ -195,13 +158,40 @@ namespace CustomNpcs.Definitions
             lua.DoString("import('OTAPI', 'Terraria')");
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
             lua.DoFile(luaPath);
-            Lua = lua;
+            _lua = lua;
 
-            OnAiUpdate = Lua["OnAiUpdate"] as LuaFunction;
-            OnCheckSpawn = Lua["OnCheckSpawn"] as LuaFunction;
-            OnCollision = Lua["OnCollision"] as LuaFunction;
-            OnKilled = Lua["OnKilled"] as LuaFunction;
-            OnStrike = Lua["OnStrike"] as LuaFunction;
+            OnAiUpdate = _lua["OnAiUpdate"] as LuaFunction;
+            OnCheckSpawn = _lua["OnCheckSpawn"] as LuaFunction;
+            OnCollision = _lua["OnCollision"] as LuaFunction;
+            OnKilled = _lua["OnKilled"] as LuaFunction;
+            OnStrike = _lua["OnStrike"] as LuaFunction;
+        }
+
+        [JsonObject]
+        private class BaseOverrideDefinition
+        {
+            public int? AiStyle { get; set; }
+            public int? Defense { get; set; }
+            public int? MaxHp { get; set; }
+            public string Name { get; set; }
+            public float? NpcSlots { get; set; }
+            public float? Value { get; set; }
+        }
+
+        [JsonObject]
+        private class LootDefinition
+        {
+            public List<LootEntryDefinition> Entries { get; set; }
+            public bool Override { get; set; }
+        }
+
+        [JsonObject]
+        private class SpawningDefinition
+        {
+            public bool CustomSpawn { get; set; }
+            public double? CustomSpawnRateMultiplier { get; set; }
+            public double? ReplacementChance { get; set; }
+            public int? ReplacementTargetType { get; set; }
         }
     }
 }

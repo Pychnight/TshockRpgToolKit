@@ -61,7 +61,7 @@ namespace CustomNpcs
                 throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
             }
 
-            var definition = CustomNpcsPlugin.Instance.FindDefinition(name);
+            var definition = CustomNpcManager.Instance.FindDefinition(name);
             if (definition == null)
             {
                 throw new FormatException($"Invalid custom NPC name '{name}'.");
@@ -70,7 +70,7 @@ namespace CustomNpcs
             for (var i = 0; i < amount; ++i)
             {
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                CustomNpcsPlugin.Instance.SpawnCustomMob(definition, 16 * spawnX, 16 * spawnY);
+                CustomNpcManager.Instance.SpawnCustomMob(definition, 16 * spawnX, 16 * spawnY);
             }
         }
 
