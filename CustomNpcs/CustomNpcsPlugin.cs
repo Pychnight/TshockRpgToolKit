@@ -222,7 +222,7 @@ namespace CustomNpcs
             var player = args.Player;
             if (parameters.Count != 2)
             {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}cmaxspawns <name> <amount>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnmob <name> <amount>");
                 return;
             }
 
@@ -235,7 +235,7 @@ namespace CustomNpcs
             }
 
             var inputAmount = parameters[1];
-            if (!int.TryParse(inputAmount, out var amount) || amount <= 0)
+            if (!int.TryParse(inputAmount, out var amount) || amount < 0)
             {
                 player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
                 return;
