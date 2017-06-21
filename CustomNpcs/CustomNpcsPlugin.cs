@@ -118,12 +118,6 @@ namespace CustomNpcs
                 definition.LoadLuaDefinition();
             }
 
-            // Set all NPCs to use 4 life bytes.
-            foreach (var key in Main.npcLifeBytes.Keys)
-            {
-                Main.npcLifeBytes[key] = 4;
-            }
-
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
             ServerApi.Hooks.NpcAIUpdate.Register(this, OnNpcAiUpdate);

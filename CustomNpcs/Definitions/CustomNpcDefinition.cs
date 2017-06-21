@@ -164,14 +164,16 @@ namespace CustomNpcs.Definitions
                 throw new ArgumentNullException(nameof(npc));
             }
 
+            // Set NPC to use four life bytes.
+            Main.npcLifeBytes[BaseType] = 4;
+
             npc.aiStyle = AiStyleOverride ?? npc.aiStyle;
             npc.defense = npc.defDefense = DefenseOverride ?? npc.defense;
             // Don't set npc.lifeMax. This way, whenever packet 23 is sent, the correct life is always sent.
             npc.life = MaxHpOverride ?? npc.life;
             npc._givenName = NameOverride ?? npc._givenName;
-            // Set npcSlots to 0 if this is not a replacement, as we don't want custom NPCs to interfere with normal NPC
-            // spawning.
-            npc.npcSlots = ReplacementChance == null ? 0 : (float)(NpcSlotsOverride ?? npc.npcSlots);
+            // Set npcSlots to 0 if this spawns naturally to not interfere with normal NPC spawning.
+            npc.npcSlots = SpawnsNaturally ? 0 : (float)(NpcSlotsOverride ?? npc.npcSlots);
             npc.value = (float)(ValueOverride ?? npc.value);
         }
 
