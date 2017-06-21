@@ -66,6 +66,34 @@ namespace CustomNpcs
         }
 
         /// <summary>
+        ///     Buffs the nearby players within the specified radius.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="seconds">The seconds, which must be positive.</param>
+        /// <param name="radius">The radius, which must be positive.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Either <paramref name="seconds" /> or <paramref name="radius" /> is not positive.
+        /// </exception>
+        public void BuffNearbyPlayers(int type, int seconds, int radius)
+        {
+            if (seconds <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
+            }
+            if (radius <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+            }
+
+            foreach (var player in TShock.Players.Where(
+                p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
+                     256 * radius * radius))
+            {
+                player.SetBuff(type, 60 * seconds, true);
+            }
+        }
+
+        /// <summary>
         ///     Gets the variable with the specified name.
         /// </summary>
         /// <param name="variableName">The name, which must not be <c>null</c>.</param>
@@ -88,6 +116,33 @@ namespace CustomNpcs
         /// <param name="position">The position.</param>
         /// <returns><c>true</c> if there is direct line of sight; otherwise, <c>false</c>.</returns>
         public bool HasLineOfSight(Vector2 position) => Collision.CanHitLine(Position, 1, 1, position, 1, 1);
+
+        /// <summary>
+        ///     Messages the nearby players within the specified radius.
+        /// </summary>
+        /// <param name="message">The message, which must not be <c>null</c>.</param>
+        /// <param name="color">The color.</param>
+        /// <param name="radius">The radius, which must be positive.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is not positive.</exception>
+        public void MessageNearbyPlayers([NotNull] string message, Color color, int radius)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+            if (radius <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+            }
+
+            foreach (var player in TShock.Players.Where(
+                p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
+                     256 * radius * radius))
+            {
+                player.SendMessage(message, color);
+            }
+        }
 
         /// <summary>
         ///     Sets the variable with the specified name.

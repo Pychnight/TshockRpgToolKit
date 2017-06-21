@@ -27,8 +27,8 @@ namespace CustomNpcs
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
 
         private readonly double[] _activeCustomNpcs = new double[Main.maxPlayers];
-
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
+        private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
 
         private readonly Random _random = new Random();
         private Config _config = new Config();
@@ -275,12 +275,29 @@ namespace CustomNpcs
                 var playerRectangle = new Rectangle((int)tplayer.position.X, (int)tplayer.position.Y, tplayer.width,
                     tplayer.height);
 
+                if (!tplayer.immune)
+                {
+                    _ignoreHits[player.Index] = false;
+                }
+
                 // Count active custom NPCs.
                 _activeCustomNpcs[player.Index] = 0;
                 foreach (var npc in Main.npc.Where(n => n != null && n.active))
                 {
-                    if (!_customNpcs.TryGetValue(npc, out var customNpc) ||
-                        customNpc.Definition.ReplacementChance != null)
+                    if (!_customNpcs.TryGetValue(npc, out var customNpc))
+                    {
+                        continue;
+                    }
+
+                    var npcRectangle = new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height);
+                    if (npcRectangle.Intersects(playerRectangle) && !_ignoreHits[player.Index])
+                    {
+                        var onCollision = customNpc.Definition.OnCollision;
+                        onCollision?.Call(customNpc, player);
+                        _ignoreHits[player.Index] = true;
+                    }
+
+                    if (!customNpc.Definition.SpawnsNaturally)
                     {
                         continue;
                     }
@@ -377,12 +394,12 @@ namespace CustomNpcs
                 {
                     continue;
                 }
-                
+
                 foreach (var definition in _customNpcDefinitions.Where(d => d.SpawnsNaturally))
                 {
-                    var checkSpawn = definition.OnCheckSpawn;
+                    var onCheckSpawn = definition.OnCheckSpawn;
                     if (_random.Next((int)(spawnRate * definition.SpawnRateMultiplier ?? 1)) == 0 &&
-                        (bool)(checkSpawn?.Call(player, x, y)?[0] ?? true))
+                        (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
                     {
                         SpawnCustomMob(definition, 16 * x + 8, 16 * y, player.Index);
                         break;
@@ -509,7 +526,6 @@ namespace CustomNpcs
             {
                 if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
                 {
-                    Console.WriteLine($"Intercepting {baseType}, spawning {definition.BaseType} instead");
                     // Use SetDefaultsDirect to prevent infinite recursion.
                     npc.SetDefaultsDirect(definition.BaseType);
                     definition.ApplyTo(npc);
@@ -524,7 +540,6 @@ namespace CustomNpcs
                 }
             }
 
-            Console.WriteLine($"Intercepting {baseType}, removing customness");
             _customNpcs.Remove(npc);
         }
 

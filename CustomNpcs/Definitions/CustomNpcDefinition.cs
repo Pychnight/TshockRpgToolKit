@@ -87,6 +87,12 @@ namespace CustomNpcs.Definitions
         public LuaFunction OnCheckSpawn { get; private set; }
 
         /// <summary>
+        ///     Gets or sets a function that is invoked when the NPC collides with a player.
+        /// </summary>
+        [CanBeNull]
+        public LuaFunction OnCollision { get; private set; }
+
+        /// <summary>
         ///     Gets or sets a function that is invoked when NPC is killed.
         /// </summary>
         [CanBeNull]
@@ -141,6 +147,7 @@ namespace CustomNpcs.Definitions
             Lua = null;
             OnAiUpdate = null;
             OnCheckSpawn = null;
+            OnCollision = null;
             OnKilled = null;
             OnStrike = null;
         }
@@ -190,6 +197,7 @@ namespace CustomNpcs.Definitions
 
             OnAiUpdate = Lua["OnAiUpdate"] as LuaFunction;
             OnCheckSpawn = Lua["OnCheckSpawn"] as LuaFunction;
+            OnCollision = Lua["OnCollision"] as LuaFunction;
             OnKilled = Lua["OnKilled"] as LuaFunction;
             OnStrike = Lua["OnStrike"] as LuaFunction;
         }
