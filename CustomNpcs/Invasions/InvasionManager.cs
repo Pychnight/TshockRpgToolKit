@@ -102,6 +102,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         /// <param name="path">The path, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="FormatException">There is a malformed definition.</exception>
         public void LoadDefinitions([NotNull] string path)
         {
             if (path == null)
@@ -114,6 +115,7 @@ namespace CustomNpcs.Invasions
                 _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(path));
                 foreach (var definition in _definitions)
                 {
+                    definition.ThrowIfInvalid();
                     definition.LoadLuaDefinition();
                 }
             }

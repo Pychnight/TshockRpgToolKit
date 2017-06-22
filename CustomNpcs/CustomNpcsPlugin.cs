@@ -22,6 +22,21 @@ namespace CustomNpcs
     [PublicAPI]
     public sealed class CustomNpcsPlugin : TerrariaPlugin
     {
+        private static readonly bool[] AllowedDrops = ItemID.Sets.Factory.CreateBoolSet(
+            // Allow dropping coins.
+            ItemID.CopperCoin, ItemID.SilverCoin, ItemID.GoldCoin, ItemID.PlatinumCoin,
+            // Allow dropping hearts and stars.
+            ItemID.Heart, ItemID.CandyApple, ItemID.CandyCane, ItemID.Star, ItemID.SoulCake, ItemID.SugarPlum,
+            // Allow dropping biome-related souls.
+            ItemID.SoulofLight, ItemID.SoulofNight,
+            // Allow dropping mechanical boss summoning items.
+            ItemID.MechanicalWorm, ItemID.MechanicalEye, ItemID.MechanicalSkull,
+            // Allow dropping key molds.
+            ItemID.JungleKeyMold, ItemID.CorruptionKeyMold, ItemID.CrimsonKeyMold, ItemID.HallowedKeyMold,
+            ItemID.FrozenKeyMold,
+            // Allow dropping nebula armor items.
+            ItemID.NebulaPickup1, ItemID.NebulaPickup2, ItemID.NebulaPickup3);
+
         private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
         private static readonly string InvasionsPath = Path.Combine("npcs", "invasions.json");
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
@@ -68,7 +83,12 @@ namespace CustomNpcs
         public override void Initialize()
         {
             Directory.CreateDirectory("npcs");
-            OnReload(new ReloadEventArgs(TSPlayer.Server));
+            if (File.Exists(ConfigPath))
+            {
+                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+            }
+            InvasionManager.LoadDefinitions(InvasionsPath);
+            NpcManager.LoadDefinitions(NpcsPath);
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
@@ -401,19 +421,19 @@ namespace CustomNpcs
 
             var onKilled = customNpc.Definition.OnKilled;
             Utils.TryExecuteLua(() => { onKilled?.Call(customNpc); });
-
-            var lootEntries = customNpc.Definition.LootEntries;
-            if (lootEntries == null)
-            {
-                return;
-            }
-
-            foreach (var lootEntry in lootEntries)
+            
+            foreach (var lootEntry in customNpc.Definition.LootEntries)
             {
                 if (_random.NextDouble() < lootEntry.Chance)
                 {
                     var stackSize = _random.Next(lootEntry.MinStackSize, lootEntry.MaxStackSize);
-                    Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, lootEntry.Type,
+                    var items = TShock.Utils.GetItemByIdOrName(lootEntry.Name);
+                    if (items.Count != 1)
+                    {
+                        break;
+                    }
+
+                    Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, items[0].type,
                         stackSize, false, lootEntry.Prefix);
                 }
             }
@@ -433,9 +453,7 @@ namespace CustomNpcs
                 return;
             }
 
-	        var itemId = args.ItemId;
-	        args.Handled = customNpc.Definition.LootOverride &&
-	                       (itemId < ItemID.CopperCoin || itemId > ItemID.PlatinumCoin);
+            args.Handled = customNpc.Definition.LootOverride && !AllowedDrops[args.ItemId];
         }
 
         private void OnNpcSetDefaults(SetDefaultsEventArgs<NPC, int> args)
@@ -514,6 +532,7 @@ namespace CustomNpcs
             Utils.TryExecuteLua(() => InvasionManager.LoadDefinitions(InvasionsPath));
             Utils.TryExecuteLua(NpcManager.Dispose);
             Utils.TryExecuteLua(() => NpcManager.LoadDefinitions(NpcsPath));
+            args.Player.SendSuccessMessage("[CustomNpcs] Reloaded invasions and NPCs!");
         }
     }
 }

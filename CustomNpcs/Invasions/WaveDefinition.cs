@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -48,5 +50,37 @@ namespace CustomNpcs.Invasions
         [JsonProperty(Order = 4)]
         [NotNull]
         public string StartMessage { get; private set; } = "The wave has started!";
+
+        internal void ThrowIfInvalid()
+        {
+            if (NpcWeights == null)
+            {
+                throw new FormatException($"{nameof(NpcWeights)} is null.");
+            }
+            if (NpcWeights.Count == 0)
+            {
+                throw new FormatException($"{nameof(NpcWeights)} must not be empty.");
+            }
+            if (NpcWeights.Any(kvp => kvp.Value <= 0))
+            {
+                throw new FormatException($"{nameof(NpcWeights)} must contain positive weights.");
+            }
+            if (PointsRequired <= 0)
+            {
+                throw new FormatException($"{nameof(PointsRequired)} must be positive.");
+            }
+            if (MaxSpawns <= 0)
+            {
+                throw new FormatException($"{nameof(MaxSpawns)} must be positive.");
+            }
+            if (SpawnRate <= 0)
+            {
+                throw new FormatException($"{nameof(SpawnRate)} must be positive.");
+            }
+            if (StartMessage == null)
+            {
+                throw new FormatException($"{nameof(StartMessage)} is null.");
+            }
+        }
     }
 }

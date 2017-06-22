@@ -107,6 +107,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         /// <param name="path">The path, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="FormatException">There is a malformed definition.</exception>
         public void LoadDefinitions([NotNull] string path)
         {
             if (path == null)
@@ -119,6 +120,7 @@ namespace CustomNpcs.Npcs
                 _definitions = JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(path));
                 foreach (var definition in _definitions)
                 {
+                    definition.ThrowIfInvalid();
                     definition.LoadLuaDefinition();
                 }
             }
@@ -201,7 +203,7 @@ namespace CustomNpcs.Npcs
             var baseType = npc.netID;
             foreach (var definition in _definitions.Where(d => d.ReplacementTargetType == baseType))
             {
-                if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
+                if (_random.NextDouble() < (definition.ReplacementChance ?? 0))
                 {
                     if (definition.BaseType != baseType)
                     {

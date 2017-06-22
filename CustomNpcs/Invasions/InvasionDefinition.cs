@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NLua;
@@ -32,8 +33,8 @@ namespace CustomNpcs.Invasions
         ///     Gets the Lua path.
         /// </summary>
         [JsonProperty(Order = 1)]
-        [NotNull]
-        public string LuaPath { get; private set; } = "npcs\\invasions\\example.lua";
+        [CanBeNull]
+        public string LuaPath { get; private set; }
 
         /// <summary>
         ///     Gets the name.
@@ -83,8 +84,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         public void LoadLuaDefinition()
         {
-            var luaPath = Path.Combine("npcs", LuaPath);
-            if (!File.Exists(luaPath))
+            if (LuaPath == null)
             {
                 return;
             }
@@ -96,10 +96,54 @@ namespace CustomNpcs.Invasions
             lua.DoString("import('OTAPI', 'Terraria')");
             lua.DoString("import('TShock', 'TShockAPI')");
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-            lua.DoFile(luaPath);
+            lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 
             OnUpdate = _lua["OnUpdate"] as LuaFunction;
+        }
+
+        internal void ThrowIfInvalid()
+        {
+            if (Name == null)
+            {
+                throw new FormatException($"{nameof(Name)} is null.");
+            }
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                throw new FormatException($"{nameof(Name)} is whitespace.");
+            }
+            if (LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)))
+            {
+                throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
+            }
+            if (NpcPointValues == null)
+            {
+                throw new FormatException($"{nameof(NpcPointValues)} is null.");
+            }
+            if (NpcPointValues.Count == 0)
+            {
+                throw new FormatException($"{nameof(NpcPointValues)} must not be empty.");
+            }
+            if (NpcPointValues.Any(kvp => kvp.Value <= 0))
+            {
+                throw new FormatException($"{nameof(NpcPointValues)} must contain positive values.");
+            }
+            if (CompletedMessage == null)
+            {
+                throw new FormatException($"{nameof(CompletedMessage)} is null.");
+            }
+            if (Waves == null)
+            {
+                throw new FormatException($"{nameof(Waves)} is null.");
+            }
+            if (Waves.Count == 0)
+            {
+                throw new FormatException($"{nameof(Waves)} must not be empty.");
+            }
+            foreach (var wave in Waves)
+            {
+                wave.ThrowIfInvalid();
+            }
         }
     }
 }

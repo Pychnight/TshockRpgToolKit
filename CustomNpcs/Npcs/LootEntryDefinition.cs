@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Terraria.ID;
 
 namespace CustomNpcs.Npcs
 {
@@ -9,33 +12,62 @@ namespace CustomNpcs.Npcs
     public sealed class LootEntryDefinition
     {
         /// <summary>
-        ///     Gets or sets the chance.
+        ///     Gets the chance.
         /// </summary>
         [JsonProperty(Order = 4)]
-        public double Chance { get; set; }
+        public double Chance { get; private set; }
 
         /// <summary>
-        ///     Gets or sets the maximum stack size.
+        ///     Gets the maximum stack size.
         /// </summary>
         [JsonProperty(Order = 2)]
-        public int MaxStackSize { get; set; }
+        public int MaxStackSize { get; private set; }
 
         /// <summary>
-        ///     Gets or sets the minimum stack size.
+        ///     Gets the minimum stack size.
         /// </summary>
         [JsonProperty(Order = 1)]
-        public int MinStackSize { get; set; }
+        public int MinStackSize { get; private set; }
 
         /// <summary>
-        ///     Gets or sets the prefix.
-        /// </summary>
-        [JsonProperty(Order = 3)]
-        public byte Prefix { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the type.
+        ///     Gets the name.
         /// </summary>
         [JsonProperty(Order = 0)]
-        public int Type { get; set; }
+        [NotNull]
+        public string Name { get; private set; } = "Dirt Block";
+
+        /// <summary>
+        ///     Gets the prefix.
+        /// </summary>
+        [JsonProperty(Order = 3)]
+        public byte Prefix { get; private set; }
+
+        internal void ThrowIfInvalid()
+        {
+            if (Name == null)
+            {
+                throw new FormatException($"{nameof(Name)} is null.");
+            }
+            if (MinStackSize < 0)
+            {
+                throw new FormatException($"{nameof(MinStackSize)} is negative.");
+            }
+            if (MaxStackSize < MinStackSize)
+            {
+                throw new FormatException($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
+            }
+            if (Chance <= 0)
+            {
+                throw new FormatException($"{nameof(Chance)} is not positive.");
+            }
+            if (Chance > 1)
+            {
+                throw new FormatException($"{nameof(Chance)} is greater than 1.");
+            }
+            if (Prefix >= PrefixID.Count)
+            {
+                throw new FormatException($"{nameof(Prefix)} is too large.");
+            }
+        }
     }
 }

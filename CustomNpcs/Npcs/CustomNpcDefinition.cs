@@ -35,12 +35,13 @@ namespace CustomNpcs.Npcs
         ///     Gets the custom spawn weight.
         /// </summary>
         [CanBeNull]
-        public int? CustomSpawnWeight => _spawning.SpawnWeight;
+        public int? CustomSpawnWeight => _spawning.Weight;
 
         /// <summary>
         ///     Gets the loot entries.
         /// </summary>
         [ItemNotNull]
+        [NotNull]
         public List<LootEntryDefinition> LootEntries => _loot.Entries;
 
         /// <summary>
@@ -51,9 +52,9 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets the Lua path.
         /// </summary>
+        [CanBeNull]
         [JsonProperty(Order = 1)]
-        [NotNull]
-        public string LuaPath { get; private set; } = "npcs\\example.lua";
+        public string LuaPath { get; private set; }
 
         /// <summary>
         ///     Gets the internal name.
@@ -174,12 +175,11 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void LoadLuaDefinition()
         {
-            var luaPath = Path.Combine("npcs", LuaPath);
-            if (!File.Exists(luaPath))
+            if (LuaPath == null)
             {
                 return;
             }
-
+            
             var lua = new Lua();
             lua.LoadCLRPackage();
             lua.DoString("import('System')");
@@ -187,7 +187,7 @@ namespace CustomNpcs.Npcs
             lua.DoString("import('OTAPI', 'Terraria')");
             lua.DoString("import('TShock', 'TShockAPI')");
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-            lua.DoFile(luaPath);
+            lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 
             OnAiUpdate = _lua["OnAiUpdate"] as LuaFunction;
@@ -196,6 +196,37 @@ namespace CustomNpcs.Npcs
             OnKilled = _lua["OnKilled"] as LuaFunction;
             OnSpawn = _lua["OnSpawn"] as LuaFunction;
             OnStrike = _lua["OnStrike"] as LuaFunction;
+        }
+
+        internal void ThrowIfInvalid()
+        {
+            if (BaseType < -65)
+            {
+                throw new FormatException($"{nameof(BaseType)} is too small.");
+            }
+            if (BaseType >= Main.maxNPCTypes)
+            {
+                throw new FormatException($"{nameof(BaseType)} is too large.");
+            }
+            if (LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)))
+            {
+                throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
+            }
+            if (_loot == null)
+            {
+                throw new FormatException("Loot is null.");
+            }
+            _loot.ThrowIfInvalid();
+            if (_spawning == null)
+            {
+                throw new FormatException("Spawning is null.");
+            }
+            _spawning.ThrowIfInvalid();
+            if (_baseOverride == null)
+            {
+                throw new FormatException("BaseOverride is null.");
+            }
+            _baseOverride.ThrowIfInvalid();
         }
 
         [JsonObject(MemberSerialization.OptIn)]
@@ -230,16 +261,44 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty]
             public float? Value { get; private set; }
+
+            internal void ThrowIfInvalid()
+            {
+                if (KnockbackMultiplier < 0)
+                {
+                    throw new FormatException($"{nameof(KnockbackMultiplier)} must be non-negative.");
+                }
+                if (MaxHp < 0)
+                {
+                    throw new FormatException($"{nameof(MaxHp)} must be non-negative.");
+                }
+                if (Value < 0)
+                {
+                    throw new FormatException($"{nameof(Value)} must be non-negative.");
+                }
+            }
         }
 
         [JsonObject(MemberSerialization.OptIn)]
         private sealed class LootDefinition
         {
             [JsonProperty(Order = 1)]
-            public List<LootEntryDefinition> Entries { get; private set; }
+            public List<LootEntryDefinition> Entries { get; private set; } = new List<LootEntryDefinition>();
 
             [JsonProperty(Order = 0)]
             public bool IsOverride { get; private set; }
+
+            internal void ThrowIfInvalid()
+            {
+                if (Entries == null)
+                {
+                    throw new FormatException($"{nameof(Entries)} is null.");
+                }
+                foreach (var entry in Entries)
+                {
+                    entry.ThrowIfInvalid();
+                }
+            }
         }
 
         [JsonObject(MemberSerialization.OptIn)]
@@ -255,7 +314,31 @@ namespace CustomNpcs.Npcs
             public bool ShouldSpawn { get; private set; }
 
             [JsonProperty(Order = 1)]
-            public int? SpawnWeight { get; private set; }
+            public int? Weight { get; private set; }
+
+            internal void ThrowIfInvalid()
+            {
+                if (Weight <= 0)
+                {
+                    throw new FormatException($"{nameof(Weight)} is not positive.");
+                }
+                if (ReplacementTargetType < -65)
+                {
+                    throw new FormatException($"{nameof(ReplacementTargetType)} is too small.");
+                }
+                if (ReplacementTargetType >= Main.maxNPCTypes)
+                {
+                    throw new FormatException($"{nameof(ReplacementTargetType)} is too large.");
+                }
+                if (ReplacementChance < 0)
+                {
+                    throw new FormatException($"{nameof(ReplacementChance)} is negative.");
+                }
+                if (ReplacementChance > 1)
+                {
+                    throw new FormatException($"{nameof(ReplacementChance)} is greater than 1.");
+                }
+            }
         }
     }
 }
