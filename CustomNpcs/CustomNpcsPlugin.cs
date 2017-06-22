@@ -25,9 +25,9 @@ namespace CustomNpcs
         private static readonly string InvasionsPath = Path.Combine("npcs", "invasions.json");
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
 
-        private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
+        private readonly bool[] _ignoreHits = new bool[Main.maxPlayers + 1];
         private readonly object _luaLock = new object();
-        private readonly bool[] _npcChecked = new bool[Main.maxNPCs];
+        private readonly bool[] _npcChecked = new bool[Main.maxNPCs + 1];
         private readonly Random _random = new Random();
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace CustomNpcs
             }
 
             var inputMaxSpawns = parameters[0];
-            if (!int.TryParse(inputMaxSpawns, out var maxSpawns) || maxSpawns < 1)
+            if (!int.TryParse(inputMaxSpawns, out var maxSpawns) || maxSpawns < 0 || maxSpawns > 200)
             {
                 player.SendErrorMessage($"Invalid maximum spawns '{inputMaxSpawns}'.");
                 return;
@@ -263,7 +263,7 @@ namespace CustomNpcs
                 {
                     _ignoreHits[playerIndex] = false;
                 }
-                
+
                 foreach (var npc in Main.npc.Where(n => n != null && n.active))
                 {
                     var customNpc = NpcManager.GetCustomNpc(npc);
@@ -278,42 +278,37 @@ namespace CustomNpcs
                         var onCollision = customNpc.Definition.OnCollision;
                         Utils.TryExecuteLua(() => { onCollision?.Call(customNpc, player); });
                         _ignoreHits[playerIndex] = true;
+                        break;
                     }
                 }
 
                 var succeeded = false;
-                var x = -1;
-                var y = -1;
-                var safeRangeX = (int)(NPC.sWidth / 16.0 * 0.52);
-                var safeRangeY = (int)(NPC.sHeight / 16.0 * 0.52);
+                var tileX = -1;
+                var tileY = -1;
                 var spawnRangeX = (int)(NPC.sWidth / 16.0 * 0.7);
                 var spawnRangeY = (int)(NPC.sHeight / 16.0 * 0.7);
-                var minSafeX = Math.Max(0, player.TileX - safeRangeX);
-                var maxSafeX = Math.Min(Main.maxTilesX, player.TileX + safeRangeX);
-                var minSafeY = Math.Max(0, player.TileY - safeRangeY);
-                var maxSafeY = Math.Min(Main.maxTilesY, player.TileY + safeRangeY);
                 var minX = Math.Max(0, player.TileX - spawnRangeX);
                 var maxX = Math.Min(Main.maxTilesX, player.TileX + spawnRangeX);
                 var minY = Math.Max(0, player.TileY - spawnRangeY);
                 var maxY = Math.Min(Main.maxTilesY, player.TileY + spawnRangeY);
-                for (var i = 0; i < 50; ++i)
+                for (var i = 0; i < 50 && !succeeded; ++i)
                 {
-                    x = _random.Next(minX, maxX);
-                    y = _random.Next(minY, maxY);
-                    var tile = Main.tile[x, y];
+                    tileX = _random.Next(minX, maxX);
+                    tileY = _random.Next(minY, maxY);
+                    var tile = Main.tile[tileX, tileY];
                     if (tile.nactive() && Main.tileSolid[tile.type] || Main.wallHouse[tile.wall])
                     {
                         continue;
                     }
 
                     // Search downwards until we hit the ground.
-                    for (var y2 = y; y2 < Main.maxTilesY; ++y2)
+                    for (var y2 = tileY; y2 < Main.maxTilesY; ++y2)
                     {
-                        var tile2 = Main.tile[x, y2];
+                        var tile2 = Main.tile[tileX, y2];
                         if (tile2.nactive() && Main.tileSolid[tile2.type])
                         {
                             succeeded = true;
-                            y = y2;
+                            tileY = y2;
                             break;
                         }
                     }
@@ -321,20 +316,13 @@ namespace CustomNpcs
                     // Make sure the NPC has space to spawn.
                     if (succeeded)
                     {
-                        var minCheckX = Math.Max(0, x - NPC.spawnSpaceX / 2);
-                        var maxCheckX = Math.Min(Main.maxTilesX, x + NPC.spawnSpaceX / 2);
-                        var minCheckY = Math.Max(0, y - NPC.spawnSpaceY);
-                        for (var x2 = minCheckX; x2 < maxCheckX; ++x2)
+                        var minCheckX = Math.Max(0, tileX - NPC.spawnSpaceX / 2);
+                        var maxCheckX = Math.Min(Main.maxTilesX, tileX + NPC.spawnSpaceX / 2);
+                        var minCheckY = Math.Max(0, tileY - NPC.spawnSpaceY);
+                        for (var x2 = minCheckX; x2 < maxCheckX && succeeded; ++x2)
                         {
-                            for (var y2 = minCheckY; y2 < y; ++y2)
+                            for (var y2 = minCheckY; y2 < tileY; ++y2)
                             {
-                                // Don't allow the NPC to spawn within the safe range.
-                                if (x2 >= minSafeX && x2 < maxSafeX && y2 >= minSafeY && y2 < maxSafeY)
-                                {
-                                    succeeded = false;
-                                    break;
-                                }
-
                                 // Don't allow the NPC to spawn within tiles.
                                 var tile2 = Main.tile[x2, y2];
                                 if (tile2.nactive() && Main.tileSolid[tile2.type] || tile2.lava())
@@ -343,26 +331,40 @@ namespace CustomNpcs
                                     break;
                                 }
                             }
-
-                            if (!succeeded)
-                            {
-                                break;
-                            }
                         }
                     }
-                    if (succeeded)
+                }
+
+                // Don't allow the NPC to spawn within sight of any players.
+                var spawnRectangle = new Rectangle(16 * tileX, 16 * tileY, 16, 16);
+                var safeRangeX = (int)(NPC.sWidth / 16.0 * 0.52);
+                var safeRangeY = (int)(NPC.sHeight / 16.0 * 0.52);
+                foreach (var player2 in TShock.Players.Where(p => p != null && p.Active))
+                {
+                    var playerCenter = player2.TPlayer.Center;
+                    var playerSafeRectangle = new Rectangle((int)(playerCenter.X - NPC.sWidth / 2.0 - safeRangeX),
+                        (int)(playerCenter.Y - NPC.sHeight / 2.0 - safeRangeY),
+                        NPC.sWidth + 2 * safeRangeX, NPC.sHeight + 2 * safeRangeY);
+                    if (spawnRectangle.Intersects(playerSafeRectangle))
                     {
-                        break;
+                        succeeded = false;
                     }
                 }
+
                 if (!succeeded)
                 {
                     continue;
                 }
-
-                if (!InvasionManager.TrySpawnNpc(player, x, y))
+                
+                if (InvasionManager.ShouldSpawn(player))
                 {
-                    NpcManager.TrySpawnNpc(player, x, y);
+                    InvasionManager.TrySpawnNpc(player, tileX, tileY);
+                    // Set the activeNPCs to a large number to prevent vanilla NPCs from spawning.
+                    tplayer.activeNPCs = 1000;
+                }
+                else
+                {
+                    NpcManager.TrySpawnNpc(player, tileX, tileY);
                 }
             }
         }
@@ -485,7 +487,7 @@ namespace CustomNpcs
             }
 
             var npc = args.Object;
-            if (npc.position != Vector2.Zero)
+            if (npc.active)
             {
                 _npcChecked[npc.whoAmI] = false;
             }
@@ -544,14 +546,14 @@ namespace CustomNpcs
 
         private void OnReload(ReloadEventArgs args)
         {
-            Utils.TryExecuteLua(InvasionManager.Dispose);
-            Utils.TryExecuteLua(NpcManager.Dispose);
             if (File.Exists(ConfigPath))
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            InvasionManager.LoadDefinitions(InvasionsPath);
-            NpcManager.LoadDefinitions(NpcsPath);
+            Utils.TryExecuteLua(InvasionManager.Dispose);
+            Utils.TryExecuteLua(() => InvasionManager.LoadDefinitions(InvasionsPath));
+            Utils.TryExecuteLua(NpcManager.Dispose);
+            Utils.TryExecuteLua(() => NpcManager.LoadDefinitions(NpcsPath));
         }
     }
 }

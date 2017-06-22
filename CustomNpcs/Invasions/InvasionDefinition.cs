@@ -16,6 +16,12 @@ namespace CustomNpcs.Invasions
         private Lua _lua;
 
         /// <summary>
+        ///     Gets a value indicating whether the invasion should occur at spawn only.
+        /// </summary>
+        [JsonProperty(Order = 6)]
+        public bool AtSpawnOnly { get; private set; }
+
+        /// <summary>
         ///     Gets the completed message.
         /// </summary>
         [NotNull]
@@ -54,6 +60,12 @@ namespace CustomNpcs.Invasions
         /// </summary>
         [CanBeNull]
         public LuaFunction OnUpdate { get; private set; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the invasion should scale by the number of players.
+        /// </summary>
+        [JsonProperty(Order = 7)]
+        public bool ScaleByPlayers { get; private set; }
 
         /// <summary>
         ///     Gets the waves.

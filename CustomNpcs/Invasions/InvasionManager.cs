@@ -22,6 +22,7 @@ namespace CustomNpcs.Invasions
         private int _currentPoints;
         private int _currentWaveIndex;
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
+        private int _requiredPoints;
 
         private InvasionManager()
         {
@@ -70,10 +71,11 @@ namespace CustomNpcs.Invasions
             CurrentInvasion.CustomNpcPointValues.TryGetValue(customNpcType, out var points);
             _currentPoints += points;
 
-            var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
-            var maxPoints = currentWave.PointsRequired;
-            TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, maxPoints),
-                maxPoints, 0, _currentWaveIndex + 1);
+            if (points > 0)
+            {
+                TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, _requiredPoints),
+                    _requiredPoints, 0, _currentWaveIndex + 1);
+            }
         }
 
         /// <summary>
@@ -89,10 +91,11 @@ namespace CustomNpcs.Invasions
             CurrentInvasion.NpcPointValues.TryGetValue(npcType, out var points);
             _currentPoints += points;
 
-            var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
-            var maxPoints = currentWave.PointsRequired;
-            TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, maxPoints),
-                maxPoints, 0, _currentWaveIndex + 1);
+            if (points > 0)
+            {
+                TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, _requiredPoints),
+                    _requiredPoints, 0, _currentWaveIndex + 1);
+            }
         }
 
         /// <summary>
@@ -129,7 +132,7 @@ namespace CustomNpcs.Invasions
                 _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(path));
                 foreach (var definition in _definitions)
                 {
-                    Utils.TryExecuteLua(definition.LoadLuaDefinition);
+                    definition.LoadLuaDefinition();
                 }
             }
         }
@@ -150,6 +153,24 @@ namespace CustomNpcs.Invasions
         }
 
         /// <summary>
+        ///     Determines whether an invasion NPC should spawn for the specified player.
+        /// </summary>
+        /// <param name="player">The player, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if an invasion NPC should spawn; otherwise, <c>false</c>.</returns>
+        public bool ShouldSpawn([NotNull] TSPlayer player)
+        {
+            if (CurrentInvasion == null)
+            {
+                return false;
+            }
+
+            var playerPosition = player.TPlayer.position;
+            return !CurrentInvasion.AtSpawnOnly || Main.spawnTileX * 16.0 - 3000 < playerPosition.X &&
+                   playerPosition.X < Main.spawnTileX * 16.0 + 3000 &&
+                   playerPosition.Y < Main.worldSurface * 16.0 + NPC.sHeight;
+        }
+
+        /// <summary>
         ///     Starts the specified invasion.
         /// </summary>
         /// <param name="invasion">The invasion, or <c>null</c> to stop the current invasion.</param>
@@ -158,8 +179,11 @@ namespace CustomNpcs.Invasions
             if (invasion != null)
             {
                 TSPlayer.All.SendMessage(invasion.Waves[0].StartMessage, new Color(175, 75, 225));
-                TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", 0, invasion.Waves[0].PointsRequired, 0,
-                    1);
+                _requiredPoints = invasion.Waves[0].PointsRequired;
+                if (invasion.ScaleByPlayers)
+                {
+                    _requiredPoints *= TShock.Utils.ActivePlayers();
+                }
             }
             _currentWaveIndex = 0;
             _currentPoints = 0;
@@ -184,7 +208,7 @@ namespace CustomNpcs.Invasions
             {
                 return false;
             }
-
+            
             var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
             if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
             {
@@ -236,10 +260,8 @@ namespace CustomNpcs.Invasions
                 return;
             }
 
-            NPC.noSpawnCycle = true;
             var waves = CurrentInvasion.Waves;
-            var currentWave = waves[_currentWaveIndex];
-            if (_currentPoints >= currentWave.PointsRequired)
+            if (_currentPoints >= _requiredPoints)
             {
                 if (++_currentWaveIndex == waves.Count)
                 {
@@ -249,11 +271,32 @@ namespace CustomNpcs.Invasions
                 else
                 {
                     TSPlayer.All.SendMessage(waves[_currentWaveIndex].StartMessage, new Color(175, 75, 225));
+                    _requiredPoints = waves[_currentWaveIndex].PointsRequired;
+                    if (CurrentInvasion.ScaleByPlayers)
+                    {
+                        _requiredPoints *= TShock.Utils.ActivePlayers();
+                    }
                 }
                 _currentPoints = 0;
             }
 
+            var now = DateTime.UtcNow;
+            if (now - _lastProgressUpdate > TimeSpan.FromSeconds(1))
+            {
+                foreach (var player in TShock.Players.Where(p => p != null && p.Active))
+                {
+                    if (ShouldSpawn(player))
+                    {
+                        player.SendData(PacketTypes.ReportInvasionProgress, "", _currentPoints, _requiredPoints, 0,
+                            _currentWaveIndex + 1);
+                    }
+                }
+                _lastProgressUpdate = now;
+            }
+
             Utils.TryExecuteLua(() => { CurrentInvasion?.OnUpdate?.Call(); });
         }
+
+        private DateTime _lastProgressUpdate;
     }
 }

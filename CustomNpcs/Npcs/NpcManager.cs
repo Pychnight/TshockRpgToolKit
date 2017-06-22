@@ -119,7 +119,7 @@ namespace CustomNpcs.Npcs
                 _definitions = JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(path));
                 foreach (var definition in _definitions)
                 {
-                    Utils.TryExecuteLua(definition.LoadLuaDefinition);
+                    definition.LoadLuaDefinition();
                 }
             }
         }
@@ -207,13 +207,13 @@ namespace CustomNpcs.Npcs
                     {
                         npc.SetDefaults(definition.BaseType);
                     }
-                    var customNpc2 = AttachCustomNpc(npc, definition);
+                    var customNpc = AttachCustomNpc(npc, definition);
                     var npcId = npc.whoAmI;
                     TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
                     TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
 
-                    var onSpawn = customNpc2.Definition.OnSpawn;
-                    Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc2); });
+                    var onSpawn = customNpc.Definition.OnSpawn;
+                    Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
                     return true;
                 }
             }
