@@ -24,7 +24,6 @@ namespace CustomNpcs.Invasions
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
         private bool _hasMiniboss;
         private DateTime _lastProgressUpdate;
-        private bool _minibossSpawned;
         private int _requiredPoints;
 
         private InvasionManager()
@@ -172,13 +171,11 @@ namespace CustomNpcs.Invasions
             _currentPoints = 0;
             _currentWaveIndex = 0;
             _hasMiniboss = false;
-            _minibossSpawned = false;
             if (invasion != null)
             {
                 var wave = invasion.Waves[0];
                 TSPlayer.All.SendMessage(wave.StartMessage, new Color(175, 75, 225));
                 _hasMiniboss = wave.Miniboss != null;
-                _minibossSpawned = false;
                 _requiredPoints = wave.PointsRequired;
                 if (invasion.ScaleByPlayers)
                 {
@@ -213,14 +210,36 @@ namespace CustomNpcs.Invasions
 
             if (_currentPoints == _requiredPoints && _hasMiniboss)
             {
-                if (_minibossSpawned)
+                var miniboss = currentWave.Miniboss;
+                var minibossIsVanilla = int.TryParse(miniboss, out var npcType);
+                var foundMiniboss = false;
+                foreach (var npc in Main.npc.Where(n => n != null && n.active))
+                {
+                    if (minibossIsVanilla && npc.netID == npcType)
+                    {
+                        foundMiniboss = true;
+                        break;
+                    }
+
+                    var customNpc = NpcManager.Instance.GetCustomNpc(npc);
+                    if (customNpc == null)
+                    {
+                        continue;
+                    }
+
+                    // ReSharper disable once PossibleNullReferenceException
+                    if (miniboss.Equals(customNpc.Definition.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        foundMiniboss = true;
+                        break;
+                    }
+                }
+                if (foundMiniboss)
                 {
                     return;
                 }
-                _minibossSpawned = true;
 
-                var miniboss = currentWave.Miniboss;
-                if (int.TryParse(miniboss, out var npcType))
+                if (minibossIsVanilla)
                 {
                     NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
                     return;
@@ -233,7 +252,7 @@ namespace CustomNpcs.Invasions
                     return;
                 }
 
-                NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, tileY);
+                NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, 16 * tileY);
                 return;
             }
 
@@ -257,8 +276,8 @@ namespace CustomNpcs.Invasions
                     {
                         return;
                     }
-
-                    NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, tileY);
+                    
+                    NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, 16 * tileY);
                     return;
                 }
                 current += weight;
@@ -288,7 +307,6 @@ namespace CustomNpcs.Invasions
                     var wave = waves[_currentWaveIndex];
                     TSPlayer.All.SendMessage(wave.StartMessage, new Color(175, 75, 225));
                     _hasMiniboss = wave.Miniboss != null;
-                    _minibossSpawned = false;
                     _requiredPoints = waves[_currentWaveIndex].PointsRequired;
                     if (CurrentInvasion.ScaleByPlayers)
                     {

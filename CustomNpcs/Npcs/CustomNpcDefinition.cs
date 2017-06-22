@@ -198,6 +198,10 @@ namespace CustomNpcs.Npcs
             {
                 throw new FormatException($"{nameof(Name)} is null.");
             }
+            if (int.TryParse(Name, out _))
+            {
+                throw new FormatException($"{nameof(Name)} cannot be a number.");
+            }
             if (string.IsNullOrWhiteSpace(Name))
             {
                 throw new FormatException($"{nameof(Name)} is whitespace.");
