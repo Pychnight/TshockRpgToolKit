@@ -192,7 +192,14 @@ namespace CustomNpcs
             }
 
             Config.Instance.MaxSpawns = maxSpawns;
-            player.SendSuccessMessage($"Set maximum spawns to {maxSpawns}.");
+            if (args.Silent)
+            {
+                player.SendSuccessMessage($"Set custom maximum spawns to {maxSpawns}.");
+            }
+            else
+            {
+                TSPlayer.All.SendInfoMessage($"{player.Name} changed the custom maximum spawns to {maxSpawns}.");
+            }
         }
 
         private void CustomSpawnMob(CommandArgs args)
@@ -248,7 +255,14 @@ namespace CustomNpcs
             }
 
             Config.Instance.SpawnRate = spawnRate;
-            player.SendSuccessMessage($"Set spawn rate to {spawnRate}.");
+            if (args.Silent)
+            {
+                player.SendSuccessMessage($"Set custom spawn rate to {spawnRate}.");
+            }
+            else
+            {
+                TSPlayer.All.SendInfoMessage($"{player.Name} changed the custom spawn rate to {spawnRate}.");
+            }
         }
 
         private void OnGameUpdate(EventArgs args)
@@ -421,7 +435,7 @@ namespace CustomNpcs
 
             var onKilled = customNpc.Definition.OnKilled;
             Utils.TryExecuteLua(() => onKilled?.Call(customNpc));
-            
+
             foreach (var lootEntry in customNpc.Definition.LootEntries)
             {
                 if (_random.NextDouble() < lootEntry.Chance)

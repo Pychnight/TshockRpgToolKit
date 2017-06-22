@@ -23,7 +23,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         [CanBeNull]
         [JsonProperty(Order = 5)]
-        public object Miniboss { get; private set; }
+        public string Miniboss { get; private set; }
 
         /// <summary>
         ///     Gets the NPC weights.

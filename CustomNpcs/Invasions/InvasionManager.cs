@@ -22,8 +22,9 @@ namespace CustomNpcs.Invasions
         private int _currentPoints;
         private int _currentWaveIndex;
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
-
+        private bool _hasMiniboss;
         private DateTime _lastProgressUpdate;
+        private bool _minibossSpawned;
         private int _requiredPoints;
 
         private InvasionManager()
@@ -72,11 +73,18 @@ namespace CustomNpcs.Invasions
             }
             CurrentInvasion.NpcPointValues.TryGetValue(npcType, out var points);
 
+            if (_hasMiniboss && npcType.Equals(CurrentInvasion.Waves[_currentWaveIndex].Miniboss,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                _hasMiniboss = false;
+            }
+
             if (points > 0)
             {
                 _currentPoints += points;
-                TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, _requiredPoints),
-                    _requiredPoints, 0, _currentWaveIndex + 1);
+                _currentPoints = Math.Min(_currentPoints, _requiredPoints);
+                TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", _currentPoints, _requiredPoints, 0,
+                    _currentWaveIndex + 1);
             }
         }
 
@@ -160,18 +168,23 @@ namespace CustomNpcs.Invasions
         /// <param name="invasion">The invasion, or <c>null</c> to stop the current invasion.</param>
         public void StartInvasion([CanBeNull] InvasionDefinition invasion)
         {
+            CurrentInvasion = invasion;
+            _currentPoints = 0;
+            _currentWaveIndex = 0;
+            _hasMiniboss = false;
+            _minibossSpawned = false;
             if (invasion != null)
             {
-                TSPlayer.All.SendMessage(invasion.Waves[0].StartMessage, new Color(175, 75, 225));
-                _requiredPoints = invasion.Waves[0].PointsRequired;
+                var wave = invasion.Waves[0];
+                TSPlayer.All.SendMessage(wave.StartMessage, new Color(175, 75, 225));
+                _hasMiniboss = wave.Miniboss != null;
+                _minibossSpawned = false;
+                _requiredPoints = wave.PointsRequired;
                 if (invasion.ScaleByPlayers)
                 {
                     _requiredPoints *= TShock.Utils.ActivePlayers();
                 }
             }
-            _currentWaveIndex = 0;
-            _currentPoints = 0;
-            CurrentInvasion = invasion;
         }
 
         /// <summary>
@@ -195,6 +208,32 @@ namespace CustomNpcs.Invasions
             var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
             if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
             {
+                return;
+            }
+
+            if (_currentPoints == _requiredPoints && _hasMiniboss)
+            {
+                if (_minibossSpawned)
+                {
+                    return;
+                }
+                _minibossSpawned = true;
+
+                var miniboss = currentWave.Miniboss;
+                if (int.TryParse(miniboss, out var npcType))
+                {
+                    NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
+                    return;
+                }
+
+                // ReSharper disable once AssignNullToNotNullAttribute
+                var definition = NpcManager.Instance.FindDefinition(miniboss);
+                if (definition == null)
+                {
+                    return;
+                }
+
+                NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, tileY);
                 return;
             }
 
@@ -225,7 +264,7 @@ namespace CustomNpcs.Invasions
                 current += weight;
             }
         }
-        
+
         /// <summary>
         ///     Updates the invasion.
         /// </summary>
@@ -237,7 +276,7 @@ namespace CustomNpcs.Invasions
             }
 
             var waves = CurrentInvasion.Waves;
-            if (_currentPoints >= _requiredPoints)
+            if (_currentPoints == _requiredPoints && !_hasMiniboss)
             {
                 if (++_currentWaveIndex == waves.Count)
                 {
@@ -246,7 +285,10 @@ namespace CustomNpcs.Invasions
                 }
                 else
                 {
-                    TSPlayer.All.SendMessage(waves[_currentWaveIndex].StartMessage, new Color(175, 75, 225));
+                    var wave = waves[_currentWaveIndex];
+                    TSPlayer.All.SendMessage(wave.StartMessage, new Color(175, 75, 225));
+                    _hasMiniboss = wave.Miniboss != null;
+                    _minibossSpawned = false;
                     _requiredPoints = waves[_currentWaveIndex].PointsRequired;
                     if (CurrentInvasion.ScaleByPlayers)
                     {

@@ -30,7 +30,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         [JsonProperty(Order = 2)]
         public int BaseType { get; private set; }
-        
+
         /// <summary>
         ///     Gets the loot entries.
         /// </summary>
@@ -173,7 +173,7 @@ namespace CustomNpcs.Npcs
             {
                 return;
             }
-            
+
             var lua = new Lua();
             lua.LoadCLRPackage();
             lua.DoString("import('System')");
@@ -314,7 +314,7 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty(Order = 0)]
             public bool ShouldSpawn { get; private set; }
-            
+
             internal void ThrowIfInvalid()
             {
                 if (ReplacementTargetType < -65)
