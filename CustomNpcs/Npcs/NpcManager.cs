@@ -181,7 +181,7 @@ namespace CustomNpcs.Npcs
             var npc = Main.npc[npcId];
             var customNpc = AttachCustomNpc(npc, definition);
             var onSpawn = customNpc.Definition.OnSpawn;
-            Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
+            Utils.TryExecuteLua(() => onSpawn?.Call(customNpc));
             TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
             TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
             return customNpc;
@@ -203,7 +203,7 @@ namespace CustomNpcs.Npcs
             var baseType = npc.netID;
             foreach (var definition in _definitions.Where(d => d.ReplacementTargetType == baseType))
             {
-                if (_random.NextDouble() < (definition.ReplacementChance ?? 0))
+                if (_random.NextDouble() < (definition.ReplacementChance ?? 1))
                 {
                     if (definition.BaseType != baseType)
                     {
@@ -215,7 +215,7 @@ namespace CustomNpcs.Npcs
                     TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
 
                     var onSpawn = customNpc.Definition.OnSpawn;
-                    Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
+                    Utils.TryExecuteLua(() => onSpawn?.Call(customNpc));
                     return true;
                 }
             }
@@ -243,13 +243,10 @@ namespace CustomNpcs.Npcs
             var weights = new Dictionary<CustomNpcDefinition, int>();
             foreach (var definition in _definitions.Where(d => d.ShouldCustomSpawn))
             {
-                var canSpawn = false;
+                var weight = 0;
                 var onCheckSpawn = definition.OnCheckSpawn;
-                Utils.TryExecuteLua(() => { canSpawn = (bool)(onCheckSpawn?.Call(player, tileX, tileY)?[0] ?? true); });
-                if (canSpawn)
-                {
-                    weights[definition] = definition.CustomSpawnWeight ?? 1;
-                }
+                Utils.TryExecuteLua(() => weight = (int)(onCheckSpawn?.Call(player, tileX, tileY)[0] ?? 1));
+                weights[definition] = weight;
             }
 
             var rand = _random.Next(weights.Values.Sum());

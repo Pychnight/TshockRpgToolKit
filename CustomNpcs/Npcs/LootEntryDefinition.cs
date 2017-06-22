@@ -40,7 +40,7 @@ namespace CustomNpcs.Npcs
         ///     Gets the prefix.
         /// </summary>
         [JsonProperty(Order = 3)]
-        public byte Prefix { get; private set; }
+        public int Prefix { get; private set; }
 
         internal void ThrowIfInvalid()
         {
@@ -63,6 +63,10 @@ namespace CustomNpcs.Npcs
             if (Chance > 1)
             {
                 throw new FormatException($"{nameof(Chance)} is greater than 1.");
+            }
+            if (Prefix <= -2)
+            {
+                throw new FormatException($"{nameof(Prefix)} is too small.");
             }
             if (Prefix >= PrefixID.Count)
             {

@@ -30,13 +30,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         [JsonProperty(Order = 2)]
         public int BaseType { get; private set; }
-
-        /// <summary>
-        ///     Gets the custom spawn weight.
-        /// </summary>
-        [CanBeNull]
-        public int? CustomSpawnWeight => _spawning.Weight;
-
+        
         /// <summary>
         ///     Gets the loot entries.
         /// </summary>
@@ -200,6 +194,14 @@ namespace CustomNpcs.Npcs
 
         internal void ThrowIfInvalid()
         {
+            if (Name == null)
+            {
+                throw new FormatException($"{nameof(Name)} is null.");
+            }
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                throw new FormatException($"{nameof(Name)} is whitespace.");
+            }
             if (BaseType < -65)
             {
                 throw new FormatException($"{nameof(BaseType)} is too small.");
@@ -312,16 +314,9 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty(Order = 0)]
             public bool ShouldSpawn { get; private set; }
-
-            [JsonProperty(Order = 1)]
-            public int? Weight { get; private set; }
-
+            
             internal void ThrowIfInvalid()
             {
-                if (Weight <= 0)
-                {
-                    throw new FormatException($"{nameof(Weight)} is not positive.");
-                }
                 if (ReplacementTargetType < -65)
                 {
                     throw new FormatException($"{nameof(ReplacementTargetType)} is too small.");

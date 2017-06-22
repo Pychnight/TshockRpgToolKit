@@ -15,7 +15,7 @@ namespace CustomNpcs.Invasions
     ///     Represents an invasion manager. This class is a singleton.
     /// </summary>
     [PublicAPI]
-    public class InvasionManager : IDisposable
+    public sealed class InvasionManager : IDisposable
     {
         private readonly Random _random = new Random();
 
@@ -55,26 +55,26 @@ namespace CustomNpcs.Invasions
         }
 
         /// <summary>
-        ///     Adds points for the specified NPC.
+        ///     Adds points for the specified NPC type.
         /// </summary>
-        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
-        public void AddPoints([NotNull] string npc)
+        /// <param name="npcType">The NPC type, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="npcType" /> is <c>null</c>.</exception>
+        public void AddPoints([NotNull] string npcType)
         {
-            if (npc == null)
+            if (npcType == null)
             {
-                throw new ArgumentNullException(nameof(npc));
+                throw new ArgumentNullException(nameof(npcType));
             }
 
             if (CurrentInvasion == null)
             {
                 return;
             }
-            CurrentInvasion.NpcPointValues.TryGetValue(npc, out var points);
-            _currentPoints += points;
+            CurrentInvasion.NpcPointValues.TryGetValue(npcType, out var points);
 
             if (points > 0)
             {
+                _currentPoints += points;
                 TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, _requiredPoints),
                     _requiredPoints, 0, _currentWaveIndex + 1);
             }
@@ -225,7 +225,7 @@ namespace CustomNpcs.Invasions
                 current += weight;
             }
         }
-
+        
         /// <summary>
         ///     Updates the invasion.
         /// </summary>
@@ -259,18 +259,15 @@ namespace CustomNpcs.Invasions
             var now = DateTime.UtcNow;
             if (now - _lastProgressUpdate > TimeSpan.FromSeconds(1))
             {
-                foreach (var player in TShock.Players.Where(p => p != null && p.Active))
+                foreach (var player in TShock.Players.Where(p => p != null && p.Active && ShouldSpawn(p)))
                 {
-                    if (ShouldSpawn(player))
-                    {
-                        player.SendData(PacketTypes.ReportInvasionProgress, "", _currentPoints, _requiredPoints, 0,
-                            _currentWaveIndex + 1);
-                    }
+                    player.SendData(PacketTypes.ReportInvasionProgress, "", _currentPoints, _requiredPoints, 0,
+                        _currentWaveIndex + 1);
                 }
                 _lastProgressUpdate = now;
             }
 
-            Utils.TryExecuteLua(() => { CurrentInvasion?.OnUpdate?.Call(); });
+            Utils.TryExecuteLua(() => CurrentInvasion?.OnUpdate?.Call());
         }
     }
 }

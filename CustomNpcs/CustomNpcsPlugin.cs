@@ -297,7 +297,7 @@ namespace CustomNpcs
                     if (npcRectangle.Intersects(playerRectangle) && !_ignoreHits[playerIndex])
                     {
                         var onCollision = customNpc.Definition.OnCollision;
-                        Utils.TryExecuteLua(() => { onCollision?.Call(customNpc, player); });
+                        Utils.TryExecuteLua(() => onCollision?.Call(customNpc, player));
                         _ignoreHits[playerIndex] = true;
                         break;
                     }
@@ -405,7 +405,7 @@ namespace CustomNpcs
             }
 
             var onAiUpdate = customNpc.Definition.OnAiUpdate;
-            Utils.TryExecuteLua(() => { args.Handled = (bool)(onAiUpdate?.Call(customNpc)?[0] ?? false); });
+            Utils.TryExecuteLua(() => args.Handled = (bool)(onAiUpdate?.Call(customNpc)?[0] ?? false));
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
@@ -420,7 +420,7 @@ namespace CustomNpcs
             InvasionManager.AddPoints(customNpc.Definition.Name);
 
             var onKilled = customNpc.Definition.OnKilled;
-            Utils.TryExecuteLua(() => { onKilled?.Call(customNpc); });
+            Utils.TryExecuteLua(() => onKilled?.Call(customNpc));
             
             foreach (var lootEntry in customNpc.Definition.LootEntries)
             {

@@ -119,7 +119,7 @@ namespace CustomNpcs.Npcs
             TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
 
             var onSpawn = customNpc.Definition.OnSpawn;
-            Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
+            Utils.TryExecuteLua(() => onSpawn?.Call(customNpc));
         }
 
         /// <summary>
