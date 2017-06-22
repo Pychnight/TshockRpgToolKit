@@ -226,8 +226,7 @@ namespace CustomNpcs.Npcs
         /// <param name="player">The player, which must not be <c>null</c>.</param>
         /// <param name="tileX">The X coordinate.</param>
         /// <param name="tileY">The Y coordinate.</param>
-        /// <returns><c>true</c> if the operation succeeded; otherwise, <c>false</c>.</returns>
-        public bool TrySpawnNpc([NotNull] TSPlayer player, int tileX, int tileY)
+        public void TrySpawnNpc([NotNull] TSPlayer player, int tileX, int tileY)
         {
             if (player == null)
             {
@@ -236,7 +235,7 @@ namespace CustomNpcs.Npcs
 
             if (player.TPlayer.activeNPCs >= Config.Instance.MaxSpawns || _random.Next(Config.Instance.SpawnRate) != 0)
             {
-                return false;
+                return;
             }
 
             var weights = new Dictionary<CustomNpcDefinition, int>();
@@ -258,12 +257,11 @@ namespace CustomNpcs.Npcs
                 var weight = kvp.Value;
                 if (current <= rand && rand < current + weight)
                 {
-                    var customNpc = SpawnCustomNpc(kvp.Key, 16 * tileX + 8, 16 * tileY);
-                    return customNpc != null;
+                    SpawnCustomNpc(kvp.Key, 16 * tileX + 8, 16 * tileY);
+                    return;
                 }
                 current += weight;
             }
-            return false;
         }
     }
 }

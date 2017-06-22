@@ -178,8 +178,7 @@ namespace CustomNpcs.Invasions
         /// <param name="player">The player, which must not be <c>null</c>.</param>
         /// <param name="tileX">The X coordinate.</param>
         /// <param name="tileY">The Y coordinate.</param>
-        /// <returns><c>true</c> if the operation succeeded; otherwise, <c>false</c>.</returns>
-        public bool TrySpawnNpc([NotNull] TSPlayer player, int tileX, int tileY)
+        public void TrySpawnNpc([NotNull] TSPlayer player, int tileX, int tileY)
         {
             if (player == null)
             {
@@ -188,13 +187,13 @@ namespace CustomNpcs.Invasions
 
             if (CurrentInvasion == null)
             {
-                return false;
+                return;
             }
 
             var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
             if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
             {
-                return false;
+                return;
             }
 
             var npcWeights = currentWave.NpcWeights;
@@ -208,22 +207,21 @@ namespace CustomNpcs.Invasions
                     var npc = kvp.Key;
                     if (int.TryParse(npc, out var npcType))
                     {
-                        var npcIndex = NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
-                        return npcIndex != Main.maxNPCs;
+                        NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
+                        return;
                     }
 
                     var definition = NpcManager.Instance.FindDefinition(npc);
                     if (definition == null)
                     {
-                        return false;
+                        return;
                     }
 
-                    var customNpc = NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, tileY);
-                    return customNpc != null;
+                    NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, tileY);
+                    return;
                 }
                 current += weight;
             }
-            return false;
         }
 
         /// <summary>

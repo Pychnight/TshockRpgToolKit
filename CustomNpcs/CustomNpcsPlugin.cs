@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
+using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -237,7 +238,7 @@ namespace CustomNpcs
             foreach (var npc in Main.npc.Where(n => n != null && n.active))
             {
                 var customNpc = NpcManager.GetCustomNpc(npc);
-                if (customNpc?.Definition?.ShouldAggressivelyUpdate ?? false)
+                if (customNpc?.Definition.ShouldAggressivelyUpdate ?? false)
                 {
                     npc.netUpdate = true;
                 }
@@ -416,50 +417,6 @@ namespace CustomNpcs
                         stackSize, false, lootEntry.Prefix);
                 }
             }
-
-            if (!customNpc.Definition.LootOverride)
-            {
-                return;
-            }
-
-            double coins = npc.value;
-            if (npc.midas)
-            {
-                coins *= 1 + _random.Next(10, 50) * 0.01;
-            }
-            coins *= 1 + _random.Next(-20, 21) * 0.01;
-            coins = new[] {5, 10, 15, 20}
-                .Where(w => _random.Next(w) == 0)
-                .Aggregate(coins, (c, w) => c * (1 + _random.Next(w, 2 * w + 1) * 0.01));
-            coins += npc.extraValue;
-
-            while (coins > 0)
-            {
-                var coinSizes = new[] {1000000, 10000, 100, 1};
-                for (var i = 0; i < coinSizes.Length && coins > 0; ++i)
-                {
-                    var coinSize = coinSizes[i];
-                    var stack = (int)(coins / coinSize);
-                    if (stack > 50 && _random.Next(5) == 0)
-                    {
-                        stack /= Main.rand.Next(3) + 1;
-                    }
-                    if (coinSize == 1)
-                    {
-                        if (Main.rand.Next(5) == 0)
-                        {
-                            stack /= Main.rand.Next(4) + 1;
-                        }
-                        stack = Math.Max(1, stack);
-                    }
-                    else if (Main.rand.Next(5) == 0)
-                    {
-                        stack /= Main.rand.Next(3) + 1;
-                    }
-                    coins -= coinSize * stack;
-                    Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, 74 - i, stack);
-                }
-            }
         }
 
         private void OnNpcLootDrop(NpcLootDropEventArgs args)
@@ -476,7 +433,9 @@ namespace CustomNpcs
                 return;
             }
 
-            args.Handled = customNpc.Definition.LootOverride;
+	        var itemId = args.ItemId;
+	        args.Handled = customNpc.Definition.LootOverride &&
+	                       (itemId < ItemID.CopperCoin || itemId > ItemID.PlatinumCoin);
         }
 
         private void OnNpcSetDefaults(SetDefaultsEventArgs<NPC, int> args)
@@ -486,6 +445,8 @@ namespace CustomNpcs
                 return;
             }
 
+            // If an NPC has its defaults set while active, we might need to re-attach a custom NPC. This happens with
+            // slimes and the Eater of Worlds, for instance.
             var npc = args.Object;
             if (npc.active)
             {
@@ -500,6 +461,7 @@ namespace CustomNpcs
                 return;
             }
 
+            // If an NPC spawns, we might need to attach a custom NPC.
             _npcChecked[args.NpcId] = false;
         }
 
@@ -526,11 +488,8 @@ namespace CustomNpcs
             var onStrike = customNpc.Definition.OnStrike;
             Utils.TryExecuteLua(() =>
             {
-                if ((bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)?[0] ??
-                           false))
-                {
-                    args.Handled = true;
-                }
+                args.Handled =
+                    (bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0] ?? false);
             });
         }
 
@@ -541,6 +500,7 @@ namespace CustomNpcs
                 return;
             }
 
+            // If an NPC transforms, we might need to re-attach a custom NPC.
             _npcChecked[args.NpcId] = false;
         }
 
