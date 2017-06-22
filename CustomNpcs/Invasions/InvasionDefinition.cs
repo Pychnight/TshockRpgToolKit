@@ -18,22 +18,15 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets a value indicating whether the invasion should occur at spawn only.
         /// </summary>
-        [JsonProperty(Order = 6)]
+        [JsonProperty(Order = 4)]
         public bool AtSpawnOnly { get; private set; }
 
         /// <summary>
         ///     Gets the completed message.
         /// </summary>
         [NotNull]
-        [JsonProperty(Order = 5)]
+        [JsonProperty(Order = 3)]
         public string CompletedMessage { get; private set; } = "The example invasion has ended!";
-
-        /// <summary>
-        ///     Gets the custom NPC point values.
-        /// </summary>
-        [NotNull]
-        [JsonProperty(Order = 4)]
-        public Dictionary<string, int> CustomNpcPointValues { get; private set; } = new Dictionary<string, int>();
 
         /// <summary>
         ///     Gets the Lua path.
@@ -52,8 +45,8 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets the NPC point values.
         /// </summary>
-        [JsonProperty(Order = 3)]
-        public Dictionary<int, int> NpcPointValues { get; private set; } = new Dictionary<int, int>();
+        [JsonProperty(Order = 2)]
+        public Dictionary<string, int> NpcPointValues { get; private set; } = new Dictionary<string, int>();
 
         /// <summary>
         ///     Gets a function that is invoked when the invasion is updated.
@@ -64,7 +57,7 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets a value indicating whether the invasion should scale by the number of players.
         /// </summary>
-        [JsonProperty(Order = 7)]
+        [JsonProperty(Order = 5)]
         public bool ScaleByPlayers { get; private set; }
 
         /// <summary>
@@ -72,7 +65,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         [ItemNotNull]
         [NotNull]
-        [JsonProperty(Order = 2)]
+        [JsonProperty(Order = 6)]
         public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
 
         /// <summary>

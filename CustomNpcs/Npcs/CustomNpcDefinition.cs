@@ -49,18 +49,18 @@ namespace CustomNpcs.Npcs
         public bool LootOverride => _loot.IsOverride;
 
         /// <summary>
-        ///     Gets the internal name.
-        /// </summary>
-        [JsonProperty(Order = 0)]
-        [NotNull]
-        public string Name { get; private set; } = "example";
-
-        /// <summary>
         ///     Gets the Lua path.
         /// </summary>
         [JsonProperty(Order = 1)]
         [NotNull]
         public string LuaPath { get; private set; } = "npcs\\example.lua";
+
+        /// <summary>
+        ///     Gets the internal name.
+        /// </summary>
+        [JsonProperty(Order = 0)]
+        [NotNull]
+        public string Name { get; private set; } = "example";
 
         /// <summary>
         ///     Gets a function that is invoked when the NPC AI is updated.

@@ -355,7 +355,7 @@ namespace CustomNpcs
                 {
                     continue;
                 }
-                
+
                 if (InvasionManager.ShouldSpawn(player))
                 {
                     InvasionManager.TrySpawnNpc(player, tileX, tileY);
@@ -393,7 +393,7 @@ namespace CustomNpcs
             var customNpc = NpcManager.GetCustomNpc(npc);
             if (customNpc == null)
             {
-                InvasionManager.AddPoints(npc.netID);
+                InvasionManager.AddPoints(npc.netID.ToString());
                 return;
             }
             InvasionManager.AddPoints(customNpc.Definition.Name);

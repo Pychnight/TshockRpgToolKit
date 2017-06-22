@@ -22,6 +22,8 @@ namespace CustomNpcs.Invasions
         private int _currentPoints;
         private int _currentWaveIndex;
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
+
+        private DateTime _lastProgressUpdate;
         private int _requiredPoints;
 
         private InvasionManager()
@@ -53,42 +55,22 @@ namespace CustomNpcs.Invasions
         }
 
         /// <summary>
-        ///     Adds points for the specified custom NPC type.
+        ///     Adds points for the specified NPC.
         /// </summary>
-        /// <param name="customNpcType">The custom NPC type, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="customNpcType" /> is <c>null</c>.</exception>
-        public void AddPoints([NotNull] string customNpcType)
+        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
+        public void AddPoints([NotNull] string npc)
         {
-            if (customNpcType == null)
+            if (npc == null)
             {
-                throw new ArgumentNullException(nameof(customNpcType));
+                throw new ArgumentNullException(nameof(npc));
             }
 
             if (CurrentInvasion == null)
             {
                 return;
             }
-            CurrentInvasion.CustomNpcPointValues.TryGetValue(customNpcType, out var points);
-            _currentPoints += points;
-
-            if (points > 0)
-            {
-                TSPlayer.All.SendData(PacketTypes.ReportInvasionProgress, "", Math.Min(_currentPoints, _requiredPoints),
-                    _requiredPoints, 0, _currentWaveIndex + 1);
-            }
-        }
-
-        /// <summary>
-        ///     Adds points for the specified NPC type.
-        /// </summary>
-        /// <param name="npcType">The NPC type.</param>
-        public void AddPoints(int npcType)
-        {
-            if (CurrentInvasion == null)
-            {
-                return;
-            }
-            CurrentInvasion.NpcPointValues.TryGetValue(npcType, out var points);
+            CurrentInvasion.NpcPointValues.TryGetValue(npc, out var points);
             _currentPoints += points;
 
             if (points > 0)
@@ -208,7 +190,7 @@ namespace CustomNpcs.Invasions
             {
                 return false;
             }
-            
+
             var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
             if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
             {
@@ -216,27 +198,21 @@ namespace CustomNpcs.Invasions
             }
 
             var npcWeights = currentWave.NpcWeights;
-            var totalWeight = npcWeights.Values.Sum();
-            var customNpcWeights = currentWave.CustomNpcWeights;
-            var totalCustomWeight = customNpcWeights.Values.Sum();
-            var rand = _random.Next(totalWeight + totalCustomWeight);
+            var rand = _random.Next(npcWeights.Values.Sum());
             var current = 0;
             foreach (var kvp in npcWeights)
             {
                 var weight = kvp.Value;
                 if (current <= rand && rand < current + weight)
                 {
-                    var npcIndex = NPC.NewNPC(16 * tileX + 8, 16 * tileY, kvp.Key);
-                    return npcIndex != Main.maxNPCs;
-                }
-                current += weight;
-            }
-            foreach (var kvp in customNpcWeights)
-            {
-                var weight = kvp.Value;
-                if (current <= rand && rand < current + weight)
-                {
-                    var definition = NpcManager.Instance.FindDefinition(kvp.Key);
+                    var npc = kvp.Key;
+                    if (int.TryParse(npc, out var npcType))
+                    {
+                        var npcIndex = NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
+                        return npcIndex != Main.maxNPCs;
+                    }
+
+                    var definition = NpcManager.Instance.FindDefinition(npc);
                     if (definition == null)
                     {
                         return false;
@@ -296,7 +272,5 @@ namespace CustomNpcs.Invasions
 
             Utils.TryExecuteLua(() => { CurrentInvasion?.OnUpdate?.Call(); });
         }
-
-        private DateTime _lastProgressUpdate;
     }
 }
