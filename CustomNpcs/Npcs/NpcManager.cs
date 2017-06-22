@@ -3,30 +3,29 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Terraria;
 using TShockAPI;
 
-namespace CustomNpcs
+namespace CustomNpcs.Npcs
 {
     /// <summary>
-    ///     Represents the custom NPC manager. This class is a singleton.
+    ///     Represents an NPC manager. This class is a singleton.
     /// </summary>
     [PublicAPI]
-    public sealed class CustomNpcManager : IDisposable
+    public sealed class NpcManager : IDisposable
     {
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly List<CustomNpcDefinition> _definitions = new List<CustomNpcDefinition>();
 
-        private CustomNpcManager()
+        private NpcManager()
         {
         }
 
         /// <summary>
-        ///     Gets the custom NPC manager.
+        ///     Gets the NPC manager instance.
         /// </summary>
-        public static CustomNpcManager Instance { get; } = new CustomNpcManager();
+        public static NpcManager Instance { get; } = new NpcManager();
 
         /// <summary>
         ///     Gets a read-only view of the definitions.
@@ -35,7 +34,7 @@ namespace CustomNpcs
         public ReadOnlyCollection<CustomNpcDefinition> Definitions => _definitions.AsReadOnly();
 
         /// <summary>
-        ///     Disposes the custom NPC manager.
+        ///     Disposes the NPC manager.
         /// </summary>
         public void Dispose()
         {

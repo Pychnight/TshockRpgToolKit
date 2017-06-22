@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomNpcs.Definitions;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using NLua;
 using Terraria;
 using TShockAPI;
 
-namespace CustomNpcs
+namespace CustomNpcs.Npcs
 {
     /// <summary>
     ///     Represents a custom NPC.
@@ -92,6 +91,35 @@ namespace CustomNpcs
             {
                 player.SetBuff(type, 60 * seconds, true);
             }
+        }
+
+        /// <summary>
+        ///     Transforms the NPC to the specified custom NPC.
+        /// </summary>
+        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        public void CustomTransform([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            var definition = NpcManager.Instance.FindDefinition(name);
+            if (definition == null)
+            {
+                throw new FormatException($"Invalid custom NPC name '{name}'.");
+            }
+
+            Npc.SetDefaults(definition.BaseType);
+            var customNpc = NpcManager.Instance.AttachCustomNpc(Npc, definition);
+            var npcId = Npc.whoAmI;
+            TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
+            TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
+
+            var onSpawn = customNpc.Definition.OnSpawn;
+            Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc); });
         }
 
         /// <summary>
@@ -237,8 +265,7 @@ namespace CustomNpcs
         public void ShootProjectileAt(Vector2 position, int type, int damage, float speed, float knockback)
         {
             var projectileId = Projectile.NewProjectile(Position,
-                (position - Position) * speed / Vector2.Distance(Position, position), type, damage,
-                knockback);
+                (position - Position) * speed / Vector2.Distance(Position, position), type, damage, knockback);
             TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
         }
 
@@ -248,6 +275,15 @@ namespace CustomNpcs
         public void TargetClosestPlayer()
         {
             Npc.TargetClosest();
+        }
+
+        /// <summary>
+        ///     Teleports the NPC to the specified position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        public void Teleport(Vector2 position)
+        {
+            Npc.Teleport(position);
         }
     }
 }

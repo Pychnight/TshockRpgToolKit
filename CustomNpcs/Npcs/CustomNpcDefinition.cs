@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using NLua;
 using Terraria;
 
-namespace CustomNpcs.Definitions
+namespace CustomNpcs.Npcs
 {
     /// <summary>
     ///     Represents a custom NPC definition.
@@ -51,14 +51,14 @@ namespace CustomNpcs.Definitions
         /// <summary>
         ///     Gets a value indicating whether to override loot.
         /// </summary>
-        public bool LootOverride => _loot.Override;
+        public bool LootOverride => _loot.IsOverride;
 
         /// <summary>
         ///     Gets the internal name.
         /// </summary>
         [JsonProperty(Order = 0)]
-        [CanBeNull]
-        public string Name { get; private set; }
+        [NotNull]
+        public string Name { get; private set; } = "example";
 
         /// <summary>
         ///     Gets or sets a function that is invoked when the NPC AI is updated.
@@ -111,7 +111,8 @@ namespace CustomNpcs.Definitions
         /// <summary>
         ///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
         /// </summary>
-        public bool ShouldAggressivelyUpdate => _baseOverride.AiStyle != null || _baseOverride.HasNoGravity != null;
+        public bool ShouldAggressivelyUpdate =>
+            _baseOverride.AiStyle != null || _baseOverride.HasNoCollision != null || _baseOverride.HasNoGravity != null;
 
         /// <summary>
         ///     Gets a value indicating whether the NPC should update on hit.
@@ -156,6 +157,7 @@ namespace CustomNpcs.Definitions
             npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
             npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.noGravity = _baseOverride.HasNoGravity ?? npc.noGravity;
+            npc.noTileCollide = _baseOverride.HasNoCollision ?? npc.noTileCollide;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
         }
@@ -176,6 +178,7 @@ namespace CustomNpcs.Definitions
             lua.DoString("import('System')");
             lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
             lua.DoString("import('OTAPI', 'Terraria')");
+            lua.DoString("import('TShock', 'TShockAPI')");
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
             lua.DoFile(luaPath);
             _lua = lua;
@@ -188,34 +191,64 @@ namespace CustomNpcs.Definitions
             OnStrike = _lua["OnStrike"] as LuaFunction;
         }
 
-        [JsonObject]
+        [JsonObject(MemberSerialization.OptIn)]
         private sealed class BaseOverrideDefinition
         {
-            public int? AiStyle { get; set; }
-            public int? Defense { get; set; }
-            public bool? HasNoGravity { get; set; }
-            public bool? IsBoss { get; set; }
-            public float? KnockbackMultiplier { get; set; }
-            public int? MaxHp { get; set; }
-            public string Name { get; set; }
-            public float? NpcSlots { get; set; }
-            public float? Value { get; set; }
+            [JsonProperty]
+            public int? AiStyle { get; private set; }
+
+            [JsonProperty]
+            public int? Defense { get; private set; }
+
+            [JsonProperty]
+            public bool? HasNoCollision { get; private set; }
+
+            [JsonProperty]
+            public bool? HasNoGravity { get; private set; }
+
+            [JsonProperty]
+            public bool? IsBoss { get; private set; }
+
+            [JsonProperty]
+            public float? KnockbackMultiplier { get; private set; }
+
+            [JsonProperty]
+            public int? MaxHp { get; private set; }
+
+            [JsonProperty]
+            public string Name { get; private set; }
+
+            [JsonProperty]
+            public float? NpcSlots { get; private set; }
+
+            [JsonProperty]
+            public float? Value { get; private set; }
         }
 
-        [JsonObject]
+        [JsonObject(MemberSerialization.OptIn)]
         private sealed class LootDefinition
         {
-            public List<LootEntryDefinition> Entries { get; set; }
-            public bool Override { get; set; }
+            [JsonProperty(Order = 1)]
+            public List<LootEntryDefinition> Entries { get; private set; }
+
+            [JsonProperty(Order = 0)]
+            public bool IsOverride { get; private set; }
         }
 
-        [JsonObject]
+        [JsonObject(MemberSerialization.OptIn)]
         private sealed class SpawningDefinition
         {
-            public bool CustomSpawn { get; set; }
-            public double? CustomSpawnRateMultiplier { get; set; }
-            public double? ReplacementChance { get; set; }
-            public int? ReplacementTargetType { get; set; }
+            [JsonProperty(Order = 0)]
+            public bool CustomSpawn { get; private set; }
+
+            [JsonProperty(Order = 1)]
+            public double? CustomSpawnRateMultiplier { get; private set; }
+
+            [JsonProperty(Order = 3)]
+            public double? ReplacementChance { get; private set; }
+
+            [JsonProperty(Order = 2)]
+            public int? ReplacementTargetType { get; private set; }
         }
     }
 }
