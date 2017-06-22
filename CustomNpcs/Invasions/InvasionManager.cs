@@ -173,7 +173,7 @@ namespace CustomNpcs.Invasions
         /// <param name="tileX">The X coordinate.</param>
         /// <param name="tileY">The Y coordinate.</param>
         /// <returns><c>true</c> if the operation succeeded; otherwise, <c>false</c>.</returns>
-        public bool TrySpawnInvasionNpc([NotNull] TSPlayer player, int tileX, int tileY)
+        public bool TrySpawnNpc([NotNull] TSPlayer player, int tileX, int tileY)
         {
             if (player == null)
             {
@@ -218,7 +218,7 @@ namespace CustomNpcs.Invasions
                         return false;
                     }
 
-                    var customNpc = NpcManager.Instance.SpawnCustomMob(definition, 16 * tileX + 8, tileY);
+                    var customNpc = NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, tileY);
                     return customNpc != null;
                 }
                 current += weight;

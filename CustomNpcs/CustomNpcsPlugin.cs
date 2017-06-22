@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,13 +25,10 @@ namespace CustomNpcs
         private static readonly string InvasionsPath = Path.Combine("npcs", "invasions.json");
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
 
-        private readonly double[] _activeCustomNpcs = new double[Main.maxPlayers];
         private readonly bool[] _ignoreHits = new bool[Main.maxPlayers];
         private readonly object _luaLock = new object();
         private readonly bool[] _npcChecked = new bool[Main.maxNPCs];
         private readonly Random _random = new Random();
-
-        private Config _config = new Config();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
@@ -65,7 +60,6 @@ namespace CustomNpcs
 
         private InvasionManager InvasionManager => InvasionManager.Instance;
         private NpcManager NpcManager => NpcManager.Instance;
-        private ReadOnlyCollection<CustomNpcDefinition> Definitions => NpcManager.Definitions;
 
         /// <summary>
         ///     Initializes the plugin.
@@ -99,9 +93,9 @@ namespace CustomNpcs
         {
             if (disposing)
             {
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented));
+                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
                 InvasionManager.SaveDefinitions(InvasionsPath);
-                File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(Definitions, Formatting.Indented));
+                NpcManager.SaveDefinitions(NpcsPath);
                 Utils.TryExecuteLua(InvasionManager.Dispose);
                 Utils.TryExecuteLua(NpcManager.Dispose);
 
@@ -176,7 +170,7 @@ namespace CustomNpcs
                 return;
             }
 
-            _config.MaxSpawns = maxSpawns;
+            Config.Instance.MaxSpawns = maxSpawns;
             player.SendSuccessMessage($"Set maximum spawns to {maxSpawns}.");
         }
 
@@ -210,7 +204,7 @@ namespace CustomNpcs
             for (var i = 0; i < amount; ++i)
             {
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
-                NpcManager.Instance.SpawnCustomMob(definition, 16 * spawnX, 16 * spawnY);
+                NpcManager.Instance.SpawnCustomNpc(definition, 16 * spawnX, 16 * spawnY);
             }
             player.SendSuccessMessage($"Spawned {amount} {inputName}(s).");
         }
@@ -232,7 +226,7 @@ namespace CustomNpcs
                 return;
             }
 
-            _config.SpawnRate = spawnRate;
+            Config.Instance.SpawnRate = spawnRate;
             player.SendSuccessMessage($"Set spawn rate to {spawnRate}.");
         }
 
@@ -259,30 +253,11 @@ namespace CustomNpcs
                 }
                 _npcChecked[npcId] = true;
 
-
-                var baseType = npc.netID;
-                foreach (var definition in Definitions.Where(d => d.ReplacementTargetType == baseType))
-                {
-                    if (_random.NextDouble() < (definition.ReplacementChance ?? 0.0))
-                    {
-                        if (definition.BaseType != baseType)
-                        {
-                            npc.SetDefaults(definition.BaseType);
-                        }
-                        var customNpc2 = NpcManager.AttachCustomNpc(npc, definition);
-                        TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-                        TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
-
-                        var onSpawn = customNpc2.Definition.OnSpawn;
-                        Utils.TryExecuteLua(() => { onSpawn?.Call(customNpc2); });
-                        break;
-                    }
-                }
+                NpcManager.TryReplaceNpc(npc);
             }
 
             foreach (var player in TShock.Players.Where(p => p != null && p.Active))
             {
-                var maxSpawns = _config.MaxSpawns;
                 var tplayer = player.TPlayer;
                 var playerRectangle = new Rectangle((int)tplayer.position.X, (int)tplayer.position.Y, tplayer.width,
                     tplayer.height);
@@ -294,7 +269,6 @@ namespace CustomNpcs
                 }
 
                 // Count active custom NPCs.
-                _activeCustomNpcs[playerIndex] = 0;
                 foreach (var npc in Main.npc.Where(n => n != null && n.active))
                 {
                     var customNpc = NpcManager.GetCustomNpc(npc);
@@ -310,26 +284,8 @@ namespace CustomNpcs
                         Utils.TryExecuteLua(() => { onCollision?.Call(customNpc, player); });
                         _ignoreHits[playerIndex] = true;
                     }
-
-                    if (!customNpc.Definition.CustomSpawn)
-                    {
-                        continue;
-                    }
-
-                    var activeRectangle = new Rectangle((int)(npc.position.X + npc.width / 2.0 - NPC.activeRangeX),
-                        (int)(npc.position.Y + npc.height / 2.0 - NPC.activeRangeY), NPC.activeRangeX * 2,
-                        NPC.activeRangeY * 2);
-                    if (activeRectangle.Intersects(playerRectangle))
-                    {
-                        _activeCustomNpcs[playerIndex] += npc.npcSlots;
-                    }
-                }
-                if (_activeCustomNpcs[playerIndex] > maxSpawns)
-                {
-                    continue;
                 }
 
-                var spawnRate = _config.SpawnRate;
                 var succeeded = false;
                 var x = -1;
                 var y = -1;
@@ -409,29 +365,9 @@ namespace CustomNpcs
                     continue;
                 }
 
-                if (InvasionManager.TrySpawnInvasionNpc(player, x, y))
+                if (!InvasionManager.TrySpawnNpc(player, x, y))
                 {
-                    continue;
-                }
-
-                foreach (var definition in Definitions.Where(d => d.CustomSpawn))
-                {
-                    var onCheckSpawn = definition.OnCheckSpawn;
-                    var breakFromLoop = false;
-                    Utils.TryExecuteLua(() =>
-                    {
-                        if (_random.Next((int)(spawnRate * (definition.CustomSpawnRateMultiplier ?? 1))) == 0 &&
-                            (bool)(onCheckSpawn?.Call(player, x, y)?[0] ?? true))
-                        {
-                            breakFromLoop = true;
-                            NpcManager.SpawnCustomMob(definition, 16 * x + 8, 16 * y);
-                        }
-                    });
-
-                    if (breakFromLoop)
-                    {
-                        break;
-                    }
+                    NpcManager.TrySpawnNpc(player, x, y);
                 }
             }
         }
@@ -617,18 +553,10 @@ namespace CustomNpcs
             Utils.TryExecuteLua(NpcManager.Dispose);
             if (File.Exists(ConfigPath))
             {
-                _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
             InvasionManager.LoadDefinitions(InvasionsPath);
-            if (File.Exists(NpcsPath))
-            {
-                var definitions = JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(NpcsPath));
-                foreach (var definition in definitions)
-                {
-                    NpcManager.AddDefinition(definition);
-                    Utils.TryExecuteLua(definition.LoadLuaDefinition);
-                }
-            }
+            NpcManager.LoadDefinitions(NpcsPath);
         }
     }
 }

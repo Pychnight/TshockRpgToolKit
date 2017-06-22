@@ -14,33 +14,28 @@ namespace CustomNpcs.Npcs
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class CustomNpcDefinition : IDisposable
     {
-        [JsonProperty("BaseOverride", Order = 2)]
+        [JsonProperty("BaseOverride", Order = 3)]
         private BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
 
-        [JsonProperty("Loot", Order = 3)]
+        [JsonProperty("Loot", Order = 4)]
         private LootDefinition _loot = new LootDefinition();
 
         private Lua _lua;
 
-        [JsonProperty("Spawning", Order = 4)]
+        [JsonProperty("Spawning", Order = 5)]
         private SpawningDefinition _spawning = new SpawningDefinition();
 
         /// <summary>
         ///     Gets the base type.
         /// </summary>
-        [JsonProperty(Order = 1)]
+        [JsonProperty(Order = 2)]
         public int BaseType { get; private set; }
 
         /// <summary>
-        ///     Gets a value indicating whether the NPC should have custom spawn.
-        /// </summary>
-        public bool CustomSpawn => _spawning.CustomSpawn;
-
-        /// <summary>
-        ///     Gets the spawn rate multiplier.
+        ///     Gets the custom spawn weight.
         /// </summary>
         [CanBeNull]
-        public double? CustomSpawnRateMultiplier => _spawning.CustomSpawnRateMultiplier;
+        public int? CustomSpawnWeight => _spawning.SpawnWeight;
 
         /// <summary>
         ///     Gets the loot entries.
@@ -61,37 +56,44 @@ namespace CustomNpcs.Npcs
         public string Name { get; private set; } = "example";
 
         /// <summary>
-        ///     Gets or sets a function that is invoked when the NPC AI is updated.
+        ///     Gets the Lua path.
+        /// </summary>
+        [JsonProperty(Order = 1)]
+        [NotNull]
+        public string LuaPath { get; private set; } = "npcs\\example.lua";
+
+        /// <summary>
+        ///     Gets a function that is invoked when the NPC AI is updated.
         /// </summary>
         [CanBeNull]
         public LuaFunction OnAiUpdate { get; private set; }
 
         /// <summary>
-        ///     Gets or sets a function that is invoked when the NPC is checked for spawning.
+        ///     Gets a function that is invoked when the NPC is checked for spawning.
         /// </summary>
         [CanBeNull]
         public LuaFunction OnCheckSpawn { get; private set; }
 
         /// <summary>
-        ///     Gets or sets a function that is invoked when the NPC collides with a player.
+        ///     Gets a function that is invoked when the NPC collides with a player.
         /// </summary>
         [CanBeNull]
         public LuaFunction OnCollision { get; private set; }
 
         /// <summary>
-        ///     Gets or sets a function that is invoked when NPC is killed.
+        ///     Gets a function that is invoked when NPC is killed.
         /// </summary>
         [CanBeNull]
         public LuaFunction OnKilled { get; private set; }
 
         /// <summary>
-        ///     Gets or sets a function that is invoked when the NPC is spawned.
+        ///     Gets a function that is invoked when the NPC is spawned.
         /// </summary>
         [CanBeNull]
         public LuaFunction OnSpawn { get; private set; }
 
         /// <summary>
-        ///     Gets or sets a function that is invoked when the NPC is struck.
+        ///     Gets a function that is invoked when the NPC is struck.
         /// </summary>
         [CanBeNull]
         public LuaFunction OnStrike { get; private set; }
@@ -113,6 +115,11 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public bool ShouldAggressivelyUpdate =>
             _baseOverride.AiStyle != null || _baseOverride.HasNoCollision != null || _baseOverride.HasNoGravity != null;
+
+        /// <summary>
+        ///     Gets a value indicating whether the NPC should have custom spawn.
+        /// </summary>
+        public bool ShouldCustomSpawn => _spawning.ShouldSpawn;
 
         /// <summary>
         ///     Gets a value indicating whether the NPC should update on hit.
@@ -167,7 +174,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void LoadLuaDefinition()
         {
-            var luaPath = Path.Combine("npcs", $"{Name}.lua");
+            var luaPath = Path.Combine("npcs", LuaPath);
             if (!File.Exists(luaPath))
             {
                 return;
@@ -238,17 +245,17 @@ namespace CustomNpcs.Npcs
         [JsonObject(MemberSerialization.OptIn)]
         private sealed class SpawningDefinition
         {
-            [JsonProperty(Order = 0)]
-            public bool CustomSpawn { get; private set; }
-
-            [JsonProperty(Order = 1)]
-            public double? CustomSpawnRateMultiplier { get; private set; }
-
             [JsonProperty(Order = 3)]
             public double? ReplacementChance { get; private set; }
 
             [JsonProperty(Order = 2)]
             public int? ReplacementTargetType { get; private set; }
+
+            [JsonProperty(Order = 0)]
+            public bool ShouldSpawn { get; private set; }
+
+            [JsonProperty(Order = 1)]
+            public int? SpawnWeight { get; private set; }
         }
     }
 }

@@ -3,11 +3,16 @@
 namespace CustomNpcs
 {
     /// <summary>
-    ///     Represents the configuration.
+    ///     Represents the configuration instance. This class is a singleton.
     /// </summary>
     [JsonObject]
     public sealed class Config
     {
+        /// <summary>
+        ///     Gets the configuration instance.
+        /// </summary>
+        public static Config Instance { get; internal set; } = new Config();
+
         /// <summary>
         ///     Gets or sets the max spawns.
         /// </summary>

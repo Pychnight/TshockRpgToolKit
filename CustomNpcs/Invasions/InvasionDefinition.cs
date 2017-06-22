@@ -34,7 +34,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         [JsonProperty(Order = 1)]
         [NotNull]
-        public string LuaPath { get; private set; } = "invasions\\example.lua";
+        public string LuaPath { get; private set; } = "npcs\\invasions\\example.lua";
 
         /// <summary>
         ///     Gets the name.
