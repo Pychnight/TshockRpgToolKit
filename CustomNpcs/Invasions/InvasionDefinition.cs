@@ -78,7 +78,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         public void LoadLuaDefinition()
         {
-            var luaPath = Path.Combine("npcs", $"{Name}.lua");
+            var luaPath = Path.Combine("npcs", LuaPath);
             if (!File.Exists(luaPath))
             {
                 return;

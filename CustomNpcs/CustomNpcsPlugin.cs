@@ -237,13 +237,9 @@ namespace CustomNpcs
             foreach (var npc in Main.npc.Where(n => n != null && n.active))
             {
                 var customNpc = NpcManager.GetCustomNpc(npc);
-                if (customNpc != null)
+                if (customNpc?.Definition?.ShouldAggressivelyUpdate ?? false)
                 {
-                    if (customNpc.Definition.ShouldAggressivelyUpdate)
-                    {
-                        npc.netUpdate = true;
-                    }
-                    continue;
+                    npc.netUpdate = true;
                 }
 
                 var npcId = npc.whoAmI;
@@ -267,8 +263,7 @@ namespace CustomNpcs
                 {
                     _ignoreHits[playerIndex] = false;
                 }
-
-                // Count active custom NPCs.
+                
                 foreach (var npc in Main.npc.Where(n => n != null && n.active))
                 {
                     var customNpc = NpcManager.GetCustomNpc(npc);
