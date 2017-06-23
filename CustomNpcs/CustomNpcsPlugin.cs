@@ -278,13 +278,11 @@ namespace CustomNpcs
                 }
 
                 var npcId = npc.whoAmI;
-                if (_npcChecked[npcId])
+                if (!_npcChecked[npcId])
                 {
-                    continue;
+                    NpcManager.TryReplaceNpc(npc);
+                    _npcChecked[npcId] = true;
                 }
-                _npcChecked[npcId] = true;
-
-                NpcManager.TryReplaceNpc(npc);
             }
 
             foreach (var player in TShock.Players.Where(p => p != null && p.Active))
@@ -393,13 +391,13 @@ namespace CustomNpcs
 
                 if (InvasionManager.ShouldSpawn(player))
                 {
-                    InvasionManager.TrySpawnNpc(player, tileX, tileY);
+                    InvasionManager.TrySpawnInvasionNpc(player, tileX, tileY);
                     // Set the activeNPCs to a large number to prevent vanilla NPCs from spawning.
                     tplayer.activeNPCs = 1000;
                 }
                 else
                 {
-                    NpcManager.TrySpawnNpc(player, tileX, tileY);
+                    NpcManager.TrySpawnCustomNpc(player, tileX, tileY);
                 }
             }
         }

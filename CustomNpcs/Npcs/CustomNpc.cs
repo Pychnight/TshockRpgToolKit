@@ -141,14 +141,7 @@ namespace CustomNpcs.Npcs
                 throw new FormatException($"Invalid custom NPC name '{name}'.");
             }
 
-            Npc.SetDefaults(definition.BaseType);
-            var customNpc = NpcManager.Instance.AttachCustomNpc(Npc, definition);
-            var npcId = Npc.whoAmI;
-            TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-            TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
-
-            var onSpawn = customNpc.Definition.OnSpawn;
-            Utils.TryExecuteLua(() => onSpawn?.Call(customNpc));
+            NpcManager.Instance.AttachCustomNpc(Npc, definition);
         }
 
         /// <summary>
@@ -158,6 +151,7 @@ namespace CustomNpcs.Npcs
         /// <param name="defaultValue">The default value.</param>
         /// <returns>The value, or <paramref name="defaultValue" /> if the variable does not exist.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
+        [CanBeNull]
         public object GetVariable([NotNull] string variableName, object defaultValue = null)
         {
             if (variableName == null)
@@ -257,6 +251,7 @@ namespace CustomNpcs.Npcs
                 throw new ArgumentOutOfRangeException(nameof(period), "Period must be positive.");
             }
 
+            // ReSharper disable once PossibleNullReferenceException
             var timer = (int)GetVariable($"Periodically{key}", 0);
             if (timer++ == 0)
             {

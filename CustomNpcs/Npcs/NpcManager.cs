@@ -25,7 +25,6 @@ namespace CustomNpcs.Npcs
         {
         }
 
-
         /// <summary>
         ///     Gets the NPC manager instance.
         /// </summary>
@@ -42,38 +41,6 @@ namespace CustomNpcs.Npcs
                 definition.Dispose();
             }
             _definitions.Clear();
-        }
-
-        /// <summary>
-        ///     Attaches the specified definition to the NPC.
-        /// </summary>
-        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
-        /// <param name="definition">The definition, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     Either <paramref name="npc" /> or <paramref name="definition" /> is <c>null</c>.
-        /// </exception>
-        /// <returns>The custom NPC.</returns>
-        [NotNull]
-        public CustomNpc AttachCustomNpc([NotNull] NPC npc, [NotNull] NpcDefinition definition)
-        {
-            if (npc == null)
-            {
-                throw new ArgumentNullException(nameof(npc));
-            }
-            if (definition == null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
-
-            definition.ApplyTo(npc);
-            if (_customNpcs.TryGetValue(npc, out _))
-            {
-                _customNpcs.Remove(npc);
-            }
-
-            var customNpc = new CustomNpc(npc, definition);
-            _customNpcs.Add(npc, customNpc);
-            return customNpc;
         }
 
         /// <summary>
@@ -94,28 +61,50 @@ namespace CustomNpcs.Npcs
         }
 
         /// <summary>
-        ///     Gets the custom NPC for the specified NPC.
+        ///     Spawns a custom NPC at the specified coordinates.
         /// </summary>
-        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
-        /// <returns>The custom NPC, or <c>null</c> if it does not exist.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
-        [CanBeNull]
-        public CustomNpc GetCustomNpc([NotNull] NPC npc) =>
-            _customNpcs.TryGetValue(npc, out var customNpc) ? customNpc : null;
-
-        /// <summary>
-        ///     Loads the definitions from the specified path.
-        /// </summary>
-        /// <param name="path">The path, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
-        /// <exception cref="FormatException">There is a malformed definition.</exception>
-        public void LoadDefinitions([NotNull] string path)
+        /// <param name="definition">The definition, which must not be <c>null</c>.</param>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
+        public void SpawnCustomNpc([NotNull] NpcDefinition definition, int x, int y)
         {
-            if (path == null)
+            if (definition == null)
             {
-                throw new ArgumentNullException(nameof(path));
+                throw new ArgumentNullException(nameof(definition));
             }
 
+            var npcId = NPC.NewNPC(x, y, definition.BaseType);
+            if (npcId != Main.maxNPCs)
+            {
+                AttachCustomNpc(Main.npc[npcId], definition);
+            }
+        }
+
+        internal void AttachCustomNpc(NPC npc, NpcDefinition definition)
+        {
+            if (definition.BaseType != npc.netID)
+            {
+                npc.SetDefaults(definition.BaseType);
+            }
+            definition.ApplyTo(npc);
+
+            var customNpc = new CustomNpc(npc, definition);
+            _customNpcs.Remove(npc);
+            _customNpcs.Add(npc, customNpc);
+            Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customNpc));
+
+            // Ensure that all players see the changes.
+            var npcId = npc.whoAmI;
+            TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
+            TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
+        }
+
+        internal CustomNpc GetCustomNpc(NPC npc) =>
+            _customNpcs.TryGetValue(npc, out var customNpc) ? customNpc : null;
+
+        internal void LoadDefinitions([NotNull] string path)
+        {
             if (File.Exists(path))
             {
                 _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(path));
@@ -127,129 +116,40 @@ namespace CustomNpcs.Npcs
             }
         }
 
-        /// <summary>
-        ///     Removes the custom NPC attached to the specified NPC.
-        /// </summary>
-        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
-        public void RemoveCustomNpc([NotNull] NPC npc)
+        internal void SaveDefinitions(string path)
         {
-            if (npc == null)
-            {
-                throw new ArgumentNullException(nameof(npc));
-            }
-
-            _customNpcs.Remove(npc);
-        }
-
-        /// <summary>
-        ///     Saves the definitions to the specified path.
-        /// </summary>
-        /// <param name="path">The path, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
-        public void SaveDefinitions([NotNull] string path)
-        {
-            if (path == null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
             File.WriteAllText(path, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
         }
 
-        /// <summary>
-        ///     Spawns a custom NPC at the specified coordinates.
-        /// </summary>
-        /// <param name="definition">The definition, which must not be <c>null</c>.</param>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
-        /// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
-        [CanBeNull]
-        public CustomNpc SpawnCustomNpc([NotNull] NpcDefinition definition, int x, int y)
+        internal void TryReplaceNpc(NPC npc)
         {
-            if (definition == null)
+            // Randomly pick a valid replacement definition, if possible.
+            var definition = _definitions
+                .Where(d => d.ReplacementTargetType == npc.netID)
+                .FirstOrDefault(d => _random.NextDouble() < (d.ReplacementChance ?? 1));
+            if (definition != null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                AttachCustomNpc(npc, definition);
             }
-
-            var npcId = NPC.NewNPC(x, y, definition.BaseType);
-            if (npcId == Main.maxNPCs)
-            {
-                return null;
-            }
-
-            var npc = Main.npc[npcId];
-            var customNpc = AttachCustomNpc(npc, definition);
-            var onSpawn = customNpc.Definition.OnSpawn;
-            Utils.TryExecuteLua(() => onSpawn?.Call(customNpc));
-            TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-            TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
-            return customNpc;
         }
 
-        /// <summary>
-        ///     Tries to replace the specified NPC.
-        /// </summary>
-        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
-        /// <returns><c>true</c> if the operation succeeded; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
-        public bool TryReplaceNpc([NotNull] NPC npc)
+        internal void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
         {
-            if (npc == null)
-            {
-                throw new ArgumentNullException(nameof(npc));
-            }
-
-            var baseType = npc.netID;
-            foreach (var definition in _definitions.Where(d => d.ReplacementTargetType == baseType))
-            {
-                if (_random.NextDouble() < (definition.ReplacementChance ?? 1))
-                {
-                    if (definition.BaseType != baseType)
-                    {
-                        npc.SetDefaults(definition.BaseType);
-                    }
-                    var customNpc = AttachCustomNpc(npc, definition);
-                    var npcId = npc.whoAmI;
-                    TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-                    TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
-
-                    var onSpawn = customNpc.Definition.OnSpawn;
-                    Utils.TryExecuteLua(() => onSpawn?.Call(customNpc));
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        ///     Tries to spawn an NPC at the specified tile coordinates on the player.
-        /// </summary>
-        /// <param name="player">The player, which must not be <c>null</c>.</param>
-        /// <param name="tileX">The X coordinate.</param>
-        /// <param name="tileY">The Y coordinate.</param>
-        public void TrySpawnNpc([NotNull] TSPlayer player, int tileX, int tileY)
-        {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             if (player.TPlayer.activeNPCs >= Config.Instance.MaxSpawns || _random.Next(Config.Instance.SpawnRate) != 0)
             {
                 return;
             }
 
+            // Get spawn weights for all NPC definitions.
             var weights = new Dictionary<NpcDefinition, int>();
             foreach (var definition in _definitions.Where(d => d.ShouldCustomSpawn))
             {
                 var weight = 0;
-                var onCheckSpawn = definition.OnCheckSpawn;
-                Utils.TryExecuteLua(() => weight = (int)(onCheckSpawn?.Call(player, tileX, tileY)[0] ?? 1));
+                Utils.TryExecuteLua(() => weight = (int)(definition.OnCheckSpawn?.Call(player, tileX, tileY)[0] ?? 1));
                 weights[definition] = weight;
             }
 
+            // Randomly pick an NPC to spawn.
             var rand = _random.Next(weights.Values.Sum());
             var current = 0;
             foreach (var kvp in weights)
