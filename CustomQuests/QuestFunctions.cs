@@ -357,32 +357,81 @@ namespace CustomQuests
         /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="style">The style.</param>
-        /// <returns>The resulting chest.</returns>
-        [CanBeNull]
         [LuaGlobal]
         [UsedImplicitly]
-        public static Chest PlaceChest(int x, int y, int style)
+        public static void PlaceChest(int x, int y, int style)
         {
-            if (Chest.FindChest(x, y - 1) == -1)
-            {
-                WorldGen.PlaceChestDirect(x, y, 21, style, -1);
-            }
-            var tile1 = Main.tile[x, y + 1];
-            var tile2 = Main.tile[x + 1, y + 1];
-            if (!tile1.active() || !Main.tileSolid[tile1.type])
-            {
-                tile1.active(true);
-                tile1.type = 0;
-            }
-            if (!tile2.active() || !Main.tileSolid[tile2.type])
-            {
-                tile2.active(true);
-                tile2.type = 0;
-            }
             var chestId = Chest.FindChest(x, y - 1);
-            return chestId < 0 ? null : Main.chest[chestId];
+            if (chestId != -1)
+            {
+                return;
+            }
+
+            chestId = WorldGen.PlaceChest(x, y, style: style);
+            if (chestId != -1)
+            {
+                TSPlayer.All.SendData((PacketTypes)34, "", 0, x, y, style, chestId);
+                return;
+            }
+
+            for (var i = x; i < x + 2; ++i)
+            {
+                for (var j = y - 1; j < y + 2; ++j)
+                {
+                    var tile = Main.tile[i, j];
+                    if (j == y + 1)
+                    {
+                        tile.active(true);
+                        tile.type = 0;
+                    }
+                    else
+                    {
+                        tile.active(false);
+                    }
+                }
+            }
+            TSPlayer.All.SendTileSquare(x, y, 3);
+
+            chestId = WorldGen.PlaceChest(x, y, style: style);
+            if (chestId != -1)
+            {
+                TSPlayer.All.SendData((PacketTypes)34, "", 0, x, y, style, chestId);
+            }
         }
 
+        /// <summary>
+        ///     Puts an item into the chest at the specified coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
+        /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="stack">The stack.</param>
+        /// <param name="prefix">The prefix.</param>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void PutItemIntoChest(int x, int y, int type, int stack = 1, byte prefix = 0)
+        {
+            var chestId = Chest.FindChest(x, y - 1);
+            if (chestId == -1)
+            {
+                return;
+            }
+
+            var chest = Main.chest[chestId];
+            for (var i = 0; i < Chest.maxItems; ++i)
+            {
+                var item = chest.item[i];
+                if (item.netID == 0)
+                {
+                    item.netID = type;
+                    item.stack = stack;
+                    item.prefix = prefix;
+                    TSPlayer.All.SendData(PacketTypes.ChestItem, "", chestId, i);
+                    return;
+                }
+            }
+        }
+        
         /// <summary>
         ///     Returns a random integer in the specified range.
         /// </summary>
