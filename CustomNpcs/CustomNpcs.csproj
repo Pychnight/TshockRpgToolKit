@@ -72,7 +72,7 @@
     <Compile Include="Invasions\InvasionManager.cs" />
     <Compile Include="Npcs\CustomNpc.cs" />
     <Compile Include="Npcs\NpcManager.cs" />
-    <Compile Include="Npcs\CustomNpcDefinition.cs" />
+    <Compile Include="Npcs\NpcDefinition.cs" />
     <Compile Include="CustomNpcsPlugin.cs" />
     <Compile Include="Invasions\InvasionDefinition.cs" />
     <Compile Include="Npcs\LootEntryDefinition.cs" />

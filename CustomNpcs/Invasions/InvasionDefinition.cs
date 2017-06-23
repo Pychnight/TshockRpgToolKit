@@ -25,8 +25,8 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets the completed message.
         /// </summary>
-        [NotNull]
         [JsonProperty(Order = 3)]
+        [NotNull]
         public string CompletedMessage { get; private set; } = "The example invasion has ended!";
 
         /// <summary>
@@ -47,6 +47,7 @@ namespace CustomNpcs.Invasions
         ///     Gets the NPC point values.
         /// </summary>
         [JsonProperty(Order = 2)]
+        [NotNull]
         public Dictionary<string, int> NpcPointValues { get; private set; } = new Dictionary<string, int>();
 
         /// <summary>
@@ -65,12 +66,12 @@ namespace CustomNpcs.Invasions
         ///     Gets the waves.
         /// </summary>
         [ItemNotNull]
-        [NotNull]
         [JsonProperty(Order = 6)]
+        [NotNull]
         public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
 
         /// <summary>
-        ///     Disposes the invasion definition.
+        ///     Disposes the definition.
         /// </summary>
         public void Dispose()
         {

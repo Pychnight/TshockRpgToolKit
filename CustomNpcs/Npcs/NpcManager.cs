@@ -19,7 +19,7 @@ namespace CustomNpcs.Npcs
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly Random _random = new Random();
 
-        private List<CustomNpcDefinition> _definitions = new List<CustomNpcDefinition>();
+        private List<NpcDefinition> _definitions = new List<NpcDefinition>();
 
         private NpcManager()
         {
@@ -29,6 +29,7 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets the NPC manager instance.
         /// </summary>
+        [NotNull]
         public static NpcManager Instance { get; } = new NpcManager();
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace CustomNpcs.Npcs
         /// </exception>
         /// <returns>The custom NPC.</returns>
         [NotNull]
-        public CustomNpc AttachCustomNpc([NotNull] NPC npc, [NotNull] CustomNpcDefinition definition)
+        public CustomNpc AttachCustomNpc([NotNull] NPC npc, [NotNull] NpcDefinition definition)
         {
             if (npc == null)
             {
@@ -82,7 +83,7 @@ namespace CustomNpcs.Npcs
         /// <returns>The definition, or <c>null</c> if it does not exist.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
         [CanBeNull]
-        public CustomNpcDefinition FindDefinition([NotNull] string name)
+        public NpcDefinition FindDefinition([NotNull] string name)
         {
             if (name == null)
             {
@@ -117,7 +118,7 @@ namespace CustomNpcs.Npcs
 
             if (File.Exists(path))
             {
-                _definitions = JsonConvert.DeserializeObject<List<CustomNpcDefinition>>(File.ReadAllText(path));
+                _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(path));
                 foreach (var definition in _definitions)
                 {
                     definition.ThrowIfInvalid();
@@ -165,7 +166,7 @@ namespace CustomNpcs.Npcs
         /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
         /// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
         [CanBeNull]
-        public CustomNpc SpawnCustomNpc([NotNull] CustomNpcDefinition definition, int x, int y)
+        public CustomNpc SpawnCustomNpc([NotNull] NpcDefinition definition, int x, int y)
         {
             if (definition == null)
             {
@@ -240,7 +241,7 @@ namespace CustomNpcs.Npcs
                 return;
             }
 
-            var weights = new Dictionary<CustomNpcDefinition, int>();
+            var weights = new Dictionary<NpcDefinition, int>();
             foreach (var definition in _definitions.Where(d => d.ShouldCustomSpawn))
             {
                 var weight = 0;

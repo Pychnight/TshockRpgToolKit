@@ -25,7 +25,7 @@ namespace CustomNpcs.Npcs
         /// <exception cref="ArgumentNullException">
         ///     Either <paramref name="npc" /> or <paramref name="definition" /> is <c>null</c>.
         /// </exception>
-        public CustomNpc([NotNull] NPC npc, [NotNull] CustomNpcDefinition definition)
+        public CustomNpc([NotNull] NPC npc, [NotNull] NpcDefinition definition)
         {
             Npc = npc ?? throw new ArgumentNullException(nameof(npc));
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
@@ -34,7 +34,8 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets the custom NPC definition.
         /// </summary>
-        public CustomNpcDefinition Definition { get; }
+        [NotNull]
+        public NpcDefinition Definition { get; }
 
         /// <summary>
         ///     Gets or sets the HP.
@@ -46,14 +47,33 @@ namespace CustomNpcs.Npcs
         }
 
         /// <summary>
+        ///     Gets the index.
+        /// </summary>
+        public int Index => Npc.whoAmI;
+
+        /// <summary>
         ///     Gets the wrapped NPC.
         /// </summary>
+        [NotNull]
         public NPC Npc { get; }
 
         /// <summary>
-        ///     Gets the position.
+        ///     Gets or sets the position.
         /// </summary>
-        public Vector2 Position => Npc.position;
+        public Vector2 Position
+        {
+            get => Npc.position;
+            set => Npc.position = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether to send a network update.
+        /// </summary>
+        public bool SendNetUpdate
+        {
+            get => Npc.netUpdate;
+            set => Npc.netUpdate = value;
+        }
 
         /// <summary>
         ///     Gets or sets the target.
@@ -63,6 +83,15 @@ namespace CustomNpcs.Npcs
         {
             get => Npc.target < 0 || Npc.target >= Main.maxPlayers ? null : TShock.Players[Npc.target];
             set => Npc.target = value?.Index ?? -1;
+        }
+
+        /// <summary>
+        ///     Gets or sets the velocity.
+        /// </summary>
+        public Vector2 Velocity
+        {
+            get => Npc.velocity;
+            set => Npc.velocity = value;
         }
 
         /// <summary>

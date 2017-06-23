@@ -33,6 +33,7 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets the invasion manager instance.
         /// </summary>
+        [NotNull]
         public static InvasionManager Instance { get; } = new InvasionManager();
 
         /// <summary>

@@ -9,10 +9,10 @@ using Terraria;
 namespace CustomNpcs.Npcs
 {
     /// <summary>
-    ///     Represents a custom NPC definition.
+    ///     Represents an NPC definition.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class CustomNpcDefinition : IDisposable
+    public sealed class NpcDefinition : IDisposable
     {
         [JsonProperty("BaseOverride", Order = 3)]
         private BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
