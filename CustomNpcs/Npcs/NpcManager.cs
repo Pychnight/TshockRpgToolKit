@@ -122,13 +122,23 @@ namespace CustomNpcs.Npcs
 
         internal void TryReplaceNpc(NPC npc)
         {
-            // Randomly pick a valid replacement definition, if possible.
-            var definition = _definitions
-                .Where(d => d.ReplacementTargetType == npc.netID)
-                .FirstOrDefault(d => _random.NextDouble() < (d.ReplacementChance ?? 1));
-            if (definition != null)
+            // Get replacement chances for all NPC definitions.
+            var chances = new Dictionary<NpcDefinition, double>();
+            foreach (var definition in _definitions.Where(d => d.ShouldReplace))
             {
-                AttachCustomNpc(npc, definition);
+                var chance = 0.0;
+                Utils.TryExecuteLua(() => chance = (double?)definition.OnCheckReplace?.Call(npc)[0] ?? 0);
+                chances[definition] = chance;
+            }
+
+            // Randomly pick an NPC definition to replace.
+            foreach (var kvp in chances)
+            {
+                if (_random.NextDouble() < kvp.Value)
+                {
+                    AttachCustomNpc(npc, kvp.Key);
+                    return;
+                }
             }
         }
 
@@ -141,7 +151,7 @@ namespace CustomNpcs.Npcs
 
             // Get spawn weights for all NPC definitions.
             var weights = new Dictionary<NpcDefinition, int>();
-            foreach (var definition in _definitions.Where(d => d.ShouldCustomSpawn))
+            foreach (var definition in _definitions.Where(d => d.ShouldSpawn))
             {
                 var weight = 0;
                 Utils.TryExecuteLua(() => weight =

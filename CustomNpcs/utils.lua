@@ -1,19 +1,19 @@
-﻿-- Utility function for spawning after any mechanical boss is defeated.
+﻿-- Utility function for spawning or replacing after any mechanical boss is defeated.
 function AfterAnyMechBoss()
     return NPC.downedMechBossAny
 end
 
--- Utility function for spawning after Golem is defeated.
+-- Utility function for spawning or replacing after Golem is defeated.
 function AfterGolem()
     return NPC.downedGolemBoss
 end
 
--- Utility function for spawning after the Moon Lord is defeated.
+-- Utility function for spawning or replacing after the Moon Lord is defeated.
 function AfterMoonLord()
     return NPC.downedMoonlord
 end
 
--- Utility function for spawning after Plantera is defeated.
+-- Utility function for spawning or replacing after Plantera is defeated.
 function AfterPlantera()
     return NPC.downedPlantBoss
 end
@@ -43,32 +43,32 @@ function AtUnderworldLevel(player)
     return player.TPlayer.ZoneUnderworldHeight
 end
 
--- Utility function for spawning during a blood moon.
+-- Utility function for spawning or replacing during a blood moon.
 function DuringBloodMoon()
     return Main.bloodMoon
 end
 
--- Utility function for spawning during day.
+-- Utility function for spawning or replacing during the day.
 function DuringDay()
     return Main.dayTime
 end
 
--- Utility function for spawning during an eclipse.
+-- Utility function for spawning or replacing during an eclipse.
 function DuringEclipse()
     return Main.eclipse
 end
 
--- Utility function for spawning during hardmode.
+-- Utility function for spawning or replacing during hardmode.
 function DuringHardmode()
     return Main.hardMode
 end
 
--- Utility function for spawning during night.
+-- Utility function for spawning or replacing during the night.
 function DuringNight()
     return not Main.dayTime
 end
 
--- Utility function for spawning during rain.
+-- Utility function for spawning or replacing during rain.
 function DuringRain()
     return Main.raining
 end
@@ -137,4 +137,9 @@ end
 -- Utility function for spawning in a meteor.
 function InMeteor(player)
 	return player.TPlayer.ZoneMeteor
+end
+
+-- Utility function for replacing with a type.
+function IsType(baseNpc, type)
+    return baseNpc.netID == type
 end

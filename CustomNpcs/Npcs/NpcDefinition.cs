@@ -64,6 +64,12 @@ namespace CustomNpcs.Npcs
         public LuaFunction OnAiUpdate { get; private set; }
 
         /// <summary>
+        ///     Gets a function that is invoked when the NPC is checked for replacing.
+        /// </summary>
+        [CanBeNull]
+        public LuaFunction OnCheckReplace { get; private set; }
+
+        /// <summary>
         ///     Gets a function that is invoked when the NPC is checked for spawning.
         /// </summary>
         [CanBeNull]
@@ -92,19 +98,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         [CanBeNull]
         public LuaFunction OnStrike { get; private set; }
-
-        /// <summary>
-        ///     Gets the replacement chance.
-        /// </summary>
-        [CanBeNull]
-        public double? ReplacementChance => _spawning.ReplacementChance;
-
-        /// <summary>
-        ///     Gets the replacement target type.
-        /// </summary>
-        [CanBeNull]
-        public int? ReplacementTargetType => _spawning.ReplacementTargetType;
-
+        
         /// <summary>
         ///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
         /// </summary>
@@ -112,9 +106,14 @@ namespace CustomNpcs.Npcs
             _baseOverride.AiStyle != null || _baseOverride.HasNoCollision != null || _baseOverride.HasNoGravity != null;
 
         /// <summary>
-        ///     Gets a value indicating whether the NPC should have custom spawn.
+        ///     Gets a value indicating whether the NPC should spawn.
         /// </summary>
-        public bool ShouldCustomSpawn => _spawning.ShouldSpawn;
+        public bool ShouldReplace => _spawning.ShouldReplace;
+
+        /// <summary>
+        ///     Gets a value indicating whether the NPC should spawn.
+        /// </summary>
+        public bool ShouldSpawn => _spawning.ShouldSpawn;
 
         /// <summary>
         ///     Gets a value indicating whether the NPC should update on hit.
@@ -127,6 +126,7 @@ namespace CustomNpcs.Npcs
         public void Dispose()
         {
             OnAiUpdate = null;
+            OnCheckReplace = null;
             OnCheckSpawn = null;
             OnCollision = null;
             OnKilled = null;
@@ -185,6 +185,7 @@ namespace CustomNpcs.Npcs
             _lua = lua;
 
             OnAiUpdate = _lua["OnAiUpdate"] as LuaFunction;
+            OnCheckReplace = _lua["OnCheckReplace"] as LuaFunction;
             OnCheckSpawn = _lua["OnCheckSpawn"] as LuaFunction;
             OnCollision = _lua["OnCollision"] as LuaFunction;
             OnKilled = _lua["OnKilled"] as LuaFunction;
@@ -227,7 +228,6 @@ namespace CustomNpcs.Npcs
             {
                 throw new FormatException("Spawning is null.");
             }
-            _spawning.ThrowIfInvalid();
             if (_baseOverride == null)
             {
                 throw new FormatException("BaseOverride is null.");
@@ -310,34 +310,11 @@ namespace CustomNpcs.Npcs
         [JsonObject(MemberSerialization.OptIn)]
         private sealed class SpawningDefinition
         {
-            [JsonProperty(Order = 3)]
-            public double? ReplacementChance { get; private set; }
-
-            [JsonProperty(Order = 2)]
-            public int? ReplacementTargetType { get; private set; }
+            [JsonProperty(Order = 1)]
+            public bool ShouldReplace { get; private set; }
 
             [JsonProperty(Order = 0)]
             public bool ShouldSpawn { get; private set; }
-
-            internal void ThrowIfInvalid()
-            {
-                if (ReplacementTargetType < -65)
-                {
-                    throw new FormatException($"{nameof(ReplacementTargetType)} is too small.");
-                }
-                if (ReplacementTargetType >= Main.maxNPCTypes)
-                {
-                    throw new FormatException($"{nameof(ReplacementTargetType)} is too large.");
-                }
-                if (ReplacementChance < 0)
-                {
-                    throw new FormatException($"{nameof(ReplacementChance)} is negative.");
-                }
-                if (ReplacementChance > 1)
-                {
-                    throw new FormatException($"{nameof(ReplacementChance)} is greater than 1.");
-                }
-            }
         }
     }
 }
