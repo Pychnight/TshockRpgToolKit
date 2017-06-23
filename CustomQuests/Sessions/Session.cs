@@ -14,7 +14,7 @@ namespace CustomQuests.Sessions
     public sealed class Session : IDisposable
     {
         private readonly TSPlayer _player;
-        
+
         private Quest _currentQuest;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace CustomQuests.Sessions
         public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
 
         /// <summary>
-        /// Gets or sets the current Lua instance.
+        ///     Gets or sets the current Lua instance.
         /// </summary>
         [CanBeNull]
         public Lua CurrentLua { get; private set; }
@@ -79,7 +79,7 @@ namespace CustomQuests.Sessions
         public string CurrentQuestName => CurrentQuestInfo?.Name;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the session is aborting the quest.
+        ///     Gets or sets a value indicating whether the session is aborting the quest.
         /// </summary>
         public bool IsAborting { get; set; }
 
@@ -216,7 +216,6 @@ namespace CustomQuests.Sessions
 
             if (IsAborting)
             {
-                Console.WriteLine("Aborting...");
                 IsAborting = false;
                 Dispose();
                 SetQuestState(null);

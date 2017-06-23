@@ -81,10 +81,7 @@ namespace CustomQuests.Triggers
             }
 
             var npc = args.Npc;
-            Console.WriteLine("Struck " + npc.GivenOrTypeName);
-            var c = !_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false;
-            Console.WriteLine("c " + c);
-            if (c)
+            if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
             {
                 return;
             }
@@ -115,7 +112,6 @@ namespace CustomQuests.Triggers
                 LastStrucks.Remove(npcId);
                 --_amount;
             }
-            Console.WriteLine(_amount);
         }
     }
 }

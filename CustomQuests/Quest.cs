@@ -88,7 +88,7 @@ namespace CustomQuests
         }
 
         /// <summary>
-        /// Pops the top trigger.
+        ///     Pops the top trigger.
         /// </summary>
         /// <returns>The top trigger, or <c>null</c> if there is none.</returns>
         [CanBeNull]

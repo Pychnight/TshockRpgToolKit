@@ -368,7 +368,6 @@ namespace CustomQuests
                 WorldGen.PlaceChestDirect(x, y, 21, style, -1);
             }
             var chestId = Chest.FindChest(x, y - 1);
-            Console.WriteLine(chestId);
             return chestId < 0 ? null : Main.chest[chestId];
         }
 

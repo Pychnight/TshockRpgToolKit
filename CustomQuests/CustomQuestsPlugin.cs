@@ -147,7 +147,7 @@ namespace CustomQuests
             {
                 return;
             }
-            
+
             var questSession = player == party.Leader ? session : GetSession(party.Leader);
             if (questSession.CurrentQuest != null)
             {
@@ -229,7 +229,7 @@ namespace CustomQuests
             {
                 return;
             }
-            
+
             // Just don't send this
             if (args.text.ToString() == "Receiving tile data")
             {
