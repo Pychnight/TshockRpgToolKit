@@ -99,24 +99,24 @@ namespace CustomNpcs.Npcs
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="seconds">The seconds, which must be positive.</param>
-        /// <param name="radius">The radius, which must be positive.</param>
+        /// <param name="tileRadius">The tile radius, which must be positive.</param>
         /// <exception cref="ArgumentOutOfRangeException">
-        ///     Either <paramref name="seconds" /> or <paramref name="radius" /> is not positive.
+        ///     Either <paramref name="seconds" /> or <paramref name="tileRadius" /> is not positive.
         /// </exception>
-        public void BuffNearbyPlayers(int type, int seconds, int radius)
+        public void BuffNearbyPlayers(int type, int seconds, int tileRadius = 50)
         {
             if (seconds <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
             }
-            if (radius <= 0)
+            if (tileRadius <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
             }
 
             foreach (var player in TShock.Players.Where(
                 p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
-                     256 * radius * radius))
+                     256 * tileRadius * tileRadius))
             {
                 player.SetBuff(type, 60 * seconds, true);
             }
@@ -190,23 +190,23 @@ namespace CustomNpcs.Npcs
         /// </summary>
         /// <param name="message">The message, which must not be <c>null</c>.</param>
         /// <param name="color">The color.</param>
-        /// <param name="radius">The radius, which must be positive.</param>
+        /// <param name="tileRadius">The tile radius, which must be positive.</param>
         /// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is not positive.</exception>
-        public void MessageNearbyPlayers([NotNull] string message, Color color, int radius)
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="tileRadius" /> is not positive.</exception>
+        public void MessageNearbyPlayers([NotNull] string message, Color color, int tileRadius = 50)
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
-            if (radius <= 0)
+            if (tileRadius <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
             }
 
             foreach (var player in TShock.Players.Where(
                 p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
-                     256 * radius * radius))
+                     256 * tileRadius * tileRadius))
             {
                 player.SendMessage(message, color);
             }

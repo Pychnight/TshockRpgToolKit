@@ -67,7 +67,8 @@ namespace CustomNpcs.Npcs
         /// <param name="x">The X coordinate.</param>
         /// <param name="y">The Y coordinate.</param>
         /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
-        public void SpawnCustomNpc([NotNull] NpcDefinition definition, int x, int y)
+        /// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
+        public CustomNpc SpawnCustomNpc([NotNull] NpcDefinition definition, int x, int y)
         {
             if (definition == null)
             {
@@ -75,13 +76,10 @@ namespace CustomNpcs.Npcs
             }
 
             var npcId = NPC.NewNPC(x, y, definition.BaseType);
-            if (npcId != Main.maxNPCs)
-            {
-                AttachCustomNpc(Main.npc[npcId], definition);
-            }
+            return npcId != Main.maxNPCs ? AttachCustomNpc(Main.npc[npcId], definition) : null;
         }
 
-        internal void AttachCustomNpc(NPC npc, NpcDefinition definition)
+        internal CustomNpc AttachCustomNpc(NPC npc, NpcDefinition definition)
         {
             if (definition.BaseType != npc.netID)
             {
@@ -98,6 +96,7 @@ namespace CustomNpcs.Npcs
             var npcId = npc.whoAmI;
             TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
             TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
+            return customNpc;
         }
 
         internal CustomNpc GetCustomNpc(NPC npc) =>
@@ -145,7 +144,8 @@ namespace CustomNpcs.Npcs
             foreach (var definition in _definitions.Where(d => d.ShouldCustomSpawn))
             {
                 var weight = 0;
-                Utils.TryExecuteLua(() => weight = (int)(definition.OnCheckSpawn?.Call(player, tileX, tileY)[0] ?? 1));
+                Utils.TryExecuteLua(() => weight =
+                    (int)((double?)definition.OnCheckSpawn?.Call(player, tileX, tileY)[0] ?? 0));
                 weights[definition] = weight;
             }
 

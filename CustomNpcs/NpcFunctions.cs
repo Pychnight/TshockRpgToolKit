@@ -15,6 +15,8 @@ namespace CustomNpcs
     /// </summary>
     public static class NpcFunctions
     {
+        private static readonly Random Random = new Random();
+
         /// <summary>
         ///     Broadcasts the specified message.
         /// </summary>
@@ -52,6 +54,16 @@ namespace CustomNpcs
         }
 
         /// <summary>
+        ///     Gets the tile type at the specified coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate, which must be in bounds.</param>
+        /// <param name="y">The Y coordinate, which must be in bounds.</param>
+        /// <returns>The tile type.</returns>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static int GetTileType(int x, int y) => Main.tile[x, y].type;
+
+        /// <summary>
         ///     Determines whether the specified coordinates are in the region.
         /// </summary>
         /// <param name="x">The X coordinate.</param>
@@ -72,33 +84,60 @@ namespace CustomNpcs
         }
 
         /// <summary>
-        ///     Spawns the custom mob with the specified name, coordinates, and amount.
+        ///     Gets a random number between 0.0 and 1.0.
         /// </summary>
-        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <param name="radius">The radius, which must be positive.</param>
-        /// <param name="amount">The amount, which must be positive.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
-        /// </exception>
-        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        /// <returns>The number.</returns>
         [LuaGlobal]
         [UsedImplicitly]
-        public static void SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        public static double RandomDouble() => Random.NextDouble();
+
+        /// <summary>
+        ///     Gets a random integer between the specified values.
+        /// </summary>
+        /// <param name="min">The minimum.</param>
+        /// <param name="max">The maximum, which must be at least <paramref name="min" />.</param>
+        /// <returns>The integer.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static int RandomInt(int min, int max)
+        {
+            if (max < min)
+            {
+                throw new ArgumentOutOfRangeException(nameof(max), "Maximum must be at least the minimum.");
+            }
+
+            return Random.Next(min, max);
+        }
+
+        /// <summary>
+        ///     Sets the tile type at the specified coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate, which must be in bounds.</param>
+        /// <param name="y">The Y coordinate, which must be in bounds.</param>
+        /// <param name="type">The tile type.</param>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void SetTileType(int x, int y, int type)
+        {
+            Main.tile[x, y].type = (ushort)type;
+        }
+
+        /// <summary>
+        ///     Spawns a custom NPC with the specified name at a position.
+        /// </summary>
+        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+        /// <param name="position">The position.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        /// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static CustomNpc SpawnCustomNpc([NotNull] string name, Vector2 position)
         {
             if (name == null)
             {
                 throw new ArgumentNullException(nameof(name));
-            }
-            if (radius <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-            }
-            if (amount <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
             }
 
             var definition = NpcManager.Instance.FindDefinition(name);
@@ -106,58 +145,37 @@ namespace CustomNpcs
             {
                 throw new FormatException($"Invalid custom NPC name '{name}'.");
             }
-
-            for (var i = 0; i < amount; ++i)
-            {
-                TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                NpcManager.Instance.SpawnCustomNpc(definition, 16 * spawnX, 16 * spawnY);
-            }
+            return NpcManager.Instance.SpawnCustomNpc(definition, (int)position.X, (int)position.Y);
         }
 
         /// <summary>
-        ///     Spawns the mob with the specified name, coordinates, and amount.
+        ///     Spawns an NPC with the specified name at a position.
         /// </summary>
         /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <param name="radius">The radius, which must be positive.</param>
-        /// <param name="amount">The amount, which must be positive.</param>
+        /// <param name="position">The position.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
-        /// </exception>
         /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        /// <returns>The NPC, or <c>null</c> if spawning failed.</returns>
         [LuaGlobal]
         [UsedImplicitly]
-        public static void SpawnMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        public static NPC SpawnNpc([NotNull] string name, Vector2 position)
         {
             if (name == null)
             {
                 throw new ArgumentNullException(nameof(name));
             }
-            if (radius <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-            }
-            if (amount <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-            }
 
-            var npcId = GetNpcIdFromName(name);
-            if (npcId == null)
+            var npcType = GetNpcTypeFromName(name);
+            if (npcType == null)
             {
                 throw new FormatException($"Invalid NPC name '{name}'.");
             }
 
-            for (var i = 0; i < amount; ++i)
-            {
-                TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
-            }
+            var npcId = NPC.NewNPC((int)position.X, (int)position.Y, (int)npcType);
+            return npcId != Main.maxNPCs ? Main.npc[npcId] : null;
         }
 
-        private static int? GetNpcIdFromName(string name)
+        private static int? GetNpcTypeFromName(string name)
         {
             for (var i = -65; i < Main.maxNPCTypes; ++i)
             {
