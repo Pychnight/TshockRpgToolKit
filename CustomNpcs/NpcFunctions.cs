@@ -68,7 +68,7 @@ namespace CustomNpcs
                 throw new ArgumentNullException(nameof(regionName));
             }
 
-            return GetRegion(regionName)?.InArea(x, y) ?? false;
+            return GetRegion(regionName)?.InArea(x, y) == true;
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace CustomNpcs
             for (var i = -65; i < Main.maxNPCTypes; ++i)
             {
                 var npcName = EnglishLanguage.GetNpcNameById(i);
-                if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
+                if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     return i;
                 }

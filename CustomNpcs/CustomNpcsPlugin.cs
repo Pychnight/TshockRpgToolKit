@@ -42,7 +42,6 @@ namespace CustomNpcs
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
 
         private readonly bool[] _ignoreHits = new bool[Main.maxPlayers + 1];
-        private readonly object _luaLock = new object();
         private readonly bool[] _npcChecked = new bool[Main.maxNPCs + 1];
         private readonly Random _random = new Random();
 
@@ -198,7 +197,7 @@ namespace CustomNpcs
             }
             else
             {
-                TSPlayer.All.SendInfoMessage($"{player.Name} changed the custom maximum spawns to {maxSpawns}.");
+                TSPlayer.All.SendInfoMessage($"{player.Name} set the custom maximum spawns to {maxSpawns}.");
             }
         }
 
@@ -234,7 +233,7 @@ namespace CustomNpcs
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
                 NpcManager.Instance.SpawnCustomNpc(definition, 16 * spawnX, 16 * spawnY);
             }
-            player.SendSuccessMessage($"Spawned {amount} {inputName}(s).");
+            player.SendSuccessMessage($"Spawned {amount} {definition.Name}(s).");
         }
 
         private void CustomSpawnRate(CommandArgs args)
@@ -261,7 +260,7 @@ namespace CustomNpcs
             }
             else
             {
-                TSPlayer.All.SendInfoMessage($"{player.Name} changed the custom spawn rate to {spawnRate}.");
+                TSPlayer.All.SendInfoMessage($"{player.Name} set the custom spawn rate to {spawnRate}.");
             }
         }
 
@@ -269,10 +268,10 @@ namespace CustomNpcs
         {
             InvasionManager.UpdateInvasion();
 
-            foreach (var npc in Main.npc.Where(n => n != null && n.active))
+            foreach (var npc in Main.npc.Where(n => n?.active == true))
             {
                 var customNpc = NpcManager.GetCustomNpc(npc);
-                if (customNpc?.Definition.ShouldAggressivelyUpdate ?? false)
+                if (customNpc?.Definition.ShouldAggressivelyUpdate == true)
                 {
                     npc.netUpdate = true;
                 }
@@ -285,7 +284,7 @@ namespace CustomNpcs
                 }
             }
 
-            foreach (var player in TShock.Players.Where(p => p != null && p.Active))
+            foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
                 var tplayer = player.TPlayer;
                 var playerRectangle = new Rectangle((int)tplayer.position.X, (int)tplayer.position.Y, tplayer.width,
@@ -297,7 +296,7 @@ namespace CustomNpcs
                     _ignoreHits[playerIndex] = false;
                 }
 
-                foreach (var npc in Main.npc.Where(n => n != null && n.active))
+                foreach (var npc in Main.npc.Where(n => n?.active == true))
                 {
                     var customNpc = NpcManager.GetCustomNpc(npc);
                     if (customNpc == null)
@@ -372,7 +371,7 @@ namespace CustomNpcs
                 var spawnRectangle = new Rectangle(16 * tileX, 16 * tileY, 16, 16);
                 var safeRangeX = (int)(NPC.sWidth / 16.0 * 0.52);
                 var safeRangeY = (int)(NPC.sHeight / 16.0 * 0.52);
-                foreach (var player2 in TShock.Players.Where(p => p != null && p.Active))
+                foreach (var player2 in TShock.Players.Where(p => p?.Active == true))
                 {
                     var playerCenter = player2.TPlayer.Center;
                     var playerSafeRectangle = new Rectangle((int)(playerCenter.X - NPC.sWidth / 2.0 - safeRangeX),
@@ -383,13 +382,12 @@ namespace CustomNpcs
                         succeeded = false;
                     }
                 }
-
                 if (!succeeded)
                 {
                     continue;
                 }
 
-                if (InvasionManager.ShouldSpawn(player))
+                if (InvasionManager.ShouldSpawnInvasionNpcs(player))
                 {
                     InvasionManager.TrySpawnInvasionNpc(player, tileX, tileY);
                     // Set the activeNPCs to a large number to prevent vanilla NPCs from spawning.
@@ -416,8 +414,8 @@ namespace CustomNpcs
                 return;
             }
 
-            var onAiUpdate = customNpc.Definition.OnAiUpdate;
-            Utils.TryExecuteLua(() => args.Handled = (bool)(onAiUpdate?.Call(customNpc)?[0] ?? false));
+            Utils.TryExecuteLua(() => args.Handled =
+                (bool?)customNpc.Definition.OnAiUpdate?.Call(customNpc)?[0] == true);
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
@@ -431,8 +429,7 @@ namespace CustomNpcs
             }
             InvasionManager.AddPoints(customNpc.Definition.Name);
 
-            var onKilled = customNpc.Definition.OnKilled;
-            Utils.TryExecuteLua(() => onKilled?.Call(customNpc));
+            Utils.TryExecuteLua(() => customNpc.Definition.OnKilled?.Call(customNpc));
 
             foreach (var lootEntry in customNpc.Definition.LootEntries)
             {
@@ -442,7 +439,7 @@ namespace CustomNpcs
                     var items = TShock.Utils.GetItemByIdOrName(lootEntry.Name);
                     if (items.Count != 1)
                     {
-                        break;
+                        continue;
                     }
 
                     Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, items[0].type,
@@ -458,8 +455,7 @@ namespace CustomNpcs
                 return;
             }
 
-            var npc = Main.npc[args.NpcArrayIndex];
-            var customNpc = NpcManager.GetCustomNpc(npc);
+            var customNpc = NpcManager.GetCustomNpc(Main.npc[args.NpcArrayIndex]);
             if (customNpc == null)
             {
                 return;
@@ -515,11 +511,10 @@ namespace CustomNpcs
             }
 
             var player = TShock.Players[args.Player.whoAmI];
-            var onStrike = customNpc.Definition.OnStrike;
             Utils.TryExecuteLua(() =>
             {
-                args.Handled =
-                    (bool)(onStrike?.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0] ?? false);
+                args.Handled = (bool?)customNpc.Definition.OnStrike?.Call(
+                                   customNpc, player, args.Damage, args.KnockBack, args.Critical)[0] == true;
             });
         }
 

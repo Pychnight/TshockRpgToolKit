@@ -8,7 +8,7 @@ namespace CustomNpcs
     internal static class Utils
     {
         private static readonly object LuaLock = new object();
-        
+
         public static void TryExecuteLua([NotNull] Action action)
         {
             try
