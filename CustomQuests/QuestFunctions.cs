@@ -362,7 +362,12 @@ namespace CustomQuests
         [UsedImplicitly]
         public static Chest PlaceChest(int x, int y, int style)
         {
-            var chestId = Main.tile[x, y].type == 21 ? Chest.FindChest(x, y) : WorldGen.PlaceChest(x, y, style: style);
+            if (Main.tile[x, y].type != 21)
+            {
+                WorldGen.PlaceChestDirect(x, y, 21, style, -1);
+            }
+            var chestId = Chest.FindChest(x, y - 1);
+            Console.WriteLine(chestId);
             return chestId < 0 ? null : Main.chest[chestId];
         }
 
