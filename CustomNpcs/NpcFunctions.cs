@@ -37,6 +37,25 @@ namespace CustomNpcs
         }
 
         /// <summary>
+        ///     Creates a combat text with the specified color and position.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="color">The color.</param>
+        /// <param name="position">The position.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="text" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void CreateCombatText([NotNull] string text, Color color, Vector2 position)
+        {
+            if (text == null)
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+
+            TSPlayer.All.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
+        }
+
+        /// <summary>
         ///     Gets the region with the specified name.
         /// </summary>
         /// <param name="name">The name, which must not be <c>null</c>.</param>

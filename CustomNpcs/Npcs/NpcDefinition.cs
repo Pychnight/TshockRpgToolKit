@@ -98,7 +98,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         [CanBeNull]
         public LuaFunction OnStrike { get; private set; }
-        
+
         /// <summary>
         ///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
         /// </summary>
