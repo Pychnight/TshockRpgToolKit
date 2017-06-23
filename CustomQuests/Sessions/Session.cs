@@ -216,6 +216,7 @@ namespace CustomQuests.Sessions
 
             if (IsAborting)
             {
+                Console.WriteLine("Aborting...");
                 IsAborting = false;
                 Dispose();
                 SetQuestState(null);

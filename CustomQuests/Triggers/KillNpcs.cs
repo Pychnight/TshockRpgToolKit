@@ -59,7 +59,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => _amount == 0;
+        protected override bool UpdateImpl() => _amount <= 0;
 
         private void OnNpcKilled(NpcKilledEventArgs args)
         {
@@ -81,7 +81,10 @@ namespace CustomQuests.Triggers
             }
 
             var npc = args.Npc;
-            if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
+            Console.WriteLine("Struck " + npc.GivenOrTypeName);
+            var c = !_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false;
+            Console.WriteLine("c " + c);
+            if (c)
             {
                 return;
             }
@@ -112,6 +115,7 @@ namespace CustomQuests.Triggers
                 LastStrucks.Remove(npcId);
                 --_amount;
             }
+            Console.WriteLine(_amount);
         }
     }
 }

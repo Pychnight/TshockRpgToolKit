@@ -46,10 +46,6 @@ namespace CustomQuests.Triggers
         /// <inheritdoc />
         public override void Initialize()
         {
-            foreach (var trigger in _triggers)
-            {
-                trigger.Initialize();
-            }
         }
 
         protected override void Dispose(bool disposing)

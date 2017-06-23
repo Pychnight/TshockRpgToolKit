@@ -37,6 +37,26 @@ function CountWalls(x, y, x2, y2, id)
 	return count
 end
 
+-- Finds an NPC by name. (Uses GivenOrTypeName)
+function FindNpcByName(name)
+	for i = 0, 255 do
+		local npc = Main.npc[i]
+		if npc.GivenOrTypeName == name then
+			return npc
+		end
+	end
+end
+
+-- Finds an NPC by type.
+function FindNpcByType(type)
+	for i = 0, 255 do
+		local npc = Main.npc[i]
+		if npc.netID == type then
+			return npc
+		end
+	end
+end
+
 -- Runs a callback for each player in a party.
 function ForEachPlayer(callback)
 	local enumerator = party:GetEnumerator()

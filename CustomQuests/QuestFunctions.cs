@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CustomNPC;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
@@ -413,6 +414,7 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate.</param>
         /// <param name="radius">The radius, which must be positive.</param>
         /// <param name="amount">The amount, which must be positive.</param>
+        /// <returns>The spawned NPCs.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
@@ -420,7 +422,7 @@ namespace CustomQuests
         /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public static void SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        public static NPC[] SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
         {
             if (name == null)
             {
@@ -441,11 +443,17 @@ namespace CustomQuests
                 throw new FormatException($"Invalid custom NPC name '{name}'.");
             }
 
+            var npcs = new List<NPC>();
             for (var i = 0; i < amount; ++i)
             {
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                NPCManager.SpawnNPCAtLocation(16 * spawnX, 16 * spawnY, npcDef);
+                var npcIndex = NPCManager.SpawnNPCAtLocation(16 * spawnX, 16 * spawnY, npcDef);
+                if (npcIndex != Main.maxNPCs)
+                {
+                    npcs.Add(Main.npc[npcIndex]);
+                }
             }
+            return npcs.ToArray();
         }
 
         /// <summary>
@@ -456,6 +464,7 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate.</param>
         /// <param name="radius">The radius, which must be positive.</param>
         /// <param name="amount">The amount, which must be positive.</param>
+        /// <returns>The spawned NPCs.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
@@ -463,7 +472,7 @@ namespace CustomQuests
         /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public static void SpawnMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        public static NPC[] SpawnMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
         {
             if (name == null)
             {
@@ -484,11 +493,17 @@ namespace CustomQuests
                 throw new FormatException($"Invalid NPC name '{name}'.");
             }
 
+            var npcs = new List<NPC>();
             for (var i = 0; i < amount; ++i)
             {
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
+                var npcIndex = NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
+                if (npcIndex != Main.maxNPCs)
+                {
+                    npcs.Add(Main.npc[npcIndex]);
+                }
             }
+            return npcs.ToArray();
         }
 
         private static int? GetNpcIdFromName(string name)
