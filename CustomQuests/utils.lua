@@ -39,9 +39,9 @@ end
 
 -- Finds an NPC by name. (Uses GivenOrTypeName)
 function FindNpcByName(name)
-	for i = 0, 255 do
+	for i = 0, 200 do
 		local npc = Main.npc[i]
-		if npc.GivenOrTypeName == name then
+		if npc.active and npc.GivenOrTypeName == name then
 			return npc
 		end
 	end
@@ -49,9 +49,9 @@ end
 
 -- Finds an NPC by type.
 function FindNpcByType(type)
-	for i = 0, 255 do
+	for i = 0, 200 do
 		local npc = Main.npc[i]
-		if npc.netID == type then
+		if npc.active and npc.netID == type then
 			return npc
 		end
 	end

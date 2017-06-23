@@ -88,6 +88,25 @@ namespace CustomQuests
         }
 
         /// <summary>
+        /// Pops the top trigger.
+        /// </summary>
+        /// <returns>The top trigger, or <c>null</c> if there is none.</returns>
+        [CanBeNull]
+        [LuaGlobal]
+        [UsedImplicitly]
+        public Trigger PopTrigger()
+        {
+            if (_triggers.Count == 0)
+            {
+                return null;
+            }
+
+            var result = _triggers[0];
+            _triggers.RemoveAt(0);
+            return result;
+        }
+
+        /// <summary>
         ///     Updates the quest.
         /// </summary>
         public void Update()
