@@ -3,6 +3,7 @@ using CustomNpcs.Npcs;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using NLua;
+using OTAPI.Tile;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
@@ -54,34 +55,14 @@ namespace CustomNpcs
         }
 
         /// <summary>
-        ///     Gets the tile type at the specified coordinates.
+        ///     Gets the tile at the specified coordinates.
         /// </summary>
         /// <param name="x">The X coordinate, which must be in bounds.</param>
         /// <param name="y">The Y coordinate, which must be in bounds.</param>
-        /// <returns>The tile type.</returns>
+        /// <returns>The tile.</returns>
         [LuaGlobal]
         [UsedImplicitly]
-        public static int GetTileType(int x, int y) => Main.tile[x, y].type;
-
-        /// <summary>
-        ///     Determines whether the specified coordinates are in the region.
-        /// </summary>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <param name="regionName">The name, which must not be <c>null</c>.</param>
-        /// <returns><c>true</c> if the region exists and the coordinate are in the region; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="regionName" /> is <c>null</c>.</exception>
-        [LuaGlobal]
-        [UsedImplicitly]
-        public static bool IsInRegion(int x, int y, [NotNull] string regionName)
-        {
-            if (regionName == null)
-            {
-                throw new ArgumentNullException(nameof(regionName));
-            }
-
-            return GetRegion(regionName)?.InArea(x, y) == true;
-        }
+        public static ITile GetTile(int x, int y) => Main.tile[x, y];
 
         /// <summary>
         ///     Gets a random number between 0.0 and 1.0.
@@ -108,19 +89,6 @@ namespace CustomNpcs
             }
 
             return Random.Next(min, max);
-        }
-
-        /// <summary>
-        ///     Sets the tile type at the specified coordinates.
-        /// </summary>
-        /// <param name="x">The X coordinate, which must be in bounds.</param>
-        /// <param name="y">The Y coordinate, which must be in bounds.</param>
-        /// <param name="type">The tile type.</param>
-        [LuaGlobal]
-        [UsedImplicitly]
-        public static void SetTileType(int x, int y, int type)
-        {
-            Main.tile[x, y].type = (ushort)type;
         }
 
         /// <summary>
