@@ -65,7 +65,7 @@ namespace CustomQuests.Triggers
         {
             var npc = args.npc;
             if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
-                (_npcName?.Equals(npc.FullName, StringComparison.OrdinalIgnoreCase) ?? true))
+                (_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? true))
             {
                 LastStrucks.Remove(npc.whoAmI);
                 --_amount;
@@ -81,7 +81,7 @@ namespace CustomQuests.Triggers
             }
 
             var npc = args.Npc;
-            if (!_npcName?.Equals(npc.FullName, StringComparison.OrdinalIgnoreCase) ?? false)
+            if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
             {
                 return;
             }
