@@ -6,41 +6,88 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Terraria;
+using Terraria.ID;
+using TerrariaApi.Server;
 using TShockAPI;
+using TShockAPI.Hooks;
 
 namespace CustomNpcs.Npcs
 {
     /// <summary>
     ///     Represents an NPC manager. This class is a singleton.
     /// </summary>
-    [PublicAPI]
     public sealed class NpcManager : IDisposable
     {
+        private const string IgnoreCollisionKey = "CustomNpcs_IgnoreCollision";
+
+        private static readonly bool[] AllowedDrops = ItemID.Sets.Factory.CreateBoolSet(
+            // Allow dropping coins.
+            ItemID.CopperCoin, ItemID.SilverCoin, ItemID.GoldCoin, ItemID.PlatinumCoin,
+            // Allow dropping hearts and stars.
+            ItemID.Heart, ItemID.CandyApple, ItemID.CandyCane, ItemID.Star, ItemID.SoulCake, ItemID.SugarPlum,
+            // Allow dropping biome-related souls.
+            ItemID.SoulofLight, ItemID.SoulofNight,
+            // Allow dropping mechanical boss summoning items.
+            ItemID.MechanicalWorm, ItemID.MechanicalEye, ItemID.MechanicalSkull,
+            // Allow dropping key molds.
+            ItemID.JungleKeyMold, ItemID.CorruptionKeyMold, ItemID.CrimsonKeyMold, ItemID.HallowedKeyMold,
+            ItemID.FrozenKeyMold,
+            // Allow dropping nebula armor items.
+            ItemID.NebulaPickup1, ItemID.NebulaPickup2, ItemID.NebulaPickup3);
+
+        private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
+        private readonly bool[] _checkNpcForReplacement = new bool[Main.maxNPCs + 1];
+        private readonly object _checkNpcLock = new object();
+
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
+        private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 
         private List<NpcDefinition> _definitions = new List<NpcDefinition>();
 
-        private NpcManager()
+        internal NpcManager(CustomNpcsPlugin plugin)
         {
+            _plugin = plugin;
+            
+            LoadDefinitions();
+
+            GeneralHooks.ReloadEvent += OnReload;
+            ServerApi.Hooks.GameUpdate.Register(_plugin, OnGameUpdate);
+            ServerApi.Hooks.NpcAIUpdate.Register(_plugin, OnNpcAiUpdate);
+            ServerApi.Hooks.NpcKilled.Register(_plugin, OnNpcKilled);
+            ServerApi.Hooks.NpcLootDrop.Register(_plugin, OnNpcLootDrop);
+            ServerApi.Hooks.NpcSetDefaultsInt.Register(_plugin, OnNpcSetDefaults);
+            ServerApi.Hooks.NpcSpawn.Register(_plugin, OnNpcSpawn);
+            ServerApi.Hooks.NpcStrike.Register(_plugin, OnNpcStrike);
         }
 
         /// <summary>
         ///     Gets the NPC manager instance.
         /// </summary>
-        [NotNull]
-        public static NpcManager Instance { get; } = new NpcManager();
+        [CanBeNull]
+        public static NpcManager Instance { get; internal set; }
 
         /// <summary>
         ///     Disposes the NPC manager.
         /// </summary>
         public void Dispose()
         {
+            File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
+
             foreach (var definition in _definitions)
             {
                 definition.Dispose();
             }
             _definitions.Clear();
+
+            GeneralHooks.ReloadEvent -= OnReload;
+            ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);
+            ServerApi.Hooks.NpcAIUpdate.Deregister(_plugin, OnNpcAiUpdate);
+            ServerApi.Hooks.NpcKilled.Deregister(_plugin, OnNpcKilled);
+            ServerApi.Hooks.NpcLootDrop.Deregister(_plugin, OnNpcLootDrop);
+            ServerApi.Hooks.NpcSetDefaultsInt.Deregister(_plugin, OnNpcSetDefaults);
+            ServerApi.Hooks.NpcSpawn.Deregister(_plugin, OnNpcSpawn);
+            ServerApi.Hooks.NpcStrike.Deregister(_plugin, OnNpcStrike);
         }
 
         /// <summary>
@@ -75,25 +122,33 @@ namespace CustomNpcs.Npcs
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            var npcId = NPC.NewNPC(x, y, definition.BaseType);
-            return npcId != Main.maxNPCs ? AttachCustomNpc(Main.npc[npcId], definition) : null;
+            // The following code needs to be synchronized since SpawnCustomNpc may run on a different thread than the
+            // main thread. Otherwise, there is a possible race condition where the newly-spawned custom NPC may be
+            // erroneously checked for replacement.
+            lock (_checkNpcLock)
+            {
+                var npcId = NPC.NewNPC(x, y, definition.BaseType);
+                return npcId != Main.maxNPCs ? AttachCustomNpc(Main.npc[npcId], definition) : null;
+            }
         }
 
         internal CustomNpc AttachCustomNpc(NPC npc, NpcDefinition definition)
         {
-            if (definition.BaseType != npc.netID)
-            {
-                npc.SetDefaults(definition.BaseType);
-            }
             definition.ApplyTo(npc);
 
             var customNpc = new CustomNpc(npc, definition);
             _customNpcs.Remove(npc);
             _customNpcs.Add(npc, customNpc);
-            Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customNpc));
+
+            var onSpawn = definition.OnSpawn;
+            if (onSpawn != null)
+            {
+                Utils.TryExecuteLua(() => onSpawn.Call(customNpc));
+            }
 
             // Ensure that all players see the changes.
             var npcId = npc.whoAmI;
+            _checkNpcForReplacement[npcId] = false;
             TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
             TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
             return customNpc;
@@ -102,11 +157,11 @@ namespace CustomNpcs.Npcs
         internal CustomNpc GetCustomNpc(NPC npc) =>
             _customNpcs.TryGetValue(npc, out var customNpc) ? customNpc : null;
 
-        internal void LoadDefinitions([NotNull] string path)
+        private void LoadDefinitions()
         {
-            if (File.Exists(path))
+            if (File.Exists(NpcsPath))
             {
-                _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(path));
+                _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(NpcsPath));
                 foreach (var definition in _definitions)
                 {
                     definition.ThrowIfInvalid();
@@ -115,62 +170,245 @@ namespace CustomNpcs.Npcs
             }
         }
 
-        internal void SaveDefinitions(string path)
+        private void OnGameUpdate(EventArgs args)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
-        }
+            Utils.TrySpawnForEachPlayer(TrySpawnCustomNpc);
 
-        internal void TryReplaceNpc(NPC npc)
-        {
-            // Get replacement chances for all NPC definitions.
-            var chances = new Dictionary<NpcDefinition, double>();
-            foreach (var definition in _definitions.Where(d => d.ShouldReplace))
+            // NOTE: This may be prone to deadlock if _checkNpcLock and the lock associated with Utils.TryExecuteLua are
+            // ever acquired in the opposite order.
+            lock (_checkNpcLock)
             {
-                var chance = 0.0;
-                Utils.TryExecuteLua(() => chance = (double?)definition.OnCheckReplace?.Call(npc)[0] ?? 0);
-                chances[definition] = chance;
+                foreach (var npc in Main.npc.Where(n => n?.active == true))
+                {
+                    var customNpc = GetCustomNpc(npc);
+                    if (customNpc?.Definition.ShouldAggressivelyUpdate == true)
+                    {
+                        npc.netUpdate = true;
+                    }
+
+                    var npcId = npc.whoAmI;
+                    if (_checkNpcForReplacement[npcId])
+                    {
+                        TryReplaceNpc(npc);
+                        _checkNpcForReplacement[npcId] = false;
+                    }
+                }
             }
 
-            // Randomly pick an NPC definition to replace.
-            foreach (var kvp in chances)
+            foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
-                if (_random.NextDouble() < kvp.Value)
+                var tplayer = player.TPlayer;
+                var playerHitbox = tplayer.Hitbox;
+                if (!tplayer.immune)
                 {
-                    AttachCustomNpc(npc, kvp.Key);
-                    return;
+                    player.SetData(IgnoreCollisionKey, false);
+                }
+
+                foreach (var npc in Main.npc.Where(n => n?.active == true))
+                {
+                    var customNpc = GetCustomNpc(npc);
+                    if (customNpc == null)
+                    {
+                        continue;
+                    }
+
+                    if (npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey))
+                    {
+                        var onCollision = customNpc.Definition.OnCollision;
+                        if (onCollision != null)
+                        {
+                            Utils.TryExecuteLua(() => onCollision.Call(customNpc, player));
+                        }
+                        player.SetData(IgnoreCollisionKey, true);
+                        break;
+                    }
                 }
             }
         }
 
-        internal void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
+        private void OnNpcAiUpdate(NpcAiUpdateEventArgs args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            var customNpc = GetCustomNpc(args.Npc);
+            var onAiUpdate = customNpc?.Definition.OnAiUpdate;
+            if (onAiUpdate != null)
+            {
+                Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customNpc)[0]);
+            }
+        }
+
+        private void OnNpcKilled(NpcKilledEventArgs args)
+        {
+            var npc = args.npc;
+            var customNpc = GetCustomNpc(npc);
+            if (customNpc == null)
+            {
+                return;
+            }
+
+            var definition = customNpc.Definition;
+            foreach (var lootEntry in definition.LootEntries)
+            {
+                if (_random.NextDouble() >= lootEntry.Chance)
+                {
+                    continue;
+                }
+
+                var stackSize = _random.Next(lootEntry.MinStackSize, lootEntry.MaxStackSize);
+                var items = TShock.Utils.GetItemByIdOrName(lootEntry.Name);
+                if (items.Count == 1)
+                {
+                    Item.NewItem(npc.position, npc.Size, items[0].type, stackSize, false, lootEntry.Prefix);
+                }
+            }
+
+            var onKilled = definition.OnKilled;
+            if (onKilled != null)
+            {
+                Utils.TryExecuteLua(() => onKilled.Call(customNpc));
+            }
+        }
+
+        private void OnNpcLootDrop(NpcLootDropEventArgs args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            var customNpc = GetCustomNpc(Main.npc[args.NpcArrayIndex]);
+            if (customNpc != null)
+            {
+                args.Handled = customNpc.Definition.ShouldOverrideLoot && !AllowedDrops[args.ItemId];
+            }
+        }
+
+        private void OnNpcSetDefaults(SetDefaultsEventArgs<NPC, int> args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            // If an NPC has its defaults set while in the world (e.g., NPC.Transform, slimes, and the Eater of
+            // Worlds), we need to check for replacement since the NPC since the NPC may turn into a replaceable NPC.
+            var npc = args.Object;
+            if (npc.active && npc.position.X > 100)
+            {
+                _checkNpcForReplacement[npc.whoAmI] = true;
+            }
+        }
+
+        private void OnNpcSpawn(NpcSpawnEventArgs args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            var npcId = args.NpcId;
+            // Set npc.whoAmI. This is normally set only when the NPC is first updated; in this case, this needs to be
+            // done now as we make several assumptions regarding it.
+            Main.npc[npcId].whoAmI = npcId;
+            _checkNpcForReplacement[npcId] = true;
+        }
+
+        private void OnNpcStrike(NpcStrikeEventArgs args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            var customNpc = GetCustomNpc(args.Npc);
+            if (customNpc == null)
+            {
+                return;
+            }
+
+            var definition = customNpc.Definition;
+            if (definition.ShouldUpdateOnHit)
+            {
+                customNpc.SendNetUpdate = true;
+            }
+
+            var player = TShock.Players[args.Player.whoAmI];
+            // This call needs to be wrapped with Utils.TryExecuteLua since OnNpcStrike may run on a different thread
+            // than the main thread.
+            var onStrike = definition.OnStrike;
+            if (onStrike != null)
+            {
+                Utils.TryExecuteLua(() => args.Handled =
+                    (bool)onStrike.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0]);
+            }
+        }
+
+        private void OnReload(ReloadEventArgs args)
+        {
+            // This call needs to be wrapped with Utils.TryExecuteLua since OnReload may run on a different thread than
+            // the main thread.
+            Utils.TryExecuteLua(() =>
+            {
+                foreach (var definition in _definitions)
+                {
+                    definition.Dispose();
+                }
+                _definitions.Clear();
+
+                LoadDefinitions();
+            });
+            args.Player.SendSuccessMessage("[CustomNpcs] Reloaded NPCs!");
+        }
+
+        private void TryReplaceNpc(NPC npc)
+        {
+            var chances = new Dictionary<NpcDefinition, double>();
+            foreach (var definition in _definitions.Where(d => d.ShouldReplace))
+            {
+                var chance = 0.0;
+                var onCheckReplace = definition.OnCheckReplace;
+                if (onCheckReplace != null)
+                {
+                    Utils.TryExecuteLua(() => chance = (double)onCheckReplace.Call(npc)[0]);
+                }
+                chances[definition] = chance;
+            }
+
+            var randomDefinition = Utils.TryPickRandomKey(chances);
+            if (randomDefinition != null)
+            {
+                AttachCustomNpc(npc, randomDefinition);
+            }
+        }
+
+        private void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
         {
             if (player.TPlayer.activeNPCs >= Config.Instance.MaxSpawns || _random.Next(Config.Instance.SpawnRate) != 0)
             {
                 return;
             }
 
-            // Get spawn weights for all NPC definitions.
             var weights = new Dictionary<NpcDefinition, int>();
             foreach (var definition in _definitions.Where(d => d.ShouldSpawn))
             {
                 var weight = 0;
-                Utils.TryExecuteLua(() => weight =
-                    (int)((double?)definition.OnCheckSpawn?.Call(player, tileX, tileY)[0] ?? 0));
+                var onCheckSpawn = definition.OnCheckSpawn;
+                if (onCheckSpawn != null)
+                {
+                    // First cast to a double then an integer because NLua will return a double.
+                    Utils.TryExecuteLua(() => weight = (int)(double)onCheckSpawn.Call(player, tileX, tileY)[0]);
+                }
                 weights[definition] = weight;
             }
 
-            // Randomly pick an NPC to spawn.
-            var rand = _random.Next(weights.Values.Sum());
-            var current = 0;
-            foreach (var kvp in weights)
+            var randomDefinition = Utils.PickRandomWeightedKey(weights);
+            if (randomDefinition != null)
             {
-                var weight = kvp.Value;
-                if (current <= rand && rand < current + weight)
-                {
-                    SpawnCustomNpc(kvp.Key, 16 * tileX + 8, 16 * tileY);
-                    return;
-                }
-                current += weight;
+                SpawnCustomNpc(randomDefinition, 16 * tileX + 8, 16 * tileY);
             }
         }
     }

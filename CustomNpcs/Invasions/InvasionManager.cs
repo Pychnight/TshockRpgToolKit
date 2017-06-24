@@ -7,39 +7,51 @@ using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
+using TerrariaApi.Server;
 using TShockAPI;
+using TShockAPI.Hooks;
 
 namespace CustomNpcs.Invasions
 {
     /// <summary>
     ///     Represents an invasion manager. This class is a singleton.
     /// </summary>
-    [PublicAPI]
     public sealed class InvasionManager : IDisposable
     {
+        private static readonly string InvasionsPath = Path.Combine("npcs", "invasions.json");
+        private static readonly Color InvasionTextColor = new Color(175, 25, 255);
+
+        private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 
+        private string _currentMiniboss;
         private int _currentPoints;
         private int _currentWaveIndex;
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
-        private bool _hasMiniboss;
         private DateTime _lastProgressUpdate;
         private int _requiredPoints;
 
-        private InvasionManager()
+        internal InvasionManager(CustomNpcsPlugin plugin)
         {
+            _plugin = plugin;
+            
+            LoadDefinitions();
+
+            GeneralHooks.ReloadEvent += OnReload;
+            // Register OnGameUpdate with priority 1 to guarantee that InvasionManager runs before NpcManager.
+            ServerApi.Hooks.GameUpdate.Register(_plugin, OnGameUpdate, 1);
+            ServerApi.Hooks.NpcKilled.Register(_plugin, OnNpcKilled);
         }
 
         /// <summary>
         ///     Gets the invasion manager instance.
         /// </summary>
-        [NotNull]
-        public static InvasionManager Instance { get; } = new InvasionManager();
+        [CanBeNull]
+        public static InvasionManager Instance { get; internal set; }
 
         /// <summary>
         ///     Gets the current invasion, or <c>null</c> if there is none.
         /// </summary>
-        [CanBeNull]
         public InvasionDefinition CurrentInvasion { get; private set; }
 
         /// <summary>
@@ -47,6 +59,12 @@ namespace CustomNpcs.Invasions
         /// </summary>
         public void Dispose()
         {
+            File.WriteAllText(InvasionsPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
+
+            GeneralHooks.ReloadEvent -= OnReload;
+            ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);
+            ServerApi.Hooks.NpcKilled.Deregister(_plugin, OnNpcKilled);
+
             CurrentInvasion = null;
             foreach (var definition in _definitions)
             {
@@ -86,135 +104,17 @@ namespace CustomNpcs.Invasions
             }
         }
 
-        internal void AddPoints(string npcType)
+        private void LoadDefinitions()
         {
-            if (CurrentInvasion == null)
+            if (File.Exists(InvasionsPath))
             {
-                return;
-            }
-            CurrentInvasion.NpcPointValues.TryGetValue(npcType, out var points);
-
-            if (_hasMiniboss && npcType.Equals(CurrentInvasion.Waves[_currentWaveIndex].Miniboss,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                _hasMiniboss = false;
-            }
-
-            if (points > 0)
-            {
-                _currentPoints += points;
-                _currentPoints = Math.Min(_currentPoints, _requiredPoints);
-                NotifyRelevantPlayers();
-            }
-        }
-
-        internal void LoadDefinitions(string path)
-        {
-            if (File.Exists(path))
-            {
-                _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(path));
+                _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(InvasionsPath));
                 foreach (var definition in _definitions)
                 {
                     definition.ThrowIfInvalid();
                     definition.LoadLuaDefinition();
                 }
             }
-        }
-
-        internal void SaveDefinitions(string path)
-        {
-            File.WriteAllText(path, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
-        }
-
-        internal bool ShouldSpawnInvasionNpcs(TSPlayer player)
-        {
-            if (CurrentInvasion == null)
-            {
-                return false;
-            }
-
-            var playerPosition = player.TPlayer.position;
-            return !CurrentInvasion.AtSpawnOnly || Main.spawnTileX * 16.0 - 3000 < playerPosition.X &&
-                   playerPosition.X < Main.spawnTileX * 16.0 + 3000 &&
-                   playerPosition.Y < Main.worldSurface * 16.0 + NPC.sHeight;
-        }
-
-        internal void TrySpawnInvasionNpc(TSPlayer player, int tileX, int tileY)
-        {
-            // ReSharper disable once PossibleNullReferenceException
-            var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
-            if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
-            {
-                return;
-            }
-
-            if (_currentPoints == _requiredPoints && _hasMiniboss)
-            {
-                var miniboss = currentWave.Miniboss;
-                var isVanilla = int.TryParse(miniboss, out var npcType);
-                foreach (var npc in Main.npc.Where(n => n?.active == true))
-                {
-                    if (isVanilla && npc.netID == npcType)
-                    {
-                        return;
-                    }
-
-                    var customNpc = NpcManager.Instance.GetCustomNpc(npc);
-                    if (customNpc?.Definition.Name.Equals(miniboss, StringComparison.OrdinalIgnoreCase) == true)
-                    {
-                        return;
-                    }
-                }
-
-                SpawnVanillaOrCustomNpc(miniboss, tileX, tileY);
-                return;
-            }
-
-            var npcWeights = currentWave.NpcWeights;
-            var rand = _random.Next(npcWeights.Values.Sum());
-            var current = 0;
-            foreach (var kvp in npcWeights)
-            {
-                var weight = kvp.Value;
-                if (current <= rand && rand < current + weight)
-                {
-                    SpawnVanillaOrCustomNpc(kvp.Key, tileX, tileY);
-                    return;
-                }
-                current += weight;
-            }
-        }
-
-        internal void UpdateInvasion()
-        {
-            if (CurrentInvasion == null)
-            {
-                return;
-            }
-
-            var waves = CurrentInvasion.Waves;
-            if (_currentPoints == _requiredPoints && !_hasMiniboss)
-            {
-                if (++_currentWaveIndex == waves.Count)
-                {
-                    TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
-                    CurrentInvasion = null;
-                    return;
-                }
-
-                StartCurrentWave();
-            }
-
-            // Every second, send a ReportInvasionProgress packet to all players relevant to the invasion.
-            var now = DateTime.UtcNow;
-            if (now - _lastProgressUpdate > TimeSpan.FromSeconds(1))
-            {
-                NotifyRelevantPlayers();
-                _lastProgressUpdate = now;
-            }
-
-            // ReSharper disable once PossibleNullReferenceException
-            Utils.TryExecuteLua(() => CurrentInvasion.OnUpdate?.Call());
         }
 
         private void NotifyRelevantPlayers()
@@ -226,15 +126,98 @@ namespace CustomNpcs.Invasions
             }
         }
 
-        private void SpawnVanillaOrCustomNpc(string npc, int tileX, int tileY)
+        private void OnGameUpdate(EventArgs args)
         {
-            if (int.TryParse(npc, out var npcType))
+            if (CurrentInvasion == null)
+            {
+                return;
+            }
+
+            Utils.TrySpawnForEachPlayer(TrySpawnInvasionNpc);
+
+            if (_currentPoints >= _requiredPoints && _currentMiniboss == null)
+            {
+                if (++_currentWaveIndex == CurrentInvasion.Waves.Count)
+                {
+                    TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
+                    CurrentInvasion = null;
+                    return;
+                }
+
+                StartCurrentWave();
+            }
+
+            var now = DateTime.UtcNow;
+            if (now - _lastProgressUpdate > TimeSpan.FromSeconds(1))
+            {
+                NotifyRelevantPlayers();
+                _lastProgressUpdate = now;
+            }
+
+            var onUpdate = CurrentInvasion.OnUpdate;
+            if (onUpdate != null)
+            {
+                Utils.TryExecuteLua(() => onUpdate.Call());
+            }
+        }
+
+        private void OnNpcKilled(NpcKilledEventArgs args)
+        {
+            if (CurrentInvasion == null)
+            {
+                return;
+            }
+
+            var npc = args.npc;
+            var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
+            var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
+            if (npcNameOrType.Equals(_currentMiniboss, StringComparison.OrdinalIgnoreCase))
+            {
+                _currentMiniboss = null;
+            }
+            else if (CurrentInvasion.NpcPointValues.TryGetValue(npcNameOrType, out var points))
+            {
+                _currentPoints += points;
+                _currentPoints = Math.Min(_currentPoints, _requiredPoints);
+                NotifyRelevantPlayers();
+            }
+        }
+
+        private void OnReload(ReloadEventArgs args)
+        {
+            // This call needs to be wrapped with Utils.TryExecuteLua since OnReload may run on a different thread than
+            // the main thread.
+            Utils.TryExecuteLua(() =>
+            {
+                CurrentInvasion = null;
+                foreach (var definition in _definitions)
+                {
+                    definition.Dispose();
+                }
+                _definitions.Clear();
+
+                LoadDefinitions();
+            });
+            args.Player.SendSuccessMessage("[CustomNpcs] Reloaded invasions!");
+        }
+
+        private bool ShouldSpawnInvasionNpcs(TSPlayer player)
+        {
+            var playerPosition = player.TPlayer.position;
+            return !CurrentInvasion.AtSpawnOnly || Main.spawnTileX * 16.0 - 3000 < playerPosition.X &&
+                   playerPosition.X < Main.spawnTileX * 16.0 + 3000 &&
+                   playerPosition.Y < Main.worldSurface * 16.0 + NPC.sHeight;
+        }
+
+        private void SpawnNpc(string npcNameOrType, int tileX, int tileY)
+        {
+            if (int.TryParse(npcNameOrType, out var npcType))
             {
                 NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
                 return;
             }
 
-            var definition = NpcManager.Instance.FindDefinition(npc);
+            var definition = NpcManager.Instance?.FindDefinition(npcNameOrType);
             if (definition != null)
             {
                 NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, 16 * tileY);
@@ -243,12 +226,47 @@ namespace CustomNpcs.Invasions
 
         private void StartCurrentWave()
         {
-            // ReSharper disable once PossibleNullReferenceException
             var wave = CurrentInvasion.Waves[_currentWaveIndex];
-            TSPlayer.All.SendMessage(wave.StartMessage, new Color(175, 75, 225));
+            TSPlayer.All.SendMessage(wave.StartMessage, InvasionTextColor);
             _currentPoints = 0;
-            _hasMiniboss = wave.Miniboss != null;
+            _currentMiniboss = wave.Miniboss;
             _requiredPoints = wave.PointsRequired * (CurrentInvasion.ScaleByPlayers ? TShock.Utils.ActivePlayers() : 1);
+        }
+
+        private void TrySpawnInvasionNpc(TSPlayer player, int tileX, int tileY)
+        {
+            if (!ShouldSpawnInvasionNpcs(player))
+            {
+                return;
+            }
+
+            var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
+            if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
+            {
+                return;
+            }
+
+            // Prevent other NPCs from spawning.
+            player.TPlayer.activeNPCs = 1000;
+            if (_currentPoints >= _requiredPoints && _currentMiniboss != null)
+            {
+                foreach (var npc in Main.npc.Where(n => n?.active == true))
+                {
+                    var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
+                    var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
+                    if (npcNameOrType.Equals(_currentMiniboss, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return;
+                    }
+                }
+
+                SpawnNpc(_currentMiniboss, tileX, tileY);
+            }
+            else
+            {
+                var randomNpcNameOrType = Utils.PickRandomWeightedKey(currentWave.NpcWeights);
+                SpawnNpc(randomNpcNameOrType, tileX, tileY);
+            }
         }
     }
 }

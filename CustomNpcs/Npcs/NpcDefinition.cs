@@ -39,11 +39,6 @@ namespace CustomNpcs.Npcs
         public List<LootEntryDefinition> LootEntries => _loot.Entries;
 
         /// <summary>
-        ///     Gets a value indicating whether to override loot.
-        /// </summary>
-        public bool LootOverride => _loot.IsOverride;
-
-        /// <summary>
         ///     Gets the Lua path.
         /// </summary>
         [CanBeNull]
@@ -106,6 +101,11 @@ namespace CustomNpcs.Npcs
             _baseOverride.AiStyle != null || _baseOverride.HasNoCollision != null || _baseOverride.HasNoGravity != null;
 
         /// <summary>
+        ///     Gets a value indicating whether loot should be overriden.
+        /// </summary>
+        public bool ShouldOverrideLoot => _loot.IsOverride;
+
+        /// <summary>
         ///     Gets a value indicating whether the NPC should spawn.
         /// </summary>
         public bool ShouldReplace => _spawning.ShouldReplace;
@@ -151,6 +151,10 @@ namespace CustomNpcs.Npcs
             // Set NPC to use four life bytes.
             Main.npcLifeBytes[BaseType] = 4;
 
+            if (npc.netID != BaseType)
+            {
+                npc.SetDefaults(BaseType);
+            }
             npc.aiStyle = _baseOverride.AiStyle ?? npc.aiStyle;
             npc.boss = _baseOverride.IsBoss ?? npc.boss;
             npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;

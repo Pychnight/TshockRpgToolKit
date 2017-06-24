@@ -135,7 +135,7 @@ namespace CustomNpcs.Npcs
                 throw new ArgumentNullException(nameof(name));
             }
 
-            var definition = NpcManager.Instance.FindDefinition(name);
+            var definition = NpcManager.Instance?.FindDefinition(name);
             if (definition == null)
             {
                 throw new FormatException($"Invalid custom NPC name '{name}'.");
