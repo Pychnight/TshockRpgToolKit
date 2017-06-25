@@ -275,6 +275,13 @@ namespace CustomNpcs.Npcs
                 return;
             }
 
+            var bannerId = Item.NPCtoBanner(npc.BannerID());
+            if (bannerId > 0 && !NPCID.Sets.ExcludedFromDeathTally[npc.type] &&
+                Utils.NpcOrRealNpc(npc).AnyInteractions())
+            {
+                --NPC.killCount[bannerId];
+            }
+
             var definition = customNpc.Definition;
             foreach (var lootEntry in definition.LootEntries)
             {
@@ -349,19 +356,25 @@ namespace CustomNpcs.Npcs
                 return;
             }
 
-            var customNpc = GetCustomNpc(args.Npc);
+            var npc = args.Npc;
+            var customNpc = GetCustomNpc(npc);
             if (customNpc == null)
             {
                 return;
             }
 
             var definition = customNpc.Definition;
+            var player = TShock.Players[args.Player.whoAmI];
+            if (!definition.ShouldTallyKills)
+            {
+                // Don't tally kills.
+                npc.playerInteraction[player.Index] = false;
+            }
             if (definition.ShouldUpdateOnHit)
             {
                 customNpc.SendNetUpdate = true;
             }
 
-            var player = TShock.Players[args.Player.whoAmI];
             // This call needs to be wrapped with Utils.TryExecuteLua since OnNpcStrike may run on a different thread
             // than the main thread.
             var onStrike = definition.OnStrike;

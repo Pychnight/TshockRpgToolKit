@@ -116,6 +116,11 @@ namespace CustomNpcs.Npcs
         public bool ShouldSpawn => _spawning.ShouldSpawn;
 
         /// <summary>
+        ///     Gets a value indicating whether the NPC should have kills tallied.
+        /// </summary>
+        public bool ShouldTallyKills => _loot.TallyKills;
+
+        /// <summary>
         ///     Gets a value indicating whether the NPC should update on hit.
         /// </summary>
         public bool ShouldUpdateOnHit => _baseOverride.Defense != null || _baseOverride.KnockbackMultiplier != null;
@@ -292,11 +297,14 @@ namespace CustomNpcs.Npcs
         [JsonObject(MemberSerialization.OptIn)]
         private sealed class LootDefinition
         {
-            [JsonProperty(Order = 1)]
+            [JsonProperty(Order = 2)]
             public List<LootEntryDefinition> Entries { get; private set; } = new List<LootEntryDefinition>();
 
-            [JsonProperty(Order = 0)]
+            [JsonProperty(Order = 1)]
             public bool IsOverride { get; private set; }
+
+            [JsonProperty(Order = 0)]
+            public bool TallyKills { get; private set; }
 
             internal void ThrowIfInvalid()
             {

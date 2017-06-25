@@ -139,6 +139,12 @@ function InMeteor(player)
 	return player.TPlayer.ZoneMeteor
 end
 
+-- Utility function for spawning in water.
+function InWater(x, y)
+	local tile = GetTile(x, y)
+	return tile.liquid > 0 and tile:liquidType() == 0
+end
+
 -- Utility function for replacing with a type.
 function IsType(baseNpc, type)
     return baseNpc.netID == type

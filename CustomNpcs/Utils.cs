@@ -15,6 +15,12 @@ namespace CustomNpcs
         private static readonly object LuaLock = new object();
         private static readonly Random Random = new Random();
 
+        public static NPC NpcOrRealNpc(NPC npc)
+        {
+            var realId = npc.realLife;
+            return realId < 0 ? npc : Main.npc[realId];
+        }
+
         public static TKey PickRandomWeightedKey<TKey>(IDictionary<TKey, int> dictionary)
         {
             var rand = Random.Next(dictionary.Values.Sum());
