@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomNpcs.Npcs;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using NLua.Exceptions;
@@ -15,10 +16,125 @@ namespace CustomNpcs
         private static readonly object LuaLock = new object();
         private static readonly Random Random = new Random();
 
-        public static NPC NpcOrRealNpc(NPC npc)
+        public static void GetSpawnData(TSPlayer player, out double maxSpawns, out double spawnRate)
         {
-            var realId = npc.realLife;
-            return realId < 0 ? npc : Main.npc[realId];
+            maxSpawns = Config.Instance.MaxSpawns;
+            spawnRate = Config.Instance.SpawnRate;
+
+            if (Main.hardMode)
+            {
+                ++maxSpawns;
+            }
+
+            // Handle height-specific modifiers.
+            var tplayer = player.TPlayer;
+            if (tplayer.ZoneOverworldHeight)
+            {
+                if (Main.eclipse)
+                {
+                    maxSpawns *= 1.9;
+                    spawnRate *= 0.2;
+                }
+                else if (!Main.dayTime)
+                {
+                    maxSpawns *= Main.bloodMoon ? 2.34 : 1.3;
+                    spawnRate *= Main.bloodMoon ? 0.18 : 0.6;
+                }
+            }
+            else if (tplayer.ZoneDirtLayerHeight)
+            {
+                maxSpawns *= Main.hardMode ? 1.8 : 1.7;
+                spawnRate *= Main.hardMode ? 0.45 : 0.5;
+            }
+            else if (tplayer.ZoneRockLayerHeight)
+            {
+                maxSpawns *= 1.9;
+                spawnRate *= 0.4;
+            }
+            else if (tplayer.ZoneUnderworldHeight)
+            {
+                maxSpawns *= 2.0;
+            }
+
+            // Handle biome-specific modifiers.
+            if (tplayer.ZoneDungeon)
+            {
+                maxSpawns *= 1.7;
+                spawnRate *= 0.4;
+            }
+            else if (tplayer.ZoneSandstorm)
+            {
+                maxSpawns *= Main.hardMode ? 1.5 : 1.2;
+                spawnRate *= Main.hardMode ? 0.4 : 0.9;
+            }
+            else if (tplayer.ZoneUndergroundDesert)
+            {
+                maxSpawns *= 2.0;
+                spawnRate *= Main.hardMode ? 0.2 : 0.3;
+            }
+            else if (tplayer.ZoneJungle)
+            {
+                maxSpawns *= 1.5;
+                spawnRate *= 0.4;
+            }
+            else if (tplayer.ZoneCorrupt || tplayer.ZoneCrimson)
+            {
+                maxSpawns *= 1.3;
+                spawnRate *= 0.65;
+            }
+            else if (tplayer.ZoneMeteor)
+            {
+                maxSpawns *= 1.1;
+                spawnRate *= 0.4;
+            }
+
+            var activeNpcs = tplayer.activeNPCs;
+            if (activeNpcs < 0.2 * maxSpawns)
+            {
+                spawnRate *= 0.6;
+            }
+            else if (activeNpcs < 0.4 * maxSpawns)
+            {
+                spawnRate *= 0.7;
+            }
+            else if (activeNpcs < 0.6 * maxSpawns)
+            {
+                spawnRate *= 0.8;
+            }
+            else if (activeNpcs < 0.8 * maxSpawns)
+            {
+                spawnRate *= 0.9;
+            }
+
+            // Handle buff-related modifiers.
+            if (tplayer.enemySpawns)
+            {
+                maxSpawns *= 2.0;
+                spawnRate *= 0.5;
+            }
+            if (tplayer.calmed)
+            {
+                maxSpawns *= 0.7;
+                spawnRate *= 1.3;
+            }
+            if (tplayer.sunflower)
+            {
+                maxSpawns *= 0.8;
+                spawnRate *= 1.2;
+            }
+            if (tplayer.ZonePeaceCandle)
+            {
+                maxSpawns *= 0.7;
+                spawnRate *= 1.3;
+            }
+            else if (tplayer.ZoneWaterCandle)
+            {
+                maxSpawns *= 1.3;
+                spawnRate *= 0.7;
+            }
+
+            maxSpawns = Math.Min(maxSpawns, 3 * Config.Instance.MaxSpawns);
+            spawnRate = Math.Max(spawnRate, 0.1 * Config.Instance.SpawnRate);
         }
 
         public static TKey PickRandomWeightedKey<TKey>(IDictionary<TKey, int> dictionary)
@@ -35,6 +151,21 @@ namespace CustomNpcs
                 current += weight;
             }
             return default(TKey);
+        }
+
+        public static void SpawnVanillaOrCustomNpc(string npcNameOrType, int tileX, int tileY)
+        {
+            if (int.TryParse(npcNameOrType, out var npcType))
+            {
+                NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
+                return;
+            }
+
+            var definition = NpcManager.Instance?.FindDefinition(npcNameOrType);
+            if (definition != null)
+            {
+                NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, 16 * tileY);
+            }
         }
 
         public static void TryExecuteLua([NotNull] Action action)

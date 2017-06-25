@@ -275,13 +275,6 @@ namespace CustomNpcs.Npcs
                 return;
             }
 
-            var bannerId = Item.NPCtoBanner(npc.BannerID());
-            if (bannerId > 0 && !NPCID.Sets.ExcludedFromDeathTally[npc.type] &&
-                Utils.NpcOrRealNpc(npc).AnyInteractions())
-            {
-                --NPC.killCount[bannerId];
-            }
-
             var definition = customNpc.Definition;
             foreach (var lootEntry in definition.LootEntries)
             {
@@ -425,7 +418,8 @@ namespace CustomNpcs.Npcs
 
         private void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
         {
-            if (player.TPlayer.activeNPCs >= Config.Instance.MaxSpawns || _random.Next(Config.Instance.SpawnRate) != 0)
+            Utils.GetSpawnData(player, out var maxSpawns, out var spawnRate);
+            if (player.TPlayer.activeNPCs >= maxSpawns || _random.Next((int)spawnRate) != 0)
             {
                 return;
             }

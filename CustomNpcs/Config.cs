@@ -16,7 +16,7 @@ namespace CustomNpcs
         /// <summary>
         ///     Gets or sets the max spawns.
         /// </summary>
-        public int MaxSpawns { get; set; } = 10;
+        public int MaxSpawns { get; set; } = 5;
 
         /// <summary>
         ///     Gets or sets the spawn rate.

@@ -147,6 +147,11 @@ namespace CustomNpcs.Invasions
             }
 
             Utils.TrySpawnForEachPlayer(TrySpawnInvasionNpc);
+            // Prevent other NPCs from spawning for relevant players.
+            foreach (var player in TShock.Players.Where(p => p?.Active == true && ShouldSpawnInvasionNpcs(p)))
+            {
+                player.TPlayer.activeNPCs = 10000;
+            }
 
             if (_currentPoints >= _requiredPoints && _currentMiniboss == null)
             {
@@ -222,21 +227,6 @@ namespace CustomNpcs.Invasions
                    playerPosition.Y < Main.worldSurface * 16.0 + NPC.sHeight;
         }
 
-        private void SpawnNpc(string npcNameOrType, int tileX, int tileY)
-        {
-            if (int.TryParse(npcNameOrType, out var npcType))
-            {
-                NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
-                return;
-            }
-
-            var definition = NpcManager.Instance?.FindDefinition(npcNameOrType);
-            if (definition != null)
-            {
-                NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, 16 * tileY);
-            }
-        }
-
         private void StartCurrentWave()
         {
             var wave = CurrentInvasion.Waves[_currentWaveIndex];
@@ -259,8 +249,6 @@ namespace CustomNpcs.Invasions
                 return;
             }
 
-            // Prevent other NPCs from spawning.
-            player.TPlayer.activeNPCs = 1000;
             if (_currentPoints >= _requiredPoints && _currentMiniboss != null)
             {
                 foreach (var npc in Main.npc.Where(n => n?.active == true))
@@ -273,12 +261,12 @@ namespace CustomNpcs.Invasions
                     }
                 }
 
-                SpawnNpc(_currentMiniboss, tileX, tileY);
+                Utils.SpawnVanillaOrCustomNpc(_currentMiniboss, tileX, tileY);
             }
             else
             {
                 var randomNpcNameOrType = Utils.PickRandomWeightedKey(currentWave.NpcWeights);
-                SpawnNpc(randomNpcNameOrType, tileX, tileY);
+                Utils.SpawnVanillaOrCustomNpc(randomNpcNameOrType, tileX, tileY);
             }
         }
     }
