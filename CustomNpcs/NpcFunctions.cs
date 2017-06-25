@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CustomNpcs.Npcs;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
@@ -52,6 +54,58 @@ namespace CustomNpcs
             }
 
             TSPlayer.All.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
+        }
+
+        /// <summary>
+        ///     Finds all custom NPCs with the specified name.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <returns>The array of custom NPCs.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        public static CustomNpc[] FindCustomNpcs([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            var customNpcs = new List<CustomNpc>();
+            foreach (var npc in Main.npc.Where(n => n?.active == true))
+            {
+                var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
+                if (name.Equals(customNpc?.Definition.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    customNpcs.Add(customNpc);
+                }
+            }
+            return customNpcs.ToArray();
+        }
+
+        /// <summary>
+        ///     Finds all NPCs with the specified name.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <returns>The array of NPCs.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        public static NPC[] FindNpcs([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            var npcs = new List<NPC>();
+            foreach (var npc in Main.npc.Where(n => n?.active == true))
+            {
+                if (NpcManager.Instance?.GetCustomNpc(npc) == null &&
+                    name.Equals(npc.TypeName, StringComparison.OrdinalIgnoreCase))
+                {
+                    npcs.Add(npc);
+                }
+            }
+            return npcs.ToArray();
         }
 
         /// <summary>

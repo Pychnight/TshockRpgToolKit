@@ -27,10 +27,6 @@ namespace CustomNpcs
         /// <param name="game">The Main instance.</param>
         public CustomNpcsPlugin(Main game) : base(game)
         {
-            Directory.CreateDirectory("npcs");
-
-            InvasionManager.Instance = new InvasionManager(this);
-            NpcManager.Instance = new NpcManager(this);
         }
 
         /// <summary>
@@ -199,10 +195,13 @@ namespace CustomNpcs
         /// </summary>
         public override void Initialize()
         {
+            Directory.CreateDirectory("npcs");
             if (File.Exists(ConfigPath))
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
+            InvasionManager.Instance = new InvasionManager(this);
+            NpcManager.Instance = new NpcManager(this);
 
             GeneralHooks.ReloadEvent += OnReload;
 

@@ -34,7 +34,7 @@ namespace CustomNpcs.Invasions
         internal InvasionManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
-            
+
             LoadDefinitions();
 
             GeneralHooks.ReloadEvent += OnReload;
@@ -109,11 +109,29 @@ namespace CustomNpcs.Invasions
             if (File.Exists(InvasionsPath))
             {
                 _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(InvasionsPath));
+                var failedDefinitions = new List<InvasionDefinition>();
                 foreach (var definition in _definitions)
                 {
-                    definition.ThrowIfInvalid();
+                    try
+                    {
+                        definition.ThrowIfInvalid();
+                    }
+                    catch (FormatException ex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(
+                            $"[CustomNpcs] An error occurred while parsing invasion '{definition.Name}': {ex.Message}");
+                        Console.ResetColor();
+                        Console.Write("Press any key to continue...");
+                        Console.ReadKey(true);
+                        Console.Write($"\r{new string(' ', Console.BufferWidth - 1)}\r");
+                        failedDefinitions.Add(definition);
+                        continue;
+                    }
+
                     definition.LoadLuaDefinition();
                 }
+                _definitions = _definitions.Except(failedDefinitions).ToList();
             }
         }
 

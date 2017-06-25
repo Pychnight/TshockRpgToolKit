@@ -36,9 +36,9 @@ namespace CustomNpcs.Npcs
             ItemID.NebulaPickup1, ItemID.NebulaPickup2, ItemID.NebulaPickup3);
 
         private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
+
         private readonly bool[] _checkNpcForReplacement = new bool[Main.maxNPCs + 1];
         private readonly object _checkNpcLock = new object();
-
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
@@ -48,7 +48,7 @@ namespace CustomNpcs.Npcs
         internal NpcManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
-            
+
             LoadDefinitions();
 
             GeneralHooks.ReloadEvent += OnReload;
@@ -108,6 +108,22 @@ namespace CustomNpcs.Npcs
         }
 
         /// <summary>
+        ///     Gets the custom NPC associated with the specified NPC.
+        /// </summary>
+        /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
+        /// <returns>The custom NPC, or <c>null</c> if it does not exist.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
+        public CustomNpc GetCustomNpc([NotNull] NPC npc)
+        {
+            if (npc == null)
+            {
+                throw new ArgumentNullException(nameof(npc));
+            }
+
+            return _customNpcs.TryGetValue(npc, out var customNpc) ? customNpc : null;
+        }
+
+        /// <summary>
         ///     Spawns a custom NPC at the specified coordinates.
         /// </summary>
         /// <param name="definition">The definition, which must not be <c>null</c>.</param>
@@ -154,19 +170,33 @@ namespace CustomNpcs.Npcs
             return customNpc;
         }
 
-        internal CustomNpc GetCustomNpc(NPC npc) =>
-            _customNpcs.TryGetValue(npc, out var customNpc) ? customNpc : null;
-
         private void LoadDefinitions()
         {
             if (File.Exists(NpcsPath))
             {
                 _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(NpcsPath));
+                var failedDefinitions = new List<NpcDefinition>();
                 foreach (var definition in _definitions)
                 {
-                    definition.ThrowIfInvalid();
+                    try
+                    {
+                        definition.ThrowIfInvalid();
+                    }
+                    catch (FormatException ex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(
+                            $"[CustomNpcs] An error occurred while parsing NPC '{definition.Name}': {ex.Message}");
+                        Console.ResetColor();
+                        Console.Write("Press any key to continue...");
+                        Console.ReadKey(true);
+                        Console.Write($"\r{new string(' ', Console.BufferWidth - 1)}\r");
+                        failedDefinitions.Add(definition);
+                        continue;
+                    }
                     definition.LoadLuaDefinition();
                 }
+                _definitions = _definitions.Except(failedDefinitions).ToList();
             }
         }
 
