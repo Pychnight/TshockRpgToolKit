@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomQuests.Triggers;
 using JetBrains.Annotations;
 using NLua;
@@ -11,6 +12,7 @@ namespace CustomQuests
     /// </summary>
     public class Quest : IDisposable
     {
+        private readonly List<Trigger> _completedTriggers = new List<Trigger>();
         private readonly List<Trigger> _triggers = new List<Trigger>();
 
         /// <summary>
@@ -44,7 +46,7 @@ namespace CustomQuests
         /// </summary>
         public void Dispose()
         {
-            foreach (var trigger in _triggers)
+            foreach (var trigger in _completedTriggers.Concat(_triggers))
             {
                 trigger.Dispose();
             }
@@ -120,7 +122,7 @@ namespace CustomQuests
             currentTrigger.Update();
             if (currentTrigger.IsCompleted)
             {
-                currentTrigger.Dispose();
+                _completedTriggers.Add(currentTrigger);
                 _triggers.Remove(currentTrigger);
             }
         }
