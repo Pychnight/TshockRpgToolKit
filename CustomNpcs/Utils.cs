@@ -40,13 +40,13 @@ namespace CustomNpcs
                     action();
                 }
             }
-            catch (LuaException e)
+            catch (LuaException ex)
             {
-                TShock.Log.ConsoleError("A Lua error occurred:");
-                TShock.Log.ConsoleError(e.ToString());
-                if (e.InnerException != null)
+                TShock.Log.ConsoleError("[CustomNpcs] A Lua error occurred:");
+                TShock.Log.ConsoleError(ex.ToString());
+                if (ex.InnerException != null)
                 {
-                    TShock.Log.ConsoleError(e.InnerException.ToString());
+                    TShock.Log.ConsoleError(ex.InnerException.ToString());
                 }
             }
         }

@@ -184,13 +184,8 @@ namespace CustomNpcs.Npcs
                     }
                     catch (FormatException ex)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(
+                        TShock.Log.ConsoleError(
                             $"[CustomNpcs] An error occurred while parsing NPC '{definition.Name}': {ex.Message}");
-                        Console.ResetColor();
-                        Console.Write("Press any key to continue...");
-                        Console.ReadKey(true);
-                        Console.Write($"\r{new string(' ', Console.BufferWidth - 1)}\r");
                         failedDefinitions.Add(definition);
                         continue;
                     }
