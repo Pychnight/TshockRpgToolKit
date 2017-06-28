@@ -16,7 +16,6 @@ namespace CustomNpcs
     /// </summary>
     internal static class Utils
     {
-        private static readonly object LuaLock = new object();
         private static readonly Random Random = new Random();
 
         /// <summary>
@@ -190,17 +189,14 @@ namespace CustomNpcs
         }
 
         /// <summary>
-        ///     Tries to execute the specified action under a lua lock.
+        ///     Tries to execute the specified action.
         /// </summary>
         /// <param name="action">The action, which must not be <c>null</c>.</param>
         public static void TryExecuteLua([NotNull] Action action)
         {
             try
             {
-                lock (LuaLock)
-                {
-                    action();
-                }
+                action();
             }
             catch (LuaException ex)
             {

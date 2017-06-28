@@ -21,6 +21,7 @@ namespace CustomNpcs.Invasions
         private static readonly string InvasionsPath = Path.Combine("npcs", "invasions.json");
         private static readonly Color InvasionTextColor = new Color(175, 25, 255);
 
+        private readonly object _lock = new object();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 
@@ -35,7 +36,7 @@ namespace CustomNpcs.Invasions
         {
             _plugin = plugin;
 
-            LoadDefinitions();
+            Utils.TryExecuteLua(LoadDefinitions);
 
             GeneralHooks.ReloadEvent += OnReload;
             // Register OnGameUpdate with priority 1 to guarantee that InvasionManager runs before NpcManager.
@@ -87,7 +88,10 @@ namespace CustomNpcs.Invasions
                 throw new ArgumentNullException(nameof(name));
             }
 
-            return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
+            lock (_lock)
+            {
+                return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -175,7 +179,10 @@ namespace CustomNpcs.Invasions
             var onUpdate = CurrentInvasion.OnUpdate;
             if (onUpdate != null)
             {
-                Utils.TryExecuteLua(() => onUpdate.Call());
+                lock (_lock)
+                {
+                    Utils.TryExecuteLua(() => onUpdate.Call());
+                }
             }
         }
 
@@ -203,19 +210,17 @@ namespace CustomNpcs.Invasions
 
         private void OnReload(ReloadEventArgs args)
         {
-            // This call needs to be wrapped with Utils.TryExecuteLua since OnReload may run on a different thread than
-            // the main thread.
-            Utils.TryExecuteLua(() =>
+            CurrentInvasion = null;
+            lock (_lock)
             {
-                CurrentInvasion = null;
                 foreach (var definition in _definitions)
                 {
                     definition.Dispose();
                 }
                 _definitions.Clear();
 
-                LoadDefinitions();
-            });
+                Utils.TryExecuteLua(LoadDefinitions);
+            }
             args.Player.SendSuccessMessage("[CustomNpcs] Reloaded invasions!");
         }
 

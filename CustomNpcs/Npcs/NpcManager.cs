@@ -40,6 +40,7 @@ namespace CustomNpcs.Npcs
         private readonly bool[] _checkNpcForReplacement = new bool[Main.maxNPCs + 1];
         private readonly object _checkNpcLock = new object();
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
+        private readonly object _lock = new object();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 
@@ -49,7 +50,7 @@ namespace CustomNpcs.Npcs
         {
             _plugin = plugin;
 
-            LoadDefinitions();
+            Utils.TryExecuteLua(LoadDefinitions);
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GameUpdate.Register(_plugin, OnGameUpdate);
@@ -104,7 +105,10 @@ namespace CustomNpcs.Npcs
                 throw new ArgumentNullException(nameof(name));
             }
 
-            return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
+            lock (_lock)
+            {
+                return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -156,12 +160,11 @@ namespace CustomNpcs.Npcs
             _customNpcs.Remove(npc);
             _customNpcs.Add(npc, customNpc);
 
-            var onSpawn = definition.OnSpawn;
-            if (onSpawn != null)
+            lock (_lock)
             {
-                Utils.TryExecuteLua(() => onSpawn.Call(customNpc));
+                Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customNpc));
             }
-
+            
             // Ensure that all players see the changes.
             var npcId = npc.whoAmI;
             _checkNpcForReplacement[npcId] = false;
@@ -199,8 +202,6 @@ namespace CustomNpcs.Npcs
         {
             Utils.TrySpawnForEachPlayer(TrySpawnCustomNpc);
 
-            // NOTE: This may be prone to deadlock if _checkNpcLock and the lock associated with Utils.TryExecuteLua are
-            // ever acquired in the opposite order.
             lock (_checkNpcLock)
             {
                 foreach (var npc in Main.npc.Where(n => n?.active == true))
@@ -239,10 +240,9 @@ namespace CustomNpcs.Npcs
 
                     if (npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey))
                     {
-                        var onCollision = customNpc.Definition.OnCollision;
-                        if (onCollision != null)
+                        lock (_lock)
                         {
-                            Utils.TryExecuteLua(() => onCollision.Call(customNpc, player));
+                            Utils.TryExecuteLua(() => customNpc.Definition.OnCollision?.Call(customNpc, player));
                         }
                         player.SetData(IgnoreCollisionKey, true);
                         break;
@@ -259,10 +259,18 @@ namespace CustomNpcs.Npcs
             }
 
             var customNpc = GetCustomNpc(args.Npc);
-            var onAiUpdate = customNpc?.Definition.OnAiUpdate;
-            if (onAiUpdate != null)
+            if (customNpc == null)
             {
-                Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customNpc)[0]);
+                return;
+            }
+
+            lock (_lock)
+            {
+                var onAiUpdate = customNpc.Definition.OnAiUpdate;
+                if (onAiUpdate != null)
+                {
+                    Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customNpc)[0]);
+                }
             }
         }
 
@@ -291,10 +299,9 @@ namespace CustomNpcs.Npcs
                 }
             }
 
-            var onKilled = definition.OnKilled;
-            if (onKilled != null)
+            lock (_lock)
             {
-                Utils.TryExecuteLua(() => onKilled.Call(customNpc));
+                Utils.TryExecuteLua(() => definition.OnKilled?.Call(customNpc));
             }
         }
 
@@ -367,22 +374,21 @@ namespace CustomNpcs.Npcs
             {
                 customNpc.SendNetUpdate = true;
             }
-
-            // This call needs to be wrapped with Utils.TryExecuteLua since OnNpcStrike may run on a different thread
-            // than the main thread.
-            var onStrike = definition.OnStrike;
-            if (onStrike != null)
+            
+            lock (_lock)
             {
-                Utils.TryExecuteLua(() => args.Handled =
-                    (bool)onStrike.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0]);
+                var onStrike = definition.OnStrike;
+                if (onStrike != null)
+                {
+                    Utils.TryExecuteLua(() => args.Handled =
+                        (bool)onStrike.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0]);
+                }
             }
         }
 
         private void OnReload(ReloadEventArgs args)
         {
-            // This call needs to be wrapped with Utils.TryExecuteLua since OnReload may run on a different thread than
-            // the main thread.
-            Utils.TryExecuteLua(() =>
+            lock (_lock)
             {
                 foreach (var definition in _definitions)
                 {
@@ -390,23 +396,26 @@ namespace CustomNpcs.Npcs
                 }
                 _definitions.Clear();
 
-                LoadDefinitions();
-            });
+                Utils.TryExecuteLua(LoadDefinitions);
+            }
             args.Player.SendSuccessMessage("[CustomNpcs] Reloaded NPCs!");
         }
 
         private void TryReplaceNpc(NPC npc)
         {
             var chances = new Dictionary<NpcDefinition, double>();
-            foreach (var definition in _definitions.Where(d => d.ShouldReplace))
+            lock (_lock)
             {
-                var chance = 0.0;
-                var onCheckReplace = definition.OnCheckReplace;
-                if (onCheckReplace != null)
+                foreach (var definition in _definitions.Where(d => d.ShouldReplace))
                 {
-                    Utils.TryExecuteLua(() => chance = (double)onCheckReplace.Call(npc)[0]);
+                    var chance = 0.0;
+                    var onCheckReplace = definition.OnCheckReplace;
+                    if (onCheckReplace != null)
+                    {
+                        Utils.TryExecuteLua(() => chance = (double)onCheckReplace.Call(npc)[0]);
+                    }
+                    chances[definition] = chance;
                 }
-                chances[definition] = chance;
             }
 
             var randomDefinition = Utils.TryPickRandomKey(chances);
@@ -425,16 +434,19 @@ namespace CustomNpcs.Npcs
             }
 
             var weights = new Dictionary<NpcDefinition, int>();
-            foreach (var definition in _definitions.Where(d => d.ShouldSpawn))
+            lock (_lock)
             {
-                var weight = 0;
-                var onCheckSpawn = definition.OnCheckSpawn;
-                if (onCheckSpawn != null)
+                foreach (var definition in _definitions.Where(d => d.ShouldSpawn))
                 {
-                    // First cast to a double then an integer because NLua will return a double.
-                    Utils.TryExecuteLua(() => weight = (int)(double)onCheckSpawn.Call(player, tileX, tileY)[0]);
+                    var weight = 0;
+                    var onCheckSpawn = definition.OnCheckSpawn;
+                    if (onCheckSpawn != null)
+                    {
+                        // First cast to a double then an integer because NLua will return a double.
+                        Utils.TryExecuteLua(() => weight = (int)(double)onCheckSpawn.Call(player, tileX, tileY)[0]);
+                    }
+                    weights[definition] = weight;
                 }
-                weights[definition] = weight;
             }
 
             var randomDefinition = Utils.PickRandomWeightedKey(weights);
