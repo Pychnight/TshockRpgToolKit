@@ -192,7 +192,7 @@ namespace CustomNpcs
                 return;
             }
 
-            var inputY = parameters.Count == 4 ? parameters[3] : (16 * player.TileX).ToString();
+            var inputY = parameters.Count == 4 ? parameters[3] : (16 * player.TileY).ToString();
             if (!int.TryParse(inputY, out var y) || y < 0 || y > 16 * Main.maxTilesY)
             {
                 player.SendErrorMessage($"Invalid Y position '{inputY}'.");
