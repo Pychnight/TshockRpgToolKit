@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace CustomNpcs
 {
@@ -6,11 +7,12 @@ namespace CustomNpcs
     ///     Represents the configuration instance. This class is a singleton.
     /// </summary>
     [JsonObject]
-    public sealed class Config
+    internal sealed class Config
     {
         /// <summary>
         ///     Gets the configuration instance.
         /// </summary>
+        [NotNull]
         public static Config Instance { get; internal set; } = new Config();
 
         /// <summary>

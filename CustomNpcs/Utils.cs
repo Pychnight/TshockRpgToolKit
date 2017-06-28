@@ -11,12 +11,21 @@ using TShockAPI;
 
 namespace CustomNpcs
 {
+    /// <summary>
+    ///     Holds utility functions.
+    /// </summary>
     internal static class Utils
     {
         private static readonly object LuaLock = new object();
         private static readonly Random Random = new Random();
 
-        public static void GetSpawnData(TSPlayer player, out double maxSpawns, out double spawnRate)
+        /// <summary>
+        ///     Calculates spawn data for the specified player based on the global spawn data.
+        /// </summary>
+        /// <param name="player">The player, which must not be <c>null</c>.</param>
+        /// <param name="maxSpawns">The number of maximum spawns.</param>
+        /// <param name="spawnRate">The spawn rate.</param>
+        public static void GetSpawnData([NotNull] TSPlayer player, out double maxSpawns, out double spawnRate)
         {
             maxSpawns = Config.Instance.MaxSpawns;
             spawnRate = Config.Instance.SpawnRate;
@@ -137,7 +146,13 @@ namespace CustomNpcs
             spawnRate = Math.Max(spawnRate, 0.1 * Config.Instance.SpawnRate);
         }
 
-        public static TKey PickRandomWeightedKey<TKey>(IDictionary<TKey, int> dictionary)
+        /// <summary>
+        ///     Picks a random key from a dictionary using the values as weights.
+        /// </summary>
+        /// <typeparam name="TKey">The type of key.</typeparam>
+        /// <param name="dictionary">The dictionary, which must not be <c>null</c>.</param>
+        /// <returns>The key.</returns>
+        public static TKey PickRandomWeightedKey<TKey>([NotNull] IDictionary<TKey, int> dictionary)
         {
             var rand = Random.Next(dictionary.Values.Sum());
             var current = 0;
@@ -153,7 +168,13 @@ namespace CustomNpcs
             return default(TKey);
         }
 
-        public static void SpawnVanillaOrCustomNpc(string npcNameOrType, int tileX, int tileY)
+        /// <summary>
+        ///     Spawns a vanilla or custom NPC at the specified tile coordinates.
+        /// </summary>
+        /// <param name="npcNameOrType">The NPC name or type.</param>
+        /// <param name="tileX">The X tile coordinate.</param>
+        /// <param name="tileY">The Y tile coordinate.</param>
+        public static void SpawnVanillaOrCustomNpc([NotNull] string npcNameOrType, int tileX, int tileY)
         {
             if (int.TryParse(npcNameOrType, out var npcType))
             {
@@ -168,6 +189,10 @@ namespace CustomNpcs
             }
         }
 
+        /// <summary>
+        ///     Tries to execute the specified action under a lua lock.
+        /// </summary>
+        /// <param name="action">The action, which must not be <c>null</c>.</param>
         public static void TryExecuteLua([NotNull] Action action)
         {
             try
@@ -188,7 +213,13 @@ namespace CustomNpcs
             }
         }
 
-        public static TKey TryPickRandomKey<TKey>(IDictionary<TKey, double> dictionary)
+        /// <summary>
+        ///     Tries to pick a random key from a dictionary using the values as chances.
+        /// </summary>
+        /// <typeparam name="TKey">The type of key.</typeparam>
+        /// <param name="dictionary">The dictionary, which must not be <c>null</c>.</param>
+        /// <returns>The key, or a default value if nothing was picked.</returns>
+        public static TKey TryPickRandomKey<TKey>([NotNull] IDictionary<TKey, double> dictionary)
         {
             foreach (var kvp in dictionary)
             {
@@ -200,11 +231,15 @@ namespace CustomNpcs
             return default(TKey);
         }
 
-        public static void TrySpawnForEachPlayer(Action<TSPlayer, int, int> action)
+        /// <summary>
+        ///     Tries to run a spawning algorithm for each player.
+        /// </summary>
+        /// <param name="action">The spawning algorithm, which must not be <c>null</c>.</param>
+        public static void TrySpawnForEachPlayer([NotNull] Action<TSPlayer, int, int> action)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
-                // TODO: Update spawnRangeX and spawnRangeY based on 
+                // TODO: Update spawnRangeX and spawnRangeY based on scope/stuff
                 var spawnRangeX = (int)(NPC.sWidth / 16.0 * 0.7);
                 var spawnRangeY = (int)(NPC.sHeight / 16.0 * 0.7);
                 var minX = Math.Max(0, player.TileX - spawnRangeX);
