@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CustomQuests.Quests;
 using JetBrains.Annotations;
 using NLua;
 using TShockAPI;

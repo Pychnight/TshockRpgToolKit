@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CustomQuests.Quests;
 using JetBrains.Annotations;
 
 namespace CustomQuests.Sessions

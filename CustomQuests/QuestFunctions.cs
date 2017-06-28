@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using CustomNPC;
+using CustomNpcs.Npcs;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using NLua;
@@ -431,7 +431,7 @@ namespace CustomQuests
                 }
             }
         }
-        
+
         /// <summary>
         ///     Returns a random integer in the specified range.
         /// </summary>
@@ -482,7 +482,7 @@ namespace CustomQuests
         /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public static NPC[] SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        public static CustomNpc[] SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
         {
             if (name == null)
             {
@@ -497,23 +497,23 @@ namespace CustomQuests
                 throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
             }
 
-            var npcDef = NPCManager.Data.GetNPCbyID(name);
-            if (npcDef == null)
+            var definition = NpcManager.Instance?.FindDefinition(name);
+            if (definition == null)
             {
                 throw new FormatException($"Invalid custom NPC name '{name}'.");
             }
 
-            var npcs = new List<NPC>();
+            var customNpcs = new List<CustomNpc>();
             for (var i = 0; i < amount; ++i)
             {
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                var npcIndex = NPCManager.SpawnNPCAtLocation(16 * spawnX, 16 * spawnY, npcDef);
-                if (npcIndex != Main.maxNPCs)
+                var customNpc = NpcManager.Instance.SpawnCustomNpc(definition, 16 * spawnX, 16 * spawnY);
+                if (customNpc != null)
                 {
-                    npcs.Add(Main.npc[npcIndex]);
+                    customNpcs.Add(customNpc);
                 }
             }
-            return npcs.ToArray();
+            return customNpcs.ToArray();
         }
 
         /// <summary>

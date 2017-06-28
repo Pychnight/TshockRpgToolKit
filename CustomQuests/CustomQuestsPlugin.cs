@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using CustomQuests.Quests;
 using CustomQuests.Sessions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;

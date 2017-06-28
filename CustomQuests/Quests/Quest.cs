@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CustomQuests.Triggers;
 using JetBrains.Annotations;
 using NLua;
 
-namespace CustomQuests
+namespace CustomQuests.Quests
 {
     /// <summary>
     ///     Represents a quest instance.
     /// </summary>
     public class Quest : IDisposable
     {
-        private readonly List<Trigger> _completedTriggers = new List<Trigger>();
-        private readonly List<Trigger> _triggers = new List<Trigger>();
+        private readonly Dictionary<string, QuestThread> _threads = new Dictionary<string, QuestThread>
+        {
+            ["main"] = new QuestThread()
+        };
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Quest" /> class with the specified quest info.
@@ -46,35 +47,37 @@ namespace CustomQuests
         /// </summary>
         public void Dispose()
         {
-            foreach (var trigger in _completedTriggers.Concat(_triggers))
+            foreach (var thread in _threads.Values)
             {
-                trigger.Dispose();
+                thread.Dispose();
             }
+            _threads.Clear();
         }
 
         /// <summary>
         ///     Adds the specified trigger.
         /// </summary>
         /// <param name="trigger">The trigger to add, which must not be <c>null</c>.</param>
-        /// <param name="prioritize"><c>true</c> to prioritize the trigger; otherwise, <c>false</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="trigger" /> is <c>null</c>.</exception>
+        /// <param name="prioritized"><c>true</c> to prioritize the trigger; otherwise, <c>false</c>.</param>
+        /// <param name="threadName">The thread name, which must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException">
+        ///     Either <paramref name="trigger" /> or <paramref name="threadName" />is <c>null</c>.
+        /// </exception>
         [LuaGlobal]
         [UsedImplicitly]
-        public void AddTrigger([NotNull] Trigger trigger, bool prioritize = false)
+        public void AddTrigger([NotNull] Trigger trigger, bool prioritized = false, string threadName = "main")
         {
             if (trigger == null)
             {
                 throw new ArgumentNullException(nameof(trigger));
             }
 
-            if (prioritize)
+            if (!_threads.TryGetValue(threadName, out var thread))
             {
-                _triggers.Insert(0, trigger);
+                thread = new QuestThread();
+                _threads[threadName] = thread;
             }
-            else
-            {
-                _triggers.Add(trigger);
-            }
+            thread.AddTrigger(trigger, prioritized);
         }
 
         /// <summary>
@@ -92,20 +95,25 @@ namespace CustomQuests
         /// <summary>
         ///     Pops the top trigger.
         /// </summary>
+        /// <param name="threadName">The thread name, which must be valid and not <c>null</c>.</param>
         /// <returns>The top trigger, or <c>null</c> if there is none.</returns>
+        /// <exception cref="ArgumentException"><paramref name="threadName" /> is invalid.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="threadName" /> is <c>null</c>.</exception>
         [CanBeNull]
         [LuaGlobal]
         [UsedImplicitly]
-        public Trigger PopTrigger()
+        public Trigger PopTrigger([NotNull] string threadName = "main")
         {
-            if (_triggers.Count == 0)
+            if (threadName == null)
             {
-                return null;
+                throw new ArgumentNullException(nameof(threadName));
+            }
+            if (!_threads.TryGetValue(threadName, out var thread))
+            {
+                throw new ArgumentException("Thread name is invalid.", nameof(threadName));
             }
 
-            var result = _triggers[0];
-            _triggers.RemoveAt(0);
-            return result;
+            return thread.PopTrigger();
         }
 
         /// <summary>
@@ -113,17 +121,14 @@ namespace CustomQuests
         /// </summary>
         public void Update()
         {
-            if (IsEnded || _triggers.Count == 0)
+            if (IsEnded)
             {
                 return;
             }
 
-            var currentTrigger = _triggers[0];
-            currentTrigger.Update();
-            if (currentTrigger.IsCompleted)
+            foreach (var thread in _threads.Values)
             {
-                _completedTriggers.Add(currentTrigger);
-                _triggers.Remove(currentTrigger);
+                thread.Update();
             }
         }
     }

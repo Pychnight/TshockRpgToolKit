@@ -1,4 +1,4 @@
-﻿namespace CustomQuests
+﻿namespace CustomQuests.Quests
 {
     /// <summary>
     ///     Represents information about a quest.
