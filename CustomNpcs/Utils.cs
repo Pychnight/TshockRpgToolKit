@@ -192,7 +192,8 @@ namespace CustomNpcs
         ///     Tries to execute the specified action.
         /// </summary>
         /// <param name="action">The action, which must not be <c>null</c>.</param>
-        public static void TryExecuteLua([NotNull] Action action)
+        /// <param name="executor">The executor of the action, which must not be <c>null</c>.</param>
+        public static void TryExecuteLua([NotNull] Action action, string executor)
         {
             try
             {
@@ -200,7 +201,7 @@ namespace CustomNpcs
             }
             catch (LuaException ex)
             {
-                TShock.Log.ConsoleError("[CustomNpcs] A Lua error occurred:");
+                TShock.Log.ConsoleError($"[CustomNpcs] A Lua error occurred from {executor}:");
                 TShock.Log.ConsoleError(ex.ToString());
                 if (ex.InnerException != null)
                 {

@@ -36,7 +36,7 @@ namespace CustomNpcs.Invasions
         {
             _plugin = plugin;
 
-            Utils.TryExecuteLua(LoadDefinitions);
+            Utils.TryExecuteLua(LoadDefinitions, "InvasionManager");
 
             GeneralHooks.ReloadEvent += OnReload;
             // Register OnGameUpdate with priority 1 to guarantee that InvasionManager runs before NpcManager.
@@ -181,7 +181,7 @@ namespace CustomNpcs.Invasions
             {
                 lock (_lock)
                 {
-                    Utils.TryExecuteLua(() => onUpdate.Call());
+                    Utils.TryExecuteLua(() => onUpdate.Call(), CurrentInvasion.Name);
                 }
             }
         }
@@ -219,7 +219,7 @@ namespace CustomNpcs.Invasions
                 }
                 _definitions.Clear();
 
-                Utils.TryExecuteLua(LoadDefinitions);
+                Utils.TryExecuteLua(LoadDefinitions, "InvasionManager");
             }
             args.Player.SendSuccessMessage("[CustomNpcs] Reloaded invasions!");
         }

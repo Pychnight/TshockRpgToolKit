@@ -50,7 +50,7 @@ namespace CustomNpcs.Npcs
         {
             _plugin = plugin;
 
-            Utils.TryExecuteLua(LoadDefinitions);
+            Utils.TryExecuteLua(LoadDefinitions, "NpcManager");
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GameUpdate.Register(_plugin, OnGameUpdate);
@@ -162,7 +162,7 @@ namespace CustomNpcs.Npcs
 
             lock (_lock)
             {
-                Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customNpc));
+                Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customNpc), definition.Name);
             }
 
             // Ensure that all players see the changes.
@@ -242,7 +242,8 @@ namespace CustomNpcs.Npcs
                     {
                         lock (_lock)
                         {
-                            Utils.TryExecuteLua(() => customNpc.Definition.OnCollision?.Call(customNpc, player));
+                            var definition = customNpc.Definition;
+                            Utils.TryExecuteLua(() => definition.OnCollision?.Call(customNpc, player), definition.Name);
                         }
                         player.SetData(IgnoreCollisionKey, true);
                         break;
@@ -266,10 +267,11 @@ namespace CustomNpcs.Npcs
 
             lock (_lock)
             {
-                var onAiUpdate = customNpc.Definition.OnAiUpdate;
+                var definition = customNpc.Definition;
+                var onAiUpdate = definition.OnAiUpdate;
                 if (onAiUpdate != null)
                 {
-                    Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customNpc)[0]);
+                    Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customNpc)[0], definition.Name);
                 }
             }
         }
@@ -301,7 +303,7 @@ namespace CustomNpcs.Npcs
 
             lock (_lock)
             {
-                Utils.TryExecuteLua(() => definition.OnKilled?.Call(customNpc));
+                Utils.TryExecuteLua(() => definition.OnKilled?.Call(customNpc), definition.Name);
             }
         }
 
@@ -381,7 +383,8 @@ namespace CustomNpcs.Npcs
                 if (onStrike != null)
                 {
                     Utils.TryExecuteLua(() => args.Handled =
-                        (bool)onStrike.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0]);
+                         (bool)onStrike.Call(customNpc, player, args.Damage, args.KnockBack, args.Critical)[0],
+                         definition.Name);
                 }
             }
         }
@@ -396,7 +399,7 @@ namespace CustomNpcs.Npcs
                 }
                 _definitions.Clear();
 
-                Utils.TryExecuteLua(LoadDefinitions);
+                Utils.TryExecuteLua(LoadDefinitions, "NpcManager");
             }
             args.Player.SendSuccessMessage("[CustomNpcs] Reloaded NPCs!");
         }
@@ -412,7 +415,7 @@ namespace CustomNpcs.Npcs
                     var onCheckReplace = definition.OnCheckReplace;
                     if (onCheckReplace != null)
                     {
-                        Utils.TryExecuteLua(() => chance = (double)onCheckReplace.Call(npc)[0]);
+                        Utils.TryExecuteLua(() => chance = (double)onCheckReplace.Call(npc)[0], definition.Name);
                     }
                     chances[definition] = chance;
                 }
@@ -443,7 +446,8 @@ namespace CustomNpcs.Npcs
                     if (onCheckSpawn != null)
                     {
                         // First cast to a double then an integer because NLua will return a double.
-                        Utils.TryExecuteLua(() => weight = (int)(double)onCheckSpawn.Call(player, tileX, tileY)[0]);
+                        Utils.TryExecuteLua(() => weight = (int)(double)onCheckSpawn.Call(player, tileX, tileY)[0],
+                            definition.Name);
                     }
                     weights[definition] = weight;
                 }
