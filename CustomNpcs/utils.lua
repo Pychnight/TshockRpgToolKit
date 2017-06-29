@@ -18,6 +18,12 @@ function AfterPlantera()
     return NPC.downedPlantBoss
 end
 
+-- Utility function for spawning when the player is around the region.
+function AroundRegion(x, y, name)
+    local region = GetRegion(name)
+    return region ~= nil and region:InArea(x, y)
+end
+
 -- Utility function for spawning at the cavern level.
 function AtCavernLevel(player)
     return player.TPlayer.ZoneRockLayerHeight
@@ -53,6 +59,11 @@ function DuringDay()
     return Main.dayTime
 end
 
+-- Utility function for spawning or replacing during a frost moon.
+function DuringFrostMoon()
+    return Main.snowmoon
+end
+
 -- Utility function for spawning or replacing during an eclipse.
 function DuringEclipse()
     return Main.eclipse
@@ -68,9 +79,24 @@ function DuringNight()
     return not Main.dayTime
 end
 
+-- Utility function for spawning or replacing during a pumpkin moon.
+function DuringPumpkinMoon()
+    return Main.pumpkinMoon
+end
+
 -- Utility function for spawning or replacing during rain.
 function DuringRain()
     return Main.raining
+end
+
+-- Utility function for spawning or replacing during slime rain.
+function DuringSlimeRain()
+    return Main.slimeRain
+end
+
+-- Utility function for spawning in the specified region when the player is inside the region.
+function InAndAroundRegion(player, x, y, name)
+	return InRegion(player, name) and AroundRegion(x, y, name)
 end
 
 -- Utility function for spawning in a beach biome.
@@ -123,10 +149,10 @@ function InIce(player)
 	return player.TPlayer.ZoneSnow
 end
 
--- Utility function for spawning in a region.
-function InRegion(x, y, name)
+-- Utility function for spawning when the player is inside the specified region.
+function InRegion(player, name)
     local region = GetRegion(name)
-    return region ~= nil and region:InArea(x, y)
+    return region ~= nil and region:InArea(player.TileX, player.TileY)
 end
 
 -- Utility function for spawning in a jungle biome.

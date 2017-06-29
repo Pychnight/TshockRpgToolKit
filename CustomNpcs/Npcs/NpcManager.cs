@@ -164,7 +164,7 @@ namespace CustomNpcs.Npcs
             {
                 Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customNpc));
             }
-            
+
             // Ensure that all players see the changes.
             var npcId = npc.whoAmI;
             _checkNpcForReplacement[npcId] = false;
@@ -374,7 +374,7 @@ namespace CustomNpcs.Npcs
             {
                 customNpc.SendNetUpdate = true;
             }
-            
+
             lock (_lock)
             {
                 var onStrike = definition.OnStrike;

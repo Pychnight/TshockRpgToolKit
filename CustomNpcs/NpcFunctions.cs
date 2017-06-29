@@ -185,37 +185,42 @@ namespace CustomNpcs
         }
 
         /// <summary>
-        ///     Spawns an NPC with the specified name at a position.
+        ///     Spawns an NPC with the specified name or type at a position.
         /// </summary>
-        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+        /// <param name="nameOrType">The name or type, which must be a valid NPC name or type and not <c>null</c>.</param>
         /// <param name="position">The position.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="nameOrType" /> is <c>null</c>.</exception>
+        /// <exception cref="FormatException"><paramref name="nameOrType" /> is not a valid NPC name.</exception>
         /// <returns>The NPC, or <c>null</c> if spawning failed.</returns>
         [LuaGlobal]
-        public static NPC SpawnNpc([NotNull] string name, Vector2 position)
+        public static NPC SpawnNpc([NotNull] string nameOrType, Vector2 position)
         {
-            if (name == null)
+            if (nameOrType == null)
             {
-                throw new ArgumentNullException(nameof(name));
+                throw new ArgumentNullException(nameof(nameOrType));
             }
 
-            var npcType = GetNpcTypeFromName(name);
+            var npcType = GetNpcTypeFromNameOrType(nameOrType);
             if (npcType == null)
             {
-                throw new FormatException($"Invalid NPC name '{name}'.");
+                throw new FormatException($"Invalid NPC name or ID '{nameOrType}'.");
             }
 
             var npcId = NPC.NewNPC((int)position.X, (int)position.Y, (int)npcType);
             return npcId != Main.maxNPCs ? Main.npc[npcId] : null;
         }
 
-        private static int? GetNpcTypeFromName(string name)
+        private static int? GetNpcTypeFromNameOrType(string nameOrType)
         {
+            if (int.TryParse(nameOrType, out var id) && -65 <= id && id < Main.maxNPCTypes)
+            {
+                return id;
+            }
+
             for (var i = -65; i < Main.maxNPCTypes; ++i)
             {
                 var npcName = EnglishLanguage.GetNpcNameById(i);
-                if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) == true)
+                if (npcName?.Equals(nameOrType, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     return i;
                 }

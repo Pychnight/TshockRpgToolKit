@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NLua;
@@ -98,7 +99,9 @@ namespace CustomNpcs.Npcs
         ///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
         /// </summary>
         public bool ShouldAggressivelyUpdate =>
-            _baseOverride.AiStyle != null || _baseOverride.HasNoCollision != null || _baseOverride.HasNoGravity != null;
+            _baseOverride.AiStyle != null || _baseOverride.BuffImmunities != null ||
+            _baseOverride.IsImmuneToLava != null || _baseOverride.HasNoCollision != null ||
+            _baseOverride.HasNoGravity != null;
 
         /// <summary>
         ///     Gets a value indicating whether loot should be overriden.
@@ -123,7 +126,9 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets a value indicating whether the NPC should update on hit.
         /// </summary>
-        public bool ShouldUpdateOnHit => _baseOverride.Defense != null || _baseOverride.KnockbackMultiplier != null;
+        public bool ShouldUpdateOnHit =>
+            _baseOverride.Defense != null || _baseOverride.IsImmortal != null ||
+            _baseOverride.KnockbackMultiplier != null;
 
         /// <summary>
         ///     Disposes the definition.
@@ -161,14 +166,27 @@ namespace CustomNpcs.Npcs
                 npc.SetDefaults(BaseType);
             }
             npc.aiStyle = _baseOverride.AiStyle ?? npc.aiStyle;
-            npc.boss = _baseOverride.IsBoss ?? npc.boss;
+            if (_baseOverride.BuffImmunities != null)
+            {
+                for (var i = 0; i < Main.maxBuffTypes; ++i)
+                {
+                    npc.buffImmune[i] = false;
+                }
+                foreach (var i in _baseOverride.BuffImmunities)
+                {
+                    npc.buffImmune[i] = true;
+                }
+            }
             npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;
-            // Don't set npc.lifeMax so that the correct life is always sent to clients.
-            npc.life = _baseOverride.MaxHp ?? npc.life;
-            npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
-            npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.noGravity = _baseOverride.HasNoGravity ?? npc.noGravity;
             npc.noTileCollide = _baseOverride.HasNoCollision ?? npc.noTileCollide;
+            npc.boss = _baseOverride.IsBoss ?? npc.boss;
+            npc.immortal = _baseOverride.IsImmortal ?? npc.immortal;
+            npc.lavaImmune = _baseOverride.IsImmuneToLava ?? npc.lavaImmune;
+            // Don't set npc.lifeMax so that the correct life is always sent to clients.
+            npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
+            npc.life = _baseOverride.MaxHp ?? npc.life;
+            npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
         }
@@ -251,6 +269,9 @@ namespace CustomNpcs.Npcs
             public int? AiStyle { get; private set; }
 
             [JsonProperty]
+            public int[] BuffImmunities { get; private set; }
+
+            [JsonProperty]
             public int? Defense { get; private set; }
 
             [JsonProperty]
@@ -261,6 +282,12 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty]
             public bool? IsBoss { get; private set; }
+
+            [JsonProperty]
+            public bool? IsImmortal { get; private set; }
+
+            [JsonProperty]
+            public bool? IsImmuneToLava { get; private set; }
 
             [JsonProperty]
             public float? KnockbackMultiplier { get; private set; }
@@ -279,6 +306,10 @@ namespace CustomNpcs.Npcs
 
             internal void ThrowIfInvalid()
             {
+                if (BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes))
+                {
+                    throw new FormatException($"{nameof(BuffImmunities)} must contain valid buff types.");
+                }
                 if (KnockbackMultiplier < 0)
                 {
                     throw new FormatException($"{nameof(KnockbackMultiplier)} must be non-negative.");
