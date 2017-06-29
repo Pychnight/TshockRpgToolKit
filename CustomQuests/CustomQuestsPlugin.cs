@@ -676,7 +676,8 @@ namespace CustomQuests
                     player.SendErrorMessage("Only the party leader can accept a quest.");
                     return;
                 }
-                if (party.Select(GetSession).Any(s => !s.AvailableQuestNames.Contains(questInfo.Name)) ||
+                if (party.Select(GetSession).Any(s => !s.AvailableQuestNames.Contains(questInfo.Name) &&
+                                                      !s.CompletedQuestNames.Contains(questInfo.Name)) ||
                     party.Select(GetSession).Any(s => !s.CanSeeQuest(questInfo)))
                 {
                     player.SendErrorMessage($"Not everyone can start the quest '{questInfo.FriendlyName}'.");
