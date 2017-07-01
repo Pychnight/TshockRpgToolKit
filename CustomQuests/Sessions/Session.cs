@@ -156,7 +156,7 @@ namespace CustomQuests.Sessions
             LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
 
-            var path = Path.Combine("quests", $"{questInfo.Name}.lua");
+            var path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
             lua.DoFile(path);
             CurrentQuest = quest;
             CurrentQuestInfo = questInfo;
