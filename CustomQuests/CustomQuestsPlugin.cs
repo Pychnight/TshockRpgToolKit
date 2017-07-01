@@ -652,7 +652,7 @@ namespace CustomQuests
                 return;
             }
 
-            var path = Path.Combine("quests", $"{questInfo.Name}.lua");
+            var path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
             if (!File.Exists(path))
             {
                 player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
