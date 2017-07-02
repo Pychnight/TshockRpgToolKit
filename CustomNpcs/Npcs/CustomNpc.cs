@@ -95,7 +95,7 @@ namespace CustomNpcs.Npcs
         }
 
         /// <summary>
-        ///     Buffs the nearby players within the specified radius.
+        ///     Buffs the nearby players within the specified tile radius.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="seconds">The seconds, which must be positive.</param>
@@ -145,6 +145,32 @@ namespace CustomNpcs.Npcs
         }
 
         /// <summary>
+        ///     Applies a callback to each player within the specified tile radius.
+        /// </summary>
+        /// <param name="callback">The callback, which must not be <c>null</c>.</param>
+        /// <param name="tileRadius">The tile radius, which must be positive.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="tileRadius" /> is not positive.</exception>
+        public void ForEachNearbyPlayer([NotNull] LuaFunction callback, int tileRadius = 50)
+        {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+            if (tileRadius <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
+            }
+
+            foreach (var player in TShock.Players.Where(
+                p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
+                     256 * tileRadius * tileRadius))
+            {
+                callback.Call(player);
+            }
+        }
+
+        /// <summary>
         ///     Gets the variable with the specified name.
         /// </summary>
         /// <param name="variableName">The name, which must not be <c>null</c>.</param>
@@ -186,7 +212,7 @@ namespace CustomNpcs.Npcs
         }
 
         /// <summary>
-        ///     Messages the nearby players within the specified radius.
+        ///     Messages the nearby players within the specified tile radius.
         /// </summary>
         /// <param name="message">The message, which must not be <c>null</c>.</param>
         /// <param name="color">The color.</param>
