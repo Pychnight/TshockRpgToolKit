@@ -16,7 +16,7 @@ function CountBlocks(x, y, x2, y2, id)
 end
 
 -- Counts the number of blocks in the area matching the ID and frames.
-function CountBlocks(x, y, x2, y2, id, frameX, frameY)
+function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY)
 	local count = 0
     local minX = math.min(x, x2)
     local maxX = math.max(x, x2)
@@ -111,7 +111,7 @@ function MatchesBlock(x, y, id)
 end
 
 -- Determines if the block at the coordinates matches the ID and frames.
-function MatchesBlock(x, y, id, frameX, frameY)
+function MatchesBlockWtihFrames(x, y, id, frameX, frameY)
 	local tile = GetTile(x, y)
 	return tile:active() and GetTileType(tile) == id and tile.frameX == frameX and tile.frameY == frameY
 end
