@@ -1,8 +1,12 @@
 -- Counts the number of blocks in the area matching the ID.
 function CountBlocks(x, y, x2, y2, id)
 	local count = 0
-	for i = x, x2 do
-		for j = y, y2 do
+    local minX = math.min(x, x2)
+    local maxX = math.max(x, x2)
+    local minY = math.min(y, y2)
+    local maxY = math.max(y, y2)
+	for i = minX, maxX do
+		for j = minY, maxY do
 			if MatchesBlock(x, y, id) then
 				count = count + 1
 			end
@@ -12,11 +16,15 @@ function CountBlocks(x, y, x2, y2, id)
 end
 
 -- Counts the number of blocks in the area matching the ID and frames.
-function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY)
+function CountBlocks(x, y, x2, y2, id, frameX, frameY)
 	local count = 0
-	for i = x, x2 do
-		for j = y, y2 do
-			if MatchesBlockWithFrames(x, y, id, frameX, frameY) then
+    local minX = math.min(x, x2)
+    local maxX = math.max(x, x2)
+    local minY = math.min(y, y2)
+    local maxY = math.max(y, y2)
+	for i = minX, maxX do
+		for j = minY, maxY do
+			if MatchesBlock(x, y, id, frameX, frameY) then
 				count = count + 1
 			end
 		end
@@ -24,11 +32,32 @@ function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY)
 	return count
 end
 
+-- Counts the number of NPCs in the area matching the name. (Uses GivenOrTypeName)
+function CountNpcs(x, y, x2, y2, name)
+    local count = 0
+    local minX = math.min(x, x2)
+    local maxX = math.max(x, x2)
+    local minY = math.min(y, y2)
+    local maxY = math.max(y, y2)
+    for i = 0, 200 do
+        local npc = Main.npc[i]
+        if npc.active and npc.position.X > 16 * minX and npc.position.X < 16 * maxX and
+           npc.position.Y > 16 * minY and npc.position.Y < 16 * maxY and npc.GivenOrTypeName == name then
+            count = count + 1
+        end
+    end
+    return count
+end
+
 -- Counts the number of walls in the area matching the ID.
 function CountWalls(x, y, x2, y2, id)
 	local count = 0
-	for i = x, x2 do
-		for j = y, y2 do
+    local minX = math.min(x, x2)
+    local maxX = math.max(x, x2)
+    local minY = math.min(y, y2)
+    local maxY = math.max(y, y2)
+	for i = minX, maxX do
+		for j = minY, maxY do
 			if MatchesWall(x, y, id) then
 				count = count + 1
 			end
@@ -82,7 +111,7 @@ function MatchesBlock(x, y, id)
 end
 
 -- Determines if the block at the coordinates matches the ID and frames.
-function MatchesBlockWithFrames(x, y, id, frameX, frameY)
+function MatchesBlock(x, y, id, frameX, frameY)
 	local tile = GetTile(x, y)
 	return tile:active() and GetTileType(tile) == id and tile.frameX == frameX and tile.frameY == frameY
 end
@@ -173,8 +202,12 @@ end
 
 -- Sets the blocks in the area.
 function SetBlocks(x, y, x2, y2, id)
-	for i = x, x2 do
-		for j = y, y2 do
+    local minX = math.min(x, x2)
+    local maxX = math.max(x, x2)
+    local minY = math.min(y, y2)
+    local maxY = math.max(y, y2)
+	for i = minX, maxX do
+		for j = minY, maxY do
 			SetBlock(i, j, id)
 		end
 	end
@@ -188,8 +221,12 @@ end
 
 -- Sets the walls in the area.
 function SetWalls(x, y, x2, y2, id)
-	for i = x, x2 do
-		for j = y, y2 do
+    local minX = math.min(x, x2)
+    local maxX = math.max(x, x2)
+    local minY = math.min(y, y2)
+    local maxY = math.max(y, y2)
+	for i = minX, maxX do
+		for j = minY, maxY do
 			SetWall(i, j, id)
 		end
 	end
