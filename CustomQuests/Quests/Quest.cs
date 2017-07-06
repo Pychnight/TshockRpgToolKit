@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomQuests.Triggers;
 using JetBrains.Annotations;
 using NLua;
@@ -126,7 +127,7 @@ namespace CustomQuests.Quests
                 return;
             }
 
-            foreach (var thread in _threads.Values)
+            foreach (var thread in _threads.Values.ToList())
             {
                 thread.Update();
             }
