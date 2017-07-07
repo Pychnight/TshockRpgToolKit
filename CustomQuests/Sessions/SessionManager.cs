@@ -81,6 +81,17 @@ namespace CustomQuests.Sessions
 
                 _sessions[username] = session;
             }
+            else
+            {
+                foreach (var questName in _config.DefaultQuestNames)
+                {
+                    var sessionInfo = session.SessionInfo;
+                    if (!sessionInfo.CompletedQuestNames.Contains(questName))
+                    {
+                        sessionInfo.AvailableQuestNames.Add(questName);
+                    }
+                }
+            }
             return session;
         }
 
