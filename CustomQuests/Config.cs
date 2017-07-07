@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
@@ -17,5 +18,11 @@ namespace CustomQuests
         ///     Gets a read-only view of the default quest names.
         /// </summary>
         public ReadOnlyCollection<string> DefaultQuestNames => _defaultQuestNames.AsReadOnly();
+
+        /// <summary>
+        ///     Gets the save period.
+        /// </summary>
+        [JsonProperty]
+        public TimeSpan SavePeriod { get; private set; }
     }
 }

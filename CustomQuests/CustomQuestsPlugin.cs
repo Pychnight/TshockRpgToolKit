@@ -256,12 +256,26 @@ namespace CustomQuests
             player.SendTileSquare(x, y, 5);
         }
 
+        private DateTime _lastSave;
+
         private void OnUpdate(EventArgs args)
         {
-            foreach (var player in TShock.Players.Where(p => p != null && p.User != null))
+            foreach (var player in TShock.Players.Where(p => p?.User != null))
             {
                 var session = GetSession(player);
                 session.UpdateQuest();
+            }
+
+            if (DateTime.UtcNow > _lastSave + _config.SavePeriod)
+            {
+                _lastSave = DateTime.UtcNow;
+                foreach (var player in TShock.Players.Where(p => p?.User != null))
+                {
+                    var username = player.User?.Name ?? player.Name;
+                    var session = GetSession(player);
+                    var path = Path.Combine("quests", "sessions", $"{username}.json");
+                    File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+                }
             }
         }
 
