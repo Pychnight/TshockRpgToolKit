@@ -127,7 +127,8 @@ namespace CustomQuests.Quests
                 return;
             }
 
-            foreach (var thread in _threads.Values.ToList())
+            var threads = _threads.Values.ToList();
+            foreach (var thread in threads)
             {
                 thread.Update();
             }
