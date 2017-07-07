@@ -7,7 +7,7 @@ function CountBlocks(x, y, x2, y2, id)
     local maxY = math.max(y, y2)
 	for i = minX, maxX do
 		for j = minY, maxY do
-			if MatchesBlock(x, y, id) then
+			if MatchesBlock(i, j, id) then
 				count = count + 1
 			end
 		end
@@ -24,7 +24,7 @@ function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY)
     local maxY = math.max(y, y2)
 	for i = minX, maxX do
 		for j = minY, maxY do
-			if MatchesBlock(x, y, id, frameX, frameY) then
+			if MatchesBlock(i, j, id, frameX, frameY) then
 				count = count + 1
 			end
 		end
@@ -58,7 +58,7 @@ function CountWalls(x, y, x2, y2, id)
     local maxY = math.max(y, y2)
 	for i = minX, maxX do
 		for j = minY, maxY do
-			if MatchesWall(x, y, id) then
+			if MatchesWall(i, j, id) then
 				count = count + 1
 			end
 		end
