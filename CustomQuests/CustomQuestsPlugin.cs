@@ -637,7 +637,7 @@ namespace CustomQuests
                 foreach (var player2 in party)
                 {
                     var session2 = GetSession(player2);
-                    session2.IsAborting = true;
+                    session2.HasAborted = true;
                 }
                 party.SendSuccessMessage("Aborted quest.");
             }
