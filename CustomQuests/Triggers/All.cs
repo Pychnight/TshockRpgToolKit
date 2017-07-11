@@ -43,11 +43,6 @@ namespace CustomQuests.Triggers
             _triggers = triggerList;
         }
 
-        /// <inheritdoc />
-        public override void Initialize()
-        {
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -59,6 +54,11 @@ namespace CustomQuests.Triggers
             }
 
             base.Dispose(disposing);
+        }
+
+        /// <inheritdoc />
+        protected override void Initialize()
+        {
         }
 
         /// <inheritdoc />

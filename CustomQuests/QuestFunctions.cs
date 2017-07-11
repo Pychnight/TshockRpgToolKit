@@ -400,6 +400,20 @@ namespace CustomQuests
         }
 
         /// <summary>
+        ///     Places an object.
+        /// </summary>
+        /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
+        /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="style">The style.</param>
+        [LuaGlobal]
+        [UsedImplicitly]
+        public static void PlaceObject(int x, int y, int type, int style)
+        {
+            WorldGen.PlaceObject(x, y, (ushort)type, false, style);
+        }
+
+        /// <summary>
         ///     Puts an item into the chest at the specified coordinates.
         /// </summary>
         /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>

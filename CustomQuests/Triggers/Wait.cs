@@ -23,7 +23,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        public override void Initialize()
+        protected override void Initialize()
         {
             _startTime = DateTime.UtcNow;
         }

@@ -85,6 +85,11 @@ namespace CustomQuests.Sessions
         public bool IsAborting { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether the session has aborted the quest.
+        /// </summary>
+        public bool HasAborted { get; set; }
+
+        /// <summary>
         ///     Gets or sets the party.
         /// </summary>
         [CanBeNull]
@@ -217,9 +222,13 @@ namespace CustomQuests.Sessions
 
             if (IsAborting)
             {
-                IsAborting = false;
-                Dispose();
-                SetQuestState(null);
+                if (HasAborted)
+                {
+                    IsAborting = false;
+                    HasAborted = false;
+                    Dispose();
+                    SetQuestState(null);
+                }
                 return;
             }
 

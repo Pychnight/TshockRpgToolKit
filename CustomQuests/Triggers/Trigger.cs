@@ -36,11 +36,6 @@ namespace CustomQuests.Triggers
         }
 
         /// <summary>
-        ///     Initializes the trigger.
-        /// </summary>
-        public abstract void Initialize();
-
-        /// <summary>
         ///     Updates the trigger.
         /// </summary>
         public void Update()
@@ -67,6 +62,11 @@ namespace CustomQuests.Triggers
                     TShock.Log.ConsoleError(ex.ToString());
                     TShock.Log.ConsoleError(ex.InnerException?.ToString());
                 }
+                catch (Exception ex)
+                {
+                    TShock.Log.ConsoleError("An exception occurred on Callback:");
+                    TShock.Log.ConsoleError(ex.ToString());
+                }
                 IsCompleted = true;
             }
         }
@@ -83,6 +83,11 @@ namespace CustomQuests.Triggers
                 Callback = null;
             }
         }
+
+        /// <summary>
+        ///     Initializes the trigger.
+        /// </summary>
+        protected abstract void Initialize();
 
         /// <summary>
         ///     Updates the trigger.

@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using NLua;
+using TShockAPI;
 
 namespace CustomQuests.Triggers
 {
@@ -22,11 +23,6 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        public override void Initialize()
-        {
-        }
-
-        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -39,6 +35,23 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => (bool)_condition.Call()[0];
+        protected override void Initialize()
+        {
+        }
+
+        /// <inheritdoc />
+        protected override bool UpdateImpl()
+        {
+            try
+            {
+                return (bool)_condition.Call()[0];
+            }
+            catch (Exception ex)
+            {
+                TShock.Log.ConsoleInfo("An exception occurred in Condition: ");
+                TShock.Log.ConsoleInfo(ex.ToString());
+                return true;
+            }
+        }
     }
 }

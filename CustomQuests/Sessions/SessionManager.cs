@@ -59,21 +59,21 @@ namespace CustomQuests.Sessions
             if (!_sessions.TryGetValue(username, out var session))
             {
                 var path = Path.Combine("quests", "sessions", $"{username}.json");
+                SessionInfo sessionInfo = null;
                 if (File.Exists(path))
                 {
-                    var sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(File.ReadAllText(path));
-                    session = new Session(player, sessionInfo);
+                    sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(File.ReadAllText(path));
                 }
-                else
+                if (sessionInfo == null)
                 {
-                    var sessionInfo = new SessionInfo();
+                    sessionInfo = new SessionInfo();
                     foreach (var questName in _config.DefaultQuestNames)
                     {
                         sessionInfo.AvailableQuestNames.Add(questName);
                     }
-                    session = new Session(player, sessionInfo);
                 }
 
+                session = new Session(player, sessionInfo);
                 if (session.CurrentQuestInfo != null)
                 {
                     session.LoadQuest(session.CurrentQuestInfo);
@@ -82,7 +82,7 @@ namespace CustomQuests.Sessions
                 _sessions[username] = session;
             }
             else
-            { 
+            {
                 foreach (var questName in _config.DefaultQuestNames)
                 {
                     var sessionInfo = session.SessionInfo;

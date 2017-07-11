@@ -40,13 +40,6 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        public override void Initialize()
-        {
-            ServerApi.Hooks.NpcKilled.Register(CustomQuestsPlugin.Instance, OnNpcKilled);
-            ServerApi.Hooks.NpcStrike.Register(CustomQuestsPlugin.Instance, OnNpcStrike);
-        }
-
-        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -56,6 +49,13 @@ namespace CustomQuests.Triggers
             }
 
             base.Dispose(disposing);
+        }
+
+        /// <inheritdoc />
+        protected override void Initialize()
+        {
+            ServerApi.Hooks.NpcKilled.Register(CustomQuestsPlugin.Instance, OnNpcKilled);
+            ServerApi.Hooks.NpcStrike.Register(CustomQuestsPlugin.Instance, OnNpcStrike);
         }
 
         /// <inheritdoc />

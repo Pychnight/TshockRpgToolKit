@@ -30,12 +30,6 @@ namespace CustomQuests.Triggers
             _onlyLeader = onlyLeader;
         }
 
-        /// <inheritdoc />
-        public override void Initialize()
-        {
-            ServerApi.Hooks.ServerChat.Register(CustomQuestsPlugin.Instance, OnChat, int.MaxValue);
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -44,6 +38,12 @@ namespace CustomQuests.Triggers
             }
 
             base.Dispose(disposing);
+        }
+
+        /// <inheritdoc />
+        protected override void Initialize()
+        {
+            ServerApi.Hooks.ServerChat.Register(CustomQuestsPlugin.Instance, OnChat, int.MaxValue);
         }
 
         /// <inheritdoc />

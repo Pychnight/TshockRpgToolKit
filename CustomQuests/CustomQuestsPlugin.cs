@@ -32,6 +32,8 @@ namespace CustomQuests
             new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
 
         private Config _config = new Config();
+
+        private DateTime _lastSave;
         private List<QuestInfo> _questInfos = new List<QuestInfo>();
         private SessionManager _sessionManager;
 
@@ -255,8 +257,6 @@ namespace CustomQuests
             args.Handled = true;
             player.SendTileSquare(x, y, 5);
         }
-
-        private DateTime _lastSave;
 
         private void OnUpdate(EventArgs args)
         {
@@ -618,8 +618,21 @@ namespace CustomQuests
                     return;
                 }
 
+                foreach (var player2 in party)
+                {
+                    var session2 = GetSession(player2);
+                    session2.IsAborting = true;
+                }
                 var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-                onAbortFunction?.Call();
+                try
+                {
+                    onAbortFunction?.Call();
+                }
+                catch (Exception ex)
+                {
+                    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+                    TShock.Log.ConsoleInfo(ex.ToString());
+                }
 
                 foreach (var player2 in party)
                 {
@@ -630,10 +643,19 @@ namespace CustomQuests
             }
             else
             {
-                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-                onAbortFunction?.Call();
-
                 session.IsAborting = true;
+                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+                try
+                {
+                    onAbortFunction?.Call();
+                }
+                catch (Exception ex)
+                {
+                    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+                    TShock.Log.ConsoleInfo(ex.ToString());
+                }
+                session.HasAborted = true;
+
                 player.SendSuccessMessage("Aborted quest.");
             }
         }
