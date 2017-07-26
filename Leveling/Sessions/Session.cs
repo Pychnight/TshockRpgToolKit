@@ -363,8 +363,11 @@ namespace Leveling.Sessions
             // Check EXP reports.
             lock (_expLock)
             {
-                if (DateTime.UtcNow - _lastExpReportTime > ExpReportPeriod && _expToReport != 0 &&
-                    Level.ExpRequired > 0)
+                if (Level.ExpRequired < 0)
+                {
+                    _expToReport = 0;
+                }
+                else if (DateTime.UtcNow - _lastExpReportTime > ExpReportPeriod && _expToReport != 0)
                 {
                     _lastExpReportTime = DateTime.UtcNow;
 
