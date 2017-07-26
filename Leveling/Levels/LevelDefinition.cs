@@ -31,7 +31,7 @@ namespace Leveling.Levels
         ///     Gets the EXP required to level up.
         /// </summary>
         [JsonProperty("ExpRequired", Order = 2)]
-        public int ExpRequired { get; private set; }
+        public long ExpRequired { get; private set; }
 
         /// <summary>
         ///     Gets the set of item names allowed.

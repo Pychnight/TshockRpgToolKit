@@ -13,7 +13,7 @@ namespace Leveling.Sessions
         ///     Gets a mapping of unlocked class names to EXP amounts.
         /// </summary>
         [JsonProperty("ClassToExp")]
-        public IDictionary<string, int> ClassNameToExp { get; } = new Dictionary<string, int>();
+        public IDictionary<string, long> ClassNameToExp { get; } = new Dictionary<string, long>();
 
         /// <summary>
         ///     Gets a mapping of unlocked class names to level names.

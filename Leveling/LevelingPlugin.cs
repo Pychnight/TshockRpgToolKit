@@ -437,7 +437,7 @@ namespace Leveling
             }
 
             var inputExpAmount = parameters[1];
-            if (!int.TryParse(inputExpAmount, out var expAmount) || expAmount == 0)
+            if (!long.TryParse(inputExpAmount, out var expAmount) || expAmount == 0)
             {
                 player.SendErrorMessage($"Invalid EXP amount '{inputExpAmount}'.");
                 return;
@@ -556,8 +556,8 @@ namespace Leveling
                 var expAmount = (double)kvp.Value / total *
                                 config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
                                 (session.Class.ExpMultiplierOverride ?? 1.0) * config.ExpMultiplier;
-                session.AddExpToReport((int)expAmount);
-                session.GiveExp((int)expAmount);
+                session.AddExpToReport((long)expAmount);
+                session.GiveExp((long)expAmount);
             }
         }
 

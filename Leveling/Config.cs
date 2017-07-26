@@ -13,7 +13,7 @@ namespace Leveling
         ///     Gets the mapping of NPC names to EXP rewards.
         /// </summary>
         [JsonProperty("NpcToExpReward", Order = 1)]
-        public IDictionary<string, int> NpcNameToExpReward = new Dictionary<string, int>();
+        public IDictionary<string, long> NpcNameToExpReward = new Dictionary<string, long>();
 
         /// <summary>
         ///     Gets the configuration instance.

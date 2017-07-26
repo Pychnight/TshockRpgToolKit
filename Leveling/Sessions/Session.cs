@@ -31,7 +31,7 @@ namespace Leveling.Sessions
         private readonly object _saveLock = new object();
 
         private Class _class;
-        private int _expToReport;
+        private long _expToReport;
         private DateTime _lastCombatTextTime;
         private DateTime _lastExpReportTime;
         private DateTime _lastItemCheckTime;
@@ -69,7 +69,7 @@ namespace Leveling.Sessions
         /// <summary>
         ///     Gets or sets the EXP based on the current class.
         /// </summary>
-        public int Exp
+        public long Exp
         {
             get => _definition.ClassNameToExp[_class.Name];
             set => _definition.ClassNameToExp[_class.Name] = value;
@@ -134,7 +134,7 @@ namespace Leveling.Sessions
         ///     Adds the specified amount of EXP to report.
         /// </summary>
         /// <param name="exp">The amount of EXP.</param>
-        public void AddExpToReport(int exp)
+        public void AddExpToReport(long exp)
         {
             lock (_expLock)
             {
@@ -160,7 +160,7 @@ namespace Leveling.Sessions
         ///     Gives the specified amount of EXP.
         /// </summary>
         /// <param name="exp">The amount of EXP.</param>
-        public void GiveExp(int exp)
+        public void GiveExp(long exp)
         {
             var levelIndex = Class.Levels.IndexOf(Level);
             if (exp < 0)

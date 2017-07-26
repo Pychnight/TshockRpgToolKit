@@ -47,7 +47,7 @@ namespace Leveling.Levels
         /// <summary>
         ///     Gets the EXP required to level up.
         /// </summary>
-        public int ExpRequired => _definition.ExpRequired;
+        public long ExpRequired => _definition.ExpRequired;
 
         /// <summary>
         ///     Gets the set of item names allowed.
