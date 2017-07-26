@@ -555,7 +555,7 @@ namespace Leveling
                 var session = GetOrCreateSession(player);
                 var expAmount = (double)kvp.Value / total *
                                 config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
-                                (session.Class.ExpMultiplierOverride ?? config.ExpMultiplier);
+                                (session.Class.ExpMultiplierOverride ?? 1.0) * config.ExpMultiplier;
                 session.AddExpToReport((int)expAmount);
                 session.GiveExp((int)expAmount);
             }
