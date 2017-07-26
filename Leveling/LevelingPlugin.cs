@@ -56,12 +56,17 @@ namespace Leveling
             _classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
                 .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
             _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+            var levels = _classes.SelectMany(c => c.Levels).ToList();
             foreach (var @class in _classes)
             {
-                @class.Resolve(_classes);
+                @class.Resolve(levels, 0);
             }
-
-            foreach (var level in _classes.SelectMany(c => c.Levels))
+            foreach (var @class in _classes)
+            {
+                @class.Resolve(levels, 1);
+            }
+            foreach (var level in levels)
             {
                 foreach (var itemName in level.ItemNamesAllowed)
                 {
@@ -122,6 +127,11 @@ namespace Leveling
             {
                 HelpText = $"Syntax: {Commands.Specifier}sendto <player-name> <rrr,ggg,bbb> <text>\n" +
                            "Sends text in a certain color to the specified player."
+            });
+            Commands.ChatCommands.Add(new Command("leveling.setclass", SetClass, "setclass")
+            {
+                HelpText = $"Syntax: {Commands.Specifier}setclass <player-name> <class-name>\n" +
+                           "Sets the specified player's class."
             });
         }
 
@@ -259,8 +269,7 @@ namespace Leveling
             if (parameters.Count == 0)
             {
                 var classes = session.UnlockedClasses.Except(session.MasteredClasses).ToList();
-                var newClasses = _classes.Except(session.UnlockedClasses).Where(
-                    c => !c.PrerequisiteClasses.Except(session.MasteredClasses).Any()).ToList();
+                var newClasses = _classes.Except(session.UnlockedClasses).Where(session.HasPrerequisites).ToList();
                 if (classes.Count > 0)
                 {
                     player.SendInfoMessage($"Classes: {string.Join(", ", classes)}");
@@ -287,9 +296,14 @@ namespace Leveling
                     return;
                 }
 
-                if (!Config.Instance.AllowSwitchingClassesMidClass && !session.MasteredClasses.Contains(session.Class))
+                if (!session.Class.AllowSwitching)
                 {
-                    player.SendInfoMessage("You can't switch classes until you've mastered your current one.");
+                    player.SendErrorMessage("You can't switch classes.");
+                    return;
+                }
+                if (!session.Class.AllowSwitchingBeforeMastery && !session.MasteredClasses.Contains(session.Class))
+                {
+                    player.SendErrorMessage("You can't switch classes until you've mastered your current one.");
                     return;
                 }
 
@@ -300,11 +314,21 @@ namespace Leveling
                     return;
                 }
 
-                var missingClasses = @class.PrerequisiteClasses.Except(session.MasteredClasses).ToList();
-                if (missingClasses.Count > 0)
+                var missingLevels = @class.PrerequisiteLevels.Where(l => !session.HasLevel(l)).ToList();
+                if (missingLevels.Count > 0)
                 {
                     player.SendErrorMessage(
-                        $"You can't unlock {@class}, as you haven't mastered {string.Join(", ", missingClasses)}.");
+                        $"You can't unlock the {@class} class, as you haven't reached " +
+                        $"{string.Join(", ", missingLevels.Select(l => $"{l} {l.Class}"))}");
+                    return;
+                }
+
+                var missingPermissions = @class.PrerequisitePermissions.Where(p => !player.HasPermission(p)).ToList();
+                if (missingPermissions.Count > 0)
+                {
+                    player.SendErrorMessage(
+                        $"You can't unlock the {@class} class, as you don't have the " +
+                        $"{string.Join(", ", missingPermissions)} permission(s).");
                     return;
                 }
 
@@ -527,10 +551,11 @@ namespace Leveling
             {
                 Debug.Assert(kvp.Value > 0, "Damage must be positive.");
 
-                var expAmount = (double)kvp.Value / total * config.ExpMultiplier *
-                                config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax);
                 var player = kvp.Key;
                 var session = GetOrCreateSession(player);
+                var expAmount = (double)kvp.Value / total *
+                                config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
+                                (session.Class.ExpMultiplierOverride ?? config.ExpMultiplier);
                 session.AddExpToReport((int)expAmount);
                 session.GiveExp((int)expAmount);
             }
@@ -565,6 +590,7 @@ namespace Leveling
             if (session.LevelDown())
             {
                 player.SendSuccessMessage($"Leveled down {otherPlayer.Name}.");
+                otherPlayer.SendInfoMessage("You have been leveled down.");
             }
             else
             {
@@ -601,6 +627,7 @@ namespace Leveling
             if (session.LevelUp())
             {
                 player.SendSuccessMessage($"Leveled up {otherPlayer.Name}.");
+                otherPlayer.SendInfoMessage("You have been leveled up.");
             }
             else
             {
@@ -711,13 +738,18 @@ namespace Leveling
             _classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
                 .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
             _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(_classes);
-            }
 
             ItemNameToLevelRequirements.Clear();
-            foreach (var level in _classes.SelectMany(c => c.Levels))
+            var levels = _classes.SelectMany(c => c.Levels).ToList();
+            foreach (var @class in _classes)
+            {
+                @class.Resolve(levels, 0);
+            }
+            foreach (var @class in _classes)
+            {
+                @class.Resolve(levels, 1);
+            }
+            foreach (var level in levels)
             {
                 foreach (var itemName in level.ItemNamesAllowed)
                 {
@@ -779,6 +811,50 @@ namespace Leveling
 
             var inputText = string.Join(" ", parameters.Skip(2));
             players[0].SendMessage(inputText, r, g, b);
+        }
+
+        private void SetClass(CommandArgs args)
+        {
+            var parameters = args.Parameters;
+            var player = args.Player;
+            if (parameters.Count != 2)
+            {
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}setclass <player-name> <class-name>");
+                return;
+            }
+
+            var inputPlayerName = parameters[0];
+            var players = TShock.Utils.FindPlayer(inputPlayerName);
+            if (players.Count == 0)
+            {
+                player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
+                return;
+            }
+            if (players.Count > 1)
+            {
+                player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+                TShock.Utils.SendMultipleMatchError(player, players);
+                return;
+            }
+
+            var inputClassName = parameters[1];
+            var @class = _classes.FirstOrDefault(
+                c => c.DisplayName.Equals(inputClassName, StringComparison.OrdinalIgnoreCase));
+            if (@class == null)
+            {
+                player.SendErrorMessage($"Invalid class '{inputClassName}'.");
+                return;
+            }
+
+            var otherPlayer = players[0];
+            var session = GetOrCreateSession(otherPlayer);
+            if (!session.UnlockedClasses.Contains(@class))
+            {
+                session.UnlockClass(@class);
+            }
+            session.Class = @class;
+            player.SendSuccessMessage($"Set {otherPlayer.Name}'s class to {@class}.");
+            otherPlayer.SendInfoMessage($"You have been set to the {@class} class.");
         }
     }
 }

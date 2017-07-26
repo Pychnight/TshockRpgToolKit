@@ -25,9 +25,25 @@ namespace Leveling.Classes
         }
 
         /// <summary>
+        ///     Gets a value indicating whether to allow switching classes. This will override the
+        ///     <see cref="AllowSwitchingBeforeMastery" /> property.
+        /// </summary>
+        public bool AllowSwitching => _definition.AllowSwitching;
+
+        /// <summary>
+        ///     Gets a value indicating whether to allow switching classes before mastery.
+        /// </summary>
+        public bool AllowSwitchingBeforeMastery => _definition.AllowSwitchingBeforeMastery;
+
+        /// <summary>
         ///     Gets the display name.
         /// </summary>
         public string DisplayName => _definition.DisplayName;
+
+        /// <summary>
+        ///     Gets the EXP multiplier override.
+        /// </summary>
+        public double? ExpMultiplierOverride => _definition.ExpMultiplierOverride;
 
         /// <summary>
         ///     Gets the set of item names allowed.
@@ -45,19 +61,19 @@ namespace Leveling.Classes
         public string Name => _definition.Name;
 
         /// <summary>
-        ///     Gets the next classes.
-        /// </summary>
-        public IReadOnlyList<Class> NextClasses { get; private set; } = new List<Class>();
-
-        /// <summary>
         ///     Gets the set of permissions granted.
         /// </summary>
         public ISet<string> PermissionsGranted { get; } = new HashSet<string>();
 
         /// <summary>
+        ///     Gets the prerequisite levels.
+        /// </summary>
+        public IList<Level> PrerequisiteLevels { get; private set; }
+
+        /// <summary>
         ///     Gets the prerequisite classes.
         /// </summary>
-        public IReadOnlyList<Class> PrerequisiteClasses { get; private set; } = new List<Class>();
+        public IList<string> PrerequisitePermissions => _definition.PrerequisitePermissions;
 
         /// <summary>
         ///     Gets the SEconomy cost to enter this class.
@@ -65,35 +81,44 @@ namespace Leveling.Classes
         public long SEconomyCost => _definition.SEconomyCost;
 
         /// <summary>
-        ///     Resolves the class using the specified classes.
+        ///     Resolves the class using the specified levels.
         /// </summary>
-        /// <param name="classes">The classes, which must not be <c>null</c> or contain <c>null</c>.</param>
-        public void Resolve(IList<Class> classes)
+        /// <param name="levels">The levels, which must not be <c>null</c> or contain <c>null</c>.</param>
+        /// <param name="stage">The resolution stage. All classes must be resolved at stage 0 before stage 1.</param>
+        public void Resolve(IList<Level> levels, int stage)
         {
-            Debug.Assert(classes != null, "Classes must not be null.");
-            Debug.Assert(!classes.Contains(null), "Classes must not contain null.");
+            Debug.Assert(levels != null, "Levels must not be null.");
+            Debug.Assert(!levels.Contains(null), "Levels must not contain null.");
 
-            NextClasses = classes.Where(c => c._definition.PrerequisiteClassNames.Contains(Name)).ToList();
-            PrerequisiteClasses = _definition.PrerequisiteClassNames.Select(
-                pcn => classes.First(c => c.Name == pcn)).ToList();
-
-            var queue = new Queue<Class>();
-            foreach (var @class in PrerequisiteClasses)
+            if (stage == 0)
             {
-                queue.Enqueue(@class);
+                PrerequisiteLevels = _definition.PrerequisiteLevelNames
+                    .Select(pln => levels.First(l => l.Name == pln)).ToList();
             }
-            while (queue.Count > 0)
+            else if (stage == 1)
             {
-                var @class = queue.Dequeue();
-                foreach (var level in @class.Levels)
+                var queue = new Queue<Level>();
+                foreach (var level in PrerequisiteLevels)
                 {
-                    ItemNamesAllowed.UnionWith(level.ItemNamesAllowed);
-                    PermissionsGranted.UnionWith(level.PermissionsGranted);
+                    queue.Enqueue(level);
                 }
-
-                foreach (var class2 in @class.PrerequisiteClasses)
+                while (queue.Count > 0)
                 {
-                    queue.Enqueue(class2);
+                    var level = queue.Dequeue();
+                    foreach (var level2 in level.Class.Levels)
+                    {
+                        ItemNamesAllowed.UnionWith(level2.ItemNamesAllowed);
+                        PermissionsGranted.UnionWith(level2.PermissionsGranted);
+                        if (level2 == level)
+                        {
+                            break;
+                        }
+                    }
+
+                    foreach (var level2 in level.Class.PrerequisiteLevels)
+                    {
+                        queue.Enqueue(level2);
+                    }
                 }
             }
         }

@@ -207,6 +207,32 @@ namespace Leveling.Sessions
         }
 
         /// <summary>
+        ///     Determines if the player has the specified level.
+        /// </summary>
+        /// <param name="level">The level, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if the player does; otherwise, <c>false</c>.</returns>
+        public bool HasLevel(Level level)
+        {
+            Debug.Assert(level != null, "Level must not be null.");
+
+            var @class = level.Class;
+            return @class.Levels.IndexOf(_classToLevel[@class]) >= @class.Levels.IndexOf(level);
+        }
+
+        /// <summary>
+        ///     Determines if the player has the prerequisites for the specified class.
+        /// </summary>
+        /// <param name="class">The class, which must not be <c>null</c>.</param>
+        /// <returns><c>true</c> if the player does; otherwise, <c>false</c>.</returns>
+        public bool HasPrerequisites(Class @class)
+        {
+            Debug.Assert(@class != null, "Class must not be null.");
+
+            return @class.PrerequisiteLevels.All(HasLevel) &&
+                   @class.PrerequisitePermissions.All(p => _player.HasPermission(p));
+        }
+
+        /// <summary>
         ///     Levels down the player.
         /// </summary>
         /// <returns><c>true</c> if the player successfully leveled down; otherwise, <c>false</c>.</returns>
@@ -262,10 +288,6 @@ namespace Leveling.Sessions
                 _player.SendInfoMessage($"You have mastered the {Class} class.");
                 MasteredClasses.Add(Class);
                 _definition.MasteredClassNames.Add(Class.Name);
-                if (Class.NextClasses.Count > 0)
-                {
-                    _player.SendInfoMessage($"Next classes: {string.Join(", ", Class.NextClasses)}.");
-                }
             }
             AddCombatText("Leveled up!", Color.LimeGreen);
 
