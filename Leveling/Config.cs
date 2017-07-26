@@ -19,7 +19,7 @@ namespace Leveling
         ///     Gets the configuration instance.
         /// </summary>
         public static Config Instance { get; internal set; } = new Config();
-        
+
         /// <summary>
         ///     Gets the default class name.
         /// </summary>

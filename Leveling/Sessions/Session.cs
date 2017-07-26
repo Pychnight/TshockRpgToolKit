@@ -334,7 +334,7 @@ namespace Leveling.Sessions
             {
                 var username = _player.User?.Name ?? _player.Name;
                 var path = Path.Combine("leveling", $"{username}.session");
-                File.WriteAllText(path, JsonConvert.SerializeObject(_definition));
+                File.WriteAllText(path, JsonConvert.SerializeObject(_definition, Formatting.Indented));
             }
         }
 
