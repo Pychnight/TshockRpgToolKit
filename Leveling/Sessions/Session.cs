@@ -76,6 +76,11 @@ namespace Leveling.Sessions
         }
 
         /// <summary>
+        ///     Gets the set of item IDs given.
+        /// </summary>
+        public ISet<int> ItemIdsGiven => _definition.ItemIdsGiven ?? new HashSet<int>();
+
+        /// <summary>
         ///     Gets the set of item names allowed.
         /// </summary>
         public ISet<string> ItemNamesAllowed { get; private set; } = new HashSet<string>();
@@ -108,7 +113,7 @@ namespace Leveling.Sessions
         ///     Gets the set of unlocked classes.
         /// </summary>
         public ISet<Class> UnlockedClasses { get; private set; } = new HashSet<Class>();
-        
+
         /// <summary>
         ///     Adds a combat text to the player with the specified text and color.
         /// </summary>
@@ -135,6 +140,20 @@ namespace Leveling.Sessions
             {
                 _expToReport += exp;
             }
+        }
+
+        /// <summary>
+        ///     Adds an item ID given.
+        /// </summary>
+        /// <param name="itemId">The item ID.</param>
+        public void AddItemId(int itemId)
+        {
+            if (_definition.ItemIdsGiven == null)
+            {
+                _definition.ItemIdsGiven = new HashSet<int>();
+            }
+            _definition.ItemIdsGiven.Add(itemId);
+            Save();
         }
 
         /// <summary>

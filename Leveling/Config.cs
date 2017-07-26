@@ -21,7 +21,7 @@ namespace Leveling
         public static Config Instance { get; internal set; } = new Config();
 
         /// <summary>
-        /// Gets a value indicating whether classes can be switched in the middle of progressing through a class.
+        ///     Gets a value indicating whether classes can be switched in the middle of progressing through a class.
         /// </summary>
         [JsonProperty(Order = 3)]
         public bool AllowSwitchingClassesMidClass { get; private set; }

@@ -79,43 +79,48 @@ namespace Leveling
 
             Commands.ChatCommands.Add(new Command("leveling.addhp", AddHp, "addhp")
             {
-                HelpText = "Syntax: /addhp <player-name> <hp-amount>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}addhp <player-name> <hp-amount>\n" +
                            "Adds an amount of max HP to the specified player."
             });
             Commands.ChatCommands.Add(new Command("leveling.addmp", AddMp, "addmp")
             {
-                HelpText = "Syntax: /addmp <player-name> <hp-amount>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}addmp <player-name> <hp-amount>\n" +
                            "Adds an amount of max MP to the specified player."
             });
             Commands.ChatCommands.Add(new Command("leveling.class", ClassCmd, "class")
             {
-                HelpText = "Syntax: /class [class-name]\n" +
+                HelpText = $"Syntax: {Commands.Specifier}class [class-name]\n" +
                            "Shows available classes or changes your current class."
             });
             Commands.ChatCommands.Add(new Command("leveling.exp", Exp, "exp")
             {
                 AllowServer = false,
-                HelpText = "Syntax: /exp\n" +
+                HelpText = $"Syntax: {Commands.Specifier}exp\n" +
                            "Shows your current level and EXP."
             });
             Commands.ChatCommands.Add(new Command("leveling.giveexp", GiveExp, "giveexp")
             {
-                HelpText = "Syntax: /giveexp <player-name> <exp-amount>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}giveexp <player-name> <exp-amount>\n" +
                            "Gives an amount of EXP to the specified player."
+            });
+            Commands.ChatCommands.Add(new Command("leveling.giveonce", GiveOnce, "giveonce")
+            {
+                HelpText = $"Syntax: {Commands.Specifier}giveexp <player-name> <item-name> <stack> <prefix>\n" +
+                           "Gives an item to the specified player, but only once."
             });
             Commands.ChatCommands.Add(new Command("leveling.leveldown", LevelDown, "leveldown")
             {
-                HelpText = "Syntax: /leveldown <player-name>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}leveldown <player-name>\n" +
                            "Levels down the specified player."
             });
             Commands.ChatCommands.Add(new Command("leveling.levelup", LevelUp, "levelup")
             {
-                HelpText = "Syntax: /levelup <player-name>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}levelup <player-name>\n" +
                            "Levels up the specified player."
             });
             Commands.ChatCommands.Add(new Command("leveling.sendto", SendTo, "sendto")
             {
-                HelpText = "Syntax: /sendto <player-name> <rrr,ggg,bbb> <text>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}sendto <player-name> <rrr,ggg,bbb> <text>\n" +
                            "Sends text in a certain color to the specified player."
             });
         }
@@ -423,6 +428,87 @@ namespace Leveling
                                             : $"You lost [c/{Color.OrangeRed.Hex3()}:{-expAmount} EXP].");
             session.AddExpToReport(expAmount);
             session.GiveExp(expAmount);
+        }
+
+        private void GiveOnce(CommandArgs args)
+        {
+            var parameters = args.Parameters;
+            var player = args.Player;
+            if (parameters.Count < 2 || parameters.Count > 4)
+            {
+                player.SendErrorMessage(
+                    $"Syntax: {Commands.Specifier}giveonce <player-name> <item-name> [stack] [prefix]");
+                return;
+            }
+
+            var inputPlayerName = parameters[0];
+            var players = TShock.Utils.FindPlayer(inputPlayerName);
+            if (players.Count == 0)
+            {
+                player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
+                return;
+            }
+            if (players.Count > 1)
+            {
+                player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+                TShock.Utils.SendMultipleMatchError(player, players);
+                return;
+            }
+
+            var inputItemName = parameters[1];
+            var items = TShock.Utils.GetItemByIdOrName(inputItemName);
+            if (items.Count == 0)
+            {
+                player.SendErrorMessage($"Invalid item '{inputItemName}'.");
+                return;
+            }
+            if (items.Count > 1)
+            {
+                player.SendErrorMessage($"Multiple items matched '{inputItemName}':");
+                TShock.Utils.SendMultipleMatchError(player, items);
+                return;
+            }
+
+            var item = items[0];
+            var inputStack = parameters.Count > 2 ? parameters[2] : item.maxStack.ToString();
+            if (!int.TryParse(inputStack, out var stack) || stack <= 0 || stack > item.maxStack)
+            {
+                player.SendErrorMessage($"Invalid stack '{inputStack}'.");
+                return;
+            }
+
+            var prefix = 0;
+            if (parameters.Count > 3)
+            {
+                var inputPrefix = parameters[3];
+                var prefixes = TShock.Utils.GetPrefixByIdOrName(inputPrefix);
+                if (prefixes.Count == 0)
+                {
+                    player.SendErrorMessage($"Invalid prefix '{inputPrefix}'.");
+                    return;
+                }
+                if (prefixes.Count > 1)
+                {
+                    player.SendErrorMessage($"Multiple prefixes matched '{inputItemName}':");
+                    TShock.Utils.SendMultipleMatchError(player, prefixes.Cast<object>());
+                    return;
+                }
+                prefix = prefixes[0];
+            }
+
+            var otherPlayer = players[0];
+            var session = GetOrCreateSession(otherPlayer);
+            if (session.ItemIdsGiven.Contains(item.type))
+            {
+                player.SendErrorMessage(
+                    $"{otherPlayer.Name} was already given [i/s{stack},p{prefix}:{item.type}].");
+                return;
+            }
+
+            session.AddItemId(item.type);
+            player.SendSuccessMessage($"Gave [i/s{stack},p{prefix}:{item.type}] to {otherPlayer.Name}.");
+            otherPlayer.GiveItem(item.type, "", Player.defaultWidth, Player.defaultHeight, stack, prefix);
+            otherPlayer.SendInfoMessage($"Received [i/s{stack},p{prefix}:{item.type}].");
         }
 
         private void KillNpc(NPC npc)

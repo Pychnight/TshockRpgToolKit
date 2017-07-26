@@ -28,6 +28,12 @@ namespace Leveling.Sessions
         public string CurrentClassName { get; set; }
 
         /// <summary>
+        ///     Gets the item IDs given.
+        /// </summary>
+        [JsonProperty("ItemsGiven")]
+        public ISet<int> ItemIdsGiven { get; internal set; }
+
+        /// <summary>
         ///     Gets the set of completed class names.
         /// </summary>
         [JsonProperty("MasteredClasses")]
