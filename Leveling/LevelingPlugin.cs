@@ -105,7 +105,7 @@ namespace Leveling
             });
             Commands.ChatCommands.Add(new Command("leveling.giveonce", GiveOnce, "giveonce")
             {
-                HelpText = $"Syntax: {Commands.Specifier}giveexp <player-name> <item-name> <stack> <prefix>\n" +
+                HelpText = $"Syntax: {Commands.Specifier}giveexp <player-name> <item-name> [stack] [prefix]\n" +
                            "Gives an item to the specified player, but only once."
             });
             Commands.ChatCommands.Add(new Command("leveling.leveldown", LevelDown, "leveldown")
