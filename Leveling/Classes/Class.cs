@@ -36,6 +36,11 @@ namespace Leveling.Classes
         public bool AllowSwitchingBeforeMastery => _definition.AllowSwitchingBeforeMastery;
 
         /// <summary>
+        ///     Gets the death penalty multiplier override.
+        /// </summary>
+        public double? DeathPenaltyMultiplierOverride => _definition.DeathPenaltyMultiplierOverride;
+
+        /// <summary>
         ///     Gets the display name.
         /// </summary>
         public string DisplayName => _definition.DisplayName;

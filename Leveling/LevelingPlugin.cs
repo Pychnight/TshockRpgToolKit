@@ -11,6 +11,7 @@ using Leveling.Sessions;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
+using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -122,6 +123,11 @@ namespace Leveling
             {
                 HelpText = $"Syntax: {Commands.Specifier}levelup <player-name>\n" +
                            "Levels up the specified player."
+            });
+            Commands.ChatCommands.Add(new Command("leveling.multiplier", Multiplier, "multiplier")
+            {
+                HelpText = $"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>\n" +
+                           "Sets multipliers."
             });
             Commands.ChatCommands.Add(new Command("leveling.sendto", SendTo, "sendto")
             {
@@ -558,11 +564,11 @@ namespace Leveling
 
                 var player = kvp.Key;
                 var session = GetOrCreateSession(player);
-                var expAmount = (double)kvp.Value / total *
-                                config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
-                                (session.Class.ExpMultiplierOverride ?? 1.0) * config.ExpMultiplier;
-                session.AddExpToReport((long)expAmount);
-                session.GiveExp((long)expAmount);
+                var expAmount = (long)Math.Round((double)kvp.Value / total *
+                                                 config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
+                                                 (session.Class.ExpMultiplierOverride ?? 1.0) * config.ExpMultiplier);
+                session.AddExpToReport(expAmount);
+                session.GiveExp(expAmount);
             }
         }
 
@@ -640,6 +646,45 @@ namespace Leveling
             }
         }
 
+        private void Multiplier(CommandArgs args)
+        {
+            var parameters = args.Parameters;
+            var player = args.Player;
+            if (parameters.Count != 2)
+            {
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>");
+                return;
+            }
+
+            var inputValue = parameters[1];
+            if (!double.TryParse(inputValue, out var value) || value < 0.0)
+            {
+                player.SendErrorMessage($"Invalid value '{inputValue}'.");
+                return;
+            }
+
+            var multiplier = parameters[0];
+            if (multiplier.Equals("death", StringComparison.OrdinalIgnoreCase))
+            {
+                Config.Instance.DeathPenaltyMultiplier = value;
+                player.SendSuccessMessage("Set death penalty multiplier.");
+            }
+            else if (multiplier.Equals("deathpvp", StringComparison.OrdinalIgnoreCase))
+            {
+                Config.Instance.DeathPenaltyPvPMultiplier = value;
+                player.SendSuccessMessage("Set death PVP penalty multiplier.");
+            }
+            else if (multiplier.Equals("exp", StringComparison.OrdinalIgnoreCase))
+            {
+                Config.Instance.ExpMultiplier = value;
+                player.SendSuccessMessage("Set EXP multiplier.");
+            }
+            else
+            {
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <death|exp> <value>");
+            }
+        }
+
         private void OnGameUpdate(EventArgs args)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
@@ -651,53 +696,102 @@ namespace Leveling
 
         private void OnNetGetData(GetDataEventArgs args)
         {
-            if (args.Handled || args.MsgID != PacketTypes.NpcItemStrike && args.MsgID != PacketTypes.NpcStrike)
+            if (args.Handled)
             {
                 return;
             }
 
-            var player = TShock.Players[args.Msg.whoAmI];
-            using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
+            if (args.MsgID == PacketTypes.NpcItemStrike || args.MsgID == PacketTypes.NpcStrike)
             {
-                var npcIndex = reader.ReadInt16();
-
-                void DoStrike(double damage, bool isCritical)
+                var player = TShock.Players[args.Msg.whoAmI];
+                using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
                 {
-                    if (damage < 1.0)
+                    var npcIndex = reader.ReadInt16();
+
+                    void DoStrike(double damage, bool isCritical)
                     {
-                        return;
+                        if (damage < 1.0)
+                        {
+                            return;
+                        }
+
+                        var npc = Main.npc[npcIndex];
+                        var defense = npc.defense;
+                        defense -= npc.ichor ? 20 : 0;
+                        defense -= npc.betsysCurse ? 40 : 0;
+                        defense = Math.Max(0, defense);
+
+                        damage = Main.CalculateDamage((int)damage, defense);
+                        damage *= isCritical ? 2.0 : 1.0;
+                        damage *= Math.Max(1.0, npc.takenDamageMultiplier);
+
+                        var damages = _npcDamages.GetOrCreateValue(npc);
+                        damages[player] = damages.Get(player) + (int)damage;
+
+                        if (npc.life <= damage)
+                        {
+                            KillNpc(npc);
+                        }
                     }
 
-                    var npc = Main.npc[npcIndex];
-                    var defense = npc.defense;
-                    defense -= npc.ichor ? 20 : 0;
-                    defense -= npc.betsysCurse ? 40 : 0;
-                    defense = Math.Max(0, defense);
-
-                    damage = Main.CalculateDamage((int)damage, defense);
-                    damage *= isCritical ? 2.0 : 1.0;
-                    damage *= Math.Max(1.0, npc.takenDamageMultiplier);
-
-                    var damages = _npcDamages.GetOrCreateValue(npc);
-                    damages[player] = damages.Get(player) + (int)damage;
-
-                    if (npc.life <= damage)
+                    if (args.MsgID == PacketTypes.NpcItemStrike)
                     {
-                        KillNpc(npc);
+                        DoStrike(player.SelectedItem.damage, false);
+                    }
+                    else
+                    {
+                        var damage = reader.ReadInt16();
+                        reader.ReadSingle();
+                        reader.ReadByte();
+                        var isCritical = reader.ReadByte() == 1;
+                        DoStrike(damage, isCritical);
                     }
                 }
-
-                if (args.MsgID == PacketTypes.NpcItemStrike)
+            }
+            else if (args.MsgID == PacketTypes.PlayerDeathV2)
+            {
+                var player = TShock.Players[args.Msg.whoAmI];
+                var session = GetOrCreateSession(player);
+                using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
                 {
-                    DoStrike(player.SelectedItem.damage, false);
-                }
-                else
-                {
-                    var damage = reader.ReadInt16();
-                    reader.ReadSingle();
                     reader.ReadByte();
-                    var isCritical = reader.ReadByte() == 1;
-                    DoStrike(damage, isCritical);
+                    var deathReason = PlayerDeathReason.FromReader(reader);
+                    reader.ReadInt16();
+                    reader.ReadByte();
+                    var wasPvP = ((BitsByte)reader.ReadByte())[0];
+                    if (wasPvP)
+                    {
+                        var otherPlayer = deathReason.SourcePlayerIndex >= 0
+                            ? TShock.Players[deathReason.SourcePlayerIndex]
+                            : null;
+                        if (otherPlayer == player)
+                        {
+                            return;
+                        }
+
+                        var expLoss = (long)Math.Round(Math.Max(
+                                                           Config.Instance.DeathPenaltyPvPMultiplier * session.Exp,
+                                                           Config.Instance.DeathPenaltyMinimum));
+                        session.GiveExp(-expLoss);
+                        session.AddExpToReport(-expLoss);
+
+                        if (otherPlayer != null)
+                        {
+                            var otherSession = GetOrCreateSession(otherPlayer);
+                            otherSession.GiveExp(expLoss);
+                            otherSession.AddExpToReport(expLoss);
+                        }
+                    }
+                    else
+                    {
+                        var expLoss = (long)Math.Round(Math.Max(
+                                                           Config.Instance.DeathPenaltyMultiplier *
+                                                           (session.Class.DeathPenaltyMultiplierOverride ?? 1.0) *
+                                                           session.Exp,
+                                                           Config.Instance.DeathPenaltyMinimum));
+                        session.GiveExp(-expLoss);
+                        session.AddExpToReport(-expLoss);
+                    }
                 }
             }
         }

@@ -78,7 +78,7 @@ namespace Leveling.Sessions
         /// <summary>
         ///     Gets the set of item IDs given.
         /// </summary>
-        public ISet<int> ItemIdsGiven => _definition.ItemIdsGiven ?? new HashSet<int>();
+        public ISet<int> ItemIdsGiven => _definition.ItemIdsGiven;
 
         /// <summary>
         ///     Gets the set of item names allowed.
@@ -298,6 +298,16 @@ namespace Leveling.Sessions
                 Debug.WriteLine($"DEBUG: Executing {command2}");
                 Commands.HandleCommand(TSPlayer.Server, command2);
             }
+            if (!_definition.LevelNamesObtained.Contains(Level.Name))
+            {
+                foreach (var command in Level.CommandsOnLevelUpOnce)
+                {
+                    var command2 = command.Replace("$name", _player.GetEscapedName());
+                    Debug.WriteLine($"DEBUG: Executing {command2}");
+                    Commands.HandleCommand(TSPlayer.Server, command2);
+                }
+            }
+            _definition.LevelNamesObtained.Add(Level.Name);
             Save();
             return true;
         }

@@ -23,6 +23,12 @@ namespace Leveling.Classes
         public bool AllowSwitchingBeforeMastery { get; private set; }
 
         /// <summary>
+        ///     Gets the death penalty multiplier override.
+        /// </summary>
+        [JsonProperty(Order = 9)]
+        public double? DeathPenaltyMultiplierOverride { get; private set; }
+
+        /// <summary>
         ///     Gets the display name.
         /// </summary>
         [JsonProperty("DisplayName", Order = 1)]

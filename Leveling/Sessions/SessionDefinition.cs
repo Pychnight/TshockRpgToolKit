@@ -30,8 +30,14 @@ namespace Leveling.Sessions
         /// <summary>
         ///     Gets the item IDs given.
         /// </summary>
-        [JsonProperty("ItemsGiven")]
-        public ISet<int> ItemIdsGiven { get; internal set; }
+        [JsonProperty("ItemIdsGiven")]
+        public ISet<int> ItemIdsGiven { get; internal set; } = new HashSet<int>();
+
+        /// <summary>
+        ///     Gets the level names obtained.
+        /// </summary>
+        [JsonProperty("LevelsObtained")]
+        public ISet<string> LevelNamesObtained { get; internal set; } = new HashSet<string>();
 
         /// <summary>
         ///     Gets the set of completed class names.

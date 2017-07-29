@@ -40,6 +40,11 @@ namespace Leveling.Levels
         public IList<string> CommandsOnLevelUp => _definition.CommandsOnLevelUp;
 
         /// <summary>
+        ///     Gets the list of commands to execute on leveling up, but only once.
+        /// </summary>
+        public IList<string> CommandsOnLevelUpOnce => _definition.CommandsOnLevelUpOnce;
+
+        /// <summary>
         ///     Gets the display name.
         /// </summary>
         public string DisplayName => _definition.DisplayName;

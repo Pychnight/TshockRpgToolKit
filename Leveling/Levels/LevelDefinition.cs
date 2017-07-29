@@ -12,7 +12,7 @@ namespace Leveling.Levels
         /// <summary>
         ///     Gets the list of commands to execute on leveling down.
         /// </summary>
-        [JsonProperty("CommandsOnLevelDown", Order = 7)]
+        [JsonProperty("CommandsOnLevelDown", Order = 8)]
         public IList<string> CommandsOnLevelDown { get; private set; } = new List<string>();
 
         /// <summary>
@@ -20,6 +20,12 @@ namespace Leveling.Levels
         /// </summary>
         [JsonProperty("CommandsOnLevelUp", Order = 6)]
         public IList<string> CommandsOnLevelUp { get; private set; } = new List<string>();
+
+        /// <summary>
+        ///     Gets the list of commands to execute on leveling up, but only once.
+        /// </summary>
+        [JsonProperty("CommandsOnLevelUpOnce", Order = 7)]
+        public IList<string> CommandsOnLevelUpOnce { get; private set; } = new List<string>();
 
         /// <summary>
         ///     Gets the display name.
