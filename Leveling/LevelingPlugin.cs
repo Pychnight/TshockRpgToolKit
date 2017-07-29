@@ -543,6 +543,11 @@ namespace Leveling
             }
             _npcDamages.Remove(npc);
 
+            if (npc.value <= 0.0 || npc.SpawnedFromStatue)
+            {
+                return;
+            }
+
             Debug.Assert(damages.Count > 0, "Damages must not be empty.");
 
             var total = damages.Values.Sum();
