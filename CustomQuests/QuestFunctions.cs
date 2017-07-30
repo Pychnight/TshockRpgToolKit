@@ -8,6 +8,7 @@ using OTAPI.Tile;
 using Terraria;
 using TShockAPI;
 using TShockAPI.Localization;
+using TShockAPI.DB;
 
 // ReSharper disable InconsistentNaming
 
@@ -74,6 +75,23 @@ namespace CustomQuests
             }
 
             return Commands.HandleCommand(TSPlayer.Server, command);
+        }
+
+        /// <summary>
+        ///     Gets the region with the specified name.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <returns>The region, or <c>null</c> if it does not exist.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        public static Region GetRegion([NotNull] string name)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return TShock.Regions.GetRegionByName(name);
         }
 
         /// <summary>
