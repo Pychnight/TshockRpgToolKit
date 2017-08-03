@@ -20,7 +20,6 @@ namespace NpcShops.Shops
 
             _definition = definition;
             StackSize = definition.StackSize;
-            System.Console.WriteLine(Command);
         }
 
         /// <summary>
