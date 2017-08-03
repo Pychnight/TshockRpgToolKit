@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using Wolfje.Plugins.SEconomy;
 
 namespace Housing.Database
 {
@@ -78,6 +79,11 @@ namespace Housing.Database
         ///     Gets or sets the rectangle.
         /// </summary>
         public Rectangle Rectangle { get; set; }
+
+        /// <summary>
+        ///     Gets the unit prices.
+        /// </summary>
+        public IDictionary<int, Money> UnitPrices { get; } = new Dictionary<int, Money>();
 
         public override string ToString() => Name;
     }

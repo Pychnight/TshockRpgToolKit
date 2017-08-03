@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Mono.Data.Sqlite;
 using Newtonsoft.Json;
 using Terraria;
+using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -282,7 +283,8 @@ namespace Housing
                             SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
                             "", $"Purchased the {inputHouseName} house");
                         var house = _database.AddHouse(player, inputHouseName, x, y, x2, y2);
-                        player.SendSuccessMessage($"Purchased the [c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                        player.SendSuccessMessage($"Purchased the [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
+                                                  $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}].");
                     });
                     player.AddResponse("no", args2 =>
                     {
@@ -359,9 +361,11 @@ namespace Housing
                     return;
                 }
 
-                var purchaseCost = (Money)(amount * shopItem.UnitPrice);
-                var salesTax = (Money)Math.Round(purchaseCost * Config.Instance.SalesTaxRate);
+                var item = new Item();
                 var itemId = shopItem.ItemId;
+                item.SetDefaults(itemId);
+                var purchaseCost = (Money)(amount * shop.UnitPrices.Get(itemId, item.value / 5));
+                var salesTax = (Money)Math.Round(purchaseCost * Config.Instance.SalesTaxRate);
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
                 player.SendInfoMessage(
                     $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
@@ -381,9 +385,7 @@ namespace Housing
                         player.SendErrorMessage("While waiting, the shop changed.");
                         return;
                     }
-
-                    var item = new Item();
-                    item.SetDefaults(shopItem.ItemId);
+                    
                     var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(shop.OwnerName);
                     account.TransferTo(
                         account2, purchaseCost, BankAccountTransferOptions.IsPayment,
@@ -396,8 +398,14 @@ namespace Housing
                     _database.Update(shop);
 
                     player.GiveItem(
-                        shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
-                    player.SendSuccessMessage($"Purchased {itemText}.");
+                        itemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
+                    player.SendSuccessMessage($"Purchased {itemText} for " +
+                                              $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+
+                    var player2 = TShock.Players.Where(p => p?.Active == true)
+                        .FirstOrDefault(p => p.User?.Name == shop.OwnerName);
+                    player2?.SendInfoMessage($"{player.Name} purchased {itemText} for " +
+                                             $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
                 });
                 player.AddResponse("no", args2 =>
                 {
@@ -439,6 +447,9 @@ namespace Housing
 
                 var shop = session.CurrentShop;
                 player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.Name}");
+                var prices = shop.UnitPrices.Where(kvp => kvp.Value > 0)
+                    .Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value}]");
+                player.SendInfoMessage($"Prices: {string.Join(", ", prices)}");
             }
             else if (subcommand.Equals("open", StringComparison.OrdinalIgnoreCase))
             {
@@ -602,10 +613,7 @@ namespace Housing
                     return;
                 }
 
-                foreach (var shopItem in shop.Items.Where(i => i.ItemId == items[0].type))
-                {
-                    shopItem.UnitPrice = price;
-                }
+                shop.UnitPrices[items[0].type] = price;
                 _database.Update(shop);
                 player.SendSuccessMessage(
                     $"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
@@ -680,6 +688,12 @@ namespace Housing
                     account.TransferTo(
                         SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
                         $"Taxed for the {house} house");
+
+                    var player = TShock.Players.Where(p => p?.Active == true)
+                        .FirstOrDefault(p => p.User?.Name == house.OwnerName);
+                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your " +
+                                            $"[c/{Color.MediumPurple}:{house}] house.");
+
                     house.Debt = taxCost - payment;
                     if (payment < taxCost)
                     {
@@ -692,18 +706,6 @@ namespace Housing
 
                     house.LastTaxed = DateTime.UtcNow;
                     _database.Update(house);
-                }
-            }
-        }
-
-        private void OnServerLeave(LeaveEventArgs args)
-        {
-            var player = TShock.Players[args.Who];
-            if (player != null && !Config.Instance.AllowOfflineShops)
-            {
-                foreach (var shop in _database.GetShops().Where(s => s.OwnerName == player.User?.Name))
-                {
-                    shop.IsOpen = false;
                 }
             }
         }
@@ -825,22 +827,17 @@ namespace Housing
                     var stackSize = reader.ReadInt16();
                     var prefixId = reader.ReadByte();
                     var itemId = reader.ReadInt16();
-
-                    var item = new Item();
-                    item.SetDefaults(itemId);
-                    var unitPrice = (Money)(item.value / 5);
-
+                    
                     var shopItem = shop.Items.FirstOrDefault(i => i.Index == itemIndex);
                     if (shopItem == null)
                     {
-                        shop.Items.Add(new ShopItem(itemIndex, itemId, stackSize, prefixId, unitPrice));
+                        shop.Items.Add(new ShopItem(itemIndex, itemId, stackSize, prefixId));
                     }
                     else
                     {
                         shopItem.ItemId = itemId;
                         shopItem.StackSize = stackSize;
                         shopItem.PrefixId = prefixId;
-                        shopItem.UnitPrice = unitPrice;
                     }
                     _database.Update(shop);
                     args.Handled = true;
@@ -857,6 +854,43 @@ namespace Housing
                     shop.IsBeingChanged = false;
                 }
             }
+            else if (args.MsgID == PacketTypes.TileKill)
+            {
+                var player = TShock.Players[args.Msg.whoAmI];
+                using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
+                {
+                    var action = reader.ReadByte();
+                    if (action != 1 && action != 3)
+                    {
+                        return;
+                    }
+
+                    var x = reader.ReadInt16();
+                    var y = reader.ReadInt16();
+                    var tile = Main.tile[x, y];
+                    if (tile.type != TileID.Containers && tile.type != TileID.Dressers &&
+                        tile.type != TileID.Containers2)
+                    {
+                        return;
+                    }
+
+                    if (tile.frameY % 36 != 0)
+                    {
+                        --y;
+                    }
+                    if (tile.frameX % 36 != 0)
+                    {
+                        --x;
+                    }
+
+                    if (_database.GetShops().Any(s => s.ChestX == x && s.ChestY == y))
+                    {
+                        player.SendErrorMessage("You can't remove shop chests.");
+                        args.Handled = true;
+                        player.SendTileSquare(x, y, 3);
+                    }
+                }
+            }
         }
 
         private void OnReload(ReloadEventArgs args)
@@ -867,6 +901,18 @@ namespace Housing
             }
             _database.Load();
             args.Player.SendSuccessMessage("[Housing] Reloaded config!");
+        }
+
+        private void OnServerLeave(LeaveEventArgs args)
+        {
+            var player = TShock.Players[args.Who];
+            if (player != null && !Config.Instance.AllowOfflineShops)
+            {
+                foreach (var shop in _database.GetShops().Where(s => s.OwnerName == player.User?.Name))
+                {
+                    shop.IsOpen = false;
+                }
+            }
         }
     }
 }

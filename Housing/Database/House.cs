@@ -46,7 +46,7 @@ namespace Housing.Database
         ///     Gets or sets the debt.
         /// </summary>
         public Money Debt { get; set; }
-        
+
         /// <summary>
         ///     Gets or sets the last time the house was taxed.
         /// </summary>

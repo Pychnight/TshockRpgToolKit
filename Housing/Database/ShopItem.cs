@@ -11,15 +11,13 @@ namespace Housing.Database
     public sealed class ShopItem
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ShopItem" /> class with the specified item ID, stack size, prefix, and
-        ///     unit price.
+        ///     Initializes a new instance of the <see cref="ShopItem" /> class with the specified item ID, stack size, and prefix.
         /// </summary>
         /// <param name="index">The index, which must be non-negative and in range.</param>
         /// <param name="itemId">The item ID, which must be non-negative and in range.</param>
         /// <param name="stackSize">The stack size, which must be non-negative.</param>
         /// <param name="prefixId">The prefix ID, which must be in range.</param>
-        /// <param name="unitPrice">The unit price, which must be non-negative.</param>
-        public ShopItem(int index, int itemId, int stackSize, byte prefixId, Money unitPrice)
+        public ShopItem(int index, int itemId, int stackSize, byte prefixId)
         {
             Debug.Assert(index >= 0, "Index must be non-negative.");
             Debug.Assert(index < Chest.maxItems, "Index must be in range.");
@@ -27,13 +25,11 @@ namespace Housing.Database
             Debug.Assert(itemId < ItemID.Count, "Item ID must be in range.");
             Debug.Assert(stackSize >= 0, "Stack size must be non-negative.");
             Debug.Assert(prefixId < PrefixID.Count, "Prefix ID must be in range.");
-            Debug.Assert(unitPrice >= 0, "Unit price must be non-negative.");
 
             Index = index;
             ItemId = itemId;
             StackSize = stackSize;
             PrefixId = prefixId;
-            UnitPrice = unitPrice;
         }
 
         /// <summary>
@@ -55,10 +51,5 @@ namespace Housing.Database
         ///     Gets or sets the stack size.
         /// </summary>
         public int StackSize { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the unit price.
-        /// </summary>
-        public Money UnitPrice { get; set; }
     }
 }

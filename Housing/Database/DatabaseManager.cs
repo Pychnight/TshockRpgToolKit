@@ -70,10 +70,18 @@ namespace Housing.Database
                               "  ItemId             INTEGER," +
                               "  StackSize          INTEGER," +
                               "  PrefixId           INTEGER," +
-                              "  UnitPrice          INTEGER," +
                               "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
                               "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemIndex) ON CONFLICT REPLACE)");
+            _connection.Query("CREATE TABLE IF NOT EXISTS ShopHasPrice (" +
+                              "  OwnerName          TEXT," +
+                              "  ShopName           TEXT," +
+                              "  WorldId            INTEGER," +
+                              "  ItemId             INTEGER," +
+                              "  UnitPrice          INTEGER," +
+                              "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
+                              "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
+                              "  UNIQUE(OwnerName, ShopName, WorldId, ItemId) ON CONFLICT REPLACE)");
         }
 
         /// <summary>
@@ -265,8 +273,18 @@ namespace Housing.Database
                                 var itemId = reader2.Get<int>("ItemId");
                                 var stackSize = reader2.Get<int>("StackSize");
                                 var prefixId = reader2.Get<byte>("PrefixId");
+                                shop.Items.Add(new ShopItem(index, itemId, stackSize, prefixId));
+                            }
+                        }
+                        using (var reader2 = _connection.QueryReader(
+                            "SELECT * FROM ShopHasPrice WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
+                            ownerName, name, Main.worldID))
+                        {
+                            while (reader2.Read())
+                            {
+                                var itemId = reader2.Get<int>("ItemId");
                                 var unitPrice = (Money)reader2.Get<long>("UnitPrice");
-                                shop.Items.Add(new ShopItem(index, itemId, stackSize, prefixId, unitPrice));
+                                shop.UnitPrices[itemId] = unitPrice;
                             }
                         }
                         _shops.Add(shop);
@@ -358,14 +376,23 @@ namespace Housing.Database
                                   shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName, shop.Name, Main.worldID);
                 _connection.Query("DELETE FROM ShopHasItem WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
                                   shop.OwnerName, shop.Name, Main.worldID);
+                _connection.Query("DELETE FROM ShopHasPrice WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
+                                  shop.OwnerName, shop.Name, Main.worldID);
                 foreach (var shopItem in shop.Items.Where(i => i.StackSize > 0))
                 {
                     _connection.Query(
                         "INSERT INTO ShopHasItem (OwnerName, ShopName, WorldId, ItemIndex, ItemId, StackSize," +
-                        "  PrefixId, UnitPrice)" +
-                        "VALUES (@0, @1, @2, @3, @4, @5, @6, @7)",
+                        "  PrefixId)" +
+                        "VALUES (@0, @1, @2, @3, @4, @5, @6)",
                         shop.OwnerName, shop.Name, Main.worldID, shopItem.Index, shopItem.ItemId,
-                        shopItem.StackSize, shopItem.PrefixId, (long)shopItem.UnitPrice);
+                        shopItem.StackSize, shopItem.PrefixId);
+                }
+                foreach (var kvp in shop.UnitPrices)
+                {
+                    _connection.Query(
+                        "INSERT INTO ShopHasPrice (OwnerName, ShopName, WorldId, ItemId, UnitPrice)" +
+                        "VALUES (@0, @1, @2, @3, @4)",
+                        shop.OwnerName, shop.Name, Main.worldID, kvp.Key, (long)kvp.Value);
                 }
             }
         }
