@@ -216,6 +216,11 @@ namespace Leveling.Sessions
             Debug.Assert(level != null, "Level must not be null.");
 
             var @class = level.Class;
+            if (!_classToLevel.ContainsKey(level.Class))
+            {
+                return false;
+            }
+
             return @class.Levels.IndexOf(_classToLevel[@class]) >= @class.Levels.IndexOf(level);
         }
 
