@@ -246,7 +246,7 @@ namespace Leveling
             var otherPlayer = players[0];
             var session = GetOrCreateSession(otherPlayer);
             otherPlayer.TPlayer.statManaMax = Math.Max(20, otherPlayer.TPlayer.statManaMax + mpAmount);
-            TSPlayer.All.SendData(PacketTypes.PlayerHp, "", otherPlayer.Index);
+            TSPlayer.All.SendData(PacketTypes.PlayerMana, "", otherPlayer.Index);
 
             player.SendSuccessMessage($"Gave {otherPlayer.Name} {mpAmount} MP.");
             if (mpAmount > 0)
