@@ -199,7 +199,12 @@ namespace Housing
                 player.SendInfoMessage($"Owner: {house.OwnerName}, Name: {house.Name}");
                 if (player.User?.Name == house.OwnerName || player.HasPermission("housing.house.admin"))
                 {
-                    player.SendInfoMessage($"Debt: {house.Debt}, Last taxed: {house.LastTaxed}");
+                    player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
+                    var isStore = _database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
+                    var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
+                    var taxCost = (Money)(Math.Round(house.Area * taxRate) + house.Debt);
+                    player.SendInfoMessage(
+                        $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost}], Last taxed: {house.LastTaxed}");
                     player.SendInfoMessage($"Allowed users: {string.Join(", ", house.AllowedUsernames)}");
                 }
             }
@@ -385,14 +390,20 @@ namespace Housing
                         player.SendErrorMessage("While waiting, the shop changed.");
                         return;
                     }
-                    
-                    var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(shop.OwnerName);
-                    account.TransferTo(
-                        account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-                        "", $"Purchased {item.Name} x{amount}");
-                    account.TransferTo(
-                        SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-                        "", $"Sales tax for {item.Name} x{amount}");
+
+                    if (purchaseCost > 0)
+                    {
+                        var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(shop.OwnerName);
+                        account.TransferTo(
+                            account2, purchaseCost, BankAccountTransferOptions.IsPayment,
+                            "", $"Purchased {item.Name} x{amount}");
+                    }
+                    if (salesTax > 0)
+                    {
+                        account.TransferTo(
+                            SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
+                            "", $"Sales tax for {item.Name} x{amount}");
+                    }
 
                     shopItem.StackSize -= amount;
                     _database.Update(shop);
@@ -537,7 +548,7 @@ namespace Housing
                 session.NextShopY = y;
                 session.NextShopX2 = x2;
                 session.NextShopY2 = y2;
-                player.SendInfoMessage("Open a chest to serve as the item shop chest.");
+                player.SendInfoMessage("Place a chest to serve as the item shop chest.");
             }
             else if (subcommand.Equals("setmsg", StringComparison.OrdinalIgnoreCase))
             {
@@ -683,7 +694,7 @@ namespace Housing
 
                     var isStore = shops.Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
-                    var taxCost = (Money)Math.Round(house.Area * taxRate) + house.Debt;
+                    var taxCost = (long)Math.Round(house.Area * taxRate) + house.Debt;
                     var payment = (Money)Math.Min(account.Balance, taxCost);
                     account.TransferTo(
                         SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
@@ -726,86 +737,68 @@ namespace Housing
                     var x = reader.ReadInt16();
                     var y = reader.ReadInt16();
 
-                    if (session.NextShopHouse != null)
+                    var shop = _database.GetShops().FirstOrDefault(s => s.ChestX == x && s.ChestY == y);
+                    session.CurrentlyViewedShop = shop;
+                    if (shop == null)
                     {
-                        if (!session.NextShopHouse.Rectangle.Contains(x, y))
-                        {
-                            player.SendErrorMessage("Your house must contain your item shop chest.");
-                            return;
-                        }
-
-                        var shop = _database.AddShop(player, session.NextShopName, session.NextShopX,
-                                                     session.NextShopY, session.NextShopX2, session.NextShopY2, x, y);
-                        player.SendSuccessMessage($"Added the [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
-                        player.SendInfoMessage("Use /itemshop open and /itemshop close to open and close your shop.");
-                        args.Handled = true;
-                        session.NextShopHouse = null;
+                        return;
                     }
-                    else
+                    args.Handled = true;
+
+                    if (shop.OwnerName == player.User?.Name)
                     {
-                        var shop = _database.GetShops().FirstOrDefault(s => s.ChestX == x && s.ChestY == y);
-                        session.CurrentlyViewedShop = shop;
-                        if (shop == null)
+                        Debug.WriteLine($"DEBUG: {player.Name} changing shop at {x}, {y}");
+                        shop.IsBeingChanged = true;
+                        var chest = new Chest {x = x, y = y};
+                        Main.chest[998] = chest;
+                        for (var i = 0; i < 40; ++i)
                         {
+                            var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
+                            chest.item[i] = new Item();
+                            chest.item[i].SetDefaults(shopItem?.ItemId ?? 0);
+                            chest.item[i].stack = shopItem?.StackSize ?? 0;
+                            chest.item[i].prefix = shopItem?.PrefixId ?? 0;
+                            player.SendData(PacketTypes.ChestItem, "", 998, i);
+                        }
+                        player.SendData(PacketTypes.ChestOpen, "", 998);
+                        player.SendInfoMessage("Use /itemshop setprice <item-name> <price> to change prices.");
+                    }
+                    else if (shop.OwnerName != player.User?.Name)
+                    {
+                        if (!shop.IsOpen)
+                        {
+                            Debug.WriteLine(
+                                $"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
+                            player.SendErrorMessage("This shop is closed.");
                             return;
                         }
-                        args.Handled = true;
-
-                        if (shop.OwnerName == player.User?.Name)
+                        if (shop.IsBeingChanged)
                         {
-                            Debug.WriteLine($"DEBUG: {player.Name} changing shop at {x}, {y}");
-                            shop.IsBeingChanged = true;
-                            var chest = new Chest {x = x, y = y};
-                            Main.chest[998] = chest;
-                            for (var i = 0; i < 40; ++i)
-                            {
-                                var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
-                                chest.item[i] = new Item();
-                                chest.item[i].SetDefaults(shopItem?.ItemId ?? 0);
-                                chest.item[i].stack = shopItem?.StackSize ?? 0;
-                                chest.item[i].prefix = shopItem?.PrefixId ?? 0;
-                                player.SendData(PacketTypes.ChestItem, "", 998, i);
-                            }
-                            player.SendData(PacketTypes.ChestOpen, "", 998);
-                            player.SendInfoMessage("Use /itemshop setprice <item-name> <price> to change prices.");
+                            Debug.WriteLine(
+                                $"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
+                            player.SendErrorMessage("This shop is being changed right now.");
+                            return;
                         }
-                        else if (shop.OwnerName != player.User?.Name)
-                        {
-                            if (!shop.IsOpen)
-                            {
-                                Debug.WriteLine(
-                                    $"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
-                                player.SendErrorMessage("This shop is closed.");
-                                return;
-                            }
-                            if (shop.IsBeingChanged)
-                            {
-                                Debug.WriteLine(
-                                    $"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
-                                player.SendErrorMessage("This shop is being changed right now.");
-                                return;
-                            }
 
-                            Debug.WriteLine($"DEBUG: {player.Name} viewed shop at {shop.ChestX}, {shop.ChestY}");
-                            player.SendInfoMessage("Current stock:");
-                            var sb = new StringBuilder();
-                            for (var i = 0; i < Chest.maxItems; ++i)
+                        Debug.WriteLine($"DEBUG: {player.Name} viewed shop at {shop.ChestX}, {shop.ChestY}");
+                        player.SendInfoMessage("Current stock:");
+                        var sb = new StringBuilder();
+                        for (var i = 0; i < Chest.maxItems; ++i)
+                        {
+                            var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
+                            if (shopItem?.StackSize > 0)
                             {
-                                var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
-                                if (shopItem?.StackSize > 0)
-                                {
-                                    sb.Append(
-                                        $"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
-                                }
-                                if ((i + 1) % 10 == 0 && sb.Length > 0)
-                                {
-                                    player.SendInfoMessage(sb.ToString());
-                                    sb.Clear();
-                                }
+                                sb.Append(
+                                    $"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
                             }
-                            player.SendInfoMessage(
-                                $"Use {Commands.Specifier}itemshop buy <item-index> [amount] to buy items.");
+                            if ((i + 1) % 10 == 0 && sb.Length > 0)
+                            {
+                                player.SendInfoMessage(sb.ToString());
+                                sb.Clear();
+                            }
                         }
+                        player.SendInfoMessage(
+                            $"Use {Commands.Specifier}itemshop buy <item-index> [amount] to buy items.");
                     }
                 }
             }
@@ -827,7 +820,7 @@ namespace Housing
                     var stackSize = reader.ReadInt16();
                     var prefixId = reader.ReadByte();
                     var itemId = reader.ReadInt16();
-                    
+
                     var shopItem = shop.Items.FirstOrDefault(i => i.Index == itemIndex);
                     if (shopItem == null)
                     {
@@ -860,13 +853,35 @@ namespace Housing
                 using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
                 {
                     var action = reader.ReadByte();
+                    var x = reader.ReadInt16();
+                    var y = reader.ReadInt16();
                     if (action != 1 && action != 3)
                     {
+                        if (action != 2)
+                        {
+                            return;
+                        }
+
+                        var session = GetOrCreateSession(player);
+                        if (session.NextShopHouse != null)
+                        {
+                            if (!session.NextShopHouse.Rectangle.Contains(x, y))
+                            {
+                                player.SendErrorMessage("Your house must contain your item shop chest.");
+                                return;
+                            }
+
+                            var shop = _database.AddShop(player, session.NextShopName, session.NextShopX,
+                                                         session.NextShopY, session.NextShopX2, session.NextShopY2, x,
+                                                         y - 1);
+                            player.SendSuccessMessage($"Added the [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                            player.SendInfoMessage(
+                                "Use /itemshop open and /itemshop close to open and close your shop.");
+                            session.NextShopHouse = null;
+                        }
                         return;
                     }
 
-                    var x = reader.ReadInt16();
-                    var y = reader.ReadInt16();
                     var tile = Main.tile[x, y];
                     if (tile.type != TileID.Containers && tile.type != TileID.Dressers &&
                         tile.type != TileID.Containers2)
