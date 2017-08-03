@@ -354,7 +354,7 @@ namespace Housing
                     return;
                 }
 
-                var inputAmount = parameters.Count == 3 ? parameters[2] : shopItem.StackSize.ToString();
+                var inputAmount = parameters.Count == 3 ? parameters[2] : "1";
                 if (!int.TryParse(inputAmount, out var amount) || amount < 1 || amount > shopItem.StackSize)
                 {
                     player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
@@ -684,14 +684,14 @@ namespace Housing
                     var isStore = shops.Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
                     var taxCost = (Money)Math.Round(house.Area * taxRate) + house.Debt;
-                    var payment = Math.Min(account.Balance, taxCost);
+                    var payment = (Money)Math.Min(account.Balance, taxCost);
                     account.TransferTo(
                         SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
                         $"Taxed for the {house} house");
 
                     var player = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
-                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{(Money)payment}] for your " +
+                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your " +
                                             $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
 
                     house.Debt = taxCost - payment;
