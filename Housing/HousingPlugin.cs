@@ -861,6 +861,7 @@ namespace Housing
                         {
                             return;
                         }
+                        --y;
 
                         var session = GetOrCreateSession(player);
                         if (session.NextShopHouse != null)
@@ -873,7 +874,7 @@ namespace Housing
 
                             var shop = _database.AddShop(player, session.NextShopName, session.NextShopX,
                                                          session.NextShopY, session.NextShopX2, session.NextShopY2, x,
-                                                         y - 1);
+                                                         y);
                             player.SendSuccessMessage($"Added the [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
                             player.SendInfoMessage(
                                 "Use /itemshop open and /itemshop close to open and close your shop.");
