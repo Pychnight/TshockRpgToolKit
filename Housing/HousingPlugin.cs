@@ -691,8 +691,8 @@ namespace Housing
 
                     var player = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
-                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your " +
-                                            $"[c/{Color.MediumPurple}:{house}] house.");
+                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{(Money)payment}] for your " +
+                                            $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
 
                     house.Debt = taxCost - payment;
                     if (payment < taxCost)
