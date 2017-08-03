@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Mono.Data.Sqlite;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
@@ -374,25 +375,55 @@ namespace Housing.Database
                                   "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
                                   shop.Rectangle.X, shop.Rectangle.Y, shop.Rectangle.Right, shop.Rectangle.Bottom,
                                   shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName, shop.Name, Main.worldID);
-                _connection.Query("DELETE FROM ShopHasItem WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
-                                  shop.OwnerName, shop.Name, Main.worldID);
-                _connection.Query("DELETE FROM ShopHasPrice WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
-                                  shop.OwnerName, shop.Name, Main.worldID);
-                foreach (var shopItem in shop.Items.Where(i => i.StackSize > 0))
+                using (var db = _connection.CloneEx())
                 {
-                    _connection.Query(
-                        "INSERT INTO ShopHasItem (OwnerName, ShopName, WorldId, ItemIndex, ItemId, StackSize," +
-                        "  PrefixId)" +
-                        "VALUES (@0, @1, @2, @3, @4, @5, @6)",
-                        shop.OwnerName, shop.Name, Main.worldID, shopItem.Index, shopItem.ItemId,
-                        shopItem.StackSize, shopItem.PrefixId);
-                }
-                foreach (var kvp in shop.UnitPrices)
-                {
-                    _connection.Query(
-                        "INSERT INTO ShopHasPrice (OwnerName, ShopName, WorldId, ItemId, UnitPrice)" +
-                        "VALUES (@0, @1, @2, @3, @4)",
-                        shop.OwnerName, shop.Name, Main.worldID, kvp.Key, (long)kvp.Value);
+                    db.Open();
+                    using (var transaction = db.BeginTransaction())
+                    {
+                        using (var command = (SqliteCommand)db.CreateCommand())
+                        {
+                            command.CommandText = "INSERT INTO ShopHasItem (OwnerName, ShopName, WorldId, ItemIndex, " +
+                                                  "  ItemId, StackSize, PrefixId)" +
+                                                  "VALUES (@0, @1, @2, @3, @4, @5, @6)";
+                            for (var i = 0; i <= 6; ++i)
+                            {
+                                command.AddParameter($"@{i}", null);
+                            }
+                            command.Parameters["@0"].Value = shop.OwnerName;
+                            command.Parameters["@1"].Value = shop.Name;
+                            command.Parameters["@2"].Value = Main.worldID;
+
+                            foreach (var shopItem in shop.Items)
+                            {
+                                command.Parameters["@3"].Value = shopItem.Index;
+                                command.Parameters["@4"].Value = shopItem.ItemId;
+                                command.Parameters["@5"].Value = shopItem.StackSize;
+                                command.Parameters["@6"].Value = shopItem.PrefixId;
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        using (var command = (SqliteCommand)db.CreateCommand())
+                        {
+                            command.CommandText = "INSERT INTO ShopHasPrice (OwnerName, ShopName, WorldId, ItemId, " +
+                                                  "  UnitPrice)" +
+                                                  "VALUES (@0, @1, @2, @3, @4)";
+                            for (var i = 0; i <= 4; ++i)
+                            {
+                                command.AddParameter($"@{i}", null);
+                            }
+                            command.Parameters["@0"].Value = shop.OwnerName;
+                            command.Parameters["@1"].Value = shop.Name;
+                            command.Parameters["@2"].Value = Main.worldID;
+
+                            foreach (var kvp in shop.UnitPrices)
+                            {
+                                command.Parameters["@3"].Value = kvp.Key;
+                                command.Parameters["@4"].Value = (long)kvp.Value;
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        transaction.Commit();
+                    }
                 }
             }
         }
