@@ -857,7 +857,7 @@ namespace Housing
                     var y = reader.ReadInt16();
                     if (action != 1 && action != 3)
                     {
-                        if (action != 2)
+                        if (action == 2)
                         {
                             return;
                         }
