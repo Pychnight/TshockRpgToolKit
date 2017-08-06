@@ -202,7 +202,7 @@ namespace Housing
                     player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
                     var isStore = _database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
-                    var taxCost = (Money)(Math.Round(house.Area * taxRate) + house.Debt);
+                    var taxCost = (Money)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage(
                         $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost}], Last taxed: {house.LastTaxed}");
                     player.SendInfoMessage($"Allowed users: {string.Join(", ", house.AllowedUsernames)}");
@@ -251,6 +251,24 @@ namespace Housing
                 var y = Math.Min(point1.Y, point2.Y);
                 var x2 = Math.Max(point1.X, point2.X);
                 var y2 = Math.Max(point1.Y, point2.Y);
+                if (_database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= Config.Instance.MaxHouses)
+                {
+                    player.SendErrorMessage("You have too many houses.");
+                    return;
+                }
+
+                var area = (x2 - x + 1) * (y2 - y + 1);
+                if (area < Config.Instance.MinHouseSize)
+                {
+                    player.SendErrorMessage("Your house is too small.");
+                    return;
+                }
+                if (area > Config.Instance.MaxHouseSize)
+                {
+                    player.SendErrorMessage("Your house is too large.");
+                    return;
+                }
+
                 var rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
                 if (_database.GetHouses().Any(h => h.Rectangle.Intersects(rectangle)))
                 {
@@ -460,7 +478,15 @@ namespace Housing
                 player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.Name}");
                 var prices = shop.UnitPrices.Where(kvp => kvp.Value > 0)
                     .Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value}]");
-                player.SendInfoMessage($"Prices: {string.Join(", ", prices)}");
+                player.SendInfoMessage(
+                    $"Prices: {string.Join(", ", prices)}. All other items are default sell prices.");
+                if (shop.OwnerName == player.User?.Name)
+                {
+                    var house = session.CurrentHouse;
+                    var taxRate = Config.Instance.StoreTaxRate - Config.Instance.TaxRate;
+                    var taxCost = (Money)Math.Round(house.Area * taxRate);
+                    player.SendInfoMessage($"Extra tax on house: [c/{Color.OrangeRed.Hex3()}:{taxCost}]");
+                }
             }
             else if (subcommand.Equals("open", StringComparison.OrdinalIgnoreCase))
             {
@@ -535,6 +561,18 @@ namespace Housing
                 var y = Math.Min(point1.Y, point2.Y);
                 var x2 = Math.Max(point1.X, point2.X);
                 var y2 = Math.Max(point1.Y, point2.Y);
+                var area = (x2 - x + 1) * (y2 - y + 1);
+                if (area < Config.Instance.MinShopSize)
+                {
+                    player.SendErrorMessage("Your shop is too small.");
+                    return;
+                }
+                if (area > Config.Instance.MaxShopSize)
+                {
+                    player.SendErrorMessage("Your shop is too large.");
+                    return;
+                }
+
                 var rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
                 if (!session.CurrentHouse.Rectangle.Contains(rectangle))
                 {
@@ -921,6 +959,11 @@ namespace Housing
 
         private void OnServerLeave(LeaveEventArgs args)
         {
+            if (args.Who < 0 || args.Who >= Main.maxPlayers)
+            {
+                return;
+            }
+
             var player = TShock.Players[args.Who];
             if (player != null && !Config.Instance.AllowOfflineShops)
             {

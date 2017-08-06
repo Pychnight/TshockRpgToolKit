@@ -61,5 +61,35 @@ namespace Housing
         /// </summary>
         [JsonProperty(Order = 2)]
         public double TaxRate { get; private set; } = 1.0;
+
+        /// <summary>
+        /// Gets the minimum house size.
+        /// </summary>
+        [JsonProperty(Order = 8)]
+        public int MinHouseSize { get; private set; } = 1000;
+
+        /// <summary>
+        /// Gets the maximum house size.
+        /// </summary>
+        [JsonProperty(Order = 9)]
+        public int MaxHouseSize { get; private set; } = 10000;
+
+        /// <summary>
+        /// Gets the maximum number of houses.
+        /// </summary>
+        [JsonProperty(Order = 10)]
+        public int MaxHouses { get; private set; } = 10;
+
+        /// <summary>
+        /// Gets the minimum shop size.
+        /// </summary>
+        [JsonProperty(Order = 11)]
+        public int MinShopSize { get; private set; } = 1000;
+
+        /// <summary>
+        /// Gets the maximum shop size.
+        /// </summary>
+        [JsonProperty(Order = 12)]
+        public int MaxShopSize { get; private set; } = 10000;
     }
 }
