@@ -48,6 +48,11 @@ namespace Housing.Database
         public Money Debt { get; set; }
 
         /// <summary>
+        ///     Gets or sets whether the house is for sale.
+        /// </summary>
+        public bool ForSale { get; set; }
+
+        /// <summary>
         ///     Gets or sets the last time the house was taxed.
         /// </summary>
         public DateTime LastTaxed { get; set; } = DateTime.UtcNow;
@@ -61,6 +66,11 @@ namespace Housing.Database
         ///     Gets the owner name.
         /// </summary>
         public string OwnerName { get; }
+
+        /// <summary>
+        ///     Gets or sets the price.
+        /// </summary>
+        public Money Price { get; set; }
 
         /// <summary>
         ///     Gets or sets the rectangle.

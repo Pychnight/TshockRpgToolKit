@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -155,6 +156,96 @@ namespace Housing
                     $"{(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
                     $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
             }
+            else if (subcommand.Equals("buy", StringComparison.OrdinalIgnoreCase))
+            {
+                if (parameters.Count != 2)
+                {
+                    player.SendErrorMessage($"Syntax: {Commands.Specifier}house buy <house-name>");
+                    return;
+                }
+
+                var inputHouseName = parameters[1];
+                var session = GetOrCreateSession(player);
+                if (session.CurrentHouse == null)
+                {
+                    var plot = TShock.Regions.InAreaRegion(player.TileX, player.TileY)
+                        .FirstOrDefault(r => r.Name.StartsWith("__Plot"));
+                    if (plot == null)
+                    {
+                        player.SendErrorMessage("You aren't currently in a house or plot.");
+                        return;
+                    }
+
+                    player.TempPoints[0] = new Point(plot.Area.X, plot.Area.Y);
+                    player.TempPoints[1] = new Point(plot.Area.Right - 1, plot.Area.Bottom - 1);
+                    HouseCmd(new CommandArgs("", player, new List<string> {"set", inputHouseName}));
+                    return;
+                }
+
+                var house = session.CurrentHouse;
+                if (!house.ForSale || house.OwnerName == player.User?.Name)
+                {
+                    player.SendErrorMessage("You cannot purchase this house.");
+                    return;
+                }
+
+                var purchaseCost = house.Price;
+                var salesTax = (Money)Math.Round(Config.Instance.TaxRate * purchaseCost);
+                player.SendInfoMessage(
+                    $"Purchasing {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house will cost " +
+                    $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+                player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
+                player.AddResponse("yes", args2 =>
+                {
+                    player.AwaitingResponse.Remove("no");
+                    var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+                    if (account == null || account.Balance < purchaseCost + salesTax)
+                    {
+                        player.SendErrorMessage(
+                            $"You do not have enough of a balance to purchase {house.OwnerName}'s " +
+                            $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                        return;
+                    }
+                    if (!house.ForSale)
+                    {
+                        player.SendErrorMessage("While waiting, the house was purchased.");
+                        return;
+                    }
+                    house.ForSale = false;
+
+                    if (purchaseCost > 0)
+                    {
+                        var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(house.OwnerName);
+                        account.TransferTo(
+                            account2, purchaseCost, BankAccountTransferOptions.IsPayment,
+                            "", $"Purchased {house.OwnerName}'s {house.Name} house");
+                    }
+                    if (salesTax > 0)
+                    {
+                        account.TransferTo(
+                            SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
+                            "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
+                    }
+
+                    _database.Remove(house);
+                    _database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
+                                       house.Rectangle.Right - 1, house.Rectangle.Bottom - 1);
+                    player.SendInfoMessage(
+                        $"Purchased {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
+                        $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+
+                    var player2 = TShock.Players.Where(p => p?.Active == true)
+                        .FirstOrDefault(p => p.User?.Name == house.OwnerName);
+                    player2?.SendInfoMessage(
+                        $"{player.Name} purchased your [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
+                        $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+                });
+                player.AddResponse("no", args2 =>
+                {
+                    player.AwaitingResponse.Remove("yes");
+                    player.SendInfoMessage("Canceled purchase.");
+                });
+            }
             else if (subcommand.Equals("disallow", StringComparison.OrdinalIgnoreCase))
             {
                 if (parameters.Count != 2)
@@ -229,6 +320,43 @@ namespace Housing
                 player.SendSuccessMessage(
                     $"Removed {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
                     $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
+            }
+            else if (subcommand.Equals("sell", StringComparison.OrdinalIgnoreCase))
+            {
+                if (parameters.Count != 2)
+                {
+                    player.SendErrorMessage($"Syntax: {Commands.Specifier}house sell <price>");
+                    return;
+                }
+
+                var session = GetOrCreateSession(player);
+                if (session.CurrentHouse == null)
+                {
+                    player.SendErrorMessage("You aren't currently in a house.");
+                    return;
+                }
+
+                var house = session.CurrentHouse;
+                if (player.User?.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
+                {
+                    player.SendErrorMessage(
+                        $"You can't sell {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                    return;
+                }
+
+                var inputPrice = parameters[1];
+                if (!Money.TryParse(inputPrice, out var price) || price <= 0)
+                {
+                    player.SendErrorMessage($"Invalid price '{inputPrice}'.");
+                    return;
+                }
+
+                house.ForSale = true;
+                house.Price = price;
+                _database.Update(house);
+                player.SendSuccessMessage(
+                    $"Selling {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
+                    $"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{price}].");
             }
             else if (subcommand.Equals("set", StringComparison.OrdinalIgnoreCase))
             {
@@ -325,9 +453,11 @@ namespace Housing
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house 1/2");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house allow <player-name>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}house buy <house-name>");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house disallow <username>");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house info");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house remove");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}house sell <price>");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house set <house-name>");
             }
         }
@@ -716,6 +846,11 @@ namespace Housing
                     player.SendInfoMessage(
                         $"You entered {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
                         $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                    if (house.ForSale && house.OwnerName != player.User?.Name)
+                    {
+                        player.SendInfoMessage(
+                            $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.Price}].");
+                    }
                 }
                 else if (session.CurrentHouse != null && house != session.CurrentHouse)
                 {

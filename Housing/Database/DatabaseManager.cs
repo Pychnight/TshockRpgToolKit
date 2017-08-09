@@ -40,6 +40,8 @@ namespace Housing.Database
                               "  Y2        INTEGER," +
                               "  Debt      INTEGER DEFAULT 0," +
                               "  LastTaxed TEXT," +
+                              "  ForSale   INTEGER DEFAULT 0," +
+                              "  PRICE     INTEGER DEFAULT 0," +
                               "  PRIMARY KEY(OwnerName, Name, WorldId))");
             _connection.Query("CREATE TABLE IF NOT EXISTS Shops (" +
                               "  OwnerName  TEXT," +
@@ -222,11 +224,15 @@ namespace Housing.Database
                         var y2 = reader.Get<int>("Y2");
                         var debt = (Money)reader.Get<long>("Debt");
                         var lastTaxed = DateTime.Parse(reader.Get<string>("LastTaxed"));
+                        var forSale = reader.Get<int>("ForSale") == 1;
+                        var price = (Money)reader.Get<long>("Price");
 
                         var house = new House(ownerName, name, x, y, x2, y2)
                         {
                             Debt = debt,
-                            LastTaxed = lastTaxed
+                            LastTaxed = lastTaxed,
+                            ForSale = forSale,
+                            Price = price
                         };
                         using (var reader2 = _connection.QueryReader(
                             "SELECT Username FROM HouseHasUser " +
@@ -345,11 +351,12 @@ namespace Housing.Database
                 var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
                 region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.Users.GetUserID(au))));
 
-                _connection.Query("UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5 " +
-                                  "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
-                                  house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right - 1,
-                                  house.Rectangle.Bottom - 1, (long)house.Debt, house.LastTaxed.ToString("s"),
-                                  house.OwnerName, house.Name, Main.worldID);
+                _connection.Query(
+                    "UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +
+                    "  Price = @7 WHERE OwnerName = @8 AND Name = @9 AND WorldId = @10",
+                    house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right - 1, house.Rectangle.Bottom - 1,
+                    (long)house.Debt, house.LastTaxed.ToString("s"), house.ForSale ? 1 : 0, (long)house.Price,
+                    house.OwnerName, house.Name, Main.worldID);
                 _connection.Query("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
                                   house.OwnerName, house.Name, Main.worldID);
                 foreach (var username in house.AllowedUsernames)
