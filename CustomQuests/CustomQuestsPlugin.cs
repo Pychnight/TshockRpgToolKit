@@ -186,6 +186,11 @@ namespace CustomQuests
 
         private void OnLeave(LeaveEventArgs args)
         {
+            if (args.Who < 0 || args.Who >= Main.maxPlayers)
+            {
+                return;
+            }
+
             var player = TShock.Players[args.Who];
             if (player != null)
             {
