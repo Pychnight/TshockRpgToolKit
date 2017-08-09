@@ -347,9 +347,9 @@ namespace Housing.Database
 
                 _connection.Query("UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5 " +
                                   "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
-                                  house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right, house.Rectangle.Bottom,
-                                  (long)house.Debt, house.LastTaxed.ToString("s"), house.OwnerName, house.Name,
-                                  Main.worldID);
+                                  house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right - 1,
+                                  house.Rectangle.Bottom - 1, (long)house.Debt, house.LastTaxed.ToString("s"),
+                                  house.OwnerName, house.Name, Main.worldID);
                 _connection.Query("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
                                   house.OwnerName, house.Name, Main.worldID);
                 foreach (var username in house.AllowedUsernames)
@@ -373,8 +373,9 @@ namespace Housing.Database
             {
                 _connection.Query("UPDATE Shops SET X = @0, Y = @1, X2 = @2, Y2 = @3, IsOpen = @4, Message = @5 " +
                                   "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
-                                  shop.Rectangle.X, shop.Rectangle.Y, shop.Rectangle.Right, shop.Rectangle.Bottom,
-                                  shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName, shop.Name, Main.worldID);
+                                  shop.Rectangle.X, shop.Rectangle.Y, shop.Rectangle.Right - 1,
+                                  shop.Rectangle.Bottom - 1, shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName,
+                                  shop.Name, Main.worldID);
                 using (var db = _connection.CloneEx())
                 {
                     db.Open();

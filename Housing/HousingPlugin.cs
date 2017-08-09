@@ -54,7 +54,7 @@ namespace Housing
             _database = new DatabaseManager(_connection);
 
             GeneralHooks.ReloadEvent += OnReload;
-            ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 1);
+            ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
@@ -528,6 +528,23 @@ namespace Housing
                     return;
                 }
 
+                // Revert the chest to a normal chest.
+                var chestId = Chest.FindEmptyChest(shop.ChestX, shop.ChestY);
+                if (chestId >= 0)
+                {
+                    var chest = new Chest();
+                    for (var i = 0; i < Chest.maxItems; ++i)
+                    {
+                        var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
+                        var item = new Item();
+                        item.SetDefaults(shopItem?.ItemId ?? 0);
+                        item.stack = shopItem?.StackSize ?? 0;
+                        item.prefix = shopItem?.PrefixId ?? 0;
+                        chest.item[i] = item;
+                    }
+                    Main.chest[chestId] = chest;
+                }
+
                 _database.Remove(shop);
                 player.SendSuccessMessage(
                     $"Removed {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
@@ -893,14 +910,15 @@ namespace Housing
                     var action = reader.ReadByte();
                     var x = reader.ReadInt16();
                     var y = reader.ReadInt16();
+                    var style = reader.ReadInt16();
                     if (action != 1 && action != 3)
                     {
                         if (action == 2)
                         {
-                            return;
+                            --x;
                         }
                         --y;
-
+                        
                         var session = GetOrCreateSession(player);
                         if (session.NextShopHouse != null)
                         {
@@ -909,7 +927,7 @@ namespace Housing
                                 player.SendErrorMessage("Your house must contain your item shop chest.");
                                 return;
                             }
-
+                            
                             var shop = _database.AddShop(player, session.NextShopName, session.NextShopX,
                                                          session.NextShopY, session.NextShopX2, session.NextShopY2, x,
                                                          y);
@@ -917,6 +935,15 @@ namespace Housing
                             player.SendInfoMessage(
                                 "Use /itemshop open and /itemshop close to open and close your shop.");
                             session.NextShopHouse = null;
+                            
+                            var tileId = action == 0 ? TileID.Containers : action == 2 ? TileID.Dressers : TileID.Containers2;
+                            var chestId = WorldGen.PlaceChest(x, y, tileId, false, style);
+                            if (chestId >= 0)
+                            {
+                                Main.chest[chestId] = null;
+                            }
+                            // We don't send a chest creation packet, as the players have to "discover" the chest themselves.
+                            TSPlayer.All.SendTileSquare(x, y, 4);
                         }
                         return;
                     }
