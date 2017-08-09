@@ -39,6 +39,24 @@ namespace CustomNpcs
         }
 
         /// <summary>
+        ///     Bans Players
+        /// </summary>
+        /// <param name="player">The message, which must not be <c>null</c>.</param>
+        /// <param name="message">The color.</param>
+        /// <param name="message2">The color.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
+        [LuaGlobal]
+        public static void Ban([NotNull] TSPlayer player, string message, string message2)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            TShock.Utils.Ban(player, message, true, message2);
+        }
+
+        /// <summary>
         ///     Creates a combat text with the specified color and position.
         /// </summary>
         /// <param name="text">The text.</param>
