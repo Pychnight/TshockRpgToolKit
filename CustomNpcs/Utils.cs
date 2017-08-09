@@ -313,6 +313,7 @@ namespace CustomNpcs
             return false;
         }
 
-        private static bool IsSolid(this ITile tile) => tile.active() && Main.tileSolid[tile.type];
+        private static bool IsSolid(this ITile tile) =>
+            tile.active() && tile.type < Main.maxTileSets && Main.tileSolid[tile.type];
     }
 }

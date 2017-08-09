@@ -185,22 +185,20 @@ namespace CustomNpcs
                 return;
             }
 
-            var inputX = parameters.Count >= 3 ? parameters[2] : (16 * player.TileX).ToString();
-            if (!int.TryParse(inputX, out var x) || x < 0 || x > 16 * Main.maxTilesX)
+            var inputX = parameters.Count >= 3 ? parameters[2] : player.TileX.ToString();
+            if (!int.TryParse(inputX, out var x) || x < 0 || x > Main.maxTilesX)
             {
                 player.SendErrorMessage($"Invalid X position '{inputX}'.");
                 return;
             }
 
-            var inputY = parameters.Count == 4 ? parameters[3] : (16 * player.TileY).ToString();
-            if (!int.TryParse(inputY, out var y) || y < 0 || y > 16 * Main.maxTilesY)
+            var inputY = parameters.Count == 4 ? parameters[3] : player.TileY.ToString();
+            if (!int.TryParse(inputY, out var y) || y < 0 || y > Main.maxTilesY)
             {
                 player.SendErrorMessage($"Invalid Y position '{inputY}'.");
                 return;
             }
-
-            x /= 16;
-            y /= 16;
+            
             for (var i = 0; i < amount; ++i)
             {
                 TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
