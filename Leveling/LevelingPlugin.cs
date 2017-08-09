@@ -294,7 +294,7 @@ namespace Leveling
             else
             {
                 var inputClassName = parameters[0];
-                var @class = _classes.First(
+                var @class = _classes.FirstOrDefault(
                     c => string.Equals(c.DisplayName, inputClassName, StringComparison.OrdinalIgnoreCase));
                 if (@class == null)
                 {
@@ -867,6 +867,11 @@ namespace Leveling
 
         private void OnServerLeave(LeaveEventArgs args)
         {
+            if (args.Who < 0 || args.Who >= Main.maxPlayers)
+            {
+                return;
+            }
+
             var player = TShock.Players[args.Who];
             if (player != null)
             {
