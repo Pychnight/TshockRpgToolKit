@@ -8,7 +8,6 @@ using Leveling.Levels;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
-using Terraria.ID;
 using TShockAPI;
 
 namespace Leveling.Sessions
@@ -20,7 +19,7 @@ namespace Leveling.Sessions
     {
         private static readonly TimeSpan CombatTextPeriod = TimeSpan.FromSeconds(0.5);
         private static readonly TimeSpan ExpReportPeriod = TimeSpan.FromSeconds(0.5);
-        private static readonly TimeSpan ItemCheckPeriod = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan ItemCheckPeriod = TimeSpan.FromSeconds(0.5);
 
         private readonly Dictionary<Class, Level> _classToLevel = new Dictionary<Class, Level>();
         private readonly object _combatTextLock = new object();
@@ -414,9 +413,8 @@ namespace Leveling.Sessions
                     {
                         tplayer.itemRotation = 0;
                         tplayer.itemAnimation = 0;
-                        _player.SetBuff(!tplayer.buffImmune[BuffID.Cursed] ? BuffID.Cursed : BuffID.Webbed, 120,
-                                        true);
                         _player.SendData(PacketTypes.PlayerAnimation, "", _player.Index);
+                        _player.Disable("", DisableFlags.None);
                         _player.SendErrorMessage($"You must be a {level} {level.Class} to use " +
                                                  $"[i/p{item.prefix},s{item.stack}:{item.type}].");
                     }
