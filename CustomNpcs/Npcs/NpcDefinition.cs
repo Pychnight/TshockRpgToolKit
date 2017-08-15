@@ -183,6 +183,7 @@ namespace CustomNpcs.Npcs
             npc.boss = _baseOverride.IsBoss ?? npc.boss;
             npc.immortal = _baseOverride.IsImmortal ?? npc.immortal;
             npc.lavaImmune = _baseOverride.IsImmuneToLava ?? npc.lavaImmune;
+            npc.trapImmune = _baseOverride.IsTrapImmune ?? npc.trapImmune;
             // Don't set npc.lifeMax so that the correct life is always sent to clients.
             npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
             npc.life = _baseOverride.MaxHp ?? npc.life;
@@ -288,6 +289,9 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty]
             public bool? IsImmuneToLava { get; private set; }
+
+            [JsonProperty]
+            public bool? IsTrapImmune { get; private set; }
 
             [JsonProperty]
             public float? KnockbackMultiplier { get; private set; }

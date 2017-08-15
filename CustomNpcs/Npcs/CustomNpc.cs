@@ -58,12 +58,67 @@ namespace CustomNpcs.Npcs
         public NPC Npc { get; }
 
         /// <summary>
+        ///     Gets the Center of the npc and sets it.
+        ///     Useful for Custom AI
+        /// </summary>
+        public Vector2 Center
+        {
+            get => Npc.Center;
+            set => Npc.Center = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets the old position.
+        /// </summary>
+        public Vector2 OldPosition
+        {
+            get => Npc.oldPosition;
+            set => Npc.oldPosition = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the position.
         /// </summary>
         public Vector2 Position
         {
             get => Npc.position;
             set => Npc.position = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets the old direction.
+        /// </summary>
+        public int oldDirection
+        {
+            get => Npc.oldDirection;
+            set => Npc.oldDirection = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets the old direction Y.
+        /// </summary>
+        public int oldDirectionY
+        {
+            get => Npc.oldDirectionY;
+            set => Npc.oldDirectionY = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets the direction.
+        /// </summary>
+        public int Direction
+        {
+            get => Npc.direction;
+            set => Npc.direction = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets the direction Y.
+        /// </summary>
+        public int DirectionY
+        {
+            get => Npc.directionY;
+            set => Npc.directionY = value;
         }
 
         /// <summary>
