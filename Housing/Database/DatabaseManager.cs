@@ -8,6 +8,7 @@ using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
 using Wolfje.Plugins.SEconomy;
+using Housing.HousingEntites;
 
 namespace Housing.Database
 {
@@ -32,38 +33,37 @@ namespace Housing.Database
             _connection = connection;
             _connection.Query("CREATE TABLE IF NOT EXISTS Houses (" +
                               "  OwnerName TEXT," +
-                              "  Name      TEXT," +
-                              "  WorldId INTEGER," +
-                              "  X         INTEGER," +
-                              "  Y         INTEGER," +
-                              "  X2        INTEGER," +
-                              "  Y2        INTEGER," +
+                              "  HouseName      TEXT," +
+                              "  PlayerID  INTEGER," +
+                              "  WorldID   INTEGER NOT NULL," +
+                              "  RegionID  INTEGER NOT NULL," +
                               "  Debt      INTEGER DEFAULT 0," +
                               "  LastTaxed TEXT," +
                               "  ForSale   INTEGER DEFAULT 0," +
                               "  PRICE     INTEGER DEFAULT 0," +
-                              "  PRIMARY KEY(OwnerName, Name, WorldId))");
+                              "  HOUSE_ID  INTEGER PRIMARY KEY NOT NULL)");
             _connection.Query("CREATE TABLE IF NOT EXISTS Shops (" +
                               "  OwnerName  TEXT," +
-                              "  Name       TEXT," +
-                              "  WorldId    INTEGER," +
-                              "  X          INTEGER," +
-                              "  Y          INTEGER," +
-                              "  X2         INTEGER," +
-                              "  Y2         INTEGER," +
+                              "  ShopName   TEXT," +
+                              "  WorldID    INTEGER NOT NULL," +
+                              "  RegionID   INTEGER NOT NULL," +
+                              "  PlayerID   INTEGER," +
                               "  ChestX     INTEGER," +
                               "  ChestY     INTEGER," +
+                              "  OpenTime   TEXT," +
+                              "  ClosingTime TEXT," +
                               "  IsOpen     INTEGER," +
                               "  Message    TEXT," +
-                              "  PRIMARY KEY(OwnerName, Name, WorldId))");
+                              "  SHOP_ID    INTEGER PRIMARY KEY NOT NULL)");
 
             _connection.Query("CREATE TABLE IF NOT EXISTS HouseHasUser (" +
                               "  OwnerName TEXT," +
                               "  HouseName TEXT," +
+                              "  House_ID  INTEGER NOT NULL," +
                               "  WorldId   INTEGER," +
                               "  Username  TEXT," +
-                              "  FOREIGN KEY(OwnerName, HouseName, WorldId)" +
-                              "    REFERENCES Houses(OwnerName, Name, WorldId) ON DELETE CASCADE," +
+                              "  FOREIGN KEY(House_ID)" +
+                              "    REFERENCES Houses(HOUSE_ID) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, HouseName, WorldId, Username) ON CONFLICT IGNORE)");
             _connection.Query("CREATE TABLE IF NOT EXISTS ShopHasItem (" +
                               "  OwnerName          TEXT," +
@@ -73,8 +73,9 @@ namespace Housing.Database
                               "  ItemId             INTEGER," +
                               "  StackSize          INTEGER," +
                               "  PrefixId           INTEGER," +
-                              "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
-                              "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
+                              "  Shop_ID            INTEGER NOT NULL," +
+                              "  FOREIGN KEY(Shop_ID)" +
+                              "    REFERENCES Shops(SHOP_ID) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemIndex) ON CONFLICT REPLACE)");
             _connection.Query("CREATE TABLE IF NOT EXISTS ShopHasPrice (" +
                               "  OwnerName          TEXT," +
@@ -82,8 +83,9 @@ namespace Housing.Database
                               "  WorldId            INTEGER," +
                               "  ItemId             INTEGER," +
                               "  UnitPrice          INTEGER," +
-                              "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
-                              "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
+                              "  Shop_ID            INTEGER NOT NULL," +
+                              "  FOREIGN KEY(Shop_ID)" +
+                              "    REFERENCES Shops(SHOP_ID) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemId) ON CONFLICT REPLACE)");
         }
 
@@ -101,20 +103,26 @@ namespace Housing.Database
         {
             Debug.Assert(name != null, "Name must not be null.");
             Debug.Assert(owner != null, "Owner must not be null.");
-            Debug.Assert(owner.User != null, "Owner must be logged in.");
-            Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
-            Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
+            //Debug.Assert(owner.User != null, "Owner must be logged in.");
+            //Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
+            //Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
             lock (_lock)
             {
-                TShock.Regions.AddRegion(
-                    x, y, x2 - x + 1, y2 - y + 1, $"__House<>{owner.User.Name}<>{name}", owner.User.Name,
-                    Main.worldID.ToString(), 100);
+                var house = new House(owner, name, x, y, x2, y2);
                 _connection.Query(
-                    "INSERT INTO Houses (OwnerName, Name, WorldId, X, Y, X2, Y2, LastTaxed)" +
+                    "INSERT INTO Houses (OwnerName, HouseName, WorldID, RegionID, PlayerID, LastTaxed)" +
                     "VALUES (@0, @1, @2, @3, @4, @5, @6, @7)",
-                    owner.User.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
-                var house = new House(owner.User.Name, name, x, y, x2, y2);
+                    house.OwnerName, house.HouseName, house.WorldID, house.RegionID, house.PlayerID, DateTime.UtcNow.ToString("s"));
+                using (var reader = _connection.QueryReader("SELECT * FROM Houses WHERE WorldID = @0 AND OwnerName = @1 AND RegionID = @2 AND HouseName = @4", Main.worldID, house.OwnerName, house.RegionID, house.HouseName))
+                {
+                    while (reader.Read())
+                    {
+                        var houseid = reader.Get<int>("HOUSE_ID");
+                        house.House_ID = houseid;
+                    }
+                }
+
                 _houses.Add(house);
                 return house;
             }
@@ -139,14 +147,22 @@ namespace Housing.Database
             Debug.Assert(owner.User != null, "Owner must be logged in.");
             Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
             Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
-
+            
             lock (_lock)
             {
+                var shop = new Shop(owner, name, x, y, x2, y2, chestX, chestY);
                 _connection.Query(
-                    "INSERT INTO Shops (OwnerName, Name, WorldId, X, Y, X2, Y2, ChestX, ChestY, IsOpen)" +
-                    "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9)",
-                    owner.User.Name, name, Main.worldID, x, y, x2, y2, chestX, chestY, 0);
-                var shop = new Shop(owner.User.Name, name, x, y, x2, y2, chestX, chestY);
+                    "INSERT INTO Shops (OwnerName, ShopName, WorldID, RegionID, ChestX, ChestY, IsOpen)" +
+                    "VALUES (@0, @1, @2, @3, @4, @5, @6)",
+                    shop.OwnerName, shop.ShopName,shop.WorldID, shop.RegionID, shop.ChestX, shop.ChestY, 0);
+                using (var reader = _connection.QueryReader("SELECT * FROM Shops WHERE WorldID = @0 AND OwnerName = @1 AND RegionID = @2 AND ShopName = @4", Main.worldID, shop.OwnerName, shop.RegionID, shop.ShopName))
+                {
+                    while (reader.Read())
+                    {
+                        var shopid = reader.Get<int>("SHOP_ID");
+                        shop.Shop_ID = shopid;
+                    }
+                }
                 _shops.Add(shop);
                 return shop;
             }
@@ -162,9 +178,10 @@ namespace Housing.Database
         {
             lock (_lock)
             {
-                return _houses.FirstOrDefault(h => h.Rectangle.Contains(x, y));
+                return _houses.FirstOrDefault(h => h.EnitityRectangle.Contains(x, y));
             }
         }
+
 
         /// <summary>
         ///     Gets the houses.
@@ -188,7 +205,7 @@ namespace Housing.Database
         {
             lock (_lock)
             {
-                return _shops.FirstOrDefault(h => h.Rectangle.Contains(x, y));
+                return _shops.FirstOrDefault(h => h.EnitityRectangle.Contains(x, y));
             }
         }
 
@@ -212,31 +229,32 @@ namespace Housing.Database
             lock (_lock)
             {
                 _houses.Clear();
-                using (var reader = _connection.QueryReader("SELECT * FROM Houses WHERE WorldId = @0", Main.worldID))
+                using (var reader = _connection.QueryReader("SELECT * FROM Houses WHERE WorldID = @0", Main.worldID))
                 {
+                    
                     while (reader.Read())
                     {
+                        var houseId = reader.Get<int>("HOUSE_ID");
                         var ownerName = reader.Get<string>("OwnerName");
-                        var name = reader.Get<string>("Name");
-                        var x = reader.Get<int>("X");
-                        var y = reader.Get<int>("Y");
-                        var x2 = reader.Get<int>("X2");
-                        var y2 = reader.Get<int>("Y2");
+                        var name = reader.Get<string>("HouseName");
+                        var regionId = reader.Get<int>("RegionID");
+                        var playerId = reader.Get<int>("PlayerID");
                         var debt = (Money)reader.Get<long>("Debt");
                         var lastTaxed = DateTime.Parse(reader.Get<string>("LastTaxed"));
                         var forSale = reader.Get<int>("ForSale") == 1;
                         var price = (Money)reader.Get<long>("Price");
 
-                        var house = new House(ownerName, name, x, y, x2, y2)
+                        var house = new House(regionId, playerId, name, ownerName)
                         {
                             Debt = debt,
                             LastTaxed = lastTaxed,
                             ForSale = forSale,
-                            Price = price
+                            Price = price,
+                            House_ID = houseId
                         };
                         using (var reader2 = _connection.QueryReader(
                             "SELECT Username FROM HouseHasUser " +
-                            "WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
+                            "WHERE OwnerName = @0 AND HouseName = @1 AND WorldID = @2",
                             ownerName, name, Main.worldID))
                         {
                             while (reader2.Read())
@@ -254,21 +272,21 @@ namespace Housing.Database
                 {
                     while (reader.Read())
                     {
+                        var shopID = reader.Get<int>("SHOP_ID");
                         var ownerName = reader.Get<string>("OwnerName");
-                        var name = reader.Get<string>("Name");
-                        var x = reader.Get<int>("X");
-                        var y = reader.Get<int>("Y");
-                        var x2 = reader.Get<int>("X2");
-                        var y2 = reader.Get<int>("X2");
+                        var name = reader.Get<string>("ShopName");
+                        var regionId = reader.Get<int>("RegionID");
+                        var playerId = reader.Get<int>("PlayerID");
                         var chestX = reader.Get<int>("ChestX");
                         var chestY = reader.Get<int>("ChestY");
                         var isOpen = reader.Get<int>("IsOpen") == 1;
                         var message = reader.Get<string>("Message");
 
-                        var shop = new Shop(ownerName, name, x, y, x2, y2, chestX, chestY)
+                        var shop = new Shop(regionId, playerId, name, ownerName,chestX, chestY)
                         {
                             IsOpen = isOpen,
-                            Message = message
+                            Message = message,
+                            Shop_ID = shopID
                         };
                         using (var reader2 = _connection.QueryReader(
                             "SELECT * FROM ShopHasItem WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
@@ -310,12 +328,12 @@ namespace Housing.Database
 
             lock (_lock)
             {
-                TShock.Regions.DeleteRegion($"__House<>{house.OwnerName}<>{house.Name}");
-                _connection.Query("DELETE FROM Houses WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
-                                  house.OwnerName, house.Name, Main.worldID);
+                TShock.Regions.DeleteRegion($"__House<>{house.OwnerName}<>{house.HouseName}");
+                _connection.Query("DELETE FROM Houses WHERE HOUSE_ID = @0",
+                                  house.House_ID);
                 _houses.Remove(house);
 
-                foreach (var shop in _shops.Where(s => house.Rectangle.Contains(s.Rectangle)))
+                foreach (var shop in _shops.Where(s => house.EnitityRectangle.Contains(s.EnitityRectangle)))
                 {
                     Remove(shop);
                 }
@@ -332,8 +350,8 @@ namespace Housing.Database
 
             lock (_lock)
             {
-                _connection.Query("DELETE FROM Shops WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
-                                  shop.OwnerName, shop.Name, Main.worldID);
+                _connection.Query("DELETE FROM Shops WHERE SHOP_ID = @0",
+                                  shop.Shop_ID);
                 _shops.Remove(shop);
             }
         }
@@ -348,22 +366,22 @@ namespace Housing.Database
 
             lock (_lock)
             {
-                var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
+                var region = house.EntityRegion;
+                TShock.Regions.PositionRegion(house.EntityRegion.Name, house.EnitityRectangle.X, house.EnitityRectangle.Y, house.EnitityRectangle.Right - 1, house.EnitityRectangle.Bottom - 1);
                 region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.Users.GetUserID(au))));
-
+                
                 _connection.Query(
-                    "UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +
-                    "  Price = @7 WHERE OwnerName = @8 AND Name = @9 AND WorldId = @10",
-                    house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right - 1, house.Rectangle.Bottom - 1,
+                    "UPDATE Houses SET Debt = @0, LastTaxed = @1, ForSale = @2," +
+                    "  Price = @3 WHERE HOUSE_ID = @4",
                     (long)house.Debt, house.LastTaxed.ToString("s"), house.ForSale ? 1 : 0, (long)house.Price,
-                    house.OwnerName, house.Name, Main.worldID);
+                    house.House_ID);
                 _connection.Query("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
-                                  house.OwnerName, house.Name, Main.worldID);
+                                  house.OwnerName, house.HouseName, Main.worldID);
                 foreach (var username in house.AllowedUsernames)
                 {
                     _connection.Query(
-                        "INSERT INTO HouseHasUser (OwnerName, HouseName, WorldId, Username) VALUES (@0, @1, @2, @3)",
-                        house.OwnerName, house.Name, Main.worldID, username);
+                        "INSERT INTO HouseHasUser (OwnerName, HouseName, WorldId, Username, House_ID) VALUES (@0, @1, @2, @3, @4)",
+                        house.OwnerName, house.HouseName, Main.worldID, username, house.House_ID);
                 }
             }
         }
@@ -378,11 +396,12 @@ namespace Housing.Database
 
             lock (_lock)
             {
-                _connection.Query("UPDATE Shops SET X = @0, Y = @1, X2 = @2, Y2 = @3, IsOpen = @4, Message = @5 " +
-                                  "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
-                                  shop.Rectangle.X, shop.Rectangle.Y, shop.Rectangle.Right - 1,
-                                  shop.Rectangle.Bottom - 1, shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName,
-                                  shop.Name, Main.worldID);
+                var region = shop.EntityRegion;
+                TShock.Regions.PositionRegion(shop.EntityRegion.Name, shop.EnitityRectangle.X, shop.EnitityRectangle.Y, shop.EnitityRectangle.Right - 1,
+                                  shop.EnitityRectangle.Bottom - 1);
+                _connection.Query("UPDATE Shops SET  IsOpen = @0, Message = @1 " +
+                                  "WHERE SHOP_ID = @2"
+                                 , shop.IsOpen ? 1 : 0, shop.Message, shop.Shop_ID);
                 using (var db = _connection.CloneEx())
                 {
                     db.Open();
@@ -391,14 +410,14 @@ namespace Housing.Database
                         using (var command = (SqliteCommand)db.CreateCommand())
                         {
                             command.CommandText = "INSERT INTO ShopHasItem (OwnerName, ShopName, WorldId, ItemIndex, " +
-                                                  "  ItemId, StackSize, PrefixId)" +
-                                                  "VALUES (@0, @1, @2, @3, @4, @5, @6)";
+                                                  "  ItemId, StackSize, PrefixId, Shop_ID)" +
+                                                  "VALUES (@0, @1, @2, @3, @4, @5, @6, @7)";
                             for (var i = 0; i <= 6; ++i)
                             {
                                 command.AddParameter($"@{i}", null);
                             }
                             command.Parameters["@0"].Value = shop.OwnerName;
-                            command.Parameters["@1"].Value = shop.Name;
+                            command.Parameters["@1"].Value = shop.ShopName;
                             command.Parameters["@2"].Value = Main.worldID;
 
                             foreach (var shopItem in shop.Items)
@@ -407,26 +426,28 @@ namespace Housing.Database
                                 command.Parameters["@4"].Value = shopItem.ItemId;
                                 command.Parameters["@5"].Value = shopItem.StackSize;
                                 command.Parameters["@6"].Value = shopItem.PrefixId;
+                                command.Parameters["@7"].Value = shop.Shop_ID;
                                 command.ExecuteNonQuery();
                             }
                         }
                         using (var command = (SqliteCommand)db.CreateCommand())
                         {
                             command.CommandText = "INSERT INTO ShopHasPrice (OwnerName, ShopName, WorldId, ItemId, " +
-                                                  "  UnitPrice)" +
-                                                  "VALUES (@0, @1, @2, @3, @4)";
+                                                  "  UnitPrice, Shop_ID)" +
+                                                  "VALUES (@0, @1, @2, @3, @4, @5)";
                             for (var i = 0; i <= 4; ++i)
                             {
                                 command.AddParameter($"@{i}", null);
                             }
                             command.Parameters["@0"].Value = shop.OwnerName;
-                            command.Parameters["@1"].Value = shop.Name;
+                            command.Parameters["@1"].Value = shop.ShopName;
                             command.Parameters["@2"].Value = Main.worldID;
 
                             foreach (var kvp in shop.UnitPrices)
                             {
                                 command.Parameters["@3"].Value = kvp.Key;
                                 command.Parameters["@4"].Value = (long)kvp.Value;
+                                command.Parameters["@5"].Value = shop.Shop_ID;
                                 command.ExecuteNonQuery();
                             }
                         }
