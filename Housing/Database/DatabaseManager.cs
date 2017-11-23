@@ -112,7 +112,7 @@ namespace Housing.Database
                 var house = new House(owner, name, x, y, x2, y2);
                 _connection.Query(
                     "INSERT INTO Houses (OwnerName, HouseName, WorldID, RegionID, PlayerID, LastTaxed)" +
-                    "VALUES (@0, @1, @2, @3, @4, @5, @6, @7)",
+                    "VALUES (@0, @1, @2, @3, @4, @5)",
                     house.OwnerName, house.HouseName, house.WorldID, house.RegionID, house.PlayerID, DateTime.UtcNow.ToString("s"));
                 using (var reader = _connection.QueryReader("SELECT * FROM Houses WHERE WorldID = @0 AND OwnerName = @1 AND RegionID = @2 AND HouseName = @4", Main.worldID, house.OwnerName, house.RegionID, house.HouseName))
                 {
