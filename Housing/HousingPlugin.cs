@@ -104,7 +104,7 @@ namespace Housing
             else if (subcommand.Equals("2", StringComparison.OrdinalIgnoreCase))
             {
                 player.AwaitingTempPoint = 2;
-                player.SendInfoMessage("Hit a block to set the first point.");
+                player.SendInfoMessage("Hit a block to set the second point.");
             }
             else if (subcommand.Equals("allow", StringComparison.OrdinalIgnoreCase))
             {

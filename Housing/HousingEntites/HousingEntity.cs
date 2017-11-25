@@ -42,6 +42,8 @@ namespace Housing.HousingEntites
             bool region_added = TShock.Regions.AddRegion(
                    x, y, x2 - x + 1, y2 - y + 1, region_name, OwnerName,
                    Main.worldID.ToString(), 100);
+            Debugger.Log(1, "Region", $"region added did not return true returned {region_added} instead" );
+            Debugger.Log(1, "Region", $"But does {TShock.Regions.GetRegionByName(region_name)} Exist?");
             if (region_added)
             {
                 try
@@ -49,9 +51,9 @@ namespace Housing.HousingEntites
                     RegionID = TShock.Regions.GetRegionByName(region_name).ID;
                     TShock.Regions.SetRegionState(RegionID, true);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
-                    throw new Exception($"The Region You were trying to create does not exist by the name:{region_name}!");
+                    throw new Exception($"The Region You were trying to create does not exist by the name:{region_name}! the execption thrown was {ex.InnerException}");
                 }
             }
             else
