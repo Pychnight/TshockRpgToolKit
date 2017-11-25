@@ -63,7 +63,7 @@ namespace Leveling.Classes
         /// <summary>
         ///     Gets the name.
         /// </summary>
-        public string Name => _definition.Name;
+        public string Name => _definition.ClassName;
 
         /// <summary>
         ///     Gets the set of permissions granted.

@@ -49,8 +49,8 @@ namespace Leveling.Classes
         /// <summary>
         ///     Gets the name.
         /// </summary>
-        [JsonProperty("Name", Order = 0)]
-        public string Name { get; private set; }
+        [JsonProperty("ClassName", Order = 0)]
+        public string ClassName { get; private set; }
 
         /// <summary>
         ///     Gets the list of prerequisite levels.
