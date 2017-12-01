@@ -92,6 +92,8 @@ namespace CustomQuests
         /// </summary>
         public override void Initialize()
         {
+            Console.WriteLine("** Initializing CustomQuests!! **");
+
             Directory.CreateDirectory(Path.Combine("quests", "sessions"));
             if (File.Exists(ConfigPath))
             {
@@ -101,6 +103,12 @@ namespace CustomQuests
             if (File.Exists(QuestInfosPath))
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
+
+                Console.WriteLine("Dumping all quest infos:");
+                foreach(var qi in _questInfos)
+                {
+                    Console.WriteLine($"Found quest: {qi.FriendlyName}");
+                }
             }
 
             GeneralHooks.ReloadEvent += OnReload;
@@ -278,8 +286,9 @@ namespace CustomQuests
                 {
                     var username = player.User?.Name ?? player.Name;
                     var session = GetSession(player);
-                    var path = Path.Combine("quests", "sessions", $"{username}.json");
-                    File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+					//var path = Path.Combine("quests", "sessions", $"{username}.json");
+					//File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+					_sessionManager.sessionRepository.Save(session, username);
                 }
             }
         }
