@@ -462,12 +462,36 @@ namespace CustomQuests
             }
         }
 
-        /// <summary>
-        ///     Teleports the party to the specified coordinates.
-        /// </summary>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        [UsedImplicitly]
+		/// <summary>
+		///     Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="questStatus" /> is <c>null</c>.</exception>
+		[UsedImplicitly]
+		public void SetQuestStatus([NotNull] string questStatus)
+		{
+			if (questStatus == null)
+			{
+				throw new ArgumentNullException(nameof(questStatus));
+			}
+			
+			foreach(var player in _players)
+			{
+				var session = CustomQuestsPlugin.Instance.GetSession(player);
+
+				if(session!=null && session.CurrentQuest!=null)
+				{
+					session.CurrentQuest.QuestStatus = questStatus;
+				}
+			}
+		}
+
+		/// <summary>
+		///     Teleports the party to the specified coordinates.
+		/// </summary>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		[UsedImplicitly]
         public void Teleport(int x, int y)
         {
             foreach (var player in _players)

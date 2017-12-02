@@ -31,7 +31,11 @@ namespace CustomQuests.Sessions
         ///     Gets or sets the current quest state.
         /// </summary>
         [CanBeNull]
-        public string CurrentQuestState { get; set; }
+        public string CurrentQuestState
+		{
+			get;
+			set;
+		}
 
         /// <summary>
         ///     Gets the repeated quest names.

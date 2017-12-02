@@ -956,14 +956,15 @@ namespace CustomQuests
 			var player = args.Player;
 			var session = GetSession(player);
 
-			if(session.CurrentQuestInfo==null )
+			if(session.CurrentQuest==null )
 			{
 				player.SendErrorMessage("You are not currently on a quest!");
 			}
 			else
 			{
-				var questName = session.CurrentQuestInfo.FriendlyName;
-				player.SendInfoMessage($"You are doing quest {questName}.");
+				var questName = session.CurrentQuest.QuestInfo.FriendlyName;
+				var questStatus = session.CurrentQuest.QuestStatus ?? "";
+				player.SendInfoMessage($"[Quest {questName}] {questStatus}");
 			}
 		}
 

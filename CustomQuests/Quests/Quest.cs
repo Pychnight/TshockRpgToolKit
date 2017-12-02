@@ -43,6 +43,11 @@ namespace CustomQuests.Quests
         [NotNull]
         public QuestInfo QuestInfo { get; }
 
+		/// <summary>
+		///  Gets or sets a friendly string informing players of their progress within a quest.
+		/// </summary>
+		public string QuestStatus { get; set; }
+
         /// <summary>
         ///     Disposes the quest.
         /// </summary>
