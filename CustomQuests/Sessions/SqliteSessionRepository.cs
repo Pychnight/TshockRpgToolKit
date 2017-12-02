@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using Mono.Data.Sqlite;
-using System.IO;
+﻿using Mono.Data.Sqlite;
 using Newtonsoft.Json;
+using System;
+using System.Data;
+using System.Diagnostics;
+using TerrariaApi.Server;
 
 namespace CustomQuests.Sessions
 {
-    internal class SqliteSessionRepository : SessionRepository, IDisposable
+	internal class SqliteSessionRepository : SessionRepository, IDisposable
     {
 		const string createTableSql = @"CREATE TABLE IF NOT EXISTS sessions (
 										player text PRIMARY KEY NOT NULL,
@@ -20,16 +17,18 @@ namespace CustomQuests.Sessions
 		
 		internal string DatabasePath { get; private set; }
 
-		internal SqliteSessionRepository(string databasePath)
+		internal SqliteSessionRepository(string databasePath, TerrariaPlugin plugin)
 		{
+			this.plugin = plugin;
+
 			DatabasePath = databasePath;
 						
 			try
 			{
 				connectionString = $"URI=file:{databasePath}";
 				connection = new SqliteConnection(connectionString);
-
-				Console.WriteLine("Opening quest sessions database...");
+								
+				ServerApi.LogWriter.PluginWriteLine(plugin, "Opening quest sessions database...", TraceLevel.Info);
 				connection.Open();
 
 				//if table does not exist, create it.
@@ -41,7 +40,7 @@ namespace CustomQuests.Sessions
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Failed to open quest sessions database!");
+				ServerApi.LogWriter.PluginWriteLine(plugin, "Failed to open quest sessions database!", TraceLevel.Error);
 				Console.WriteLine(ex.Message);
 				Console.WriteLine(ex.StackTrace);
 			}
@@ -51,14 +50,14 @@ namespace CustomQuests.Sessions
 		{
 			if(connection!=null)
 			{
-				Console.WriteLine("Closing quest sessions database connection.");
+				ServerApi.LogWriter.PluginWriteLine(plugin, "Closing quest sessions database connection.", TraceLevel.Info);
 				connection.Close();
 			}
 		}
 
 		internal override SessionInfo Load(string userName)
         {
-			Console.WriteLine($"SqliteSessionRepo.Load({userName})");
+			ServerApi.LogWriter.PluginWriteLine(plugin, $"SqliteSessionRepo.Load({userName})", TraceLevel.Verbose);
 			SessionInfo result = null;
 			
 			if(connection!=null)
@@ -72,21 +71,18 @@ namespace CustomQuests.Sessions
 					
 					if(reader.HasRows)
 					{
-						//Console.WriteLine("Has rows!");
-
 						reader.Read();
 
 						try
 						{
 							var json = reader.GetString(0);
-
 							//Console.WriteLine($"json = {json}");
 
 							result = JsonConvert.DeserializeObject<SessionInfo>(json);
 						}
 						catch (Exception ex)
 						{
-							Console.WriteLine($"Load error: {ex.Message}");
+							ServerApi.LogWriter.PluginWriteLine(plugin, $"Load error: ({ex.Message})", TraceLevel.Error);
 						}
 					}
 
@@ -99,16 +95,19 @@ namespace CustomQuests.Sessions
 
 		internal override void Save(SessionInfo sessionInfo, string userName)
 		{
-			Console.WriteLine($"SqliteSessionRepo.Save [sessionInfo] ({userName})");
-			
-			if(connection!=null)
+			ServerApi.LogWriter.PluginWriteLine(plugin, $"SqliteSessionRepo.Save [sessionInfo] ({userName})", TraceLevel.Verbose);
+
+			if (connection!=null)
 			{
 				var json = JsonConvert.SerializeObject(sessionInfo, Formatting.Indented);
 				using (var cmd = connection.CreateCommand())
 				{
 					cmd.CommandText = "INSERT OR REPLACE INTO sessions ( player, data ) " +
-										$"VALUES ('{userName}','{json}');";
+										"VALUES ( @player, @data );";
 
+					cmd.Parameters.AddWithValue("@player", userName);
+					cmd.Parameters.AddWithValue("@data", json);
+					
 					cmd.ExecuteNonQuery();
 				}
 			}
@@ -116,19 +115,21 @@ namespace CustomQuests.Sessions
 
 		internal override void Save(Session session, string userName)
         {
-			Console.WriteLine($"SqliteSessionRepo.Save [session] ({userName})");
-			
-			if(connection!=null)
+			ServerApi.LogWriter.PluginWriteLine(plugin, $"SqliteSessionRepo.Save [session] ({userName})", TraceLevel.Verbose);
+
+			if (connection!=null)
 			{
 				var json = JsonConvert.SerializeObject(session, Formatting.Indented);
 
 				using (var cmd = connection.CreateCommand())
 				{
 					cmd.CommandText = "INSERT OR REPLACE INTO sessions ( player, data ) " +
-										$"VALUES ('{userName}','{json}');";
+										"VALUES ( @player, @data );";
+
+					cmd.Parameters.AddWithValue("@player", userName);
+					cmd.Parameters.AddWithValue("@data", json);
 
 					//Console.WriteLine($"CommandText: {cmd.CommandText}");
-
 					cmd.ExecuteNonQuery();
 				}
 			}

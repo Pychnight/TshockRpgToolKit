@@ -13,6 +13,7 @@ using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using System.Diagnostics;
 
 namespace CustomQuests
 {
@@ -92,23 +93,21 @@ namespace CustomQuests
         /// </summary>
         public override void Initialize()
         {
-            Console.WriteLine("** Initializing CustomQuests!! **");
-
+            ServerApi.LogWriter.PluginWriteLine(this, "Initializing", TraceLevel.Info);
+			
 			//Directory.CreateDirectory(Path.Combine("quests", "sessions"));
-            if (File.Exists(ConfigPath))
+			if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _sessionManager = new SessionManager(_config);
+            _sessionManager = new SessionManager(_config, this);
             if (File.Exists(QuestInfosPath))
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
 
-                Console.WriteLine("Dumping all quest infos:");
-                foreach(var qi in _questInfos)
-                {
-                    Console.WriteLine($"Found quest: {qi.FriendlyName}");
-                }
+				ServerApi.LogWriter.PluginWriteLine(this, "Found the following quest infos:", TraceLevel.Info);
+				foreach(var qi in _questInfos)
+					ServerApi.LogWriter.PluginWriteLine(this,$"Quest: {qi.FriendlyName}",TraceLevel.Info);
             }
 
             GeneralHooks.ReloadEvent += OnReload;

@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TerrariaApi.Server;
 
 namespace CustomQuests.Sessions
 {
     internal abstract class SessionRepository : IDisposable
     {
 		internal bool IsDisposed { get; private set; }
+		protected internal TerrariaPlugin plugin;
 
-        internal abstract SessionInfo Load(string userName);
+		internal abstract SessionInfo Load(string userName);
 		internal abstract void Save(SessionInfo sessionInfo, string userName);
 		internal abstract void Save(Session session, string userName);
 

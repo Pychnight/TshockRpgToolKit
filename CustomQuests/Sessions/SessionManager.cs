@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TShockAPI;
+using TerrariaApi.Server;
 
 namespace CustomQuests.Sessions
 {
@@ -13,7 +14,7 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class SessionManager : IDisposable
     {
-        private readonly Config _config;
+		private readonly Config _config;
         private readonly Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
         internal readonly SessionRepository sessionRepository;
 
@@ -22,14 +23,14 @@ namespace CustomQuests.Sessions
         /// </summary>
         /// <param name="config">The configuration, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="config" /> is <c>null</c>.</exception>
-        public SessionManager([NotNull] Config config)
+        public SessionManager([NotNull] Config config, TerrariaPlugin plugin)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
 
 #if SQLITE_SESSION_REPOSITORY
-			sessionRepository = new SqliteSessionRepository(Path.Combine("quests","sessions.db"));
+			sessionRepository = new SqliteSessionRepository(Path.Combine("quests","sessions.db"),plugin);
 #else
-			sessionRepository = new FileSessionRepository(Path.Combine("quests","sessions"));
+			sessionRepository = new FileSessionRepository(Path.Combine("quests","sessions"),plugin);
 #endif
 		}
 

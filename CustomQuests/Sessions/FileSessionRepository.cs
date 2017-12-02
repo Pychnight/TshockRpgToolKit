@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TerrariaApi.Server;
 
 namespace CustomQuests.Sessions
 {
@@ -12,8 +13,10 @@ namespace CustomQuests.Sessions
     {
         internal string BasePath { get; private set; }
 
-        internal FileSessionRepository(string basePath)
+        internal FileSessionRepository(string basePath, TerrariaPlugin plugin)
         {
+			this.plugin = plugin;
+
 			BasePath = basePath;
 			Directory.CreateDirectory(BasePath);
 		}
