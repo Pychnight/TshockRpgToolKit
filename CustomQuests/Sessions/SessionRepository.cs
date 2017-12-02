@@ -6,10 +6,31 @@ using System.Threading.Tasks;
 
 namespace CustomQuests.Sessions
 {
-    internal abstract class SessionRepository
+    internal abstract class SessionRepository : IDisposable
     {
+		internal bool IsDisposed { get; private set; }
+
         internal abstract SessionInfo Load(string userName);
 		internal abstract void Save(SessionInfo sessionInfo, string userName);
 		internal abstract void Save(Session session, string userName);
+
+		internal virtual void OnDispose(bool isDisposing)
+		{
+		}
+
+		protected void Dispose(bool isDisposing)
+		{
+			if(IsDisposed)
+				return;
+
+			OnDispose(isDisposing);
+
+			IsDisposed = true;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+		}
 	}
 }

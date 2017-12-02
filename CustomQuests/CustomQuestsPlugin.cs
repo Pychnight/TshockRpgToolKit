@@ -94,7 +94,7 @@ namespace CustomQuests
         {
             Console.WriteLine("** Initializing CustomQuests!! **");
 
-            Directory.CreateDirectory(Path.Combine("quests", "sessions"));
+			//Directory.CreateDirectory(Path.Combine("quests", "sessions"));
             if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));

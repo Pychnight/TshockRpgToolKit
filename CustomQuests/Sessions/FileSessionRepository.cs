@@ -14,8 +14,9 @@ namespace CustomQuests.Sessions
 
         internal FileSessionRepository(string basePath)
         {
-			BasePath = basePath;       
-        }
+			BasePath = basePath;
+			Directory.CreateDirectory(BasePath);
+		}
 
         internal override SessionInfo Load(string userName)
         {

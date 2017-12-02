@@ -25,8 +25,13 @@ namespace CustomQuests.Sessions
         public SessionManager([NotNull] Config config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
-            sessionRepository = new FileSessionRepository(Path.Combine("quests","sessions"));
-        }
+
+#if SQLITE_SESSION_REPOSITORY
+			sessionRepository = new SqliteSessionRepository(Path.Combine("quests","sessions.db"));
+#else
+			sessionRepository = new FileSessionRepository(Path.Combine("quests","sessions"));
+#endif
+		}
 
         /// <summary>
         ///     Disposes the session manager.
@@ -43,6 +48,8 @@ namespace CustomQuests.Sessions
                 session.Dispose();
                 _sessions.Remove(username);
             }
+
+			sessionRepository.Dispose();
         }
 
         /// <summary>
