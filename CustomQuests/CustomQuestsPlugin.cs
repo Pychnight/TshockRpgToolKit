@@ -122,7 +122,7 @@ namespace CustomQuests
             Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
             Commands.ChatCommands.Add(new Command("customquests.party", Party, "party"));
             Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
-            Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
+			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
         }
 
         /// <summary>
@@ -591,12 +591,17 @@ namespace CustomQuests
 
                 QuestUnlock(args);
             }
+			else if(subcommand.Equals("status",StringComparison.OrdinalIgnoreCase))
+			{
+				QuestStatus(args);
+			}
             else
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
-                if (isAdmin)
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest status.");
+				if (isAdmin)
                 {
                     player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
                     player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
@@ -945,6 +950,22 @@ namespace CustomQuests
                 player.SendSuccessMessage($"Unlocked quest '{questInfo.Name}' for {player2.Name}.");
             }
         }
+
+		private void QuestStatus(CommandArgs args)
+		{
+			var player = args.Player;
+			var session = GetSession(player);
+
+			if(session.CurrentQuestInfo==null )
+			{
+				player.SendErrorMessage("You are not currently on a quest!");
+			}
+			else
+			{
+				var questName = session.CurrentQuestInfo.FriendlyName;
+				player.SendInfoMessage($"You are doing quest {questName}.");
+			}
+		}
 
         private void TileInfo(CommandArgs args)
         {
