@@ -46,31 +46,23 @@ namespace CustomQuests.Triggers
 
 				foreach(var v in values)
 				{
-					if(v is string)
-					{
-						names.Add(v as string);
-					}
-					else if(v is double)
-					{
-						var id = (int)(double)v;
-						var n = EnglishLanguage.GetNpcNameById(id);//think id should be renamed 'type'
-						names.Add(n);
-					}
+					var name = GetNPCName(v);
+
+					if(name!=null)
+						names.Add(name);
+					else
+						ServerApi.LogWriter.PluginWriteLine(CustomQuestsPlugin.Instance, "KillNpcs:: Npc name must be a string or number.", TraceLevel.Error);
 				}
 				
 				this.npcNames = new HashSet<string>(names);
 			}
-			else if(npcNames is string)
-			{
-				this.npcNames = new HashSet<string>() { npcNames as string };
-			}
-			else if(npcNames is double)
-			{
-				this.npcNames = new HashSet<string>() { EnglishLanguage.GetNpcNameById((int)(double)npcNames) };
-			}
 			else
 			{
-				throw new ArgumentException(nameof(npcNames), "Must be a string or LuaTable.");
+				var name = GetNPCName(npcNames);
+				if(name==null)
+					throw new ArgumentException(nameof(npcNames), "Must be a string, double, or LuaTable.");
+
+				this.npcNames = new HashSet<string>() { name };
 			}
 			
 			Debug.Print("KillNpcList:");
@@ -82,10 +74,26 @@ namespace CustomQuests.Triggers
 			_amount = amount > 0
                 ? amount
                 : throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-        }
+		}
 
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
+		string GetNPCName(object value)
+		{
+			if(value is string)
+			{
+				return value as string;
+			}
+			else if (value is double)
+			{
+				var id = (int)(double)value;
+				var name = EnglishLanguage.GetNpcNameById(id);//think id should be renamed 'type'
+				return name;
+			}
+
+			return null;
+		}
+
+		/// <inheritdoc />
+		protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
