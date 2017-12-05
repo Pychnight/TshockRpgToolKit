@@ -4,6 +4,7 @@ using System.Linq;
 using CustomQuests.Triggers;
 using JetBrains.Annotations;
 using NLua;
+using Microsoft.Xna.Framework;
 
 namespace CustomQuests.Quests
 {
@@ -25,6 +26,8 @@ namespace CustomQuests.Quests
         public Quest([NotNull] QuestInfo questInfo)
         {
             QuestInfo = questInfo ?? throw new ArgumentNullException(nameof(questInfo));
+
+			QuestStatusColor = Color.White;
         }
 
         /// <summary>
@@ -47,6 +50,8 @@ namespace CustomQuests.Quests
 		///  Gets or sets a friendly string informing players of their progress within a quest.
 		/// </summary>
 		public string QuestStatus { get; set; }
+
+		public Color QuestStatusColor { get; set; } // = Color.White;
 
         /// <summary>
         ///     Disposes the quest.

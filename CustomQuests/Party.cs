@@ -468,7 +468,7 @@ namespace CustomQuests
 		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="questStatus" /> is <c>null</c>.</exception>
 		[UsedImplicitly]
-		public void SetQuestStatus([NotNull] string questStatus)
+		public void SetQuestStatus([NotNull] string questStatus, Color color )
 		{
 			if (questStatus == null)
 			{
@@ -482,8 +482,23 @@ namespace CustomQuests
 				if(session!=null && session.CurrentQuest!=null)
 				{
 					session.CurrentQuest.QuestStatus = questStatus;
+					session.CurrentQuest.QuestStatusColor = color;
+					player.SendMessage(questStatus, color);
 				}
 			}
+		}
+		
+		/// <summary>
+		///		Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		/// <param name="r">The red component.</param>
+		/// <param name="g">The green component.</param>
+		/// <param name="b">The blue component.</param>
+		public void SetQuestStatus([NotNull] string questStatus, byte r, byte g, byte b)
+		{
+			var color = new Color(r, g, b);
+			SetQuestStatus(questStatus, color);
 		}
 
 		/// <summary>

@@ -962,9 +962,11 @@ namespace CustomQuests
 			}
 			else
 			{
-				var questName = session.CurrentQuest.QuestInfo.FriendlyName;
+				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
 				var questStatus = session.CurrentQuest.QuestStatus ?? "";
-				player.SendInfoMessage($"[Quest {questName}] {questStatus}");
+				var color		= session.CurrentQuest.QuestStatusColor;
+
+				player.SendMessage($"[Quest {questName}] {questStatus}", color);
 			}
 		}
 
