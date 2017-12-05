@@ -20,8 +20,6 @@ namespace CustomQuests.Triggers
 
 		private HashSet<string> npcNames;
 		//private HashSet<int> npcIds;
-
-        //private readonly string _npcName;
         private readonly Party _party;
 
         private int _amount;
@@ -39,27 +37,41 @@ namespace CustomQuests.Triggers
         public KillNpcs([NotNull] Party party, [CanBeNull] object npcNames = null, int amount = 1)
         {
 			_party = party ?? throw new ArgumentNullException(nameof(party));
-
-			//_npcName = npcName;
-
+			
+			//convert the npcNames object into something we can use...
 			if(npcNames is LuaTable)
 			{
-				var names = (npcNames as LuaTable).Values.Cast<string>();
+				var values = (npcNames as LuaTable).Values;
+				var names = new List<string>(values.Count);
+
+				foreach(var v in values)
+				{
+					if(v is string)
+					{
+						names.Add(v as string);
+					}
+					else if(v is double)
+					{
+						var id = (int)(double)v;
+						var n = EnglishLanguage.GetNpcNameById(id);//think id should be renamed 'type'
+						names.Add(n);
+					}
+				}
+				
 				this.npcNames = new HashSet<string>(names);
-				//_npcName = this.npcNames.FirstOrDefault<string>();
 			}
 			else if(npcNames is string)
 			{
-				//_npcName = npcNames as string;
 				this.npcNames = new HashSet<string>() { npcNames as string };
+			}
+			else if(npcNames is double)
+			{
+				this.npcNames = new HashSet<string>() { EnglishLanguage.GetNpcNameById((int)(double)npcNames) };
 			}
 			else
 			{
 				throw new ArgumentException(nameof(npcNames), "Must be a string or LuaTable.");
 			}
-
-			//EnglishLanguage.GetNpcNameById(i);
-			//NPC.
 			
 			Debug.Print("KillNpcList:");
 			foreach(var n in this.npcNames)
@@ -100,17 +112,15 @@ namespace CustomQuests.Triggers
 
 			Debug.Print($"NpcKilled name: {npc.GivenOrTypeName}");
 			Debug.Print($"NpcKilled id: {npc.whoAmI}");
+			Debug.Print($"NpcKilled TypeName: {npc.TypeName}");
+			Debug.Print($"NpcKilled type: {npc.type}");
 			Debug.Print($"Contains name? {npcNames.Contains(npc.GivenOrTypeName)}");
-			
+						
 
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
 			//             (_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? true))
-
-			var xxx = LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck);
-
-			//Debug.Print($"Kill Player index: {playerIndex}");
-
-			if (xxx &&
+			
+			if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) &&
 				_party.Any(p => p.Index == lastStruck) &&
 				npcNames.Contains(npc.GivenOrTypeName) )
 			{
