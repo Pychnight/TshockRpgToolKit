@@ -65,6 +65,8 @@ namespace CustomQuests.Sessions
                 _currentQuest = value;
                 CurrentQuestInfo = _currentQuest?.QuestInfo;
                 SessionInfo.CurrentQuestInfo = CurrentQuestInfo;
+
+
             }
         }
 
@@ -139,8 +141,10 @@ namespace CustomQuests.Sessions
 		[UsedImplicitly]
 		public string GetQuestState()
 		{
-			Debug.Print($"GetQuestState: {SessionInfo.CurrentQuestState}");
-			return SessionInfo.CurrentQuestState;
+			//Debug.Print($"GetQuestState: {SessionInfo.CurrentQuestState}");
+			//return SessionInfo.CurrentQuestState;
+
+			return GetSavePoint(); 
 		}
 
 		/// <summary>
@@ -151,8 +155,45 @@ namespace CustomQuests.Sessions
 		[UsedImplicitly]
 		public void SetQuestState([CanBeNull] string state)
 		{
-			SessionInfo.CurrentQuestState = state;
-			Debug.Print($"SetQuestState: {state}");
+			//SessionInfo.CurrentQuestState = state;
+			//Debug.Print($"SetQuestState: {state}");
+			SetSavePoint(state);
+		}
+
+		/// <summary>
+		///     Gets the quest state. This can be used in quest scripts to restore from a save point.
+		/// </summary>
+		/// <returns>The state.</returns>
+		[LuaGlobal]
+		[UsedImplicitly]
+		public string GetSavePoint()
+		{
+			Debug.Print($"GetSavePoint:");
+			
+			var questName = SessionInfo.CurrentQuestInfo.Name;
+			var savePoint = SessionInfo.GetOrCreateSavePoint(questName);
+
+			return savePoint.SaveData;
+		}
+
+		/// <summary>
+		///     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
+		/// </summary>
+		/// <param name="state">The state.</param>
+		[LuaGlobal]
+		[UsedImplicitly]
+		public void SetSavePoint([CanBeNull] string state)
+		{
+			Debug.Print($"SetSavePoint:");
+
+			if(SessionInfo.CurrentQuestInfo!=null)
+			{
+				var questName = SessionInfo.CurrentQuestInfo.Name;
+				var savePoint = SessionInfo?.GetOrCreateSavePoint(questName);
+
+				savePoint.PartyName = Party.Name;
+				savePoint.SaveData = state;
+			}
 		}
 
 		/// <summary>
@@ -167,8 +208,11 @@ namespace CustomQuests.Sessions
                 throw new ArgumentNullException(nameof(questInfo));
             }
 
-            var quest = new Quest(questInfo);
-            var lua = new Lua {["party"] = Party ?? new Party(_player.Name, _player)};
+			//ensure there is a party set, even if a solo player.
+			Party = Party ?? new Party(_player.Name, _player);
+
+			var quest = new Quest(questInfo);
+			var lua = new Lua {["party"] = Party};
             lua.LoadCLRPackage();
             lua.DoString("import('System')");
             lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
@@ -177,12 +221,14 @@ namespace CustomQuests.Sessions
             LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
             LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
+				
+			//set these before, or various quest specific functions will get null ref's from within the quest.
+			CurrentQuest = quest;
+			CurrentQuestInfo = questInfo;
+			CurrentLua = lua;
 
-            var path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
+			var path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
             lua.DoFile(path);
-            CurrentQuest = quest;
-            CurrentQuestInfo = questInfo;
-            CurrentLua = lua;
         }
 
         /// <summary>
@@ -199,7 +245,7 @@ namespace CustomQuests.Sessions
 
             SessionInfo.AvailableQuestNames.Remove(name);
             SessionInfo.CompletedQuestNames.Remove(name);
-        }
+		}
 		
         /// <summary>
         ///     Unlocks the quest with the specified name.
@@ -244,7 +290,10 @@ namespace CustomQuests.Sessions
             }
             if (CurrentQuest.IsEnded)
             {
-                if (CurrentQuest.IsSuccessful)
+				//remove save point
+				SessionInfo.SavePoints.Remove(this.CurrentQuestInfo.Name);
+				
+				if (CurrentQuest.IsSuccessful)
                 {
                     var repeatedQuests = SessionInfo.RepeatedQuestNames;
                     // ReSharper disable once PossibleNullReferenceException

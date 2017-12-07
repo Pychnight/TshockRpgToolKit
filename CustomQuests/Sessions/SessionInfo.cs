@@ -31,16 +31,25 @@ namespace CustomQuests.Sessions
         ///     Gets or sets the current quest state.
         /// </summary>
         [CanBeNull]
-        public string CurrentQuestState
-		{
-			get;
-			set;
-		}
+		public string CurrentQuestState { get; set; }
 
-        /// <summary>
-        ///     Gets the repeated quest names.
-        /// </summary>
-        [NotNull]
-        public Dictionary<string, int> RepeatedQuestNames { get; } = new Dictionary<string, int>();
-    }
+		public Dictionary<string,SavePoint> SavePoints { get; } = new Dictionary<string, SavePoint>();
+
+		/// <summary>
+		///     Gets the repeated quest names.
+		/// </summary>
+		[NotNull]
+		public Dictionary<string, int> RepeatedQuestNames { get; } = new Dictionary<string, int>();
+
+		public SavePoint GetOrCreateSavePoint(string questName)
+		{
+			if(!SavePoints.TryGetValue(questName, out var savePoint))
+			{
+				savePoint = new SavePoint();
+				SavePoints[questName] = savePoint;
+			}
+
+			return savePoint;
+		}
+	}
 }
