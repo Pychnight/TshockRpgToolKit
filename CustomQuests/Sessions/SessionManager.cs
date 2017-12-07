@@ -44,7 +44,7 @@ namespace CustomQuests.Sessions
                 var session = _sessions[username];
 				//var path = Path.Combine("quests", "sessions", $"{username}.json");
 				//File.WriteAllText(path, JsonConvert.SerializeObject(session, Formatting.Indented));
-				sessionRepository.Save(session, username);
+				sessionRepository.Save(session.SessionInfo, username);
 
                 session.Dispose();
                 _sessions.Remove(username);

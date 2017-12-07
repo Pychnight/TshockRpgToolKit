@@ -287,7 +287,7 @@ namespace CustomQuests
                     var session = GetSession(player);
 					//var path = Path.Combine("quests", "sessions", $"{username}.json");
 					//File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
-					_sessionManager.sessionRepository.Save(session, username);
+					_sessionManager.sessionRepository.Save(session.SessionInfo, username);
                 }
             }
         }
