@@ -23,7 +23,7 @@ namespace CustomQuests.Quests
 		/// <summary>
 		/// User friendly string, which can let party members know what they've done, or how to progress.
 		/// </summary>
-		//public string Status { get; set; }
-		//public Color StatusColor { get; set; } 
+		public string QuestStatus { get; set; }
+		public Color QuestStatusColor { get; set; }
 	}
 }

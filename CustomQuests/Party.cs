@@ -481,8 +481,15 @@ namespace CustomQuests
 
 				if(session!=null && session.CurrentQuest!=null)
 				{
-					session.CurrentQuest.QuestStatus = questStatus;
-					session.CurrentQuest.QuestStatusColor = color;
+					//session.CurrentQuest.QuestStatus = questStatus;
+					//session.CurrentQuest.QuestStatusColor = color;
+
+					var isPartyLeader = player == session.Party.Leader;
+					var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.CurrentQuestName, isPartyLeader);
+
+					savePoint.QuestStatus = questStatus;
+					savePoint.QuestStatusColor = color;
+					
 					player.SendMessage(questStatus, color);
 				}
 			}

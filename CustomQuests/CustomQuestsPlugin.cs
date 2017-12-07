@@ -962,9 +962,13 @@ namespace CustomQuests
 			}
 			else
 			{
+				var isPartyLeader = player == session.Party.Leader;
 				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
-				var questStatus = session.CurrentQuest.QuestStatus ?? "";
-				var color		= session.CurrentQuest.QuestStatusColor;
+				//var questStatus = session.CurrentQuest.QuestStatus ?? "";
+				//var color		= session.CurrentQuest.QuestStatusColor;
+				var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.SessionInfo.CurrentQuestInfo.Name, isPartyLeader);
+				var questStatus = savePoint.QuestStatus;
+				var color = savePoint.QuestStatusColor;
 
 				player.SendMessage($"[Quest {questName}] {questStatus}", color);
 			}
