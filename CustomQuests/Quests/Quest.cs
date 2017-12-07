@@ -5,6 +5,7 @@ using CustomQuests.Triggers;
 using JetBrains.Annotations;
 using NLua;
 using Microsoft.Xna.Framework;
+using System.Diagnostics;
 
 namespace CustomQuests.Quests
 {
@@ -89,6 +90,7 @@ namespace CustomQuests.Quests
                 _threads[threadName] = thread;
             }
             thread.AddTrigger(trigger, prioritized);
+			thread.Name = threadName;
         }
 
         /// <summary>
@@ -140,7 +142,8 @@ namespace CustomQuests.Quests
             var threads = _threads.Values.ToList();
             foreach (var thread in threads)
             {
-                thread.Update();
+				//Debug.Print($"Updating thread {thread.Name}.");
+				thread.Update();
             }
         }
     }
