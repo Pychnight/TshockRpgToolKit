@@ -35,21 +35,32 @@ namespace CustomQuests.Sessions
 
 		public Dictionary<string,SavePoint> SavePoints { get; } = new Dictionary<string, SavePoint>();
 
+		public Dictionary<string, SavePoint> PartyLeaderSavePoints { get; } = new Dictionary<string, SavePoint>();
+
 		/// <summary>
 		///     Gets the repeated quest names.
 		/// </summary>
 		[NotNull]
 		public Dictionary<string, int> RepeatedQuestNames { get; } = new Dictionary<string, int>();
 
-		public SavePoint GetOrCreateSavePoint(string questName)
+		public SavePoint GetOrCreateSavePoint(string questName, bool isPartyLeader)
 		{
-			if(!SavePoints.TryGetValue(questName, out var savePoint))
+			var selectedSavePoints = isPartyLeader ? PartyLeaderSavePoints : SavePoints; 
+
+			if(!selectedSavePoints.TryGetValue(questName, out var savePoint))
 			{
 				savePoint = new SavePoint();
-				SavePoints[questName] = savePoint;
+				selectedSavePoints[questName] = savePoint;
 			}
 
 			return savePoint;
+		}
+
+		public void RemoveSavePoint(string questName, bool isPartyLeader)
+		{
+			var selectedSavePoints = isPartyLeader ? PartyLeaderSavePoints : SavePoints;
+
+			selectedSavePoints.Remove(questName);
 		}
 	}
 }

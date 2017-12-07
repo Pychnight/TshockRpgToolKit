@@ -169,9 +169,10 @@ namespace CustomQuests.Sessions
 		public string GetSavePoint()
 		{
 			Debug.Print($"GetSavePoint:");
-			
+
+			var isPartyLeader = _player == Party.Leader;
 			var questName = SessionInfo.CurrentQuestInfo.Name;
-			var savePoint = SessionInfo.GetOrCreateSavePoint(questName);
+			var savePoint = SessionInfo.GetOrCreateSavePoint(questName,isPartyLeader);
 
 			return savePoint.SaveData;
 		}
@@ -188,8 +189,9 @@ namespace CustomQuests.Sessions
 
 			if(SessionInfo.CurrentQuestInfo!=null)
 			{
+				var isPartyLeader = _player == Party.Leader;
 				var questName = SessionInfo.CurrentQuestInfo.Name;
-				var savePoint = SessionInfo?.GetOrCreateSavePoint(questName);
+				var savePoint = SessionInfo?.GetOrCreateSavePoint(questName,isPartyLeader);
 
 				savePoint.PartyName = Party.Name;
 				savePoint.SaveData = state;
@@ -284,14 +286,16 @@ namespace CustomQuests.Sessions
                 return;
             }
 
-            if (Party == null || _player == Party.Leader)
+			var isPartyLeader = _player == Party.Leader;
+
+            if (Party == null || isPartyLeader)
             {
                 CurrentQuest.Update();
             }
             if (CurrentQuest.IsEnded)
             {
 				//remove save point
-				SessionInfo.SavePoints.Remove(this.CurrentQuestInfo.Name);
+				SessionInfo.RemoveSavePoint(this.CurrentQuestInfo.Name, isPartyLeader);
 				
 				if (CurrentQuest.IsSuccessful)
                 {
