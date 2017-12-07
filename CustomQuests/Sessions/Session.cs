@@ -6,6 +6,7 @@ using CustomQuests.Quests;
 using JetBrains.Annotations;
 using NLua;
 using TShockAPI;
+using System.Diagnostics;
 
 namespace CustomQuests.Sessions
 {
@@ -130,20 +131,36 @@ namespace CustomQuests.Sessions
                        .Any(r => r.Name == questInfo.RequiredRegionName);
         }
 
-        /// <summary>
-        ///     Gets the quest state.
-        /// </summary>
-        /// <returns>The state.</returns>
-        [LuaGlobal]
-        [UsedImplicitly]
-        public string GetQuestState() => SessionInfo.CurrentQuestState;
+		/// <summary>
+		///     Gets the quest state. This can be used in quest scripts to restore from a save point.
+		/// </summary>
+		/// <returns>The state.</returns>
+		[LuaGlobal]
+		[UsedImplicitly]
+		public string GetQuestState()
+		{
+			Debug.Print($"GetQuestState: {SessionInfo.CurrentQuestState}");
+			return SessionInfo.CurrentQuestState;
+		}
 
-        /// <summary>
-        ///     Loads the quest with the specified info.
-        /// </summary>
-        /// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
-        public void LoadQuest([NotNull] QuestInfo questInfo)
+		/// <summary>
+		///     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
+		/// </summary>
+		/// <param name="state">The state.</param>
+		[LuaGlobal]
+		[UsedImplicitly]
+		public void SetQuestState([CanBeNull] string state)
+		{
+			SessionInfo.CurrentQuestState = state;
+			Debug.Print($"SetQuestState: {state}");
+		}
+
+		/// <summary>
+		///     Loads the quest with the specified info.
+		/// </summary>
+		/// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
+		public void LoadQuest([NotNull] QuestInfo questInfo)
         {
             if (questInfo == null)
             {
@@ -183,18 +200,7 @@ namespace CustomQuests.Sessions
             SessionInfo.AvailableQuestNames.Remove(name);
             SessionInfo.CompletedQuestNames.Remove(name);
         }
-
-        /// <summary>
-        ///     Sets the quest state.
-        /// </summary>
-        /// <param name="state">The state.</param>
-        [LuaGlobal]
-        [UsedImplicitly]
-        public void SetQuestState([CanBeNull] string state)
-        {
-            SessionInfo.CurrentQuestState = state;
-        }
-
+		
         /// <summary>
         ///     Unlocks the quest with the specified name.
         /// </summary>
