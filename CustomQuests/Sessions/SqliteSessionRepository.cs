@@ -50,8 +50,17 @@ namespace CustomQuests.Sessions
 		{
 			if(connection!=null)
 			{
-				ServerApi.LogWriter.PluginWriteLine(plugin, "Closing quest sessions database connection.", TraceLevel.Info);
-				connection.Close();
+				try
+				{
+					ServerApi.LogWriter.PluginWriteLine(plugin, "Closing quest sessions database connection...", TraceLevel.Info);
+					connection.Close();
+				}
+				catch(Exception ex)
+				{
+					ServerApi.LogWriter.PluginWriteLine(plugin, "Closing quest sessions database failed!", TraceLevel.Error);
+					ServerApi.LogWriter.PluginWriteLine(plugin, ex.Message, TraceLevel.Error);
+					ServerApi.LogWriter.PluginWriteLine(plugin, ex.StackTrace, TraceLevel.Error);
+				}
 			}
 		}
 
