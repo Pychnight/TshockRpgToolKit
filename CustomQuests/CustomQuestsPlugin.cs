@@ -228,6 +228,8 @@ namespace CustomQuests
 
         private void OnReload(ReloadEventArgs args)
         {
+			_sessionManager.OnReload();//abort in play quests
+			
             if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));

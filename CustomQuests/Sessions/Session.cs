@@ -15,7 +15,7 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class Session : IDisposable
     {
-        private readonly TSPlayer _player;
+        internal readonly TSPlayer _player;//made internal, as a quick fix for SessionManager needing the player in OnReload().
 
         private Quest _currentQuest;
 

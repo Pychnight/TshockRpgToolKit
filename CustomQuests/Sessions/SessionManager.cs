@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TShockAPI;
 using TerrariaApi.Server;
+using NLua;
 
 namespace CustomQuests.Sessions
 {
@@ -134,5 +135,33 @@ namespace CustomQuests.Sessions
                 _sessions.Remove(username);
             }
         }
+
+		public void OnReload()
+		{
+			foreach(var session in _sessions.Values)
+			{
+				//var questName = s.CurrentQuestName;
+				var player = session._player;
+
+				var quest = session.CurrentQuest;
+				if (quest != null)
+				{
+					session.IsAborting = true;
+					var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+					try
+					{
+						onAbortFunction?.Call();
+					}
+					catch (Exception ex)
+					{
+						TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+						TShock.Log.ConsoleInfo(ex.ToString());
+					}
+					session.HasAborted = true;
+
+					player.SendSuccessMessage("Aborted quest.");
+				}
+			}
+		}
     }
 }
