@@ -27,8 +27,7 @@ namespace Leveling.Sessions
         private readonly SessionDefinition _definition;
         private readonly object _expLock = new object();
         private readonly TSPlayer _player;
-        private readonly object _saveLock = new object();
-
+        
         private Class _class;
         private long _expToReport;
         private DateTime _lastCombatTextTime;
@@ -344,12 +343,8 @@ namespace Leveling.Sessions
         /// </summary>
         public void Save()
         {
-            lock (_saveLock)
-            {
-                var username = _player.User?.Name ?? _player.Name;
-                var path = Path.Combine("leveling", $"{username}.session");
-                File.WriteAllText(path, JsonConvert.SerializeObject(_definition, Formatting.Indented));
-            }
+			var userName = _player.User?.Name ?? _player.Name;
+			LevelingPlugin.Instance.SessionRepository.Save(userName,_definition);
         }
 
         /// <summary>

@@ -76,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sessions\Session.cs" />
     <Compile Include="Sessions\SessionDefinition.cs" />
+    <Compile Include="Sessions\SqliteSessionRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

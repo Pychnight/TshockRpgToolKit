@@ -25,9 +25,13 @@ namespace Leveling
     {
         private const string SessionKey = "Leveling_Session";
 
+		public static LevelingPlugin Instance { get; private set; }
+
         public static readonly Dictionary<string, Level> ItemNameToLevelRequirements = new Dictionary<string, Level>();
 
         private static readonly string ConfigPath = Path.Combine("leveling", "config.json");
+
+		internal SqliteSessionRepository SessionRepository;
 
         private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages =
             new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
@@ -40,6 +44,8 @@ namespace Leveling
 #if DEBUG
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
+
+			Instance = this;
         }
 
         public override string Author => "MarioE";
@@ -54,6 +60,9 @@ namespace Leveling
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
+
+			SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
+
             _classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
                 .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
             _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
@@ -391,17 +400,22 @@ namespace Leveling
         private Session GetOrCreateSession(TSPlayer player)
         {
             var session = player.GetData<Session>(SessionKey);
-            if (session == null)
+			if (session == null)
             {
-                var username = player.User?.Name ?? player.Name;
-                var sessionPath = Path.Combine("leveling", $"{username}.session");
-                SessionDefinition definition;
-                if (File.Exists(sessionPath))
-                {
-                    definition = JsonConvert.DeserializeObject<SessionDefinition>(File.ReadAllText(sessionPath));
-                }
-                else
-                {
+				var username = player.User?.Name ?? player.Name;
+				//var sessionPath = Path.Combine("leveling", $"{username}.session");
+
+				//if (File.Exists(sessionPath))
+				//{
+				//    definition = JsonConvert.DeserializeObject<SessionDefinition>(File.ReadAllText(sessionPath));
+				//}
+
+				//first try the database
+				SessionDefinition definition = SessionRepository.Load(username);
+
+				//otherwise we need to create
+				if(definition==null)
+				{
                     definition = new SessionDefinition();
                     var defaultClassName = Config.Instance.DefaultClassName;
                     definition.ClassNameToExp[defaultClassName] = 0;
