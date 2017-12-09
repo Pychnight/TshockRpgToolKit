@@ -55,47 +55,53 @@ namespace Leveling
 
         public override void Initialize()
         {
-            Directory.CreateDirectory("leveling");
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-
-			SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
-
-            _classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-                .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-            _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
-
-			//if default class file does not exist, were in an error state
-			if(_classDefinitions.Select(cd => cd.Name ).
-				FirstOrDefault(n => n==Config.Instance.DefaultClassName)==null)
+			try
 			{
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Default class {Config.Instance.DefaultClassName} was not found.", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is loaded, but disabled. Please fix config.json and restart server.", TraceLevel.Error);
+				Directory.CreateDirectory("leveling");
+				if (File.Exists(ConfigPath))
+				{
+					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+				}
 
+				SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
+
+				_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
+					.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+				//if default class file does not exist, we're in an error state
+				if (_classDefinitions.Select(cd => cd.Name).
+					FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null)
+				{
+					throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
+				}
+
+				var levels = _classes.SelectMany(c => c.Levels).ToList();
+				foreach (var @class in _classes)
+				{
+					@class.Resolve(levels, 0);
+				}
+				foreach (var @class in _classes)
+				{
+					@class.Resolve(levels, 1);
+				}
+				foreach (var level in levels)
+				{
+					foreach (var itemName in level.ItemNamesAllowed)
+					{
+						ItemNameToLevelRequirements[itemName] = level;
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
 				this.Enabled = false;
-
 				return;
 			}
-			
-			var levels = _classes.SelectMany(c => c.Levels).ToList();
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(levels, 0);
-            }
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(levels, 1);
-            }
-            foreach (var level in levels)
-            {
-                foreach (var itemName in level.ItemNamesAllowed)
-                {
-                    ItemNameToLevelRequirements[itemName] = level;
-                }
-            }
-
+            
             GeneralHooks.ReloadEvent += OnReload;
             PlayerHooks.PlayerChat += OnPlayerChat;
             PlayerHooks.PlayerPermission += OnPlayerPermission;
@@ -171,6 +177,8 @@ namespace Leveling
                 {
                     session.Save();
                 }
+
+				SessionRepository.Dispose();
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 PlayerHooks.PlayerChat -= OnPlayerChat;
