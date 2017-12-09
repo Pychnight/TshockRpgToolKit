@@ -67,7 +67,19 @@ namespace Leveling
                 .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
             _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
 
-            var levels = _classes.SelectMany(c => c.Levels).ToList();
+			//if default class file does not exist, were in an error state
+			if(_classDefinitions.Select(cd => cd.Name ).
+				FirstOrDefault(n => n==Config.Instance.DefaultClassName)==null)
+			{
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Default class {Config.Instance.DefaultClassName} was not found.", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is loaded, but disabled. Please fix config.json and restart server.", TraceLevel.Error);
+
+				this.Enabled = false;
+
+				return;
+			}
+			
+			var levels = _classes.SelectMany(c => c.Levels).ToList();
             foreach (var @class in _classes)
             {
                 @class.Resolve(levels, 0);
