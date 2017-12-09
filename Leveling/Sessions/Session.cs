@@ -22,10 +22,8 @@ namespace Leveling.Sessions
         private static readonly TimeSpan ItemCheckPeriod = TimeSpan.FromSeconds(0.5);
 
         private readonly Dictionary<Class, Level> _classToLevel = new Dictionary<Class, Level>();
-        private readonly object _combatTextLock = new object();
         private readonly Queue<CombatText> _combatTexts = new Queue<CombatText>();
         private readonly SessionDefinition _definition;
-        private readonly object _expLock = new object();
         private readonly TSPlayer _player;
         
         private Class _class;
@@ -121,11 +119,7 @@ namespace Leveling.Sessions
         public void AddCombatText(string text, Color color, bool global = true)
         {
             Debug.Assert(text != null, "Text must not be null.");
-
-            lock (_combatTextLock)
-            {
-                _combatTexts.Enqueue(new CombatText(text, color, global));
-            }
+			_combatTexts.Enqueue(new CombatText(text, color, global));
         }
 
         /// <summary>
@@ -134,10 +128,7 @@ namespace Leveling.Sessions
         /// <param name="exp">The amount of EXP.</param>
         public void AddExpToReport(long exp)
         {
-            lock (_expLock)
-            {
-                _expToReport += exp;
-            }
+			_expToReport += exp;
         }
 
         /// <summary>
@@ -370,30 +361,27 @@ namespace Leveling.Sessions
         public void Update()
         {
             // Check EXP reports.
-            lock (_expLock)
+            if (Level.ExpRequired < 0)
             {
-                if (Level.ExpRequired < 0)
-                {
-                    _expToReport = 0;
-                }
-                else if (DateTime.UtcNow - _lastExpReportTime > ExpReportPeriod && _expToReport != 0)
-                {
-                    _lastExpReportTime = DateTime.UtcNow;
-
-                    if (_expToReport > 0)
-                    {
-                        AddCombatText($"+{_expToReport} EXP", Color.LimeGreen);
-                    }
-                    else
-                    {
-                        AddCombatText($"{_expToReport} EXP", Color.OrangeRed);
-                    }
-                    Save();
-                    _expToReport = 0;
-                }
+                _expToReport = 0;
             }
+            else if (DateTime.UtcNow - _lastExpReportTime > ExpReportPeriod && _expToReport != 0)
+            {
+                _lastExpReportTime = DateTime.UtcNow;
 
-            // Check to see if items are usable.
+                if (_expToReport > 0)
+                {
+                    AddCombatText($"+{_expToReport} EXP", Color.LimeGreen);
+                }
+                else
+                {
+                    AddCombatText($"{_expToReport} EXP", Color.OrangeRed);
+                }
+                Save();
+                _expToReport = 0;
+            }
+           
+			// Check to see if items are usable.
             if (DateTime.UtcNow - _lastItemCheckTime > ItemCheckPeriod)
             {
                 _lastItemCheckTime = DateTime.UtcNow;
@@ -416,25 +404,21 @@ namespace Leveling.Sessions
                 }
             }
 
-            // Check combat texts.
-            lock (_combatTextLock)
+            if (DateTime.UtcNow - _lastCombatTextTime > CombatTextPeriod && _combatTexts.Count > 0)
             {
-                if (DateTime.UtcNow - _lastCombatTextTime > CombatTextPeriod && _combatTexts.Count > 0)
-                {
-                    _lastCombatTextTime = DateTime.UtcNow;
+                _lastCombatTextTime = DateTime.UtcNow;
 
-                    var combatText = _combatTexts.Dequeue();
-                    var tplayer = _player.TPlayer;
-                    if (combatText.Global)
-                    {
-                        TSPlayer.All.SendData(PacketTypes.CreateCombatTextExtended, combatText.Text,
-                                              (int)combatText.Color.PackedValue, tplayer.Center.X, tplayer.Center.Y);
-                    }
-                    else
-                    {
-                        _player.SendData(PacketTypes.CreateCombatTextExtended, combatText.Text,
-                                         (int)combatText.Color.PackedValue, tplayer.Center.X, tplayer.Center.Y);
-                    }
+                var combatText = _combatTexts.Dequeue();
+                var tplayer = _player.TPlayer;
+                if (combatText.Global)
+                {
+                    TSPlayer.All.SendData(PacketTypes.CreateCombatTextExtended, combatText.Text,
+                                            (int)combatText.Color.PackedValue, tplayer.Center.X, tplayer.Center.Y);
+                }
+                else
+                {
+                    _player.SendData(PacketTypes.CreateCombatTextExtended, combatText.Text,
+                                        (int)combatText.Color.PackedValue, tplayer.Center.X, tplayer.Center.Y);
                 }
             }
         }
