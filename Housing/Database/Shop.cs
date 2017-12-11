@@ -2,14 +2,13 @@
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Wolfje.Plugins.SEconomy;
-using TShockAPI;
 
-namespace Housing.HousingEntites
+namespace Housing.Database
 {
     /// <summary>
     ///     Represents a shop.
     /// </summary>
-    public class Shop : HousingEntity
+    public sealed class Shop
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="Shop" /> class with the specified owner name, name, and coordinates.
@@ -22,20 +21,16 @@ namespace Housing.HousingEntites
         /// <param name="y2">The second Y coordinate, which must be at least the second.</param>
         /// <param name="chestX">The chest X coordinate.</param>
         /// <param name="chestY">The chest Y coordinate.</param>
-        /// 
-        public int Shop_ID { get; set; }
-        public Shop(TSPlayer owner, string entity_name, int x, int y, int x2, int y2, int chestX, int chestY) : base(owner, entity_name, x, y, x2, y2)
+        public Shop(string ownerName, string name, int x, int y, int x2, int y2, int chestX, int chestY)
         {
-            EnitityRectangle = EntityRegion.Area;
-            ShopName = EntityName;
-            ChestX = chestX;
-            ChestY = chestY;
-        }
+            Debug.Assert(ownerName != null, "Owner name must not be null.");
+            Debug.Assert(name != null, "Name must not be null.");
+            Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
+            Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
-        public Shop(int region_id, int player_id, string entity_name, string owner_name, int chestX, int chestY) : base(region_id, player_id, entity_name, owner_name)
-        {
-            EnitityRectangle = EntityRegion.Area;
-            ShopName = EntityName;
+            OwnerName = ownerName;
+            Name = name;
+            Rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
             ChestX = chestX;
             ChestY = chestY;
         }
@@ -73,17 +68,23 @@ namespace Housing.HousingEntites
         /// <summary>
         ///     Gets the name.
         /// </summary>
-        public string ShopName { get; }
+        public string Name { get; }
 
+        /// <summary>
+        ///     Gets the owner name.
+        /// </summary>
+        public string OwnerName { get; }
 
         /// <summary>
         ///     Gets or sets the rectangle.
         /// </summary>
+        public Rectangle Rectangle { get; set; }
 
         /// <summary>
         ///     Gets the unit prices.
         /// </summary>
         public IDictionary<int, Money> UnitPrices { get; } = new Dictionary<int, Money>();
+
+        public override string ToString() => Name;
     }
-     
 }

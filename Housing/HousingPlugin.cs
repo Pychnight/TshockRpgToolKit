@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Housing.Database;
-using Housing.HousingEntites;
 using Microsoft.Xna.Framework;
 using Mono.Data.Sqlite;
 using Newtonsoft.Json;
@@ -219,18 +218,18 @@ namespace Housing
                         var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(house.OwnerName);
                         account.TransferTo(
                             account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-                            "", $"Purchased {house.OwnerName}'s {house.HouseName} house");
+                            "", $"Purchased {house.OwnerName}'s {house.Name} house");
                     }
                     if (salesTax > 0)
                     {
                         account.TransferTo(
                             SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-                            "", $"Sales tax for {house.OwnerName}'s {house.HouseName} house");
+                            "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
                     }
 
                     _database.Remove(house);
-                    _database.AddHouse(player, inputHouseName, house.EnitityRectangle.X, house.EnitityRectangle.Y,
-                                       house.EnitityRectangle.Right - 1, house.EnitityRectangle.Bottom - 1);
+                    _database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
+                                       house.Rectangle.Right - 1, house.Rectangle.Bottom - 1);
                     player.SendInfoMessage(
                         $"Purchased {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
                         $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
@@ -288,11 +287,11 @@ namespace Housing
                 }
 
                 var house = session.CurrentHouse;
-                player.SendInfoMessage($"Owner: {house.OwnerName}, Name: {house.HouseName}");
+                player.SendInfoMessage($"Owner: {house.OwnerName}, Name: {house.Name}");
                 if (player.User?.Name == house.OwnerName || player.HasPermission("housing.house.admin"))
                 {
                     player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
-                    var isStore = _database.GetShops().Any(s => house.EnitityRectangle.Contains(s.EnitityRectangle));
+                    var isStore = _database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
                     var taxCost = (Money)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage(
@@ -399,7 +398,7 @@ namespace Housing
                 }
 
                 var rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
-                if (_database.GetHouses().Any(h => h.EnitityRectangle.Intersects(rectangle)))
+                if (_database.GetHouses().Any(h => h.Rectangle.Intersects(rectangle)))
                 {
                     player.SendErrorMessage("Your house must not intersect any other houses.");
                     return;
@@ -606,7 +605,7 @@ namespace Housing
                 }
 
                 var shop = session.CurrentShop;
-                player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.ShopName}");
+                player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.Name}");
                 var prices = shop.UnitPrices.Where(kvp => kvp.Value > 0)
                     .Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value}]");
                 player.SendInfoMessage(
@@ -722,7 +721,7 @@ namespace Housing
                 }
 
                 var rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
-                if (!session.CurrentHouse.EnitityRectangle.Contains(rectangle))
+                if (!session.CurrentHouse.Rectangle.Contains(rectangle))
                 {
                     player.SendErrorMessage("Your shop must lie entirely within your house.");
                     return;
@@ -833,14 +832,6 @@ namespace Housing
         private void OnGamePostInitialize(EventArgs args)
         {
             _database.Load();
-            foreach (var house in _database.GetHouses())
-            {
-                TShock.Regions.SetRegionState(house.RegionID, true);
-            }
-            foreach(var shop in _database.GetShops())
-            {
-                TShock.Regions.SetRegionState(shop.RegionID, true);
-            }
         }
 
         private void OnGameUpdate(EventArgs args)
@@ -891,9 +882,9 @@ namespace Housing
                         continue;
                     }
 
-                    var isStore = shops.Any(s => house.EnitityRectangle.Contains(s.EnitityRectangle));
+                    var isStore = shops.Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
-                    var taxCost = (long)Math.Round(house.Area * taxRate) +  house.Debt;
+                    var taxCost = (long)Math.Round(house.Area * taxRate) + house.Debt;
                     var payment = (Money)Math.Min(account.Balance, taxCost);
                     account.TransferTo(
                         SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
@@ -1066,7 +1057,7 @@ namespace Housing
                         var session = GetOrCreateSession(player);
                         if (session.NextShopHouse != null)
                         {
-                            if (!session.NextShopHouse.EnitityRectangle.Contains(x, y))
+                            if (!session.NextShopHouse.Rectangle.Contains(x, y))
                             {
                                 player.SendErrorMessage("Your house must contain your item shop chest.");
                                 return;
