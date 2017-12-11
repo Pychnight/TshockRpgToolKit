@@ -95,7 +95,7 @@ namespace CustomQuests
         {
             ServerApi.LogWriter.PluginWriteLine(this, "Initializing", TraceLevel.Info);
 			
-			//Directory.CreateDirectory(Path.Combine("quests", "sessions"));
+			Directory.CreateDirectory("quests");
 			if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
