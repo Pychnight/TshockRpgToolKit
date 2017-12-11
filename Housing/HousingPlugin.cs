@@ -103,7 +103,7 @@ namespace Housing
             else if (subcommand.Equals("2", StringComparison.OrdinalIgnoreCase))
             {
                 player.AwaitingTempPoint = 2;
-                player.SendInfoMessage("Hit a block to set the first point.");
+                player.SendInfoMessage("Hit a block to set the second point.");
             }
             else if (subcommand.Equals("allow", StringComparison.OrdinalIgnoreCase))
             {
@@ -250,7 +250,7 @@ namespace Housing
             {
                 if (parameters.Count != 2)
                 {
-                    player.SendErrorMessage($"Syntax: {Commands.Specifier}house allow <username>");
+                    player.SendErrorMessage($"Syntax: {Commands.Specifier}house disallow <username>");
                     return;
                 }
 
@@ -449,7 +449,7 @@ namespace Housing
                     player.SendSuccessMessage($"Added the [c/{Color.MediumPurple.Hex3()}:{house}] house.");
                 }
             }
-            else
+			else
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house 1/2");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}house allow <player-name>");
