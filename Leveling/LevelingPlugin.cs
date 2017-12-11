@@ -166,7 +166,13 @@ namespace Leveling
                 HelpText = $"Syntax: {Commands.Specifier}setclass <player-name> <class-name>\n" +
                            "Sets the specified player's class."
             });
-        }
+
+			Commands.ChatCommands.Add(new Command("leveling.dump", LevelDump, "leveldump")
+			{
+				HelpText = $"Syntax: {Commands.Specifier}leveldump\n" +
+						   "Dumps debug information about the players level to a file."
+			});
+		}
 
         protected override void Dispose(bool disposing)
         {
@@ -994,5 +1000,23 @@ namespace Leveling
             player.SendSuccessMessage($"Set {otherPlayer.Name}'s class to {@class}.");
             otherPlayer.SendInfoMessage($"You have been set to the {@class} class.");
         }
-    }
+
+		private void LevelDump(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+
+			var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+			var fileName = $"{player.Name}-{timeStamp}.json";
+
+			fileName = Path.Combine("leveling", fileName);
+
+			var session = GetOrCreateSession(player);
+			var json = JsonConvert.SerializeObject(session._definition, Formatting.Indented);
+
+			File.WriteAllText(fileName, json);
+			
+			player.SendErrorMessage($"Dumped leveling info to file '{fileName}'.");
+		}
+	}
 }

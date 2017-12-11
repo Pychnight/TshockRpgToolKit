@@ -23,7 +23,7 @@ namespace Leveling.Sessions
 
         private readonly Dictionary<Class, Level> _classToLevel = new Dictionary<Class, Level>();
         private readonly Queue<CombatText> _combatTexts = new Queue<CombatText>();
-        private readonly SessionDefinition _definition;
+        internal readonly SessionDefinition _definition;//just so we can dump it for debugging.
         private readonly TSPlayer _player;
         
         private Class _class;
