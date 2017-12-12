@@ -61,11 +61,16 @@ namespace Housing
 
 			if(IsEnabled)
 			{
-				var cut = (double)payment / TaxCollectorPlayerNames.Count > 0 ? (double)TaxCollectorPlayerNames.Count : 1d;
-				
+				var cut = (double)payment / ( TaxCollectorPlayerNames.Count > 0 ? (double)TaxCollectorPlayerNames.Count : 1d );
+
+				Debug.Print($"Tax payment is {remainder}");
+				Debug.Print($"Tax collectors get {cut} each.");
+
 				//split revenue between the taxmen.
-				foreach(var playerName in TaxCollectorPlayerNames)
+				foreach (var playerName in TaxCollectorPlayerNames)
 				{
+					//var playerAccount = SEconomyPlugin.Instance.WorldAccount;
+					//players have to be online to collect tax. Maybe there is a better way to get accounts?
 					var playerAccount = SEconomyPlugin.Instance.GetPlayerBankAccount(playerName);
 
 					if (playerAccount!=null)
