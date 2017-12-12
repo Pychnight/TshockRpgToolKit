@@ -20,6 +20,8 @@ namespace Housing.Database
         private readonly List<House> _houses = new List<House>();
         private readonly object _lock = new object();
         private readonly List<Shop> _shops = new List<Shop>();
+		//private readonly HashSet<string> taxCollectorPlayerNames = new HashSet<string>();
+		public TaxService TaxService { get; set; }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseManager" /> class with the specified connection.
@@ -85,7 +87,11 @@ namespace Housing.Database
                               "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
                               "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemId) ON CONFLICT REPLACE)");
-        }
+			_connection.Query("CREATE TABLE IF NOT EXISTS TaxCollectors (" +
+							  "  WorldId            INTEGER NOT NULL," +
+							  "  PlayerName         TEXT NOT NULL," +
+							  "  PRIMARY KEY (WorldId, PlayerName) )" );
+		}
 
         /// <summary>
         ///     Adds a house with the specified properties.
@@ -297,6 +303,17 @@ namespace Housing.Database
                         _shops.Add(shop);
                     }
                 }
+
+				//load in tax collector names.
+				TaxService.TaxCollectorPlayerNames.Clear();
+				using (var reader = _connection.QueryReader("SELECT * FROM TaxCollectors WHERE WorldID = @0", Main.worldID))
+				{
+					while (reader.Read())
+					{
+						var playerName = reader.Get<string>("PlayerName");
+						TaxService.TaxCollectorPlayerNames.Add(playerName);
+					}
+				}
             }
         }
 
@@ -338,11 +355,52 @@ namespace Housing.Database
             }
         }
 
-        /// <summary>
-        ///     Updates the specified house.
-        /// </summary>
-        /// <param name="house">The shop, which must not be <c>null</c>.</param>
-        public void Update(House house)
+		/// <summary>
+		/// Adds a player name to the tax collector list.
+		/// </summary>
+		/// <param name="playerName"></param>
+		public void AddTaxCollector(string playerName)
+		{
+			Debug.Assert(playerName != null, "playerName must not be null.");
+
+			if(TaxService.TaxCollectorPlayerNames.Contains(playerName))
+				return;
+
+			lock (_lock)
+			{
+				_connection.Query(
+					"INSERT INTO TaxCollectors (WorldId, PlayerName)" +
+					"VALUES (@0, @1)",
+					Main.worldID, playerName);
+
+				TaxService.TaxCollectorPlayerNames.Add(playerName);
+			}
+		}
+
+		/// <summary>
+		///		Removes a tax collector ( name ).
+		/// </summary>
+		/// <param name="playerName"></param>
+		public void RemoveTaxCollector(string playerName)
+		{
+			Debug.Assert(playerName != null, "playerName must not be null.");
+
+			if(!TaxService.TaxCollectorPlayerNames.Contains(playerName))
+				return;
+
+			lock (_lock)
+			{
+				_connection.Query("DELETE FROM TaxCollectors WHERE WorldId = @0 AND PlayerName = @1",
+								  Main.worldID, playerName);
+				TaxService.TaxCollectorPlayerNames.Remove(playerName);
+			}
+		}
+
+		/// <summary>
+		///     Updates the specified house.
+		/// </summary>
+		/// <param name="house">The shop, which must not be <c>null</c>.</param>
+		public void Update(House house)
         {
             Debug.Assert(house != null, "House must not be null.");
 

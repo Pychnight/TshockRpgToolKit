@@ -12,6 +12,8 @@ namespace Housing
 {
 	public class TaxService
 	{
+		HousingPlugin housingPlugin;
+
 		//public static Taxman Instance { get; private set; }
 		/// <summary>
 		/// Gets or sets whether tax collectors will recieve tax payments.
@@ -23,27 +25,24 @@ namespace Housing
 		/// </summary>
 		public HashSet<string> TaxCollectorPlayerNames { get; private set; }
 
-		public TaxService(Config config)
+		public TaxService(HousingPlugin plugin)
 		{
+			housingPlugin = plugin;
 			TaxCollectorPlayerNames = new HashSet<string>();
 
-			if(config!=null)
-			{
-				IsEnabled = config.EnableTaxService;
-
-				if(config.TaxCollectorPlayerNames!=null)
-				{
-					config.TaxCollectorPlayerNames.ForEach(n => TaxCollectorPlayerNames.Add(n));
-				}
-			}
-			else
-			{
-				IsEnabled = false;
-			}
-			
 			//Instance = this;
-			
+
 			Debug.Print("Created TaxService.");
+		}
+
+		/// <summary>
+		/// Helper to set player names in one go.
+		/// </summary>
+		/// <param name="config"></param>
+		public void SetPlayerNames(IEnumerable<string> newNames)
+		{
+			TaxCollectorPlayerNames.Clear();
+			newNames?.ForEach(n => TaxCollectorPlayerNames.Add(n));
 		}
 
 		public void PayTax(string sourceAccountName, Money payment, BankAccountTransferOptions options = BankAccountTransferOptions.None, string transactionMessage = "", string journalMessage = "")
@@ -64,27 +63,35 @@ namespace Housing
 				var cut = (double)payment / ( TaxCollectorPlayerNames.Count > 0 ? (double)TaxCollectorPlayerNames.Count : 1d );
 
 				Debug.Print($"Tax payment is {remainder}");
-				Debug.Print($"Tax collectors get {cut} each.");
+				Debug.Print($"{TaxCollectorPlayerNames.Count} tax collectors get {cut} each.");
 
-				//split revenue between the taxmen.
+				//split revenue between the tax collectors.
 				foreach (var playerName in TaxCollectorPlayerNames)
 				{
 					//var playerAccount = SEconomyPlugin.Instance.WorldAccount;
-					//players have to be online to collect tax. Maybe there is a better way to get accounts?
-					var playerAccount = SEconomyPlugin.Instance.GetPlayerBankAccount(playerName);
-
+					var playerAccount = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(playerName);
+					
 					if (playerAccount!=null)
 					{
-						sourceAccount.TransferTo(playerAccount, (Money)cut, options, transactionMessage, journalMessage);
-						remainder -= cut;
-						Debug.Print($"Paid {cut} tax to player {playerName}");
+						//skip the transfer if the source account belongs to a tax collector 
+						if(sourceAccount==playerAccount)
+						{
+							remainder -= cut;//still take cut so it doesn't go to world account.
+							Debug.Print($"Skipping transfer, account belongs to tax collector {playerName}");
+						}
+						else
+						{
+							sourceAccount.TransferTo(playerAccount, (Money)cut, options, transactionMessage, journalMessage);
+							remainder -= cut;
+							Debug.Print($"Paid {cut} tax to player {playerName}");
+						}
 					}
 				}
 			}
 			
 			//pay balance to world account
 			sourceAccount.TransferTo( SEconomyPlugin.Instance.WorldAccount, (Money)remainder, options, transactionMessage, journalMessage);
-			Debug.Print($"Paid {remainder} tax to world account.");
+			Debug.Print($"Paid remaining {remainder} tax to world account.");
 		}
 
 		public void TaxCmd(CommandArgs args)
@@ -123,12 +130,14 @@ namespace Housing
 
 				if (subcommand.Equals("add", StringComparison.OrdinalIgnoreCase))
 				{
-					TaxCollectorPlayerNames.Add(name);
+					//TaxCollectorPlayerNames.Add(name);
+					housingPlugin._database.AddTaxCollector(name);
 					return;
 				}
 				else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
 				{
-					TaxCollectorPlayerNames.Remove(name);
+					//TaxCollectorPlayerNames.Remove(name);
+					housingPlugin._database.RemoveTaxCollector(name);
 					return;
 				}
 			}

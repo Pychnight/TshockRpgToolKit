@@ -29,7 +29,7 @@ namespace Housing
         private static readonly string SqlitePath = Path.Combine("housing", "db.sqlite");
 
         private DbConnection _connection;
-        private DatabaseManager _database;
+        internal DatabaseManager _database;
 		private TaxService taxService;
 
         public HousingPlugin(Main game) : base(game)
@@ -52,10 +52,16 @@ namespace Housing
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _connection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
-            _database = new DatabaseManager(_connection);
+			
+			taxService = new TaxService(this);
+			if (Config.Instance != null)
+			{
+				taxService.IsEnabled = Config.Instance.EnableTaxService;
+			}
 
-			taxService = new TaxService(Config.Instance);
+			_connection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
+            _database = new DatabaseManager(_connection);
+			_database.TaxService = taxService;//for db integration, we do this.
 			
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
@@ -1129,7 +1135,13 @@ namespace Housing
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _database.Load();
+
+			if(Config.Instance != null)
+			{
+				taxService.IsEnabled = Config.Instance.EnableTaxService;
+			}
+
+			_database.Load();
             args.Player.SendSuccessMessage("[Housing] Reloaded config!");
         }
 

@@ -99,10 +99,10 @@ namespace Housing
 		[JsonProperty(Order = 13)]
 		public bool EnableTaxService { get; private set; } = false;
 
-		/// <summary>
-		/// Gets the names of players who are tax collectors.
-		/// </summary>
-		[JsonProperty(Order = 14)]
-		public List<string> TaxCollectorPlayerNames { get; private set; } = new List<string>();
+		///// <summary>
+		///// Gets the names of players who are tax collectors.
+		///// </summary>
+		//[JsonProperty(Order = 14)]
+		//public List<string> TaxCollectorPlayerNames { get; private set; } = new List<string>();
 	}
 }
