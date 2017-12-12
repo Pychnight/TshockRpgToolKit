@@ -30,6 +30,7 @@ namespace Housing
 
         private DbConnection _connection;
         private DatabaseManager _database;
+		private TaxService taxService;
 
         public HousingPlugin(Main game) : base(game)
         {
@@ -53,6 +54,8 @@ namespace Housing
             }
             _connection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
             _database = new DatabaseManager(_connection);
+
+			taxService = new TaxService();
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
@@ -222,9 +225,11 @@ namespace Housing
                     }
                     if (salesTax > 0)
                     {
-                        account.TransferTo(
-                            SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-                            "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
+						//account.TransferTo(
+						//    SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
+						//    "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
+
+						taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
                     }
 
                     _database.Remove(house);
@@ -886,9 +891,11 @@ namespace Housing
                     var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
                     var taxCost = (long)Math.Round(house.Area * taxRate) + house.Debt;
                     var payment = (Money)Math.Min(account.Balance, taxCost);
-                    account.TransferTo(
-                        SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
-                        $"Taxed for the {house} house");
+					//account.TransferTo(
+					//    SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
+					//    $"Taxed for the {house} house");
+
+					taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for the {house} house");
 
                     var player = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
