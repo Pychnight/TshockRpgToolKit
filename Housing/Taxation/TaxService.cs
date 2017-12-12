@@ -23,16 +23,26 @@ namespace Housing
 		/// </summary>
 		public HashSet<string> TaxCollectorPlayerNames { get; private set; }
 
-		public TaxService()
+		public TaxService(Config config)
 		{
 			TaxCollectorPlayerNames = new HashSet<string>();
 
-			TaxCollectorPlayerNames.Add("Tim");
+			if(config!=null)
+			{
+				IsEnabled = config.EnableTaxService;
+
+				if(config.TaxCollectorPlayerNames!=null)
+				{
+					config.TaxCollectorPlayerNames.ForEach(n => TaxCollectorPlayerNames.Add(n));
+				}
+			}
+			else
+			{
+				IsEnabled = false;
+			}
 			
 			//Instance = this;
-
-			IsEnabled = true;
-
+			
 			Debug.Print("Created TaxService.");
 		}
 

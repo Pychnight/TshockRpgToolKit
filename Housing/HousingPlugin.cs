@@ -55,8 +55,8 @@ namespace Housing
             _connection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
             _database = new DatabaseManager(_connection);
 
-			taxService = new TaxService();
-
+			taxService = new TaxService(Config.Instance);
+			
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);

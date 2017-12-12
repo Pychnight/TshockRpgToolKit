@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Housing
 {
@@ -91,5 +92,17 @@ namespace Housing
         /// </summary>
         [JsonProperty(Order = 12)]
         public int MaxShopSize { get; private set; } = 10000;
-    }
+		
+		/// <summary>
+		/// Gets whether the Taxation service is enabled.
+		/// </summary>
+		[JsonProperty(Order = 13)]
+		public bool EnableTaxService { get; private set; } = false;
+
+		/// <summary>
+		/// Gets the names of players who are tax collectors.
+		/// </summary>
+		[JsonProperty(Order = 14)]
+		public List<string> TaxCollectorPlayerNames { get; private set; } = new List<string>();
+	}
 }
