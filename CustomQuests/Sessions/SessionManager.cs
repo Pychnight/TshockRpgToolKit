@@ -5,6 +5,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TShockAPI;
+using TerrariaApi.Server;
+using NLua;
 
 namespace CustomQuests.Sessions
 {
@@ -13,18 +15,25 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class SessionManager : IDisposable
     {
-        private readonly Config _config;
+		private readonly Config _config;
         private readonly Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
+        internal readonly SessionRepository sessionRepository;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SessionManager" /> class with the specified configuration.
         /// </summary>
         /// <param name="config">The configuration, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="config" /> is <c>null</c>.</exception>
-        public SessionManager([NotNull] Config config)
+        public SessionManager([NotNull] Config config, TerrariaPlugin plugin)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
-        }
+
+#if SQLITE_SESSION_REPOSITORY
+			sessionRepository = new SqliteSessionRepository(Path.Combine("quests","sessions.db"),plugin);
+#else
+			sessionRepository = new FileSessionRepository(Path.Combine("quests","sessions"),plugin);
+#endif
+		}
 
         /// <summary>
         ///     Disposes the session manager.
@@ -34,11 +43,15 @@ namespace CustomQuests.Sessions
             foreach (var username in _sessions.Keys.ToList())
             {
                 var session = _sessions[username];
-                var path = Path.Combine("quests", "sessions", $"{username}.json");
-                File.WriteAllText(path, JsonConvert.SerializeObject(session, Formatting.Indented));
+				//var path = Path.Combine("quests", "sessions", $"{username}.json");
+				//File.WriteAllText(path, JsonConvert.SerializeObject(session, Formatting.Indented));
+				sessionRepository.Save(session.SessionInfo, username);
+
                 session.Dispose();
                 _sessions.Remove(username);
             }
+
+			sessionRepository.Dispose();
         }
 
         /// <summary>
@@ -58,12 +71,15 @@ namespace CustomQuests.Sessions
             var username = player.User?.Name ?? player.Name;
             if (!_sessions.TryGetValue(username, out var session))
             {
-                var path = Path.Combine("quests", "sessions", $"{username}.json");
-                SessionInfo sessionInfo = null;
-                if (File.Exists(path))
-                {
-                    sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(File.ReadAllText(path));
-                }
+				//var path = Path.Combine("quests", "sessions", $"{username}.json");
+				//SessionInfo sessionInfo = null;
+				//if (File.Exists(path))
+				//{
+				//    sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(File.ReadAllText(path));
+				//}
+
+				var sessionInfo = sessionRepository.Load(username);
+
                 if (sessionInfo == null)
                 {
                     sessionInfo = new SessionInfo();
@@ -110,11 +126,42 @@ namespace CustomQuests.Sessions
             var username = player.User?.Name ?? player.Name;
             if (_sessions.TryGetValue(username, out var session))
             {
-                var path = Path.Combine("quests", "sessions", $"{username}.json");
-                File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+                //var path = Path.Combine("quests", "sessions", $"{username}.json");
+                //File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+
+				sessionRepository.Save(session.SessionInfo, username);
+
                 session.Dispose();
                 _sessions.Remove(username);
             }
         }
+
+		public void OnReload()
+		{
+			foreach(var session in _sessions.Values)
+			{
+				//var questName = s.CurrentQuestName;
+				var player = session._player;
+
+				var quest = session.CurrentQuest;
+				if (quest != null)
+				{
+					session.IsAborting = true;
+					var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+					try
+					{
+						onAbortFunction?.Call();
+					}
+					catch (Exception ex)
+					{
+						TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+						TShock.Log.ConsoleInfo(ex.ToString());
+					}
+					session.HasAborted = true;
+
+					player.SendSuccessMessage("Aborted quest.");
+				}
+			}
+		}
     }
 }

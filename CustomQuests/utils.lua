@@ -158,8 +158,8 @@ function QuickInArea(x, y, x2, y2, isEveryone, callback)
 end
 
 -- Adds a kill NPCs trigger.
-function QuickKillNpcs(name, amount, callback)
-	local trigger = KillNpcs(party, name, amount)
+function QuickKillNpcs(names, amount, callback)
+	local trigger = KillNpcs(party, names, amount)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end

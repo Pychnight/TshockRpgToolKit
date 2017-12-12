@@ -11,13 +11,15 @@
     <AssemblyName>CustomQuests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+	<TShockVersion>4.3.24</TShockVersion>
+	<TShockPluginsPath>bin\tshock_$(TShockVersion)\ServerPlugins</TShockPluginsPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>$(TShockPluginsPath)\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;SQLITE_SESSION_REPOSITORY</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
@@ -25,8 +27,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>$(TShockPluginsPath)\</OutputPath>
+    <DefineConstants>TRACE;SQLITE_SESSION_REPOSITORY</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
@@ -41,14 +43,20 @@
     <Reference Include="KeraLua, Version=1.3.2.0, Culture=neutral, PublicKeyToken=04d04586786c6f34, processorArchitecture=MSIL">
       <HintPath>..\packages\NLua.1.3.2.1\lib\net45\KeraLua.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Data.Sqlite">
+      <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NLua, Version=1.3.2.0, Culture=neutral, PublicKeyToken=8df2ab518030ea95, processorArchitecture=MSIL">
       <HintPath>..\packages\NLua.1.3.2.1\lib\net45\NLua.dll</HintPath>
     </Reference>
     <Reference Include="OTAPI">
       <HintPath>..\refs\OTAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -59,9 +67,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="TerrariaServer">
       <HintPath>..\refs\TerrariaServer.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="TShockAPI">
       <HintPath>..\refs\TShockAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -72,10 +82,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quests\Quest.cs" />
     <Compile Include="Quests\QuestInfo.cs" />
+    <Compile Include="Sessions\SavePoint.cs" />
     <Compile Include="Quests\QuestThread.cs" />
+    <Compile Include="Sessions\FileSessionRepository.cs" />
     <Compile Include="Sessions\Session.cs" />
     <Compile Include="Sessions\SessionInfo.cs" />
     <Compile Include="Sessions\SessionManager.cs" />
+    <Compile Include="Sessions\SessionRepository.cs" />
+    <Compile Include="Sessions\SqliteSessionRepository.cs" />
     <Compile Include="Triggers\All.cs" />
     <Compile Include="Triggers\Any.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
@@ -95,7 +109,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-xcopy /s /y "C:\Users\kevzhao\Dropbox (Personal)\Projects\CustomQuests\packages\NLua.1.3.2.1\lib\native\*.*" "$(TargetDir)"
-xcopy /s /y "C:\Users\kevzhao\Documents\Projects\CustomQuests\packages\NLua.1.3.2.1\lib\native\*.*" "$(TargetDir)"</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

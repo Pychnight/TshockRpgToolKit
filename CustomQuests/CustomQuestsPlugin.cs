@@ -13,6 +13,7 @@ using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using System.Diagnostics;
 
 namespace CustomQuests
 {
@@ -92,15 +93,21 @@ namespace CustomQuests
         /// </summary>
         public override void Initialize()
         {
-            Directory.CreateDirectory(Path.Combine("quests", "sessions"));
-            if (File.Exists(ConfigPath))
+            ServerApi.LogWriter.PluginWriteLine(this, "Initializing", TraceLevel.Info);
+			
+			Directory.CreateDirectory("quests");
+			if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _sessionManager = new SessionManager(_config);
+            _sessionManager = new SessionManager(_config, this);
             if (File.Exists(QuestInfosPath))
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
+
+				ServerApi.LogWriter.PluginWriteLine(this, "Found the following quest infos:", TraceLevel.Info);
+				foreach(var qi in _questInfos)
+					ServerApi.LogWriter.PluginWriteLine(this,$"Quest: {qi.FriendlyName}",TraceLevel.Info);
             }
 
             GeneralHooks.ReloadEvent += OnReload;
@@ -115,7 +122,7 @@ namespace CustomQuests
             Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
             Commands.ChatCommands.Add(new Command("customquests.party", Party, "party"));
             Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
-            Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
+			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
         }
 
         /// <summary>
@@ -221,6 +228,8 @@ namespace CustomQuests
 
         private void OnReload(ReloadEventArgs args)
         {
+			_sessionManager.OnReload();//abort in play quests
+			
             if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
@@ -278,8 +287,9 @@ namespace CustomQuests
                 {
                     var username = player.User?.Name ?? player.Name;
                     var session = GetSession(player);
-                    var path = Path.Combine("quests", "sessions", $"{username}.json");
-                    File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+					//var path = Path.Combine("quests", "sessions", $"{username}.json");
+					//File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
+					_sessionManager.sessionRepository.Save(session.SessionInfo, username);
                 }
             }
         }
@@ -583,12 +593,17 @@ namespace CustomQuests
 
                 QuestUnlock(args);
             }
+			else if(subcommand.Equals("status",StringComparison.OrdinalIgnoreCase))
+			{
+				QuestStatus(args);
+			}
             else
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
-                if (isAdmin)
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest status.");
+				if (isAdmin)
                 {
                     player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
                     player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
@@ -937,6 +952,29 @@ namespace CustomQuests
                 player.SendSuccessMessage($"Unlocked quest '{questInfo.Name}' for {player2.Name}.");
             }
         }
+
+		private void QuestStatus(CommandArgs args)
+		{
+			var player = args.Player;
+			var session = GetSession(player);
+
+			if(session.CurrentQuest==null )
+			{
+				player.SendErrorMessage("You are not currently on a quest!");
+			}
+			else
+			{
+				var isPartyLeader = player == session.Party.Leader;
+				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
+				//var questStatus = session.CurrentQuest.QuestStatus ?? "";
+				//var color		= session.CurrentQuest.QuestStatusColor;
+				var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.SessionInfo.CurrentQuestInfo.Name, isPartyLeader);
+				var questStatus = savePoint.QuestStatus;
+				var color = savePoint.QuestStatusColor;
+
+				player.SendMessage($"[Quest {questName}] {questStatus}", color);
+			}
+		}
 
         private void TileInfo(CommandArgs args)
         {

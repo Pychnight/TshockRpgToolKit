@@ -462,12 +462,58 @@ namespace CustomQuests
             }
         }
 
-        /// <summary>
-        ///     Teleports the party to the specified coordinates.
-        /// </summary>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        [UsedImplicitly]
+		/// <summary>
+		///     Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="questStatus" /> is <c>null</c>.</exception>
+		[UsedImplicitly]
+		public void SetQuestStatus([NotNull] string questStatus, Color color )
+		{
+			if (questStatus == null)
+			{
+				throw new ArgumentNullException(nameof(questStatus));
+			}
+			
+			foreach(var player in _players)
+			{
+				var session = CustomQuestsPlugin.Instance.GetSession(player);
+
+				if(session!=null && session.CurrentQuest!=null)
+				{
+					//session.CurrentQuest.QuestStatus = questStatus;
+					//session.CurrentQuest.QuestStatusColor = color;
+
+					var isPartyLeader = player == session.Party.Leader;
+					var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.CurrentQuestName, isPartyLeader);
+
+					savePoint.QuestStatus = questStatus;
+					savePoint.QuestStatusColor = color;
+					
+					player.SendMessage(questStatus, color);
+				}
+			}
+		}
+		
+		/// <summary>
+		///		Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		/// <param name="r">The red component.</param>
+		/// <param name="g">The green component.</param>
+		/// <param name="b">The blue component.</param>
+		public void SetQuestStatus([NotNull] string questStatus, byte r, byte g, byte b)
+		{
+			var color = new Color(r, g, b);
+			SetQuestStatus(questStatus, color);
+		}
+
+		/// <summary>
+		///     Teleports the party to the specified coordinates.
+		/// </summary>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		[UsedImplicitly]
         public void Teleport(int x, int y)
         {
             foreach (var player in _players)

@@ -4,6 +4,8 @@ using System.Linq;
 using CustomQuests.Triggers;
 using JetBrains.Annotations;
 using NLua;
+using Microsoft.Xna.Framework;
+using System.Diagnostics;
 
 namespace CustomQuests.Quests
 {
@@ -25,6 +27,8 @@ namespace CustomQuests.Quests
         public Quest([NotNull] QuestInfo questInfo)
         {
             QuestInfo = questInfo ?? throw new ArgumentNullException(nameof(questInfo));
+
+			QuestStatusColor = Color.White;
         }
 
         /// <summary>
@@ -42,6 +46,13 @@ namespace CustomQuests.Quests
         /// </summary>
         [NotNull]
         public QuestInfo QuestInfo { get; }
+
+		/// <summary>
+		///  Gets or sets a friendly string informing players of their progress within a quest.
+		/// </summary>
+		public string QuestStatus { get; set; }
+
+		public Color QuestStatusColor { get; set; } // = Color.White;
 
         /// <summary>
         ///     Disposes the quest.
@@ -79,6 +90,7 @@ namespace CustomQuests.Quests
                 _threads[threadName] = thread;
             }
             thread.AddTrigger(trigger, prioritized);
+			thread.Name = threadName;
         }
 
         /// <summary>
@@ -130,7 +142,8 @@ namespace CustomQuests.Quests
             var threads = _threads.Values.ToList();
             foreach (var thread in threads)
             {
-                thread.Update();
+				//Debug.Print($"Updating thread {thread.Name}.");
+				thread.Update();
             }
         }
     }

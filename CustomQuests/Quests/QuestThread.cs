@@ -12,6 +12,11 @@ namespace CustomQuests.Quests
     {
         private readonly List<Trigger> _triggers = new List<Trigger>();
 
+		/// <summary>
+		/// Used for debugging. 
+		/// </summary>
+		public string Name { get; set; }
+
         /// <summary>
         ///     Disposes the quest thread.
         /// </summary>
