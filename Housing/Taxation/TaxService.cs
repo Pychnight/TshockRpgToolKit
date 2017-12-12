@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 using Wolfje.Plugins.SEconomy;
 using Wolfje.Plugins.SEconomy.Journal;
 
@@ -12,16 +13,22 @@ namespace Housing
 	public class TaxService
 	{
 		//public static Taxman Instance { get; private set; }
+		/// <summary>
+		/// Gets or sets whether tax collectors will recieve tax payments.
+		/// </summary>
 		public bool IsEnabled { get; set; }
-		public HashSet<string> PlayerNames { get; private set; }
+
+		/// <summary>
+		/// Gets the list of tax collector player names.
+		/// </summary>
+		public HashSet<string> TaxCollectorPlayerNames { get; private set; }
 
 		public TaxService()
 		{
-			PlayerNames = new HashSet<string>()
-			{
-				"Tim"
-			};
+			TaxCollectorPlayerNames = new HashSet<string>();
 
+			TaxCollectorPlayerNames.Add("Tim");
+			
 			//Instance = this;
 
 			IsEnabled = true;
@@ -44,10 +51,10 @@ namespace Housing
 
 			if(IsEnabled)
 			{
-				var cut = (double)payment / PlayerNames.Count > 0 ? (double)PlayerNames.Count : 1d;
+				var cut = (double)payment / TaxCollectorPlayerNames.Count > 0 ? (double)TaxCollectorPlayerNames.Count : 1d;
 				
 				//split revenue between the taxmen.
-				foreach(var playerName in PlayerNames)
+				foreach(var playerName in TaxCollectorPlayerNames)
 				{
 					var playerAccount = SEconomyPlugin.Instance.GetPlayerBankAccount(playerName);
 
@@ -63,6 +70,75 @@ namespace Housing
 			//pay balance to world account
 			sourceAccount.TransferTo( SEconomyPlugin.Instance.WorldAccount, (Money)remainder, options, transactionMessage, journalMessage);
 			Debug.Print($"Paid {remainder} tax to world account.");
+		}
+
+		public void TaxCmd(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			var subcommand = parameters.Count > 0 ? parameters[0] : "";
+
+			if (subcommand.Equals("list", StringComparison.OrdinalIgnoreCase))
+			{
+				player.SendInfoMessage($"There are {TaxCollectorPlayerNames.Count} registered tax collectors.");
+
+				foreach (var name in TaxCollectorPlayerNames)
+				{
+					player.SendInfoMessage(name);
+				}
+
+				return;
+			}
+			else if(subcommand.Equals("enable", StringComparison.OrdinalIgnoreCase))
+			{
+				player.SendInfoMessage($"Tax collectors will now receive taxes.");
+				IsEnabled = true;
+				return;
+			}
+			else if (subcommand.Equals("disable", StringComparison.OrdinalIgnoreCase))
+			{
+				player.SendInfoMessage($"Tax collectors will no longer receive taxes.");
+				IsEnabled = false;
+				return;
+			}
+
+			if (parameters.Count == 2)
+			{
+				var name = parameters[1];
+
+				if (subcommand.Equals("add", StringComparison.OrdinalIgnoreCase))
+				{
+					TaxCollectorPlayerNames.Add(name);
+					return;
+				}
+				else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
+				{
+					TaxCollectorPlayerNames.Remove(name);
+					return;
+				}
+			}
+
+			ShowCommandSyntax(player);
+		}
+
+		private void ShowCommandSyntax(TSPlayer player)
+		{
+			if (player == null)
+			{
+				//is there a better way to report to console??
+				Console.WriteLine($"Syntax: {Commands.Specifier}tax list");
+				Console.WriteLine($"Syntax: {Commands.Specifier}tax enable");
+				Console.WriteLine($"Syntax: {Commands.Specifier}tax disable");
+				Console.WriteLine($"Syntax: {Commands.Specifier}tax add <player-name>");
+				Console.WriteLine($"Syntax: {Commands.Specifier}tax remove <player-name>");
+				return;
+			}
+			
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax list");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax enable");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax disable");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax add <player-name>");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax remove <player-name>");
 		}
 	}
 }

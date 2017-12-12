@@ -65,7 +65,8 @@ namespace Housing
 
             Commands.ChatCommands.Add(new Command("housing.house", HouseCmd, "house"));
             Commands.ChatCommands.Add(new Command("housing.itemshop", ItemShop, "itemshop"));
-        }
+			Commands.ChatCommands.Add(new Command("housing.tax", taxService.TaxCmd, "tax"));
+		}
 
         protected override void Dispose(bool disposing)
         {
