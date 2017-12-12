@@ -900,8 +900,14 @@ namespace Housing
                     {
                         if (house.Debt > Config.Instance.MaxDebtAllowed)
                         {
-                            _database.Remove(house);
-                            continue;
+							_database.Remove(house);
+
+							if (player != null)
+							{
+								player.SendInfoMessage($"Your house '{house.Name}' has been reclaimed due to excessive debt!");
+							}
+
+							continue;
                         }
                     }
 
