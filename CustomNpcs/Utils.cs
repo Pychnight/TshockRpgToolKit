@@ -198,7 +198,7 @@ namespace CustomNpcs
             try
             {
                 action();
-            }
+			}
             catch (LuaException ex)
             {
                 TShock.Log.ConsoleError($"[CustomNpcs] A Lua error occurred from {executor}:");
@@ -208,6 +208,15 @@ namespace CustomNpcs
                     TShock.Log.ConsoleError(ex.InnerException.ToString());
                 }
             }
+			catch(Exception ex)
+			{
+				TShock.Log.ConsoleError($"[CustomNpcs] An error occurred in managed code, while interacting with Lua code ( {executor} ):");
+				TShock.Log.ConsoleError(ex.ToString());
+				if (ex.InnerException != null)
+				{
+					TShock.Log.ConsoleError(ex.InnerException.ToString());
+				}
+			}
         }
 
         /// <summary>
