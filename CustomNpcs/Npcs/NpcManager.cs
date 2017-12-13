@@ -446,8 +446,19 @@ namespace CustomNpcs.Npcs
                     if (onCheckSpawn != null)
                     {
                         // First cast to a double then an integer because NLua will return a double.
-                        Utils.TryExecuteLua(() => weight = (int)(double)onCheckSpawn.Call(player, tileX, tileY)[0],
-                            definition.Name);
+                        Utils.TryExecuteLua(() => {
+													//we must check in case of script not returning a number
+													var results = onCheckSpawn.Call(player, tileX, tileY);
+													if(results!=null && results.Length==1 && results[0] is double)
+													{
+														weight = (int)(double)results[0];
+													}
+													else
+													{
+														Console.WriteLine($"Error: NPC '{definition.Name}' OnCheckSpawn() should return a number.");
+													}
+												},
+												definition.Name);
                     }
                     weights[definition] = weight;
                 }
