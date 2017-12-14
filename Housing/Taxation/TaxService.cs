@@ -99,7 +99,7 @@ namespace Housing
 			var parameters = args.Parameters;
 			var player = args.Player;
 			var subcommand = parameters.Count > 0 ? parameters[0] : "";
-
+			
 			if (subcommand.Equals("list", StringComparison.OrdinalIgnoreCase))
 			{
 				player.SendInfoMessage($"There are {TaxCollectorPlayerNames.Count} registered tax collectors.");

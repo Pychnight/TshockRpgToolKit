@@ -384,6 +384,7 @@ namespace Housing
                     return;
                 }
 
+				var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
                 var point1 = player.TempPoints[0];
                 var point2 = player.TempPoints[1];
                 var inputHouseName = parameters[1];
@@ -391,21 +392,21 @@ namespace Housing
                 var y = Math.Min(point1.Y, point2.Y);
                 var x2 = Math.Max(point1.X, point2.X);
                 var y2 = Math.Max(point1.Y, point2.Y);
-                if (_database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= Config.Instance.MaxHouses)
+                if (_database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= playerGroupConfig.MaxHouses)
                 {
                     player.SendErrorMessage("You have too many houses.");
                     return;
                 }
 
                 var area = (x2 - x + 1) * (y2 - y + 1);
-                if (area < Config.Instance.MinHouseSize)
-                {
-                    player.SendErrorMessage("Your house is too small.");
+                if (area < playerGroupConfig.MinHouseSize)
+				{
+                    player.SendErrorMessage($"Your house is too small.");
                     return;
                 }
-                if (area > Config.Instance.MaxHouseSize)
+                if (area > playerGroupConfig.MaxHouseSize)
                 {
-                    player.SendErrorMessage("Your house is too large.");
+                    player.SendErrorMessage($"Your house is too large.");
                     return;
                 }
 
@@ -713,7 +714,8 @@ namespace Housing
                     return;
                 }
 
-                var point1 = player.TempPoints[0];
+				var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
+				var point1 = player.TempPoints[0];
                 var point2 = player.TempPoints[1];
                 var inputShopName = parameters[1];
                 var x = Math.Min(point1.X, point2.X);
@@ -721,12 +723,12 @@ namespace Housing
                 var x2 = Math.Max(point1.X, point2.X);
                 var y2 = Math.Max(point1.Y, point2.Y);
                 var area = (x2 - x + 1) * (y2 - y + 1);
-                if (area < Config.Instance.MinShopSize)
+                if (area < playerGroupConfig.MinShopSize)
                 {
                     player.SendErrorMessage("Your shop is too small.");
                     return;
                 }
-                if (area > Config.Instance.MaxShopSize)
+                if (area > playerGroupConfig.MaxShopSize)
                 {
                     player.SendErrorMessage("Your shop is too large.");
                     return;
