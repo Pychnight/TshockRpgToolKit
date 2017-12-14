@@ -202,7 +202,7 @@ namespace Housing
                 var purchaseCost = house.Price;
                 var salesTax = (Money)Math.Round(Config.Instance.TaxRate * purchaseCost);
                 player.SendInfoMessage(
-                    $"Purchasing {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house will cost " +
+                    $"Purchasing {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] will cost " +
                     $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                 player.AddResponse("yes", args2 =>
@@ -218,7 +218,7 @@ namespace Housing
                     }
                     if (!house.ForSale)
                     {
-                        player.SendErrorMessage("While waiting, the house was purchased.");
+                        player.SendErrorMessage("Unfortunately, the house was purchased while waiting.");
                         return;
                     }
                     house.ForSale = false;
@@ -228,7 +228,7 @@ namespace Housing
                         var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(house.OwnerName);
                         account.TransferTo(
                             account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-                            "", $"Purchased {house.OwnerName}'s {house.Name} house");
+                            "", $"Purchased {house.OwnerName}'s house {house.Name}");
                     }
                     if (salesTax > 0)
                     {
@@ -236,20 +236,20 @@ namespace Housing
 						//    SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
 						//    "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
 
-						taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
+						taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
                     }
 
                     _database.Remove(house);
                     _database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
                                        house.Rectangle.Right - 1, house.Rectangle.Bottom - 1);
                     player.SendInfoMessage(
-                        $"Purchased {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
+                        $"Purchased {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
                         $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
 
                     var player2 = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
                     player2?.SendInfoMessage(
-                        $"{player.Name} purchased your [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
+                        $"{player.Name} purchased your house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
                         $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
                 });
                 player.AddResponse("no", args2 =>
@@ -286,8 +286,8 @@ namespace Housing
                 _database.Update(house);
                 player.SendSuccessMessage(
                     $"Disallowed {inputUsername} from modifying " +
-                    $"{(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
-                    $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                    $"{(house.OwnerName == player.User?.Name ? "your house" : house.OwnerName + "'s house")} " +
+                    $"[c/{Color.MediumPurple.Hex3()}:{house}].");
             }
             else if (subcommand.Equals("info", StringComparison.OrdinalIgnoreCase))
             {
@@ -394,19 +394,19 @@ namespace Housing
                 var y2 = Math.Max(point1.Y, point2.Y);
                 if (_database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= playerGroupConfig.MaxHouses)
                 {
-                    player.SendErrorMessage("You have too many houses.");
+                    player.SendErrorMessage($"You have too many houses. Maximum allowed is {playerGroupConfig.MaxHouses}.");
                     return;
                 }
 
                 var area = (x2 - x + 1) * (y2 - y + 1);
                 if (area < playerGroupConfig.MinHouseSize)
 				{
-                    player.SendErrorMessage($"Your house is too small.");
+                    player.SendErrorMessage($"Your house is too small. Minimum area is {playerGroupConfig.MinHouseSize}.");
                     return;
                 }
                 if (area > playerGroupConfig.MaxHouseSize)
                 {
-                    player.SendErrorMessage($"Your house is too large.");
+                    player.SendErrorMessage($"Your house is too large. Maximum area is {playerGroupConfig.MaxHouseSize}.");
                     return;
                 }
 
@@ -447,7 +447,7 @@ namespace Housing
                             SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
                             "", $"Purchased the {inputHouseName} house");
                         var house = _database.AddHouse(player, inputHouseName, x, y, x2, y2);
-                        player.SendSuccessMessage($"Purchased the [c/{Color.MediumPurple.Hex3()}:{house}] house for " +
+                        player.SendSuccessMessage($"Purchased house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
                                                   $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}].");
                     });
                     player.AddResponse("no", args2 =>
@@ -459,7 +459,7 @@ namespace Housing
                 else
                 {
                     var house = _database.AddHouse(player, inputHouseName, x, y, x2, y2);
-                    player.SendSuccessMessage($"Added the [c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                    player.SendSuccessMessage($"Added house [c/{Color.MediumPurple.Hex3()}:{house}].");
                 }
             }
 			else
@@ -598,15 +598,15 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't close {shop.OwnerName}'s [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                        $"You can't close {shop.OwnerName}'s shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
                     return;
                 }
 
                 shop.IsOpen = false;
                 _database.Update(shop);
                 player.SendSuccessMessage(
-                    $"Closed {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                    $"Closed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
+                    $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
             }
             else if (subcommand.Equals("info", StringComparison.OrdinalIgnoreCase))
             {
@@ -644,15 +644,15 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't open {shop.OwnerName}'s [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                        $"You can't open {shop.OwnerName}'s shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
                     return;
                 }
 
                 shop.IsOpen = true;
                 _database.Update(shop);
                 player.SendSuccessMessage(
-                    $"Opened {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                    $"Opened {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
+                    $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
             }
             else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
             {
@@ -667,7 +667,7 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't remove {shop.OwnerName}'s [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                        $"You can't remove {shop.OwnerName}'s shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
                     return;
                 }
 
@@ -690,8 +690,8 @@ namespace Housing
 
                 _database.Remove(shop);
                 player.SendSuccessMessage(
-                    $"Removed {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                    $"Removed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
+                    $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
             }
             else if (subcommand.Equals("set", StringComparison.OrdinalIgnoreCase))
             {
@@ -725,12 +725,12 @@ namespace Housing
                 var area = (x2 - x + 1) * (y2 - y + 1);
                 if (area < playerGroupConfig.MinShopSize)
                 {
-                    player.SendErrorMessage("Your shop is too small.");
+                    player.SendErrorMessage($"Your shop is too small. Minimum area is {playerGroupConfig.MinShopSize}.");
                     return;
                 }
                 if (area > playerGroupConfig.MaxShopSize)
                 {
-                    player.SendErrorMessage("Your shop is too large.");
+                    player.SendErrorMessage($"Your shop is too large.Maximum area is {playerGroupConfig.MaxShopSize}.");
                     return;
                 }
 
@@ -858,8 +858,8 @@ namespace Housing
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} entered {house.OwnerName}'s {house} house");
                     player.SendInfoMessage(
-                        $"You entered {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
-                        $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                        $"You entered {(house.OwnerName == player.User?.Name ? "your house" : house.OwnerName + "'s house")} " +
+                        $"[c/{Color.MediumPurple.Hex3()}:{house}].");
                     if (house.ForSale && house.OwnerName != player.User?.Name)
                     {
                         player.SendInfoMessage(
@@ -871,8 +871,8 @@ namespace Housing
                     Debug.WriteLine(
                         $"DEBUG: {player.Name} left {session.CurrentHouse.OwnerName}'s {session.CurrentHouse} house");
                     player.SendInfoMessage(
-                        $"You left {(session.CurrentHouse.OwnerName == player.User?.Name ? "your" : session.CurrentHouse.OwnerName + "'s")} " +
-                        $"[c/{Color.MediumPurple.Hex3()}:{session.CurrentHouse}] house.");
+                        $"You left {(session.CurrentHouse.OwnerName == player.User?.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
+                        $"[c/{Color.MediumPurple.Hex3()}:{session.CurrentHouse}].");
                 }
                 session.CurrentHouse = house;
 
@@ -904,12 +904,12 @@ namespace Housing
 					//    SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
 					//    $"Taxed for the {house} house");
 
-					taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for the {house} house");
+					taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for house {house}");
 
                     var player = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
-                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your " +
-                                            $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
+                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your house " +
+                                            $"[c/{Color.MediumPurple.Hex3()}:{house}].");
 
                     house.Debt = taxCost - payment;
                     if (payment < taxCost)
@@ -1088,7 +1088,7 @@ namespace Housing
                             var shop = _database.AddShop(player, session.NextShopName, session.NextShopX,
                                                          session.NextShopY, session.NextShopX2, session.NextShopY2, x,
                                                          y);
-                            player.SendSuccessMessage($"Added the [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                            player.SendSuccessMessage($"Added the shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
                             player.SendInfoMessage(
                                 "Use /itemshop open and /itemshop close to open and close your shop.");
                             session.NextShopHouse = null;
