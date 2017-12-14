@@ -10,6 +10,7 @@ using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using System.Diagnostics;
 
 namespace CustomNpcs.Npcs
 {
@@ -60,7 +61,8 @@ namespace CustomNpcs.Npcs
             ServerApi.Hooks.NpcSetDefaultsInt.Register(_plugin, OnNpcSetDefaults);
             ServerApi.Hooks.NpcSpawn.Register(_plugin, OnNpcSpawn);
             ServerApi.Hooks.NpcStrike.Register(_plugin, OnNpcStrike);
-        }
+			//ServerApi.Hooks.NpcTransform.Register(_plugin, OnNpcTransform);
+		}
 
         /// <summary>
         ///     Gets the NPC manager instance.
@@ -89,7 +91,8 @@ namespace CustomNpcs.Npcs
             ServerApi.Hooks.NpcSetDefaultsInt.Deregister(_plugin, OnNpcSetDefaults);
             ServerApi.Hooks.NpcSpawn.Deregister(_plugin, OnNpcSpawn);
             ServerApi.Hooks.NpcStrike.Deregister(_plugin, OnNpcStrike);
-        }
+			//ServerApi.Hooks.NpcTransform.Deregister(_plugin, OnNpcTransform);
+		}
 
         /// <summary>
         ///     Finds the definition with the specified name.
@@ -265,7 +268,7 @@ namespace CustomNpcs.Npcs
                 return;
             }
 
-            lock (_lock)
+			lock (_lock)
             {
                 var definition = customNpc.Definition;
                 var onAiUpdate = definition.OnAiUpdate;
@@ -339,12 +342,14 @@ namespace CustomNpcs.Npcs
 
         private void OnNpcSpawn(NpcSpawnEventArgs args)
         {
-            if (args.Handled)
+			if (args.Handled)
             {
                 return;
             }
 
-            var npcId = args.NpcId;
+			//Debug.Print($"OnNpcSpawn!! NpcId: {args.NpcId}");
+
+			var npcId = args.NpcId;
             // Set npc.whoAmI. This is normally set only when the NPC is first updated; in this case, this needs to be
             // done now as we make several assumptions regarding it.
             Main.npc[npcId].whoAmI = npcId;
@@ -388,6 +393,51 @@ namespace CustomNpcs.Npcs
                 }
             }
         }
+
+		private void OnNpcTransform(NpcTransformationEventArgs args)
+		{
+			Debug.Print($"OnNpcTransform!! NpcId: {args.NpcId}");
+
+			if (args.Handled)
+			{
+				return;
+			}
+
+			var npc = Main.npc[args.NpcId];
+			var customNpc = GetCustomNpc(npc);
+			if (customNpc == null)
+			{
+				return;
+			}
+
+			var baseOverrideDefinition = customNpc.Definition.GetBaseOverrideDefinition();
+
+			//npc._givenName = baseOverrideDefinition.Name ?? npc._givenName;
+
+			//npc._givenName = "Transformed NPC Yo!";
+
+			customNpc.Npc.GivenName = baseOverrideDefinition.Name;
+
+			//customNpc.
+			Debug.Print($"givenName={npc.GivenOrTypeName}");
+			Debug.Print($"nameOver={customNpc.Npc.GivenName}");
+
+
+			//npc.life = _baseOverride.MaxHp ?? npc.life;
+			//npc._givenName = _baseOverride.Name ?? npc._givenName;
+
+			//customNpc.Definition
+
+			//doesnt work
+			// Ensure that all players see the changes.
+			var npcId = npc.whoAmI;
+			//_checkNpcForReplacement[npcId] = false;
+			//TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
+			TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
+
+			//doesn work either..
+			//customNpc.SendNetUpdate = true;
+		}
 
         private void OnReload(ReloadEventArgs args)
         {

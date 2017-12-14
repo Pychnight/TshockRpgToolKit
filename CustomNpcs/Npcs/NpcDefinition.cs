@@ -263,8 +263,14 @@ namespace CustomNpcs.Npcs
             _baseOverride.ThrowIfInvalid();
         }
 
+		//needed during npc transforms in NpcManager.
+		internal BaseOverrideDefinition GetBaseOverrideDefinition()
+		{
+			return _baseOverride;
+		}
+
         [JsonObject(MemberSerialization.OptIn)]
-        private sealed class BaseOverrideDefinition
+        internal sealed class BaseOverrideDefinition
         {
             [JsonProperty]
             public int? AiStyle { get; private set; }

@@ -252,7 +252,7 @@ namespace CustomNpcs
                 var maxX = Math.Min(Main.maxTilesX, player.TileX + spawnRangeX);
                 var minY = Math.Max(0, player.TileY - spawnRangeY);
                 var maxY = Math.Min(Main.maxTilesY, player.TileY + spawnRangeY);
-
+				
                 var succeeded = false;
                 var tileX = -1;
                 var tileY = -1;
