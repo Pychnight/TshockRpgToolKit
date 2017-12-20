@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NLua;
 using Terraria;
+using CustomNpcs.Projectiles;
 
 namespace CustomNpcs.Npcs
 {
@@ -209,7 +210,11 @@ namespace CustomNpcs.Npcs
             lua.DoString("import('OTAPI', 'Terraria')");
             lua.DoString("import('TShock', 'TShockAPI')");
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-            lua.DoFile(Path.Combine("npcs", LuaPath));
+			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
+
+			lua["Center"] = new CenterOffsetHelper();
+
+			lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 
             OnAiUpdate = _lua["OnAiUpdate"] as LuaFunction;

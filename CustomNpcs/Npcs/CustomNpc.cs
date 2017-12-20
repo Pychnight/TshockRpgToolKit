@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework;
 using NLua;
 using Terraria;
 using TShockAPI;
+using CustomNpcs.Projectiles;
+using System.Diagnostics;
 
 namespace CustomNpcs.Npcs
 {
@@ -374,10 +376,50 @@ namespace CustomNpcs.Npcs
             TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
         }
 
-        /// <summary>
-        ///     Forces the NPC to target the closest player.
-        /// </summary>
-        public void TargetClosestPlayer()
+		// NLua doesn't support default parameters, but does support method overloads
+		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed)
+		{
+			ShootCustomProjectileAt(target, projectileName, speed, null);
+		}
+
+		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed, object offset)
+		{
+			Vector2 offsetVector = new Vector2(0, 0);
+			
+			if( offset is Vector2 )
+			{
+				offsetVector = (Vector2)offset;
+			}
+			else if(offset is NpcEdge)
+			{
+				var edge = CenterOffsetHelper.GetUnitVectorFromNpcEdge((NpcEdge)offset);
+				var hWidth = Npc.width * 0.5f;
+				var hHeight = Npc.height * 0.5f;
+				offsetVector.X = edge.X * hWidth;
+				offsetVector.Y = edge.Y * hHeight;
+			}
+			else// if( offset is CenterOffsetHelper || offset is null )
+			{
+				//we do nothing! This is an implicit, no offset. ( caller passed in Center or null )
+			}
+
+			int owner = 255;// this.Index;//how does owner affect projectiles? Not seeing difference when I change it to the launching npc.
+			var start = Center + offsetVector;
+			var vel = target - start;
+
+			vel.Normalize();
+			vel *= speed;
+
+			var customProjectile = ProjectileFunctions.SpawnCustomProjectile(owner, projectileName, start, vel);
+						
+			//customProjectile.Position = start;
+			//customProjectile.Velocity = vel;
+		}
+
+		/// <summary>
+		///     Forces the NPC to target the closest player.
+		/// </summary>
+		public void TargetClosestPlayer()
         {
             Npc.TargetClosest();
         }
@@ -390,5 +432,17 @@ namespace CustomNpcs.Npcs
         {
             Npc.Teleport(position);
         }
-    }
+
+		public void DropIn()
+		{
+			var firstPlayer = TShock.Players.FirstOrDefault();
+
+			if(firstPlayer.Active)
+			{
+				var target = new Vector2(firstPlayer.X, firstPlayer.Y - 64);
+
+				Teleport(target);
+			}
+		}
+	}
 }

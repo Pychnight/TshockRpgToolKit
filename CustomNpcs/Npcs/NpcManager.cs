@@ -19,7 +19,7 @@ namespace CustomNpcs.Npcs
     /// </summary>
     public sealed class NpcManager : IDisposable
     {
-        private const string IgnoreCollisionKey = "CustomNpcs_IgnoreCollision";
+        internal const string IgnoreCollisionKey = "CustomNpcs_IgnoreCollision";
 
         private static readonly bool[] AllowedDrops = ItemID.Sets.Factory.CreateBoolSet(
             // Allow dropping coins.
@@ -44,7 +44,7 @@ namespace CustomNpcs.Npcs
         private readonly object _lock = new object();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
-
+		
         private List<NpcDefinition> _definitions = new List<NpcDefinition>();
 
         internal NpcManager(CustomNpcsPlugin plugin)
@@ -52,8 +52,8 @@ namespace CustomNpcs.Npcs
             _plugin = plugin;
 
             Utils.TryExecuteLua(LoadDefinitions, "NpcManager");
-
-            GeneralHooks.ReloadEvent += OnReload;
+			
+			GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GameUpdate.Register(_plugin, OnGameUpdate);
             ServerApi.Hooks.NpcAIUpdate.Register(_plugin, OnNpcAiUpdate);
             ServerApi.Hooks.NpcKilled.Register(_plugin, OnNpcKilled);
@@ -204,7 +204,7 @@ namespace CustomNpcs.Npcs
         private void OnGameUpdate(EventArgs args)
         {
             Utils.TrySpawnForEachPlayer(TrySpawnCustomNpc);
-
+			
             lock (_checkNpcLock)
             {
                 foreach (var npc in Main.npc.Where(n => n?.active == true))
@@ -235,25 +235,24 @@ namespace CustomNpcs.Npcs
 
                 foreach (var npc in Main.npc.Where(n => n?.active == true))
                 {
+					//test against npc
                     var customNpc = GetCustomNpc(npc);
-                    if (customNpc == null)
+                    if(customNpc != null)
                     {
-                        continue;
-                    }
-
-                    if (npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey))
-                    {
-                        lock (_lock)
-                        {
-                            var definition = customNpc.Definition;
-                            Utils.TryExecuteLua(() => definition.OnCollision?.Call(customNpc, player), definition.Name);
-                        }
-                        player.SetData(IgnoreCollisionKey, true);
-                        break;
-                    }
+						if (npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey))
+						{
+							lock (_lock)
+							{
+								var definition = customNpc.Definition;
+								Utils.TryExecuteLua(() => definition.OnCollision?.Call(customNpc, player), definition.Name);
+							}
+							player.SetData(IgnoreCollisionKey, true);
+							break;//should this be a continue instead??
+						}
+					}
                 }
             }
-        }
+	    }
 
         private void OnNpcAiUpdate(NpcAiUpdateEventArgs args)
         {
@@ -384,7 +383,7 @@ namespace CustomNpcs.Npcs
 
             lock (_lock)
             {
-                var onStrike = definition.OnStrike;
+				var onStrike = definition.OnStrike;
                 if (onStrike != null)
                 {
                     Utils.TryExecuteLua(() => args.Handled =
@@ -438,7 +437,7 @@ namespace CustomNpcs.Npcs
 			//doesn work either..
 			//customNpc.SendNetUpdate = true;
 		}
-
+		
         private void OnReload(ReloadEventArgs args)
         {
             lock (_lock)

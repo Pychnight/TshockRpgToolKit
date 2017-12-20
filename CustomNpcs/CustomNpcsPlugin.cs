@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using CustomNpcs.Invasions;
 using CustomNpcs.Npcs;
+using CustomNpcs.Projectiles;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Terraria;
@@ -61,13 +62,15 @@ namespace CustomNpcs
             }
             InvasionManager.Instance = new InvasionManager(this);
             NpcManager.Instance = new NpcManager(this);
+			ProjectileManager.Instance = new ProjectileManager(this);
 
             GeneralHooks.ReloadEvent += OnReload;
 
             Commands.ChatCommands.Add(new Command("customnpcs.cinvade", CustomInvade, "cinvade"));
             Commands.ChatCommands.Add(new Command("customnpcs.cmaxspawns", CustomMaxSpawns, "cmaxspawns"));
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomSpawnMob, "cspawnmob", "csm"));
-            Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
+			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomSpawnProjectile, "cspawnprojectile", "csp"));
+			Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
         }
 
         /// <summary>
@@ -84,7 +87,9 @@ namespace CustomNpcs
                 InvasionManager.Instance = null;
                 NpcManager.Instance?.Dispose();
                 NpcManager.Instance = null;
-
+				ProjectileManager.Instance?.Dispose();
+				ProjectileManager.Instance = null;
+				
                 GeneralHooks.ReloadEvent -= OnReload;
             }
 
@@ -207,7 +212,58 @@ namespace CustomNpcs
             player.SendSuccessMessage($"Spawned {amount} {definition.Name}(s).");
         }
 
-        private void CustomSpawnRate(CommandArgs args)
+		private void CustomSpawnProjectile(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			if( parameters.Count == 0 || parameters.Count > 4 )
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnprojectile <name> x y");
+				return;
+			}
+
+			var inputName = parameters[0];
+			var definition = ProjectileManager.Instance?.FindDefinition(inputName);
+			if( definition == null )
+			{
+				player.SendErrorMessage($"Invalid custom projectile name '{inputName}'.");
+				return;
+			}
+
+			var x = args.Player.TileX;
+			var y = args.Player.TileY;
+			var facing = args.Player.TPlayer.direction;
+
+			//var inputAmount = parameters.Count >= 2 ? parameters[1] : "1";
+			//if( !int.TryParse(inputAmount, out var amount) || amount <= 0 || amount > 200 )
+			//{
+			//	player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
+			//	return;
+			//}
+
+			var inputX = parameters.Count >= 2 ? parameters[1] : player.TileX.ToString();
+			if( !int.TryParse(inputX, out x) || x < 0 || x > Main.maxTilesX )
+			{
+				player.SendErrorMessage($"Invalid X position '{inputX}'.");
+				return;
+			}
+
+			var inputY = parameters.Count == 3 ? parameters[2] : player.TileY.ToString();
+			if( !int.TryParse(inputY, out y) || y < 0 || y > Main.maxTilesY )
+			{
+				player.SendErrorMessage($"Invalid Y position '{inputY}'.");
+				return;
+			}
+			
+			//for( var i = 0; i < amount; ++i )
+			{
+				//TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
+				ProjectileManager.Instance.SpawnCustomProjectile(definition, 16 * x, 16 * y, 2 * facing, 2 );
+			}
+			player.SendSuccessMessage($"Spawned {definition.Name}.");
+		}
+
+		private void CustomSpawnRate(CommandArgs args)
         {
             var parameters = args.Parameters;
             var player = args.Player;

@@ -227,8 +227,8 @@ namespace CustomNpcs
             var npcId = NPC.NewNPC((int)position.X, (int)position.Y, (int)npcType);
             return npcId != Main.maxNPCs ? Main.npc[npcId] : null;
         }
-
-        private static int? GetNpcTypeFromNameOrType(string nameOrType)
+		
+		private static int? GetNpcTypeFromNameOrType(string nameOrType)
         {
             if (int.TryParse(nameOrType, out var id) && -65 <= id && id < Main.maxNPCTypes)
             {
