@@ -403,7 +403,7 @@ namespace CustomNpcs.Npcs
 				//we do nothing! This is an implicit, no offset. ( caller passed in Center or null )
 			}
 
-			int owner = 255;// this.Index;//how does owner affect projectiles? Not seeing difference when I change it to the launching npc.
+			int owner = this.Index;//how does owner affect projectiles? Not seeing difference when I change it to the launching npc.
 			var start = Center + offsetVector;
 			var vel = target - start;
 
@@ -442,6 +442,8 @@ namespace CustomNpcs.Npcs
 				var target = new Vector2(firstPlayer.X, firstPlayer.Y - 64);
 
 				Teleport(target);
+
+				//TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", Npc.whoAmI);
 			}
 		}
 	}
