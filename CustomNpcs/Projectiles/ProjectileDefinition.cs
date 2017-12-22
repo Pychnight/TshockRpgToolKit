@@ -26,7 +26,7 @@ namespace CustomNpcs.Projectiles
 		public int BaseType { get; set; }
 
 		[JsonProperty("BaseOverride",Order = 3)]
-		internal BaseOverrideDefinition baseOverride { get; set; } = new BaseOverrideDefinition();
+		internal BaseOverrideDefinition BaseOverride { get; set; } = new BaseOverrideDefinition();
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is spawned.
@@ -72,79 +72,44 @@ namespace CustomNpcs.Projectiles
 				throw new ArgumentNullException(nameof(projectile));
 			}
 
-			//// Set NPC to use four life bytes.
-			//Main.npcLifeBytes[BaseType] = 4;
-
-			//if (npc.netID != BaseType)
-			//{
-			//	npc.SetDefaults(BaseType);
-			//}
-			//npc.aiStyle = _baseOverride.AiStyle ?? npc.aiStyle;
-			//if (_baseOverride.BuffImmunities != null)
-			//{
-			//	for (var i = 0; i < Main.maxBuffTypes; ++i)
-			//	{
-			//		npc.buffImmune[i] = false;
-			//	}
-			//	foreach (var i in _baseOverride.BuffImmunities)
-			//	{
-			//		npc.buffImmune[i] = true;
-			//	}
-			//}
-			//npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;
-			//npc.noGravity = _baseOverride.HasNoGravity ?? npc.noGravity;
-			//npc.noTileCollide = _baseOverride.HasNoCollision ?? npc.noTileCollide;
-			//npc.boss = _baseOverride.IsBoss ?? npc.boss;
-			//npc.immortal = _baseOverride.IsImmortal ?? npc.immortal;
-			//npc.lavaImmune = _baseOverride.IsImmuneToLava ?? npc.lavaImmune;
-			//npc.trapImmune = _baseOverride.IsTrapImmune ?? npc.trapImmune;
-			//// Don't set npc.lifeMax so that the correct life is always sent to clients.
-			//npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
-			//npc.life = _baseOverride.MaxHp ?? npc.life;
-			//npc._givenName = _baseOverride.Name ?? npc._givenName;
-			//npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
-			//npc.value = _baseOverride.Value ?? npc.value;
-
-			//start our cargo cult version...
-
-			projectile.aiStyle = baseOverride.AiStyle ?? projectile.aiStyle;
-			projectile.ai = baseOverride.Ai ?? projectile.ai;
-			projectile.damage = baseOverride.Damage ?? projectile.damage;
-			projectile.knockBack = baseOverride.KnockBack ?? projectile.knockBack;
-			projectile.friendly = baseOverride.Friendly ?? projectile.friendly;
-			projectile.hostile = baseOverride.Hostile ?? projectile.hostile;
-			projectile.coldDamage = baseOverride.ColdDamage ?? projectile.coldDamage;
-			projectile.tileCollide = baseOverride.TileCollide ?? projectile.tileCollide;
-			projectile.timeLeft = baseOverride.TimeLeft ?? projectile.timeLeft;
-			projectile.maxPenetrate = baseOverride.MaxPenetrate ?? projectile.maxPenetrate;
-			projectile.ignoreWater = baseOverride.IgnoreWater ?? projectile.ignoreWater;
-			//
-			//projectile.light = 0.0f;//
-			//projectile.magic = false;
-
-
+			//projectile.type = 0;
+			projectile.aiStyle = BaseOverride.AiStyle ?? projectile.aiStyle;
+			projectile.ai = BaseOverride.Ai ?? projectile.ai;
+			projectile.damage = BaseOverride.Damage ?? projectile.damage;
+			projectile.knockBack = BaseOverride.KnockBack ?? projectile.knockBack;
+			projectile.friendly = BaseOverride.Friendly ?? projectile.friendly;
+			projectile.hostile = BaseOverride.Hostile ?? projectile.hostile;
+			projectile.maxPenetrate = BaseOverride.MaxPenetrate ?? projectile.maxPenetrate;
+			projectile.timeLeft = BaseOverride.TimeLeft ?? projectile.timeLeft;
+			projectile.width = BaseOverride.Width ?? projectile.width;
+			projectile.height = BaseOverride.Height ?? projectile.height;
+			projectile.magic = BaseOverride.Magic ?? projectile.magic;
+			projectile.light = BaseOverride.Light ?? projectile.light;
+			projectile.thrown = BaseOverride.Thrown ?? projectile.thrown;
+			projectile.melee = BaseOverride.Melee ?? projectile.melee;
+			projectile.coldDamage = BaseOverride.ColdDamage ?? projectile.coldDamage;
+			projectile.tileCollide = BaseOverride.TileCollide ?? projectile.tileCollide;
+			projectile.ignoreWater = BaseOverride.IgnoreWater ?? projectile.ignoreWater;
+			//projectile.wet = baseOverride.Wet ?? projectile.wet;
+			projectile.bobber = BaseOverride.Bobber ?? projectile.bobber;
+			projectile.counterweight = BaseOverride.Counterweight ?? projectile.counterweight;
+			//projectile.hide = false;
+			//projectile.honeyWet = false;
+			//projectile.miscText = "test";
+			//projectile.noEnchantments = false;
 			//projectile.rotation = 0f;
 			//projectile.scale = 1.0f;
 			//projectile.sentry = false;
 			//projectile.spriteDirection = 1;
-			//projectile.thrown = true;
-
-			//projectile.type = 0;
 			//projectile.velocity = new Vector2(1, 1);
 			//projectile.wet = false;
 			//projectile.wetCount = 0;
-			//projectile.width = 10;
-			//projectile.height = 10;
-			//projectile.hide = false;
-			//projectile.honeyWet = false;
-			//projectile.miscText = "test";
 			//projectile.melee = false;
 			//projectile.oldVelocity;
 			//projectile.velocity;
 			//projectile.oldPosition;
 			//projectile.position;
 			//projectile.numHits = 0;
-			//projectile.noEnchantments = false;
 			//projectile.counterweight = false;
 			//projectile.bobber = false;
 			//projectile.alpha = 1;
@@ -240,21 +205,48 @@ namespace CustomNpcs.Projectiles
 						
 			[JsonProperty]
 			public bool? Hostile { get; set; } 
-
-			[JsonProperty]
-			public bool? ColdDamage { get; set; }
-
-			[JsonProperty]
-			public bool? IgnoreWater { get; set; }
-
-			[JsonProperty]
-			public bool? TileCollide { get; set; }
-
+			
 			[JsonProperty]
 			public int? MaxPenetrate { get; set; }
 
 			[JsonProperty]
 			public int? TimeLeft { get; set; }
+			
+			[JsonProperty]
+			public int? Width { get; set;}
+			
+			[JsonProperty]
+			public int? Height { get; set;}
+			
+			[JsonProperty]
+			public bool? Magic { get; set; }
+
+			[JsonProperty]
+			public float? Light { get; set; }
+			
+			[JsonProperty]
+			public bool? Thrown { get; set; }
+
+			[JsonProperty]
+			public bool? Melee { get; set; }
+			
+			[JsonProperty]
+			public bool? ColdDamage { get; set; }
+			
+			[JsonProperty]
+			public bool? TileCollide { get; set; }
+
+			[JsonProperty]
+			public bool? IgnoreWater { get; set; }
+			
+		/* 	[JsonProperty]
+			public bool? Wet { get; set; } */
+
+			[JsonProperty]
+			public bool? Bobber { get; set; }
+			
+			[JsonProperty]
+			public bool? Counterweight { get; set; }
 		}
 	}
 }

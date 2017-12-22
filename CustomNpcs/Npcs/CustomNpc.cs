@@ -433,7 +433,7 @@ namespace CustomNpcs.Npcs
             Npc.Teleport(position);
         }
 
-		public void DropIn()
+		public void DebugDropIn()
 		{
 			var firstPlayer = TShock.Players.FirstOrDefault();
 
