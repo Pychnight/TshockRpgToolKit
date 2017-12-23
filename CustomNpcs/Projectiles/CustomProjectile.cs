@@ -169,5 +169,13 @@ namespace CustomNpcs.Projectiles
 		{
 			Projectile.Kill();
 		}
+
+		public void SimpleUpdate()
+		{
+			TimeLeft--;
+			OldDirection = Direction;
+			OldPosition = Position;
+			Position = Position + Velocity;
+		}
 	}
 }
