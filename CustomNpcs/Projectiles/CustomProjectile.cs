@@ -170,7 +170,7 @@ namespace CustomNpcs.Projectiles
 			Projectile.Kill();
 		}
 
-		public void SimpleUpdate()
+		public void BasicUpdate()
 		{
 			TimeLeft--;
 			OldDirection = Direction;
