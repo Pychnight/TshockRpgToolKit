@@ -6,6 +6,7 @@ using OTAPI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -216,23 +217,23 @@ namespace CustomNpcs.Projectiles
 				//tiles
 				if(projectile.tileCollide)
 				{
+					const int tileSize = 16;
+
 					var box = projectile.Hitbox;
-					var minX = Math.Max(box.Left, 0) / 16;
-					//var maxX = Math.Min(box.Right, Main.Map.MaxWidth);
-					var maxX = box.Right / 16;
-					var minY = Math.Max(box.Top, 0) / 16;
-					//var maxY = Math.Min(box.Bottom, Main.Map.MaxHeight);
-					var maxY = box.Bottom / 16;
+					var columnStart = Math.Max(box.Left / tileSize, 0);
+					var columnEnd = Math.Min(box.Right / tileSize, Main.maxTilesX);
+					var rowStart = Math.Max(box.Top / tileSize, 0);
+					var rowEnd = Math.Min(box.Bottom / tileSize, Main.maxTilesY);
 					
-					if(testTileCollision(minX, minY, maxX, maxY))
+					var tileCollisions = testTileCollision(columnStart, rowStart, columnEnd, rowEnd);
+					
+					if(tileCollisions.Count>0)
 					{
 						lock( locker )
 						{
 							var definition = customProjectile.Definition;
-							Utils.TryExecuteLua(() => definition.OnTileCollision?.Call(customProjectile), definition.Name);
+							Utils.TryExecuteLua(() => definition.OnTileCollision?.Call(customProjectile,tileCollisions), definition.Name);
 						}
-
-						//Debug.Print("TileCollision!");
 					}
 				}
 				
@@ -321,20 +322,40 @@ namespace CustomNpcs.Projectiles
 			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded Projectiles!");
 		}
 
-		private bool testTileCollision(int minColumn, int minRow, int maxColumn, int maxRow)
+		private ReadOnlyCollection<Point> testTileCollision(int minColumn, int minRow, int maxColumn, int maxRow)
 		{
+			var totalColumns = 0;
+			var totalRows = 0;
+			var results = new List<Point>(totalColumns * totalRows);
+
 			for( var row = minRow; row <= maxRow; row++ )
 			{
 				for( var col = minColumn; col <= maxColumn; col++ )
 				{
 					var tile = Main.tile[col, row];
+					//if( tile.active() &&
+					//	( tile.type >= Tile.Type_Solid && tile.type <= Tile.Type_SlopeUpLeft || tile.wall != 0 ) ) // 0 - 5
+					//{
+					//	results.Add(new Point(col, row));
+					//}
 
-					if( tile.active() && tile.type == Tile.Type_Solid )
-						return true;
+					if(!WorldGen.TileEmpty(col,row) || tile.wall != 0 )
+					{
+						results.Add(new Point(col, row));
+
+						//if(WorldGen.SolidOrSlopedTile(col,row))
+						//{
+						//	results.Add(new Point(col, row)); 
+						//}
+						//else
+						//{
+
+						//}
+					}
 				}
 			}
 
-			return false;
+			return results.AsReadOnly();
 		}
 	}
 }
