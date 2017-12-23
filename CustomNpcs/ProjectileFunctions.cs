@@ -34,22 +34,5 @@ namespace CustomNpcs.Projectiles
 			
 			return ProjectileManager.Instance.SpawnCustomProjectile(definition, position.X, position.Y, speed.X, speed.Y, owner);
 		}
-
-		//[LuaGlobal]
-		//public static CustomProjectile FireAt(string projectileName, Vector2 start, Vector2 target, float speed, int offset, int owner )
-		//{
-		//	var dir = target - start;
-
-		//	dir.Normalize();
-
-		//	return SpawnCustomProjectile(projectileName, start + ( dir * offset ), dir * speed, owner);
-		//}
-
-		//[LuaGlobal]
-		//public static void FireAtAngle(string projectileName, Vector2 start, float angle, float speed, int offset = 0)
-		//{
-		//	FireAt(projectileName, start, speed, offset);
-		//}
-
 	}
 }

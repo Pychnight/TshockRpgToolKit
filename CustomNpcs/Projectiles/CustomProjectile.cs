@@ -53,20 +53,11 @@ namespace CustomNpcs.Projectiles
 		/// <summary>
 		///     Gets or sets the old direction.
 		/// </summary>
-		public int oldDirection
+		public int OldDirection
 		{
 			get => Projectile.oldDirection;
 			set => Projectile.oldDirection = value;
 		}
-
-		/// <summary>
-		///     Gets or sets the old direction Y.
-		/// </summary>
-		//public int oldDirectionY
-		//{
-		//	get => Projectile.oldDirectionY;
-		//	set => Projectile.oldDirectionY = value;
-		//}
 
 		/// <summary>
 		///     Gets or sets the direction.
@@ -176,8 +167,7 @@ namespace CustomNpcs.Projectiles
 
 		public void Kill()
 		{
-			Projectile.timeLeft = 0;
-			//Debug.Print("Kill");
+			Projectile.Kill();
 		}
 	}
 }
