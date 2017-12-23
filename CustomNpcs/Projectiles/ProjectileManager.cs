@@ -1,7 +1,10 @@
 ﻿using CustomNpcs.Npcs;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NLua;
+using OTAPI;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,7 +29,7 @@ namespace CustomNpcs.Projectiles
 
 		public List<ProjectileDefinition> Definitions { get; set; }
 		ConditionalWeakTable<Projectile, CustomProjectile> customProjectiles;
-
+		
 		object locker = new object();
 		object checkProjectileLock = new object();
 		
@@ -35,17 +38,17 @@ namespace CustomNpcs.Projectiles
 			this.plugin = plugin;
 
 			customProjectiles = new ConditionalWeakTable<Projectile, CustomProjectile>();
-
+			
 			Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
 
 			GeneralHooks.ReloadEvent += OnReload;
-			ServerApi.Hooks.GameUpdate.Register(plugin, onGameUpdate);
+			//ServerApi.Hooks.GameUpdate.Register(plugin, onGameUpdate);
 			//ServerApi.Hooks.ProjectileSetDefaults.Register(plugin, onProjectileSetDefaults);
-			ServerApi.Hooks.ProjectileAIUpdate.Register(plugin, onProjectileAiUpdate);
+			//ServerApi.Hooks.ProjectileAIUpdate.Register(plugin, onProjectileAiUpdate);
 
-			//OTAPI.Hooks.
-
-			OTAPI.Hooks.Projectile.PostKilled = onProjectilePostKilled;
+			OTAPI.Hooks.Projectile.PreUpdate = onProjectilePreUpdate;
+			OTAPI.Hooks.Projectile.PreAI = onProjectilePreAi;
+			OTAPI.Hooks.Projectile.PreKill = onProjectilePreKill; 
 		}
 
 		public void Dispose()
@@ -57,11 +60,13 @@ namespace CustomNpcs.Projectiles
 			Definitions.Clear();
 
 			GeneralHooks.ReloadEvent -= OnReload;
-			ServerApi.Hooks.GameUpdate.Deregister(plugin, onGameUpdate);
+			//ServerApi.Hooks.GameUpdate.Deregister(plugin, onGameUpdate);
 			//ServerApi.Hooks.ProjectileSetDefaults.Deregister(plugin, onProjectileSetDefaults);
-			ServerApi.Hooks.ProjectileAIUpdate.Deregister(plugin, onProjectileAiUpdate);
+			//ServerApi.Hooks.ProjectileAIUpdate.Deregister(plugin, onProjectileAiUpdate);
 
-			OTAPI.Hooks.Projectile.PostKilled = null;
+			OTAPI.Hooks.Projectile.PreUpdate = null;
+			OTAPI.Hooks.Projectile.PreAI = null;
+			OTAPI.Hooks.Projectile.PreKill = null;
 		}
 
 		private void LoadDefinitions()
@@ -108,16 +113,13 @@ namespace CustomNpcs.Projectiles
 			// erroneously checked for replacement.
 			lock(checkProjectileLock)
 			{
-				Debug.Print("SpawnCustomProjectile!");
-
-				var baseOverride = definition.baseOverride;
+				var baseOverride = definition.BaseOverride;
 				var projectileId = Projectile.NewProjectile(x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner);
 				var customProjectile =  projectileId != Main.maxProjectiles ? AttachCustomProjectile(Main.projectile[projectileId], definition) : null;
 								
 				if( customProjectile != null )
 				{
-					customProjectile.SendNetUpdate = true;
-
+					//customProjectile.SendNetUpdate = true;
 					TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
 				}
 				
@@ -127,19 +129,19 @@ namespace CustomNpcs.Projectiles
 		
 		public CustomProjectile GetCustomProjectile(Projectile projectile)
 		{
-			Debug.Assert(projectile != null, "projectile cannot be null.");
-
 			CustomProjectile customProjectile = null;
 
-			customProjectiles.TryGetValue(projectile, out customProjectile);
+			Debug.Assert(projectile != null, "projectile cannot be null.");
+			if(projectile!=null)
+			{
+				customProjectiles.TryGetValue(projectile, out customProjectile);
+			}
 
 			return customProjectile;
 		}
 
 		private CustomProjectile AttachCustomProjectile(Projectile projectile, ProjectileDefinition definition)
 		{
-			Debug.Print("AttachCustomProjectile");
-			
 			var customProjectile = new CustomProjectile(projectile, definition);
 			customProjectiles.Remove(projectile);
 			customProjectiles.Add(projectile, customProjectile);
@@ -150,58 +152,12 @@ namespace CustomNpcs.Projectiles
 			{
 				Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customProjectile), definition.Name);
 			}
-
-			//TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
-
-			//// Ensure that all players see the changes.
-			//var npcId = npc.whoAmI;
-			//_checkNpcForReplacement[npcId] = false;
-			//TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-			//TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
-			//return customNpc;
-
+						
 			//TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
 
 			return customProjectile;
 		}
-
-		private void onGameUpdate(EventArgs args)
-		{
-			foreach(var projectile in Main.projectile)
-			{
-				var customProjectile = GetCustomProjectile(projectile);
-
-				if(customProjectile!=null)
-				{
-					//game updates
-					lock( locker )
-					{
-						var definition = customProjectile.Definition;
-						Utils.TryExecuteLua(() => definition.OnGameUpdate?.Call(customProjectile), definition.Name);
-					}
-
-					//collision tests
-					foreach(var player in TShock.Players)
-					{
-						if(player?.Active==true)
-						{
-							var tplayer = player.TPlayer;
-							var playerHitbox = tplayer.Hitbox;
-								
-							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
-							{
-								lock( locker )
-								{
-									var definition = customProjectile.Definition;
-									Utils.TryExecuteLua(() => definition.OnCollision?.Call(customProjectile, player), definition.Name);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
+		
 		//private void onProjectileSetDefaults(SetDefaultsEventArgs<Projectile,int> args)
 		//{
 		//	var projectile = args.Object;
@@ -225,40 +181,128 @@ namespace CustomNpcs.Projectiles
 		//	}
 		//}
 
-		private void onProjectileAiUpdate(ProjectileAiUpdateEventArgs args)
+		private HookResult onProjectilePreUpdate(Projectile projectile, ref int index)
 		{
-			if (args.Handled)
-				return;
+			var result = HookResult.Continue;
+			var customProjectile = GetCustomProjectile(projectile);
 
-			var customProjectile = GetCustomProjectile(args.Projectile);
-			if (customProjectile != null)
+			if(customProjectile!=null)
 			{
-				//Debug.Print("CustomProjectile.OnProjectileAiUpdate!!");
+				//game updates
+				lock( locker )
+				{
+					var definition = customProjectile.Definition;
+					Utils.TryExecuteLua(() =>
+					{
+						var handled = definition.OnGameUpdate?.Call(customProjectile).GetResult<bool>();
+						result = handled == true ? HookResult.Cancel : HookResult.Continue;
+					}, definition.Name);
+				}
+
+				if( result == HookResult.Cancel )
+				{
+					//if we dont pass execution onto Terraria's Projectile.Update(), AI() will never get run, so we better run it ourselves.
+					projectile.AI();
+				}
+
+				//try to update projectile
+				if( Main.projectile[projectile.whoAmI] != null && projectile.active )
+				{
+					TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
+				}
+
+				//collision tests
+
+				//tiles
+				if(projectile.tileCollide)
+				{
+					var box = projectile.Hitbox;
+					var minX = Math.Max(box.Left, 0) / 16;
+					//var maxX = Math.Min(box.Right, Main.Map.MaxWidth);
+					var maxX = box.Right / 16;
+					var minY = Math.Max(box.Top, 0) / 16;
+					//var maxY = Math.Min(box.Bottom, Main.Map.MaxHeight);
+					var maxY = box.Bottom / 16;
+					
+					if(testTileCollision(minX, minY, maxX, maxY))
+					{
+						lock( locker )
+						{
+							var definition = customProjectile.Definition;
+							Utils.TryExecuteLua(() => definition.OnTileCollision?.Call(customProjectile), definition.Name);
+						}
+
+						//Debug.Print("TileCollision!");
+					}
+				}
+				
+				//players
+				foreach( var player in TShock.Players )
+				{
+					if( player?.Active == true )
+					{
+						var tplayer = player.TPlayer;
+						var playerHitbox = tplayer.Hitbox;
+
+						if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
+						{
+							lock( locker )
+							{
+								var definition = customProjectile.Definition;
+								Utils.TryExecuteLua(() => definition.OnCollision?.Call(customProjectile, player), definition.Name);
+							}
+						}
+					}
+				}
+			}
+			
+			return result;
+		}
+		
+		private HookResult onProjectilePreAi(Projectile projectile)
+		{
+			var result = HookResult.Continue;//we usually let terraria handle ai
+			var customProjectile = GetCustomProjectile(projectile);
+			
+			if(customProjectile != null)
+			{
 				lock(locker)
 				{
 					var definition = customProjectile.Definition;
 					var onAiUpdate = definition.OnAiUpdate;
 					if (onAiUpdate != null)
 					{
-						Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customProjectile)[0], definition.Name);
+						Utils.TryExecuteLua(() => {
+							var handled = onAiUpdate.Call(customProjectile).GetResult<bool>();
+							result = handled == true ? HookResult.Cancel : HookResult.Continue;
+						}, definition.Name);
 					}
 				}
 			}
+			
+			return result;
 		}
 
-		private void onProjectilePostKilled(Projectile projectile)
+		private HookResult onProjectilePreKill(Projectile projectile)
 		{
 			var customProjectile = GetCustomProjectile(projectile);
 			if( customProjectile != null )
 			{
-				//Debug.Print("CustomProjectile.OnProjectilePostKilled!!");
 				lock( locker )
 				{
 					var definition = customProjectile.Definition;
 					Utils.TryExecuteLua(() => definition.OnKilled?.Call(customProjectile), definition.Name);
 
 					customProjectiles.Remove(projectile);
+					projectile.active = false;
+					TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", projectile.whoAmI);
 				}
+
+				return HookResult.Cancel;
+			}
+			else
+			{
+				return HookResult.Continue;
 			}
 		}
 
@@ -275,6 +319,22 @@ namespace CustomNpcs.Projectiles
 				Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
 			}
 			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded Projectiles!");
+		}
+
+		private bool testTileCollision(int minColumn, int minRow, int maxColumn, int maxRow)
+		{
+			for( var row = minRow; row <= maxRow; row++ )
+			{
+				for( var col = minColumn; col <= maxColumn; col++ )
+				{
+					var tile = Main.tile[col, row];
+
+					if( tile.active() && tile.type == Tile.Type_Solid )
+						return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }

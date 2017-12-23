@@ -53,6 +53,11 @@ namespace CustomNpcs.Projectiles
 		/// </summary>
 		public LuaFunction OnCollision { get; private set; }
 
+		/// <summary>
+		///     Gets a function that is invoked when the projectile collides with a player.
+		/// </summary>
+		public LuaFunction OnTileCollision { get; private set; }
+
 		public void Dispose()
 		{
 			OnSpawn = null;
@@ -60,6 +65,7 @@ namespace CustomNpcs.Projectiles
 			OnGameUpdate = null;
 			OnAiUpdate = null;
 			OnCollision = null;
+			OnTileCollision = null;
 			
 			lua?.Dispose();
 			lua = null;
@@ -138,6 +144,7 @@ namespace CustomNpcs.Projectiles
 			OnAiUpdate = lua["OnAiUpdate"] as LuaFunction;
 			OnGameUpdate = lua["OnGameUpdate"] as LuaFunction;
 			OnCollision = lua["OnCollision"] as LuaFunction;
+			OnTileCollision = lua["OnTileCollision"] as LuaFunction;
 			OnKilled = lua["OnKilled"] as LuaFunction;
 			OnSpawn = lua["OnSpawn"] as LuaFunction;
 			//OnStrike = _lua["OnStrike"] as LuaFunction;

@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="LuaHelperExtensions.cs" />
     <Compile Include="Invasions\InvasionManager.cs" />
     <Compile Include="Npcs\CustomNpc.cs" />
     <Compile Include="Npcs\NpcManager.cs" />
