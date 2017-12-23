@@ -62,6 +62,8 @@ namespace CustomNpcs.Npcs
             ServerApi.Hooks.NpcSpawn.Register(_plugin, OnNpcSpawn);
             ServerApi.Hooks.NpcStrike.Register(_plugin, OnNpcStrike);
 			//ServerApi.Hooks.NpcTransform.Register(_plugin, OnNpcTransform);
+
+			//OTAPI.Hooks.Npc.
 		}
 
         /// <summary>
@@ -276,6 +278,8 @@ namespace CustomNpcs.Npcs
                     Utils.TryExecuteLua(() => args.Handled = (bool)onAiUpdate.Call(customNpc)[0], definition.Name);
                 }
             }
+
+			TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", args.Npc.whoAmI);
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
