@@ -65,6 +65,11 @@ namespace CustomNpcs.Invasions
         public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
 
 		/// <summary>
+		///		Used to keep OnGameUpdate from firing events too early.
+		/// </summary>
+		public bool HasStarted { get; internal set; }
+
+		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
 		[CanBeNull]
@@ -95,6 +100,12 @@ namespace CustomNpcs.Invasions
 		public LuaFunction OnWaveEnd { get; private set; }
 
 		/// <summary>
+		///     Gets a function that is invoked when the invasion is ending.
+		/// </summary>
+		[CanBeNull]
+		public LuaFunction OnBossDefeated { get; private set; }
+
+		/// <summary>
 		///     Disposes the definition.
 		/// </summary>
 		public void Dispose()
@@ -104,6 +115,7 @@ namespace CustomNpcs.Invasions
             OnUpdate = null;
 			OnWaveStart = null;
 			OnWaveEnd = null;
+			OnBossDefeated = null;
             _lua?.Dispose();
             _lua = null;
         }
@@ -133,6 +145,7 @@ namespace CustomNpcs.Invasions
 			OnUpdate = _lua["OnUpdate"] as LuaFunction;
 			OnWaveStart = _lua["OnWaveStart"] as LuaFunction;
 			OnWaveEnd = _lua["OnWaveEnd"] as LuaFunction;
+			OnBossDefeated = _lua["OnBossDefeated"] as LuaFunction;
         }
 
         internal void ThrowIfInvalid()

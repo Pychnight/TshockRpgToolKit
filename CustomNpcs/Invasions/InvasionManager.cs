@@ -113,8 +113,9 @@ namespace CustomNpcs.Invasions
 						Utils.TryExecuteLua(() => onInvasionStart.Call(), invasion.Name);
 					}
 				}
-								
-                _currentWaveIndex = 0;
+
+				CurrentInvasion.HasStarted = true;
+				_currentWaveIndex = 0;
                 StartCurrentWave();
             }
         }
@@ -135,6 +136,7 @@ namespace CustomNpcs.Invasions
 				}
 
 				TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
+				CurrentInvasion.HasStarted = false;//...probably not needed
 				CurrentInvasion = null;
 			}
 		}
@@ -176,7 +178,7 @@ namespace CustomNpcs.Invasions
 
         private void OnGameUpdate(EventArgs args)
         {
-            if (CurrentInvasion == null)
+            if (CurrentInvasion == null || CurrentInvasion.HasStarted == false)
             {
                 return;
             }
@@ -231,6 +233,15 @@ namespace CustomNpcs.Invasions
             var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
             if (npcNameOrType.Equals(_currentMiniboss, StringComparison.OrdinalIgnoreCase))
             {
+				lock(_lock)
+				{
+					var onBossDefeated = CurrentInvasion.OnBossDefeated;
+					if( onBossDefeated != null )
+					{
+						Utils.TryExecuteLua(() => onBossDefeated.Call(), CurrentInvasion.Name);
+					}
+				}
+
                 _currentMiniboss = null;
             }
             else if (CurrentInvasion.NpcPointValues.TryGetValue(npcNameOrType, out var points))
