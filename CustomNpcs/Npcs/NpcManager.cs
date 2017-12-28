@@ -63,7 +63,7 @@ namespace CustomNpcs.Npcs
             ServerApi.Hooks.NpcStrike.Register(_plugin, OnNpcStrike);
 			//ServerApi.Hooks.NpcTransform.Register(_plugin, OnNpcTransform);
 
-			//OTAPI.Hooks.Npc.
+			OTAPI.Hooks.Npc.PostTransform = OnNpcTransform;
 		}
 
         /// <summary>
@@ -217,7 +217,23 @@ namespace CustomNpcs.Npcs
                         npc.netUpdate = true;
                     }
 
-                    var npcId = npc.whoAmI;
+					if(customNpc?.HasTransformed == true)
+					{
+						var id = customNpc.Npc.whoAmI;
+						customNpc.HasTransformed = false;
+
+						var definition = customNpc.Definition;
+						var onTransformed = definition.OnTransformed;
+						if( onTransformed != null )
+						{
+							Utils.TryExecuteLua(() => onTransformed.Call(customNpc), definition.Name);
+						}
+
+						TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
+						TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
+					}
+
+					var npcId = npc.whoAmI;
                     if (_checkNpcForReplacement[npcId])
                     {
                         TryReplaceNpc(npc);
@@ -396,53 +412,19 @@ namespace CustomNpcs.Npcs
                 }
             }
         }
-
-		private void OnNpcTransform(NpcTransformationEventArgs args)
-		{
-			Debug.Print($"OnNpcTransform!! NpcId: {args.NpcId}");
-
-			if (args.Handled)
-			{
-				return;
-			}
-
-			var npc = Main.npc[args.NpcId];
-			var customNpc = GetCustomNpc(npc);
-			if (customNpc == null)
-			{
-				return;
-			}
-
-			var baseOverrideDefinition = customNpc.Definition.GetBaseOverrideDefinition();
-
-			//npc._givenName = baseOverrideDefinition.Name ?? npc._givenName;
-
-			//npc._givenName = "Transformed NPC Yo!";
-
-			customNpc.Npc.GivenName = baseOverrideDefinition.Name;
-
-			//customNpc.
-			Debug.Print($"givenName={npc.GivenOrTypeName}");
-			Debug.Print($"nameOver={customNpc.Npc.GivenName}");
-
-
-			//npc.life = _baseOverride.MaxHp ?? npc.life;
-			//npc._givenName = _baseOverride.Name ?? npc._givenName;
-
-			//customNpc.Definition
-
-			//doesnt work
-			// Ensure that all players see the changes.
-			var npcId = npc.whoAmI;
-			//_checkNpcForReplacement[npcId] = false;
-			//TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", npcId);
-			TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npcId);
-
-			//doesn work either..
-			//customNpc.SendNetUpdate = true;
-		}
 		
-        private void OnReload(ReloadEventArgs args)
+		private void OnNpcTransform(NPC npc)
+		{
+			var customNpc = GetCustomNpc(npc);
+			if( customNpc == null )
+			{
+				return;
+			}
+
+			customNpc.HasTransformed = true;
+		}
+
+		private void OnReload(ReloadEventArgs args)
         {
             lock (_lock)
             {

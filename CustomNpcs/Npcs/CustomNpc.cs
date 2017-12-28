@@ -151,6 +151,20 @@ namespace CustomNpcs.Npcs
             set => Npc.velocity = value;
         }
 
+		public string GivenName
+		{
+			get => Npc._givenName;
+			set
+			{
+				Npc._givenName = value;
+				TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", Npc.whoAmI);
+			}
+		}
+
+		//OTAPI runs its post transform hook before names have changed. This flag is a work around so we can poll elsewhere, 
+		// and see if we want to do any truly post transform ops. Just make sure to reset it to false once any post ops have been performed.
+		internal bool HasTransformed = false;
+
         /// <summary>
         ///     Buffs the nearby players within the specified tile radius.
         /// </summary>

@@ -96,10 +96,16 @@ namespace CustomNpcs.Npcs
         [CanBeNull]
         public LuaFunction OnStrike { get; private set; }
 
-        /// <summary>
-        ///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
-        /// </summary>
-        public bool ShouldAggressivelyUpdate =>
+		/// <summary>
+		///     Gets a function that is invoked after the NPC has transformed.
+		/// </summary>
+		[CanBeNull]
+		public LuaFunction OnTransformed { get; private set; }
+
+		/// <summary>
+		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
+		/// </summary>
+		public bool ShouldAggressivelyUpdate =>
             _baseOverride.AiStyle != null || _baseOverride.BuffImmunities != null ||
             _baseOverride.IsImmuneToLava != null || _baseOverride.HasNoCollision != null ||
             _baseOverride.HasNoGravity != null;
@@ -143,6 +149,7 @@ namespace CustomNpcs.Npcs
             OnKilled = null;
             OnSpawn = null;
             OnStrike = null;
+			OnTransformed = null;
             _lua?.Dispose();
             _lua = null;
         }
@@ -224,6 +231,7 @@ namespace CustomNpcs.Npcs
             OnKilled = _lua["OnKilled"] as LuaFunction;
             OnSpawn = _lua["OnSpawn"] as LuaFunction;
             OnStrike = _lua["OnStrike"] as LuaFunction;
+			OnTransformed = _lua["OnTransformed"] as LuaFunction;
         }
 
         internal void ThrowIfInvalid()
