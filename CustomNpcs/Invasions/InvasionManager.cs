@@ -31,7 +31,7 @@ namespace CustomNpcs.Invasions
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
         private DateTime _lastProgressUpdate;
         private int _requiredPoints;
-
+				
         internal InvasionManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
@@ -100,9 +100,18 @@ namespace CustomNpcs.Invasions
         /// <param name="invasion">The invasion, or <c>null</c> to stop the current invasion.</param>
         public void StartInvasion([CanBeNull] InvasionDefinition invasion)
         {
-            CurrentInvasion = invasion;
+			CurrentInvasion = invasion;
             if (CurrentInvasion != null)
             {
+				lock(_lock )
+				{
+					var onInvasionStart = invasion.OnInvasionStart;
+					if( onInvasionStart != null )
+					{
+						Utils.TryExecuteLua(() => onInvasionStart.Call(), invasion.Name);
+					}
+				}
+								
                 _currentWaveIndex = 0;
                 StartCurrentWave();
             }
@@ -161,7 +170,16 @@ namespace CustomNpcs.Invasions
             {
                 if (++_currentWaveIndex == CurrentInvasion.Waves.Count)
                 {
-                    TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
+					lock( _lock )
+					{
+						var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
+						if( onInvasionEnd != null )
+						{
+							Utils.TryExecuteLua(() => onInvasionEnd.Call(), CurrentInvasion.Name);
+						}
+					}
+					
+					TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
                     CurrentInvasion = null;
                     return;
                 }
@@ -211,7 +229,7 @@ namespace CustomNpcs.Invasions
         private void OnReload(ReloadEventArgs args)
         {
             CurrentInvasion = null;
-            lock (_lock)
+            lock(_lock)
             {
                 foreach (var definition in _definitions)
                 {
