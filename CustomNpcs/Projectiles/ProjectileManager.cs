@@ -49,7 +49,8 @@ namespace CustomNpcs.Projectiles
 
 			OTAPI.Hooks.Projectile.PreUpdate = onProjectilePreUpdate;
 			OTAPI.Hooks.Projectile.PreAI = onProjectilePreAi;
-			OTAPI.Hooks.Projectile.PreKill = onProjectilePreKill; 
+			OTAPI.Hooks.Projectile.PreKill = onProjectilePreKill;
+			//OTAPI.Hooks.Projectile.PostKilled = onProjectilePostKilled;
 		}
 
 		public void Dispose()
@@ -68,6 +69,7 @@ namespace CustomNpcs.Projectiles
 			OTAPI.Hooks.Projectile.PreUpdate = null;
 			OTAPI.Hooks.Projectile.PreAI = null;
 			OTAPI.Hooks.Projectile.PreKill = null;
+			//OTAPI.Hooks.Projectile.PostKilled = null;
 		}
 
 		private void LoadDefinitions()
@@ -209,6 +211,7 @@ namespace CustomNpcs.Projectiles
 				//try to update projectile
 				if( Main.projectile[projectile.whoAmI] != null && projectile.active )
 				{
+					//projectile.netUpdate = true;
 					TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
 				}
 
@@ -217,22 +220,14 @@ namespace CustomNpcs.Projectiles
 				//tiles
 				if(projectile.tileCollide)
 				{
-					const int tileSize = 16;
+					var tileCollisions = TileCollision.GetOverlappedTiles(projectile.Hitbox);
 
-					var box = projectile.Hitbox;
-					var columnStart = Math.Max(box.Left / tileSize, 0);
-					var columnEnd = Math.Min(box.Right / tileSize, Main.maxTilesX);
-					var rowStart = Math.Max(box.Top / tileSize, 0);
-					var rowEnd = Math.Min(box.Bottom / tileSize, Main.maxTilesY);
-					
-					var tileCollisions = testTileCollision(columnStart, rowStart, columnEnd, rowEnd);
-					
-					if(tileCollisions.Count>0)
+					if( tileCollisions.Count > 0 )
 					{
 						lock( locker )
 						{
 							var definition = customProjectile.Definition;
-							Utils.TryExecuteLua(() => definition.OnTileCollision?.Call(customProjectile,tileCollisions), definition.Name);
+							Utils.TryExecuteLua(() => definition.OnTileCollision?.Call(customProjectile, tileCollisions), definition.Name);
 						}
 					}
 				}
@@ -259,28 +254,29 @@ namespace CustomNpcs.Projectiles
 			
 			return result;
 		}
-		
+
 		private HookResult onProjectilePreAi(Projectile projectile)
 		{
 			var result = HookResult.Continue;//we usually let terraria handle ai
 			var customProjectile = GetCustomProjectile(projectile);
-			
-			if(customProjectile != null)
+
+			if( customProjectile != null )
 			{
-				lock(locker)
+				lock( locker )
 				{
 					var definition = customProjectile.Definition;
 					var onAiUpdate = definition.OnAiUpdate;
-					if (onAiUpdate != null)
+					if( onAiUpdate != null )
 					{
-						Utils.TryExecuteLua(() => {
+						Utils.TryExecuteLua(() =>
+						{
 							var handled = onAiUpdate.Call(customProjectile).GetResult<bool>();
 							result = handled == true ? HookResult.Cancel : HookResult.Continue;
 						}, definition.Name);
 					}
 				}
 			}
-			
+
 			return result;
 		}
 
@@ -307,6 +303,23 @@ namespace CustomNpcs.Projectiles
 			}
 		}
 
+		//private void onProjectilePostKilled(Projectile projectile)
+		//{
+		//	var customProjectile = GetCustomProjectile(projectile);
+		//	if( customProjectile != null )
+		//	{
+		//		lock( locker )
+		//		{
+		//			var definition = customProjectile.Definition;
+		//			Utils.TryExecuteLua(() => definition.OnKilled?.Call(customProjectile), definition.Name);
+
+		//			customProjectiles.Remove(projectile);
+		//			projectile.active = false;
+		//			TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", projectile.whoAmI);
+		//		}
+		//	}
+		//}
+
 		private void OnReload(ReloadEventArgs args)
 		{
 			lock(locker)
@@ -320,42 +333,6 @@ namespace CustomNpcs.Projectiles
 				Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
 			}
 			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded Projectiles!");
-		}
-
-		private ReadOnlyCollection<Point> testTileCollision(int minColumn, int minRow, int maxColumn, int maxRow)
-		{
-			var totalColumns = 0;
-			var totalRows = 0;
-			var results = new List<Point>(totalColumns * totalRows);
-
-			for( var row = minRow; row <= maxRow; row++ )
-			{
-				for( var col = minColumn; col <= maxColumn; col++ )
-				{
-					var tile = Main.tile[col, row];
-					//if( tile.active() &&
-					//	( tile.type >= Tile.Type_Solid && tile.type <= Tile.Type_SlopeUpLeft || tile.wall != 0 ) ) // 0 - 5
-					//{
-					//	results.Add(new Point(col, row));
-					//}
-
-					if(!WorldGen.TileEmpty(col,row) || tile.wall != 0 )
-					{
-						results.Add(new Point(col, row));
-
-						//if(WorldGen.SolidOrSlopedTile(col,row))
-						//{
-						//	results.Add(new Point(col, row)); 
-						//}
-						//else
-						//{
-
-						//}
-					}
-				}
-			}
-
-			return results.AsReadOnly();
 		}
 	}
 }
