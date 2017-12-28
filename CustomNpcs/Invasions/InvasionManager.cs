@@ -100,6 +100,8 @@ namespace CustomNpcs.Invasions
         /// <param name="invasion">The invasion, or <c>null</c> to stop the current invasion.</param>
         public void StartInvasion([CanBeNull] InvasionDefinition invasion)
         {
+			EndInvasion();
+
 			CurrentInvasion = invasion;
             if (CurrentInvasion != null)
             {
@@ -116,6 +118,26 @@ namespace CustomNpcs.Invasions
                 StartCurrentWave();
             }
         }
+
+		public void EndInvasion()
+		{
+			if(CurrentInvasion!=null)
+			{
+				TryEndPreviousWave();
+
+				lock( _lock )
+				{
+					var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
+					if( onInvasionEnd != null )
+					{
+						Utils.TryExecuteLua(() => onInvasionEnd.Call(), CurrentInvasion.Name);
+					}
+				}
+
+				TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
+				CurrentInvasion = null;
+			}
+		}
 
         private void LoadDefinitions()
         {
@@ -168,23 +190,16 @@ namespace CustomNpcs.Invasions
 
             if (_currentPoints >= _requiredPoints && _currentMiniboss == null)
             {
-                if (++_currentWaveIndex == CurrentInvasion.Waves.Count)
+				if (++_currentWaveIndex == CurrentInvasion.Waves.Count)
                 {
-					lock( _lock )
-					{
-						var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
-						if( onInvasionEnd != null )
-						{
-							Utils.TryExecuteLua(() => onInvasionEnd.Call(), CurrentInvasion.Name);
-						}
-					}
-					
-					TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
-                    CurrentInvasion = null;
+					EndInvasion();
                     return;
                 }
-
-                StartCurrentWave();
+				else
+				{
+					TryEndPreviousWave();
+					StartCurrentWave();
+				}
             }
 
             var now = DateTime.UtcNow;
@@ -252,12 +267,42 @@ namespace CustomNpcs.Invasions
 
         private void StartCurrentWave()
         {
-            var wave = CurrentInvasion.Waves[_currentWaveIndex];
-            TSPlayer.All.SendMessage(wave.StartMessage, InvasionTextColor);
-            _currentPoints = 0;
-            _currentMiniboss = wave.Miniboss;
-            _requiredPoints = wave.PointsRequired * (CurrentInvasion.ScaleByPlayers ? TShock.Utils.ActivePlayers() : 1);
-        }
+			var wave = CurrentInvasion.Waves[_currentWaveIndex];
+			TSPlayer.All.SendMessage(wave.StartMessage, InvasionTextColor);
+			_currentPoints = 0;
+			_currentMiniboss = wave.Miniboss;
+			_requiredPoints = wave.PointsRequired * ( CurrentInvasion.ScaleByPlayers ? TShock.Utils.ActivePlayers() : 1 );
+
+			if(wave!=null)
+			{
+				lock( _lock )
+				{
+					var onWaveStart = CurrentInvasion.OnWaveStart;
+					if( onWaveStart != null )
+					{
+						Utils.TryExecuteLua(() => onWaveStart.Call(_currentWaveIndex, wave), CurrentInvasion.Name);
+					}
+				}
+			}
+		}
+
+		private void TryEndPreviousWave()
+		{
+			//run end event for previous wave, if there was a previous wave
+			var previousWaveIndex = _currentWaveIndex - 1;
+			if( previousWaveIndex >= 0 )
+			{
+				var previousWave = CurrentInvasion.Waves[previousWaveIndex];
+				lock( _lock )
+				{
+					var onWaveEnd = CurrentInvasion.OnWaveEnd;
+					if( onWaveEnd != null )
+					{
+						Utils.TryExecuteLua(() => onWaveEnd.Call(previousWaveIndex, previousWave), CurrentInvasion.Name);
+					}
+				}
+			}
+		}
 
         private void TrySpawnInvasionNpc(TSPlayer player, int tileX, int tileY)
         {

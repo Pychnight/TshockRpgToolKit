@@ -83,6 +83,18 @@ namespace CustomNpcs.Invasions
 		public LuaFunction OnUpdate { get; private set; }
 
 		/// <summary>
+		///     Gets a function that is invoked when the invasion is started.
+		/// </summary>
+		[CanBeNull]
+		public LuaFunction OnWaveStart { get; private set; }
+
+		/// <summary>
+		///     Gets a function that is invoked when the invasion is ending.
+		/// </summary>
+		[CanBeNull]
+		public LuaFunction OnWaveEnd { get; private set; }
+
+		/// <summary>
 		///     Disposes the definition.
 		/// </summary>
 		public void Dispose()
@@ -90,6 +102,8 @@ namespace CustomNpcs.Invasions
 			OnInvasionStart = null;
 			OnInvasionEnd = null;
             OnUpdate = null;
+			OnWaveStart = null;
+			OnWaveEnd = null;
             _lua?.Dispose();
             _lua = null;
         }
@@ -117,6 +131,8 @@ namespace CustomNpcs.Invasions
 			OnInvasionStart = _lua["OnInvasionStart"] as LuaFunction;
 			OnInvasionEnd = _lua["OnInvasionEnd"] as LuaFunction;
 			OnUpdate = _lua["OnUpdate"] as LuaFunction;
+			OnWaveStart = _lua["OnWaveStart"] as LuaFunction;
+			OnWaveEnd = _lua["OnWaveEnd"] as LuaFunction;
         }
 
         internal void ThrowIfInvalid()

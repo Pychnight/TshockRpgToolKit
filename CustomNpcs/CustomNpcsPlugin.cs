@@ -116,8 +116,9 @@ namespace CustomNpcs
                     return;
                 }
 
-                InvasionManager.Instance.StartInvasion(null);
-                TSPlayer.All.SendInfoMessage($"{player.Name} stopped the current custom invasion.");
+				//InvasionManager.Instance.StartInvasion(null);
+				InvasionManager.Instance.EndInvasion();
+				TSPlayer.All.SendInfoMessage($"{player.Name} stopped the current custom invasion.");
                 return;
             }
 
@@ -254,11 +255,13 @@ namespace CustomNpcs
 				player.SendErrorMessage($"Invalid Y position '{inputY}'.");
 				return;
 			}
+
+			var amount = 1;
 			
-			//for( var i = 0; i < amount; ++i )
+			for( var i = 0; i < amount; ++i )
 			{
 				//TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
-				ProjectileManager.Instance.SpawnCustomProjectile(definition, 16 * x, 16 * y, 2 * facing, 2 );
+				ProjectileManager.Instance.SpawnCustomProjectile(definition, 16 * x, 16 * y - 80, 0.2f * facing, 0, player.Index );
 			}
 			player.SendSuccessMessage($"Spawned {definition.Name}.");
 		}
