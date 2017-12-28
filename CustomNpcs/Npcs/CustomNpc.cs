@@ -410,8 +410,10 @@ namespace CustomNpcs.Npcs
 			vel.Normalize();
 			vel *= speed;
 
-			var customProjectile = ProjectileFunctions.SpawnCustomProjectile(owner, projectileName, start, vel);
-						
+			var customProjectile = ProjectileFunctions.SpawnCustomProjectile(255, projectileName, start.X, start.Y, vel.X, vel.Y);
+
+			//var customProjectile = ProjectileFunctions.SpawnCustomProjectile(owner, projectileName, start.X, start.Y, 20, 0);
+
 			//customProjectile.Position = start;
 			//customProjectile.Velocity = vel;
 		}

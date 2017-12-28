@@ -19,7 +19,7 @@ namespace CustomNpcs.Projectiles
 		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
 		/// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
 		[LuaGlobal]
-		public static CustomProjectile SpawnCustomProjectile(int owner, string name, Vector2 position, Vector2 speed)
+		public static CustomProjectile SpawnCustomProjectile(int owner, string name, float x, float y, float xSpeed, float ySpeed)
 		{
 			if (name == null)
 			{
@@ -32,7 +32,7 @@ namespace CustomNpcs.Projectiles
 				throw new FormatException($"Invalid custom projectile name '{name}'.");
 			}
 			
-			return ProjectileManager.Instance.SpawnCustomProjectile(definition, position.X, position.Y, speed.X, speed.Y, owner);
+			return ProjectileManager.Instance.SpawnCustomProjectile(definition, x, y, xSpeed, ySpeed, owner);
 		}
 	}
 }
