@@ -103,6 +103,12 @@ namespace CustomNpcs.Invasions
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
 		[CanBeNull]
+		public LuaFunction OnWaveUpdate { get; private set; }
+
+		/// <summary>
+		///     Gets a function that is invoked when the invasion is ending.
+		/// </summary>
+		[CanBeNull]
 		public LuaFunction OnBossDefeated { get; private set; }
 
 		/// <summary>
@@ -115,6 +121,7 @@ namespace CustomNpcs.Invasions
             OnUpdate = null;
 			OnWaveStart = null;
 			OnWaveEnd = null;
+			OnWaveUpdate = null;
 			OnBossDefeated = null;
             _lua?.Dispose();
             _lua = null;
@@ -145,6 +152,7 @@ namespace CustomNpcs.Invasions
 			OnUpdate = _lua["OnUpdate"] as LuaFunction;
 			OnWaveStart = _lua["OnWaveStart"] as LuaFunction;
 			OnWaveEnd = _lua["OnWaveEnd"] as LuaFunction;
+			OnWaveUpdate = _lua["OnWaveUpdate"] as LuaFunction;
 			OnBossDefeated = _lua["OnBossDefeated"] as LuaFunction;
         }
 

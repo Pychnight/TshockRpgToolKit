@@ -249,7 +249,23 @@ namespace CustomNpcs.Invasions
                 _currentPoints += points;
                 _currentPoints = Math.Min(_currentPoints, _requiredPoints);
                 NotifyRelevantPlayers();
-            }
+
+				if(_currentWaveIndex>=0 && _currentWaveIndex<CurrentInvasion.Waves.Count )
+				{
+					var wave = CurrentInvasion.Waves[_currentWaveIndex];
+					if( wave != null )
+					{
+						lock( _lock )
+						{
+							var onWaveUpdate = CurrentInvasion.OnWaveUpdate;
+							if( onWaveUpdate != null )
+							{
+								Utils.TryExecuteLua(() => onWaveUpdate.Call(_currentWaveIndex, wave, _currentPoints), CurrentInvasion.Name);
+							}
+						}
+					}
+				}
+			}
         }
 
         private void OnReload(ReloadEventArgs args)
