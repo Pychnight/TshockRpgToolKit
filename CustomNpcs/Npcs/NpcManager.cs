@@ -203,7 +203,8 @@ namespace CustomNpcs.Npcs
             }
 			else
 			{
-				TShock.Log.ConsoleError($"Npc's configuration does not exist. Expected config file to be at: {NpcsPath}");
+				ServerApi.LogWriter.PluginWriteLine(_plugin, $"Npc's configuration does not exist. Expected config file to be at: {NpcsPath}", TraceLevel.Error);
+
 				_definitions = new List<NpcDefinition>();
 			}
         }

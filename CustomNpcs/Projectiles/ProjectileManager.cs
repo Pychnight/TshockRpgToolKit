@@ -96,7 +96,7 @@ namespace CustomNpcs.Projectiles
 			}
 			else
 			{
-				TShock.Log.ConsoleError($"Projectiles configuration does not exist. Expected config file to be at: {ProjectilesPath}");
+				ServerApi.LogWriter.PluginWriteLine(plugin, $"Projectiles configuration does not exist. Expected config file to be at: {ProjectilesPath}", TraceLevel.Error);
 				Definitions = new List<ProjectileDefinition>();
 			}
 		}

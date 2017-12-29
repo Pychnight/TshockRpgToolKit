@@ -10,6 +10,7 @@ using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using System.Diagnostics;
 
 namespace CustomNpcs.Invasions
 {
@@ -167,7 +168,7 @@ namespace CustomNpcs.Invasions
             }
 			else
 			{
-				TShock.Log.ConsoleError($"Invasions configuration does not exist. Expected config file to be at: {InvasionsPath}");
+				ServerApi.LogWriter.PluginWriteLine(_plugin, $"Invasions configuration does not exist. Expected config file to be at: {InvasionsPath}", TraceLevel.Error);
 				_definitions = new List<InvasionDefinition>();
 			}
         }
