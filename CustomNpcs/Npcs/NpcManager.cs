@@ -469,43 +469,61 @@ namespace CustomNpcs.Npcs
             }
         }
 
-        private void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
-        {
-            Utils.GetSpawnData(player, out var maxSpawns, out var spawnRate);
-            if (player.TPlayer.activeNPCs >= maxSpawns || _random.Next((int)spawnRate) != 0)
-            {
-                return;
-            }
+		private void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
+		{
+			Utils.GetSpawnData(player, out var maxSpawns, out var spawnRate);
+			if( player.TPlayer.activeNPCs >= maxSpawns )
+			{
+				return;
+			}
 
-            var weights = new Dictionary<NpcDefinition, int>();
-            lock (_lock)
-            {
-                foreach (var definition in _definitions.Where(d => d.ShouldSpawn))
-                {
-                    var weight = 0;
-                    var onCheckSpawn = definition.OnCheckSpawn;
-                    if (onCheckSpawn != null)
-                    {
-                        // First cast to a double then an integer because NLua will return a double.
-                        Utils.TryExecuteLua(() => {
-							//we must check in case of script not returning a number
-							var results = onCheckSpawn.Call(player, tileX, tileY);
-							if (results != null && results.Length == 1 && results[0] is double)
-								weight = (int)(double)results[0];
-							else
-								throw new Exception($"NPC '{definition.Name}' function OnCheckSpawn() should return a number.");
-						},
-						definition.Name);
-                    }
-                    weights[definition] = weight;
-                }
-            }
+			var spawnViaGlobalRate = _random.Next((int)spawnRate) == 0;
 
-            var randomDefinition = Utils.PickRandomWeightedKey(weights);
-            if (randomDefinition != null)
-            {
-                SpawnCustomNpc(randomDefinition, 16 * tileX + 8, 16 * tileY);
-            }
-        }
-    }
+			var weights = new Dictionary<NpcDefinition, int>(_definitions.Count);
+			lock( _lock )
+			{
+				foreach( var definition in _definitions )
+				{
+					if( !definition.ShouldSpawn )
+						continue;
+
+					var candidateForSpawning = spawnViaGlobalRate;
+
+					if(definition.SpawnRateOverride!=null)
+					{
+						candidateForSpawning = _random.Next((int)definition.SpawnRateOverride) == 0;
+					}
+
+					if(candidateForSpawning)
+					{
+						var weight = 0;
+						var onCheckSpawn = definition.OnCheckSpawn;
+						if( onCheckSpawn != null )
+						{
+							// First cast to a double then an integer because NLua will return a double.
+							Utils.TryExecuteLua(() => {
+								//we must check in case of script not returning a number
+								var results = onCheckSpawn.Call(player, tileX, tileY);
+								if( results != null && results.Length == 1 && results[0] is double )
+									weight = (int)(double)results[0];
+								else
+									throw new Exception($"NPC '{definition.Name}' function OnCheckSpawn() should return a number.");
+							},
+							definition.Name);
+						}
+						weights[definition] = weight;
+					}
+				}
+			}
+
+			if(weights.Count>0)
+			{
+				var randomDefinition = Utils.PickRandomWeightedKey(weights);
+				if( randomDefinition != null )
+				{
+					SpawnCustomNpc(randomDefinition, 16 * tileX + 8, 16 * tileY);
+				}
+			}
+		}
+	}
 }

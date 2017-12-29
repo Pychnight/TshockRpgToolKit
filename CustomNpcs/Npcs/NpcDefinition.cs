@@ -125,10 +125,15 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public bool ShouldSpawn => _spawning.ShouldSpawn;
 
-        /// <summary>
-        ///     Gets a value indicating whether the NPC should have kills tallied.
-        /// </summary>
-        public bool ShouldTallyKills => _loot.TallyKills;
+		/// <summary>
+		///     Gets an optional value that overrides the global spawnrate, if present.
+		/// </summary>
+		public int? SpawnRateOverride => _spawning.SpawnRateOverride;
+
+		/// <summary>
+		///     Gets a value indicating whether the NPC should have kills tallied.
+		/// </summary>
+		public bool ShouldTallyKills => _loot.TallyKills;
 
         /// <summary>
         ///     Gets a value indicating whether the NPC should update on hit.
@@ -381,6 +386,9 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty(Order = 0)]
             public bool ShouldSpawn { get; private set; }
-        }
+
+			[JsonProperty(Order = 2)]
+			public int? SpawnRateOverride { get; private set; }
+		}
     }
 }
