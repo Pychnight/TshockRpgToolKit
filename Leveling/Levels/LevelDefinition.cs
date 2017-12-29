@@ -49,7 +49,7 @@ namespace Leveling.Levels
         ///     Gets the name.
         /// </summary>
         [JsonProperty("Name", Order = 0)]
-        public string LevelName { get; private set; }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     Gets the set of permissions granted.
