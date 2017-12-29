@@ -233,10 +233,10 @@ namespace CustomNpcs.Npcs
 						if( onTransformed != null )
 						{
 							Utils.TryExecuteLua(() => onTransformed.Call(customNpc), definition.Name);
-						}
 
-						TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
-						TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
+							TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
+							TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
+						}
 					}
 
 					var npcId = npc.whoAmI;
