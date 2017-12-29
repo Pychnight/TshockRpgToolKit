@@ -201,6 +201,11 @@ namespace CustomNpcs.Npcs
                 }
                 _definitions = _definitions.Except(failedDefinitions).ToList();
             }
+			else
+			{
+				TShock.Log.ConsoleError($"Npc's configuration does not exist. Expected config file to be at: {NpcsPath}");
+				_definitions = new List<NpcDefinition>();
+			}
         }
 
         private void OnGameUpdate(EventArgs args)

@@ -94,6 +94,11 @@ namespace CustomNpcs.Projectiles
 
 				Definitions = definitions.Except(failedDefinitions).ToList();
 			}
+			else
+			{
+				TShock.Log.ConsoleError($"Projectiles configuration does not exist. Expected config file to be at: {ProjectilesPath}");
+				Definitions = new List<ProjectileDefinition>();
+			}
 		}
 
 		public ProjectileDefinition FindDefinition(string name)

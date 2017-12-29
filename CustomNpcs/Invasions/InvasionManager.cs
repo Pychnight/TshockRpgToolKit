@@ -165,6 +165,11 @@ namespace CustomNpcs.Invasions
                 }
                 _definitions = _definitions.Except(failedDefinitions).ToList();
             }
+			else
+			{
+				TShock.Log.ConsoleError($"Invasions configuration does not exist. Expected config file to be at: {InvasionsPath}");
+				_definitions = new List<InvasionDefinition>();
+			}
         }
 
         private void NotifyRelevantPlayers()
