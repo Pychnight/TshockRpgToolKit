@@ -270,11 +270,16 @@ namespace CustomNpcs.Npcs
 								var definition = customNpc.Definition;
 								Utils.TryExecuteLua(() => definition.OnCollision?.Call(customNpc, player), definition.Name);
 							}
-							player.SetData(IgnoreCollisionKey, true);
-							break;//should this be a continue instead??
+							//player.SetData(IgnoreCollisionKey, true);
+							//break;//should this be a continue instead??
 						}
 					}
                 }
+
+				if(!tplayer.immune)
+				{
+					player.SetData(IgnoreCollisionKey, true);
+				}
             }
 	    }
 
