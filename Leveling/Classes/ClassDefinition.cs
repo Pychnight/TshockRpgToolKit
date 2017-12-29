@@ -40,11 +40,11 @@ namespace Leveling.Classes
         [JsonProperty(Order = 8)]
         public double? ExpMultiplierOverride { get; private set; }
 
-        /// <summary>
-        ///     Gets the list of level definitions.
-        /// </summary>
-        [JsonProperty("Levels", Order = 2)]
-        public IList<LevelDefinition> LevelDefinitions { get; private set; }
+		/// <summary>
+		///     Gets the list of level definitions.
+		/// </summary>
+		[JsonProperty("Levels", Order = 2)]
+		public IList<LevelDefinition> LevelDefinitions { get; private set; } = new List<LevelDefinition>();
 
         /// <summary>
         ///     Gets the name.

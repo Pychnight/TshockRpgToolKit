@@ -25,9 +25,13 @@ namespace Leveling
     {
         private const string SessionKey = "Leveling_Session";
 
+		public static LevelingPlugin Instance { get; private set; }
+
         public static readonly Dictionary<string, Level> ItemNameToLevelRequirements = new Dictionary<string, Level>();
 
         private static readonly string ConfigPath = Path.Combine("leveling", "config.json");
+
+		internal SqliteSessionRepository SessionRepository;
 
         private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages =
             new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
@@ -40,6 +44,8 @@ namespace Leveling
 #if DEBUG
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
+
+			Instance = this;
         }
 
         public override string Author => "MarioE";
@@ -49,32 +55,53 @@ namespace Leveling
 
         public override void Initialize()
         {
-            Directory.CreateDirectory("leveling");
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-            _classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-                .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-            _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+			try
+			{
+				Directory.CreateDirectory("leveling");
+				if (File.Exists(ConfigPath))
+				{
+					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+				}
 
-            var levels = _classes.SelectMany(c => c.Levels).ToList();
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(levels, 0);
-            }
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(levels, 1);
-            }
-            foreach (var level in levels)
-            {
-                foreach (var itemName in level.ItemNamesAllowed)
-                {
-                    ItemNameToLevelRequirements[itemName] = level;
-                }
-            }
+				SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
 
+				_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
+					.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+				//if default class file does not exist, we're in an error state
+				if (_classDefinitions.Select(cd => cd.Name).
+					FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null)
+				{
+					throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
+				}
+
+				var levels = _classes.SelectMany(c => c.Levels).ToList();
+				foreach (var @class in _classes)
+				{
+					@class.Resolve(levels, 0);
+				}
+				foreach (var @class in _classes)
+				{
+					@class.Resolve(levels, 1);
+				}
+				foreach (var level in levels)
+				{
+					foreach (var itemName in level.ItemNamesAllowed)
+					{
+						ItemNameToLevelRequirements[itemName] = level;
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
+				this.Enabled = false;
+				return;
+			}
+            
             GeneralHooks.ReloadEvent += OnReload;
             PlayerHooks.PlayerChat += OnPlayerChat;
             PlayerHooks.PlayerPermission += OnPlayerPermission;
@@ -139,7 +166,13 @@ namespace Leveling
                 HelpText = $"Syntax: {Commands.Specifier}setclass <player-name> <class-name>\n" +
                            "Sets the specified player's class."
             });
-        }
+
+			Commands.ChatCommands.Add(new Command("leveling.dump", LevelDump, "leveldump")
+			{
+				HelpText = $"Syntax: {Commands.Specifier}leveldump\n" +
+						   "Dumps debug information about the players level to a file."
+			});
+		}
 
         protected override void Dispose(bool disposing)
         {
@@ -150,6 +183,8 @@ namespace Leveling
                 {
                     session.Save();
                 }
+
+				SessionRepository.Dispose();
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 PlayerHooks.PlayerChat -= OnPlayerChat;
@@ -391,17 +426,22 @@ namespace Leveling
         private Session GetOrCreateSession(TSPlayer player)
         {
             var session = player.GetData<Session>(SessionKey);
-            if (session == null)
+			if (session == null)
             {
-                var username = player.User?.Name ?? player.Name;
-                var sessionPath = Path.Combine("leveling", $"{username}.session");
-                SessionDefinition definition;
-                if (File.Exists(sessionPath))
-                {
-                    definition = JsonConvert.DeserializeObject<SessionDefinition>(File.ReadAllText(sessionPath));
-                }
-                else
-                {
+				var username = player.User?.Name ?? player.Name;
+				//var sessionPath = Path.Combine("leveling", $"{username}.session");
+
+				//if (File.Exists(sessionPath))
+				//{
+				//    definition = JsonConvert.DeserializeObject<SessionDefinition>(File.ReadAllText(sessionPath));
+				//}
+
+				//first try the database
+				SessionDefinition definition = SessionRepository.Load(username);
+
+				//otherwise we need to create
+				if(definition==null)
+				{
                     definition = new SessionDefinition();
                     var defaultClassName = Config.Instance.DefaultClassName;
                     definition.ClassNameToExp[defaultClassName] = 0;
@@ -960,5 +1000,23 @@ namespace Leveling
             player.SendSuccessMessage($"Set {otherPlayer.Name}'s class to {@class}.");
             otherPlayer.SendInfoMessage($"You have been set to the {@class} class.");
         }
-    }
+
+		private void LevelDump(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+
+			var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+			var fileName = $"{player.Name}-{timeStamp}.json";
+
+			fileName = Path.Combine("leveling", fileName);
+
+			var session = GetOrCreateSession(player);
+			var json = JsonConvert.SerializeObject(session._definition, Formatting.Indented);
+
+			File.WriteAllText(fileName, json);
+			
+			player.SendErrorMessage($"Dumped leveling info to file '{fileName}'.");
+		}
+	}
 }
