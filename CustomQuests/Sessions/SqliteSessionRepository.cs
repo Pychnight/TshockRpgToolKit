@@ -66,7 +66,7 @@ namespace CustomQuests.Sessions
 
 		internal override SessionInfo Load(string userName)
         {
-			ServerApi.LogWriter.PluginWriteLine(plugin, $"SqliteSessionRepo.Load({userName})", TraceLevel.Verbose);
+			Debug.Print($"SqliteSessionRepo.Load({userName})");
 			SessionInfo result = null;
 			
 			if(connection!=null)
@@ -104,7 +104,7 @@ namespace CustomQuests.Sessions
 
 		internal override void Save(SessionInfo sessionInfo, string userName)
 		{
-			ServerApi.LogWriter.PluginWriteLine(plugin, $"SqliteSessionRepo.Save [sessionInfo] ({userName})", TraceLevel.Verbose);
+			Debug.Print($"SqliteSessionRepo.Save [sessionInfo] ({userName})");
 
 			if (connection!=null)
 			{
@@ -124,7 +124,7 @@ namespace CustomQuests.Sessions
 
 		internal override void Save(Session session, string userName)
         {
-			ServerApi.LogWriter.PluginWriteLine(plugin, $"SqliteSessionRepo.Save [session] ({userName})", TraceLevel.Verbose);
+			Debug.Print($"SqliteSessionRepo.Save [session] ({userName})");
 
 			if (connection!=null)
 			{

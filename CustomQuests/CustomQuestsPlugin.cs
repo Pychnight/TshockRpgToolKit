@@ -93,9 +93,7 @@ namespace CustomQuests
         /// </summary>
         public override void Initialize()
         {
-            ServerApi.LogWriter.PluginWriteLine(this, "Initializing", TraceLevel.Info);
-			
-			Directory.CreateDirectory("quests");
+            Directory.CreateDirectory("quests");
 			if (File.Exists(ConfigPath))
             {
                 _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
@@ -105,9 +103,9 @@ namespace CustomQuests
             {
                 _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
 
-				ServerApi.LogWriter.PluginWriteLine(this, "Found the following quest infos:", TraceLevel.Info);
+				Debug.Print("Found the following quest infos:");
 				foreach(var qi in _questInfos)
-					ServerApi.LogWriter.PluginWriteLine(this,$"Quest: {qi.FriendlyName}",TraceLevel.Info);
+					Debug.Print($"Quest: {qi.FriendlyName}");
             }
 
             GeneralHooks.ReloadEvent += OnReload;
