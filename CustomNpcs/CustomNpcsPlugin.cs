@@ -10,6 +10,7 @@ using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using Microsoft.Xna.Framework;
 
 namespace CustomNpcs
 {
@@ -219,7 +220,7 @@ namespace CustomNpcs
 			var player = args.Player;
 			if( parameters.Count == 0 || parameters.Count > 4 )
 			{
-				player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnprojectile <name> x y");
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}cspawnprojectile <name> [(x,y)]");
 				return;
 			}
 
@@ -231,38 +232,60 @@ namespace CustomNpcs
 				return;
 			}
 
-			var x = args.Player.TileX;
-			var y = args.Player.TileY;
+			var speed = 5;
 			var facing = args.Player.TPlayer.direction;
+			var playerX = args.Player.TileX + ( facing * 3 );//fire from 2 tiles in front/back of player
+			var playerY = args.Player.TileY;
+			var targetX = (int)(playerX + (facing * 22));//2+20 tiles
+			var targetY = (int)playerY;
 
-			//var inputAmount = parameters.Count >= 2 ? parameters[1] : "1";
-			//if( !int.TryParse(inputAmount, out var amount) || amount <= 0 || amount > 200 )
+			var targetString = parameters.Count >= 2 ? parameters[1] : $"({targetX},{targetY})";
+			if(!targetString.StartsWith("(") || !targetString.EndsWith(")"))
+			{
+				player.SendErrorMessage($"Expected parenthesis. Target must be in the form (x,y).");
+				return;
+			}
+
+			targetString = targetString.Substring(1, targetString.Length - 2);
+
+			var components = targetString.Split(',');
+			if(components.Length!=2)
+			{
+				player.SendErrorMessage($"Expected 2 numeric values. Target must be in the form (x,y).");
+				return;
+			}
+
+			if( !int.TryParse(components[0], out targetX) || targetX < 0 || targetX > Main.maxTilesX )
+			{
+				player.SendErrorMessage($"Invalid X position '{components[0]}'.");
+				return;
+			}
+			
+			if( !int.TryParse(components[1], out targetY) || targetY < 0 || targetY > Main.maxTilesY )
+			{
+				player.SendErrorMessage($"Invalid Y position '{components[1]}'.");
+				return;
+			}
+
+			//if( !int.TryParse(inputSpeed, out speed) || speed <= 0 || speed > 50 )
 			//{
-			//	player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
+			//	player.SendErrorMessage($"Invalid speed '{inputSpeed}'.");
 			//	return;
 			//}
 
-			var inputX = parameters.Count >= 2 ? parameters[1] : player.TileX.ToString();
-			if( !int.TryParse(inputX, out x) || x < 0 || x > Main.maxTilesX )
-			{
-				player.SendErrorMessage($"Invalid X position '{inputX}'.");
-				return;
-			}
-
-			var inputY = parameters.Count == 3 ? parameters[2] : player.TileY.ToString();
-			if( !int.TryParse(inputY, out y) || y < 0 || y > Main.maxTilesY )
-			{
-				player.SendErrorMessage($"Invalid Y position '{inputY}'.");
-				return;
-			}
-
-			var amount = 1;
+			//var inputSpeed = parameters.Count >= 2 ? parameters[1] : speed.ToString();
+			//if( !int.TryParse(inputSpeed, out speed) || speed <= 0 || speed > 50 )
+			//{
+			//	player.SendErrorMessage($"Invalid speed '{inputSpeed}'.");
+			//	return;
+			//}
 			
-			for( var i = 0; i < amount; ++i )
-			{
-				//TShock.Utils.GetRandomClearTileWithInRange(x, y, 50, 50, out var spawnX, out var spawnY);
-				ProjectileManager.Instance.SpawnCustomProjectile(definition, 16 * x, 16 * y - 80, 0.2f * facing, 0, player.Index );
-			}
+			var delta = new Vector2(targetX - playerX, targetY - playerY);
+			delta.Normalize();
+			delta *= speed;
+			
+			ProjectileManager.Instance.SpawnCustomProjectile(definition, playerX * 16, playerY * 16, delta.X, delta.Y, player.Index );
+			
 			player.SendSuccessMessage($"Spawned {definition.Name}.");
 		}
 
