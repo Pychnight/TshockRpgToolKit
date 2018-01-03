@@ -139,6 +139,8 @@ namespace CustomNpcs.Projectiles
 			lua.DoString("import('OTAPI', 'Terraria')");
 			lua.DoString("import('TShock', 'TShockAPI')");
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
+			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
+			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
 			lua.DoFile(Path.Combine("npcs", LuaPath));
 			
 			OnAiUpdate = lua["OnAiUpdate"] as LuaFunction;

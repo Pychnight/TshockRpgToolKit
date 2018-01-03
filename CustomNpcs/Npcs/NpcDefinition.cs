@@ -223,6 +223,7 @@ namespace CustomNpcs.Npcs
             lua.DoString("import('TShock', 'TShockAPI')");
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
+			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
 
 			lua["Center"] = new CenterOffsetHelper();
 

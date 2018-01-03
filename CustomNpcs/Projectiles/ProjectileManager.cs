@@ -225,7 +225,7 @@ namespace CustomNpcs.Projectiles
 				//tiles
 				if(projectile.tileCollide)
 				{
-					var tileCollisions = TileCollision.GetOverlappedTiles(projectile.Hitbox);
+					var tileCollisions = TileFunctions.GetOverlappedTiles(projectile.Hitbox);
 
 					if( tileCollisions.Count > 0 )
 					{

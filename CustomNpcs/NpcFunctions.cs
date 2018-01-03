@@ -143,14 +143,14 @@ namespace CustomNpcs
             return TShock.Regions.GetRegionByName(name);
         }
 
-        /// <summary>
-        ///     Gets the tile at the specified coordinates.
-        /// </summary>
-        /// <param name="x">The X coordinate, which must be in bounds.</param>
-        /// <param name="y">The Y coordinate, which must be in bounds.</param>
-        /// <returns>The tile.</returns>
-        [LuaGlobal]
-        public static ITile GetTile(int x, int y) => Main.tile[x, y];
+        ///// <summary>
+        /////     Gets the tile at the specified coordinates.
+        ///// </summary>
+        ///// <param name="x">The X coordinate, which must be in bounds.</param>
+        ///// <param name="y">The Y coordinate, which must be in bounds.</param>
+        ///// <returns>The tile.</returns>
+        //[LuaGlobal]
+        //public static ITile GetTile(int x, int y) => Main.tile[x, y];
 
         /// <summary>
         ///     Gets a random number between 0.0 and 1.0.
