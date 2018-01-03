@@ -45,7 +45,7 @@ namespace CustomNpcs.Npcs
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 		
-        private List<NpcDefinition> _definitions = new List<NpcDefinition>();
+        internal List<NpcDefinition> _definitions = new List<NpcDefinition>();
 
         internal NpcManager(CustomNpcsPlugin plugin)
         {

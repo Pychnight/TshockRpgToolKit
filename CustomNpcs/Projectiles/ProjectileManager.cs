@@ -28,7 +28,7 @@ namespace CustomNpcs.Projectiles
 
 		CustomNpcsPlugin plugin;
 
-		public List<ProjectileDefinition> Definitions { get; set; }
+		public List<ProjectileDefinition> Definitions { get; private set; }
 		ConditionalWeakTable<Projectile, CustomProjectile> customProjectiles;
 		
 		object locker = new object();

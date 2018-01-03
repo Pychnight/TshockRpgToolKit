@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using CustomNpcs.Invasions;
 using CustomNpcs.Npcs;
@@ -72,7 +73,11 @@ namespace CustomNpcs
             Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomSpawnMob, "cspawnmob", "csm"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomSpawnProjectile, "cspawnprojectile", "csp"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
-        }
+
+			Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomMobControl, "cmob"));
+			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomProjectileControl, "cprojectile"));
+			//Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
+		}
 
         /// <summary>
         ///     Disposes the plugin.
@@ -317,7 +322,81 @@ namespace CustomNpcs
             }
         }
 
-        private void OnReload(ReloadEventArgs args)
+		private void CustomMobControl(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			var subCommand = "list";
+			if( parameters.Count > 1 )
+			{
+				subCommand = parameters[0];
+			}
+			
+			if(subCommand == "list")
+			{
+				var definitions = NpcManager.Instance?._definitions;
+				if( definitions != null )
+				{
+					player.SendInfoMessage($"Listing CustomNpcs:");
+
+					var defs = from def in definitions
+							   orderby def.Name
+							   select def;
+
+
+					foreach( var d in defs )
+					{
+						player.SendInfoMessage($"{d.Name} - {d.BaseType}");
+					}
+
+					return;
+				}
+			}
+			else
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}cmob <subcommand>");
+				return;
+			}
+		}
+
+		private void CustomProjectileControl(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			var subCommand = "list";
+			if( parameters.Count > 1 )
+			{
+				subCommand = parameters[0];
+			}
+
+			if( subCommand == "list" )
+			{
+				var definitions = ProjectileManager.Instance?.Definitions;
+				if( definitions != null )
+				{
+					player.SendInfoMessage($"Listing CustomProjectiles:");
+
+					var defs = from def in definitions
+							   orderby def.Name
+							   select def;
+
+
+					foreach( var d in defs )
+					{
+						player.SendInfoMessage($"{d.Name} - {d.BaseType}");
+					}
+
+					return;
+				}
+			}
+			else
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}cprojectile <subcommand>");
+				return;
+			}
+		}
+
+		private void OnReload(ReloadEventArgs args)
         {
             if (File.Exists(ConfigPath))
             {
