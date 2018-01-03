@@ -175,3 +175,21 @@ end
 function IsType(baseNpc, type)
     return baseNpc.netID == type
 end
+
+-- Tile functions
+
+function TileX(worldX)
+	return worldX * TileSize
+end
+
+function TileY(worldY)
+	return worldY * TileSize
+end
+
+function WorldX(tileX)
+	return tileX / TileSize
+end
+
+function WorldY(tileY)
+	return tileY / TileSize
+end

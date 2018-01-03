@@ -225,6 +225,8 @@ namespace CustomNpcs.Npcs
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
 
+			lua["TileSize"] = TileFunctions.TileSize;
+			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
 			lua["Center"] = new CenterOffsetHelper();
 
 			lua.DoFile(Path.Combine("npcs", LuaPath));

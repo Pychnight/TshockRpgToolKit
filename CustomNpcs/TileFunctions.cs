@@ -8,12 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using TShockAPI;
 
 namespace CustomNpcs
 {
 	public static class TileFunctions
 	{
-		const int tileSize = 16;
+		public const int TileSize = 16;
+		public const int HalfTileSize = TileSize / 2;
 
 		public static ReadOnlyCollection<Point> GetOverlappedTiles(Rectangle bounds)
 		{
@@ -46,6 +48,9 @@ namespace CustomNpcs
 					//	results.Add(new Point(col, row));
 					//}
 
+					if( !isActive )
+						continue;
+
 					var isEmpty = WorldGen.TileEmpty(col, row);
 
 					if( !isEmpty || tile.wall != 0 || tile.liquid !=0 )
@@ -65,6 +70,18 @@ namespace CustomNpcs
 			}
 
 			return results.AsReadOnly();
+		}
+
+		//[LuaGlobal]
+		public static int TileX(float x)
+		{
+			return (int)( x / TileSize );
+		}
+
+		//[LuaGlobal]
+		public static int TileY(float y)
+		{
+			return (int)( y / TileSize );
 		}
 
 		/// <summary>
@@ -117,6 +134,44 @@ namespace CustomNpcs
 		//public static bool IsTileLiquid(ITile tile)
 		//{
 		//	return tile.active() && tile.liquid 
+		//}
+
+		[LuaGlobal]
+		public static void KillTile(int column, int row)
+		{
+			if(Main.tile[column,row].active())
+			{
+				WorldGen.KillTile(column, row);
+				TSPlayer.All.SendTileSquare(column, row);
+			}
+		}
+
+		[LuaGlobal]
+		public static void RadialKillTile(int x, int y, int radius)
+		{
+			var box = new Rectangle(x - radius, y - radius, radius * 2, radius * 2);
+			var hits = GetOverlappedTiles(box);
+			var tileCenterOffset = new Vector2(HalfTileSize, HalfTileSize);
+			var center = new Vector2(x, y);
+
+			foreach(var hit in hits)
+			{
+				var tileCenter = new Vector2(hit.X * TileSize,hit.Y * TileSize);
+				tileCenter += tileCenterOffset;
+
+				var dist = tileCenter - center;
+								
+				if( dist.LengthSquared() <= (radius * radius))
+				{
+					KillTile(hit.X, hit.Y);
+				}
+			}
+		}
+
+		//[LuaGlobal]
+		//public static void RadialKillTile(Vector2 position, int radius)
+		//{
+		//	RadialKillTile((int)position.X, (int)position.Y, radius);
 		//}
 	}
 }
