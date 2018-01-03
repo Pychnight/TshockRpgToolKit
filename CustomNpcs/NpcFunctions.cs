@@ -10,6 +10,7 @@ using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
 using TShockAPI.Localization;
+using System.Collections.ObjectModel;
 
 namespace CustomNpcs
 {
@@ -245,5 +246,53 @@ namespace CustomNpcs
             }
             return null;
         }
+
+		public static ReadOnlyCollection<TSPlayer> FindPlayersInRadius(float x, float y, float radius)
+		{
+			var results = new List<TSPlayer>();
+			var center = new Vector2(x, y);
+
+			foreach( var player in TShock.Players )
+			{
+				if(player!=null && player.Active)
+				{
+					var pos = new Vector2(player.X, player.Y);
+					var delta = pos - center;
+
+					if( delta.LengthSquared() <= ( radius * radius ) )
+						results.Add(player);
+				}
+			}
+
+			return results.AsReadOnly();
+		}
+
+		[LuaGlobal]
+		public static void RadialDamagePlayer(int x, int y, int radius, int damage, float falloff)
+		{
+			if( radius < 1 )
+				return;
+
+			var center = new Vector2(x, y);
+			//falloff = Math.Min(falloff, 1.0f);//clip to 1
+		
+			foreach(var player in FindPlayersInRadius(x,y,radius))
+			{
+				var pos = new Vector2(player.X, player.Y);
+				var delta = pos - center;
+				var dist = delta.LengthSquared();
+				var damageStep = dist / ( radius * radius );
+				
+				var adjustedDamage = damage * (1.0f - (damageStep * falloff));
+
+				if(adjustedDamage>1)
+					player.DamagePlayer((int)adjustedDamage);
+
+				//...internally, DamagePlayer looks like this: 
+				//NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.LegacyDefault(), damage, new Random().Next(-1, 1), false, false, 0, -1, -1);
+			
+				//might be able to do our knockback effect?	
+			}
+		}
     }
 }
