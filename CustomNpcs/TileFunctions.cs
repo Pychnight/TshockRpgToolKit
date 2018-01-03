@@ -139,7 +139,7 @@ namespace CustomNpcs
 		[LuaGlobal]
 		public static void SetTile(int column, int row, int type)
 		{
-			if( Main.tile[column, row].active() )
+			if( Main.tile[column, row]?.active()==true )
 			{
 				Main.tile[column, row].ResetToType((ushort)type);
 				TSPlayer.All.SendTileSquare(column, row);
@@ -149,7 +149,7 @@ namespace CustomNpcs
 		[LuaGlobal]
 		public static void KillTile(int column, int row)
 		{
-			if(Main.tile[column,row].active())
+			if(Main.tile[column,row]?.active()==true)
 			{
 				WorldGen.KillTile(column, row);
 				TSPlayer.All.SendTileSquare(column, row);
