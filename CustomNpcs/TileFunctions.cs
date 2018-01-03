@@ -137,6 +137,16 @@ namespace CustomNpcs
 		//}
 
 		[LuaGlobal]
+		public static void SetTile(int column, int row, int type)
+		{
+			if( Main.tile[column, row].active() )
+			{
+				Main.tile[column, row].ResetToType((ushort)type);
+				TSPlayer.All.SendTileSquare(column, row);
+			}
+		}
+
+		[LuaGlobal]
 		public static void KillTile(int column, int row)
 		{
 			if(Main.tile[column,row].active())
@@ -145,7 +155,7 @@ namespace CustomNpcs
 				TSPlayer.All.SendTileSquare(column, row);
 			}
 		}
-
+		
 		[LuaGlobal]
 		public static void RadialKillTile(int x, int y, int radius)
 		{
@@ -173,5 +183,27 @@ namespace CustomNpcs
 		//{
 		//	RadialKillTile((int)position.X, (int)position.Y, radius);
 		//}
+
+		[LuaGlobal]
+		public static void RadialSetTile(int x, int y, int radius, int type)
+		{
+			var box = new Rectangle(x - radius, y - radius, radius * 2, radius * 2);
+			var hits = GetOverlappedTiles(box);
+			var tileCenterOffset = new Vector2(HalfTileSize, HalfTileSize);
+			var center = new Vector2(x, y);
+
+			foreach( var hit in hits )
+			{
+				var tileCenter = new Vector2(hit.X * TileSize, hit.Y * TileSize);
+				tileCenter += tileCenterOffset;
+
+				var dist = tileCenter - center;
+
+				if( dist.LengthSquared() <= ( radius * radius ) )
+				{
+					SetTile(hit.X, hit.Y, type);
+				}
+			}
+		}
 	}
 }
