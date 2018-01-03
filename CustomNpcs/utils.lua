@@ -179,17 +179,17 @@ end
 -- Tile functions
 
 function TileX(worldX)
-	return worldX * TileSize
+	return worldX / TileSize -- constant is not visibile in this file/scope, for whatever reason...
 end
 
 function TileY(worldY)
-	return worldY * TileSize
+	return worldY /TileSize
 end
 
 function WorldX(tileX)
-	return tileX / TileSize
+	return tileX * TileSize
 end
 
 function WorldY(tileY)
-	return tileY / TileSize
+	return tileY * TileSize
 end
