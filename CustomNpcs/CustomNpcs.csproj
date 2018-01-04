@@ -81,6 +81,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="LuaHelperExtensions.cs" />
     <Compile Include="Invasions\InvasionManager.cs" />
+    <Compile Include="Lua\SafeLuaFunction.cs" />
     <Compile Include="Npcs\CustomNpc.cs" />
     <Compile Include="Npcs\NpcManager.cs" />
     <Compile Include="Npcs\NpcDefinition.cs" />

@@ -1,9 +1,11 @@
 ﻿using NLua;
+using NLua.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace CustomNpcs
 {
@@ -15,6 +17,13 @@ namespace CustomNpcs
 				return (T)luaResults[0];
 			
 			return null;
+		}
+
+		public static SafeLuaFunction GetSafeFunction(this Lua lua, string functionName)
+		{
+			var luaFunction = lua[functionName] as LuaFunction;
+
+			return new SafeLuaFunction(luaFunction);
 		}
 	}
 }

@@ -58,49 +58,49 @@ namespace CustomNpcs.Npcs
         ///     Gets a function that is invoked when the NPC AI is updated.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnAiUpdate { get; private set; }
+        public SafeLuaFunction OnAiUpdate { get; private set; }
 
         /// <summary>
         ///     Gets a function that is invoked when the NPC is checked for replacing.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnCheckReplace { get; private set; }
+        public SafeLuaFunction OnCheckReplace { get; private set; }
 
         /// <summary>
         ///     Gets a function that is invoked when the NPC is checked for spawning.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnCheckSpawn { get; private set; }
+        public SafeLuaFunction OnCheckSpawn { get; private set; }
 
         /// <summary>
         ///     Gets a function that is invoked when the NPC collides with a player.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnCollision { get; private set; }
+        public SafeLuaFunction OnCollision { get; private set; }
 
         /// <summary>
         ///     Gets a function that is invoked when NPC is killed.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnKilled { get; private set; }
+        public SafeLuaFunction OnKilled { get; private set; }
 
         /// <summary>
         ///     Gets a function that is invoked when the NPC is spawned.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnSpawn { get; private set; }
+        public SafeLuaFunction OnSpawn { get; private set; }
 
         /// <summary>
         ///     Gets a function that is invoked when the NPC is struck.
         /// </summary>
         [CanBeNull]
-        public LuaFunction OnStrike { get; private set; }
+        public SafeLuaFunction OnStrike { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked after the NPC has transformed.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnTransformed { get; private set; }
+		public SafeLuaFunction OnTransformed { get; private set; }
 
 		/// <summary>
 		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
@@ -232,17 +232,17 @@ namespace CustomNpcs.Npcs
 			lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 
-            OnAiUpdate = _lua["OnAiUpdate"] as LuaFunction;
-            OnCheckReplace = _lua["OnCheckReplace"] as LuaFunction;
-            OnCheckSpawn = _lua["OnCheckSpawn"] as LuaFunction;
-            OnCollision = _lua["OnCollision"] as LuaFunction;
-            OnKilled = _lua["OnKilled"] as LuaFunction;
-            OnSpawn = _lua["OnSpawn"] as LuaFunction;
-            OnStrike = _lua["OnStrike"] as LuaFunction;
-			OnTransformed = _lua["OnTransformed"] as LuaFunction;
+			OnAiUpdate =		_lua.GetSafeFunction("OnAiUpdate");
+			OnCheckReplace =	_lua.GetSafeFunction("OnCheckReplace");
+            OnCheckSpawn =		_lua.GetSafeFunction("OnCheckSpawn");
+            OnCollision =		_lua.GetSafeFunction("OnCollision");
+            OnKilled =			_lua.GetSafeFunction("OnKilled");
+            OnSpawn =			_lua.GetSafeFunction("OnSpawn");
+            OnStrike =			_lua.GetSafeFunction("OnStrike");
+			OnTransformed =		_lua.GetSafeFunction("OnTransformed");
         }
-
-        internal void ThrowIfInvalid()
+		
+		internal void ThrowIfInvalid()
         {
             if (Name == null)
             {
