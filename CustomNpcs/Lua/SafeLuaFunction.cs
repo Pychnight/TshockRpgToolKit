@@ -2,9 +2,11 @@
 using NLua.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TerrariaApi.Server;
 using TShockAPI;
 
 namespace CustomNpcs
@@ -30,34 +32,37 @@ namespace CustomNpcs
 					return null;
 
 				return WrappedFunction.Call(args);
+
 			}
 			catch( LuaScriptException lsex )
 			{
-				TShock.Log.ConsoleError($"[CustomNpcs] A Lua script error occurred from {executor}:");
-				TShock.Log.ConsoleError(lsex.ToString());
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua script error has originated from {executor}:", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lsex.ToString(), TraceLevel.Error);
 				if( lsex.InnerException != null )
 				{
-					TShock.Log.ConsoleError(lsex.InnerException.ToString());
+					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lsex.InnerException.ToString(), TraceLevel.Error);
 				}
-				TShock.Log.ConsoleError($"[CustomNpcs] Disabling function from further execution.");
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"Containing function will be disabled from further execution.", TraceLevel.Error);
 				WrappedFunction = null;
 			}
 			catch( LuaException lex )
 			{
-				TShock.Log.ConsoleError($"[CustomNpcs] A Lua error occurred from {executor}:");
-				TShock.Log.ConsoleError(lex.ToString());
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua error has originated from {executor}:", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lex.ToString(), TraceLevel.Error);
+
 				if( lex.InnerException != null )
 				{
-					TShock.Log.ConsoleError(lex.InnerException.ToString());
+					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lex.InnerException.ToString(), TraceLevel.Error);
 				}
 			}
 			catch( Exception ex )
 			{
-				TShock.Log.ConsoleError($"[CustomNpcs] An error occurred in managed code, while interacting with Lua code ( {executor} ):");
-				TShock.Log.ConsoleError(ex.ToString());
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"An error has occurred in managed code, while interacting with Lua code ( {executor} ):", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
+
 				if( ex.InnerException != null )
 				{
-					TShock.Log.ConsoleError(ex.InnerException.ToString());
+					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
 				}
 			}
 

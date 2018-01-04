@@ -26,12 +26,15 @@ namespace CustomNpcs
 	{
 		private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
 
+		internal static CustomNpcsPlugin Instance = null;
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
 		/// </summary>
 		/// <param name="game">The Main instance.</param>
 		public CustomNpcsPlugin(Main game) : base(game)
 		{
+			Instance = this;
 		}
 
 		/// <summary>
