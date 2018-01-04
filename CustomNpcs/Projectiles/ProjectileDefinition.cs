@@ -31,32 +31,32 @@ namespace CustomNpcs.Projectiles
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is spawned.
 		/// </summary>
-		public LuaFunction OnSpawn { get; private set; }
+		public SafeLuaFunction OnSpawn { get; private set; }
 
 		/// <summary>
 		/// Gets a function that is invoked when the projectile becomes inactive.
 		/// </summary>
-		public LuaFunction OnKilled { get; private set; }
+		public SafeLuaFunction OnKilled { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked for the projectile on each game update.
 		/// </summary>
-		public LuaFunction OnGameUpdate { get; private set; }
+		public SafeLuaFunction OnGameUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is updated.
 		/// </summary>
-		public LuaFunction OnAiUpdate { get; private set; }
+		public SafeLuaFunction OnAiUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile collides with a player.
 		/// </summary>
-		public LuaFunction OnCollision { get; private set; }
+		public SafeLuaFunction OnCollision { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile collides with a player.
 		/// </summary>
-		public LuaFunction OnTileCollision { get; private set; }
+		public SafeLuaFunction OnTileCollision { get; private set; }
 
 		public void Dispose()
 		{
@@ -148,13 +148,12 @@ namespace CustomNpcs.Projectiles
 
 			lua.DoFile(Path.Combine("npcs", LuaPath));
 			
-			OnAiUpdate = lua["OnAiUpdate"] as LuaFunction;
-			OnGameUpdate = lua["OnGameUpdate"] as LuaFunction;
-			OnCollision = lua["OnCollision"] as LuaFunction;
-			OnTileCollision = lua["OnTileCollision"] as LuaFunction;
-			OnKilled = lua["OnKilled"] as LuaFunction;
-			OnSpawn = lua["OnSpawn"] as LuaFunction;
-			//OnStrike = _lua["OnStrike"] as LuaFunction;
+			OnAiUpdate = lua.GetSafeFunction("OnAiUpdate");
+			OnGameUpdate = lua.GetSafeFunction("OnGameUpdate");
+			OnCollision = lua.GetSafeFunction("OnCollision");
+			OnTileCollision = lua.GetSafeFunction("OnTileCollision");
+			OnKilled = lua.GetSafeFunction("OnKilled");
+			OnSpawn = lua.GetSafeFunction("OnSpawn");
 		}
 
 		internal void ThrowIfInvalid()
@@ -167,7 +166,7 @@ namespace CustomNpcs.Projectiles
 			//{
 			//	throw new FormatException($"{nameof(Name)} cannot be a number.");
 			//}
-			//if (string.IsNullOrWhiteSpace(Name))
+			//if( string.IsNullOrWhiteSpace(Name) )
 			//{
 			//	throw new FormatException($"{nameof(Name)} is whitespace.");
 			//}
@@ -179,10 +178,10 @@ namespace CustomNpcs.Projectiles
 			//{
 			//	throw new FormatException($"{nameof(BaseType)} is too large.");
 			//}
-			//if (LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)))
-			//{
-			//	throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
-			//}
+			if( LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)) )
+			{
+				throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
+			}
 			//if (_loot == null)
 			//{
 			//	throw new FormatException("Loot is null.");

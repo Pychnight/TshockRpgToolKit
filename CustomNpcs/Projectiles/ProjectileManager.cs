@@ -158,7 +158,8 @@ namespace CustomNpcs.Projectiles
 
 			lock( locker )
 			{
-				Utils.TryExecuteLua(() => definition.OnSpawn?.Call(customProjectile), definition.Name);
+				var onSpawn = definition.OnSpawn;
+				onSpawn?.Call(definition.Name, customProjectile);
 			}
 						
 			//TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
@@ -196,15 +197,17 @@ namespace CustomNpcs.Projectiles
 
 			if(customProjectile!=null)
 			{
+				var definition = customProjectile.Definition;
+
 				//game updates
 				lock( locker )
 				{
-					var definition = customProjectile.Definition;
-					Utils.TryExecuteLua(() =>
+					var onGameUpdate = definition.OnGameUpdate;
+					if(onGameUpdate!=null)
 					{
-						var handled = definition.OnGameUpdate?.Call(customProjectile).GetResult<bool>();
+						var handled = onGameUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
 						result = handled == true ? HookResult.Cancel : HookResult.Continue;
-					}, definition.Name);
+					}
 				}
 
 				if( result == HookResult.Cancel )
@@ -229,28 +232,34 @@ namespace CustomNpcs.Projectiles
 
 					if( tileCollisions.Count > 0 )
 					{
-						lock( locker )
+						var onTileCollision = definition.OnTileCollision;
+						if(onTileCollision!=null)
 						{
-							var definition = customProjectile.Definition;
-							Utils.TryExecuteLua(() => definition.OnTileCollision?.Call(customProjectile, tileCollisions), definition.Name);
+							lock( locker )
+							{
+								onTileCollision.Call(definition.Name, customProjectile, tileCollisions);
+							}
 						}
 					}
 				}
-				
+								
 				//players
 				foreach( var player in TShock.Players )
 				{
 					if( player?.Active == true )
 					{
-						var tplayer = player.TPlayer;
-						var playerHitbox = tplayer.Hitbox;
-
-						if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
+						var onCollision = definition.OnCollision;
+						if( onCollision != null )
 						{
-							lock( locker )
+							var tplayer = player.TPlayer;
+							var playerHitbox = tplayer.Hitbox;
+
+							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
 							{
-								var definition = customProjectile.Definition;
-								Utils.TryExecuteLua(() => definition.OnCollision?.Call(customProjectile, player), definition.Name);
+								lock( locker )
+								{
+									onCollision.Call(definition.Name, customProjectile, player);
+								}
 							}
 						}
 					}
@@ -273,11 +282,9 @@ namespace CustomNpcs.Projectiles
 					var onAiUpdate = definition.OnAiUpdate;
 					if( onAiUpdate != null )
 					{
-						Utils.TryExecuteLua(() =>
-						{
-							var handled = onAiUpdate.Call(customProjectile).GetResult<bool>();
-							result = handled == true ? HookResult.Cancel : HookResult.Continue;
-						}, definition.Name);
+						var handled = onAiUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
+
+						result = handled == true ? HookResult.Cancel : HookResult.Continue;
 					}
 				}
 			}
@@ -290,16 +297,20 @@ namespace CustomNpcs.Projectiles
 			var customProjectile = GetCustomProjectile(projectile);
 			if( customProjectile != null )
 			{
-				lock( locker )
+				var definition = customProjectile.Definition;
+				var onKilled = definition.OnKilled;
+				if(onKilled!=null)
 				{
-					var definition = customProjectile.Definition;
-					Utils.TryExecuteLua(() => definition.OnKilled?.Call(customProjectile), definition.Name);
+					lock( locker )
+					{
+						onKilled.Call(definition.Name, customProjectile);
 
-					customProjectiles.Remove(projectile);
-					projectile.active = false;
-					TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", projectile.whoAmI);
+						customProjectiles.Remove(projectile);
+						projectile.active = false;
+						TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", projectile.whoAmI);
+					}
 				}
-
+				
 				return HookResult.Cancel;
 			}
 			else
