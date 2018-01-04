@@ -8,6 +8,8 @@ using NLua.Exceptions;
 using OTAPI.Tile;
 using Terraria;
 using TShockAPI;
+using System.Diagnostics;
+using TerrariaApi.Server;
 
 namespace CustomNpcs
 {
@@ -193,30 +195,44 @@ namespace CustomNpcs
         /// </summary>
         /// <param name="action">The action, which must not be <c>null</c>.</param>
         /// <param name="executor">The executor of the action, which must not be <c>null</c>.</param>
-        public static void TryExecuteLua([NotNull] Action action, string executor)
+		/// <returns>True if the action ran without throwing any exceptions, false otherwise.</returns>
+		[Obsolete("Consider using SafeLuaFunction's in place of TryExecuteLua().")]
+        public static bool TryExecuteLua([NotNull] Action action, string executor)
         {
             try
             {
                 action();
+				return true;
 			}
-            catch (LuaException ex)
+			catch(LuaScriptException ex )
+			{
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua script error has originated from {executor}:", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
+				if( ex.InnerException != null )
+				{
+					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
+				}
+			}
+			catch (LuaException ex)
             {
-                TShock.Log.ConsoleError($"[CustomNpcs] A Lua error occurred from {executor}:");
-                TShock.Log.ConsoleError(ex.ToString());
-                if (ex.InnerException != null)
-                {
-                    TShock.Log.ConsoleError(ex.InnerException.ToString());
-                }
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua error has originated from {executor}:", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
+				if( ex.InnerException != null )
+				{
+					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
+				}
             }
 			catch(Exception ex)
 			{
-				TShock.Log.ConsoleError($"[CustomNpcs] An error occurred in managed code, while interacting with Lua code ( {executor} ):");
-				TShock.Log.ConsoleError(ex.ToString());
-				if (ex.InnerException != null)
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"An error occurred in managed code, while interacting with Lua code ( {executor} ):", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
+				if( ex.InnerException != null )
 				{
-					TShock.Log.ConsoleError(ex.InnerException.ToString());
+					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
 				}
 			}
+
+			return false;
         }
 
         /// <summary>
@@ -279,6 +295,8 @@ namespace CustomNpcs
 
                 if (succeeded && !CanPlayersSeeCoordinates(tileX, tileY))
                 {
+					//TileFunctions.KillTile(tileX, tileY);
+					//TileFunctions.SetTile(tileX, tileX, 1);
                     action(player, tileX, tileY);
                 }
             }
@@ -294,6 +312,14 @@ namespace CustomNpcs
                 for (var y = minCheckY; y < tileY; ++y)
                 {
                     var tile2 = Main.tile[x, y];
+
+					//if(tile2.liquid>0 && tile2.liquidType() == 0)
+					//{
+					//	//Debug.Print($"Can spawn npc at {tileX},{tileY}");
+					//	//return true;
+					//	continue;
+					//}
+
                     if (tile2.IsSolid() || tile2.lava())
                     {
                         return false;
