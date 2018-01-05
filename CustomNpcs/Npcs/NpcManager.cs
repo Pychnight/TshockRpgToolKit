@@ -284,6 +284,28 @@ namespace CustomNpcs.Npcs
 						player.SetData(IgnoreCollisionKey, true);
 					}
 				}
+
+				//npc - tile collisions
+				foreach( var npc in Main.npc.Where(n => n?.active == true) )
+				{
+					var customNpc = GetCustomNpc(npc);
+					if( customNpc != null )
+					{
+						var definition = customNpc.Definition;
+						var onTileCollision = definition.OnTileCollision;
+						if( onTileCollision?.IsLoaded==true )
+						{
+							var tileCollisions = TileFunctions.GetOverlappedTiles(npc.Hitbox);
+							if( tileCollisions.Count > 0 )
+							{
+								lock(_lock)
+								{
+									onTileCollision?.Call(definition.Name, customNpc, tileCollisions);
+								}
+							}
+						}
+					}
+				}
 			}
 	    }
 

@@ -103,6 +103,11 @@ namespace CustomNpcs.Npcs
 		public SafeLuaFunction OnTransformed { get; private set; }
 
 		/// <summary>
+		///     Gets a function that is invoked when the NPC collides with a tile.
+		/// </summary>
+		public SafeLuaFunction OnTileCollision { get; private set; }
+
+		/// <summary>
 		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
 		/// </summary>
 		public bool ShouldAggressivelyUpdate =>
@@ -151,11 +156,12 @@ namespace CustomNpcs.Npcs
             OnCheckReplace = null;
             OnCheckSpawn = null;
             OnCollision = null;
-            OnKilled = null;
+			OnTileCollision = null;
+			OnKilled = null;
             OnSpawn = null;
             OnStrike = null;
 			OnTransformed = null;
-            _lua?.Dispose();
+			_lua?.Dispose();
             _lua = null;
         }
 
@@ -236,7 +242,8 @@ namespace CustomNpcs.Npcs
 			OnCheckReplace =	_lua.GetSafeFunction("OnCheckReplace");
             OnCheckSpawn =		_lua.GetSafeFunction("OnCheckSpawn");
             OnCollision =		_lua.GetSafeFunction("OnCollision");
-            OnKilled =			_lua.GetSafeFunction("OnKilled");
+			OnTileCollision =	_lua.GetSafeFunction("OnTileCollision");
+			OnKilled =			_lua.GetSafeFunction("OnKilled");
             OnSpawn =			_lua.GetSafeFunction("OnSpawn");
             OnStrike =			_lua.GetSafeFunction("OnStrike");
 			OnTransformed =		_lua.GetSafeFunction("OnTransformed");

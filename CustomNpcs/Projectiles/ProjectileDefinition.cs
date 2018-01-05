@@ -54,7 +54,7 @@ namespace CustomNpcs.Projectiles
 		public SafeLuaFunction OnCollision { get; private set; }
 
 		/// <summary>
-		///     Gets a function that is invoked when the projectile collides with a player.
+		///     Gets a function that is invoked when the projectile collides with a tile.
 		/// </summary>
 		public SafeLuaFunction OnTileCollision { get; private set; }
 
