@@ -109,10 +109,7 @@ namespace CustomNpcs.Invasions
 				lock(_lock )
 				{
 					var onInvasionStart = invasion.OnInvasionStart;
-					if( onInvasionStart != null )
-					{
-						Utils.TryExecuteLua(() => onInvasionStart.Call(), invasion.Name);
-					}
+					onInvasionStart?.Call(invasion.Name);
 				}
 
 				CurrentInvasion.HasStarted = true;
@@ -130,10 +127,7 @@ namespace CustomNpcs.Invasions
 				lock( _lock )
 				{
 					var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
-					if( onInvasionEnd != null )
-					{
-						Utils.TryExecuteLua(() => onInvasionEnd.Call(), CurrentInvasion.Name);
-					}
+					onInvasionEnd?.Call(CurrentInvasion.Name);
 				}
 
 				TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
@@ -222,7 +216,7 @@ namespace CustomNpcs.Invasions
             {
                 lock (_lock)
                 {
-                    Utils.TryExecuteLua(() => onUpdate.Call(), CurrentInvasion.Name);
+                    onUpdate?.Call(CurrentInvasion.Name);
                 }
             }
         }
@@ -244,7 +238,7 @@ namespace CustomNpcs.Invasions
 					var onBossDefeated = CurrentInvasion.OnBossDefeated;
 					if( onBossDefeated != null )
 					{
-						Utils.TryExecuteLua(() => onBossDefeated.Call(), CurrentInvasion.Name);
+						onBossDefeated.Call(CurrentInvasion.Name);
 					}
 				}
 
@@ -264,10 +258,7 @@ namespace CustomNpcs.Invasions
 						lock( _lock )
 						{
 							var onWaveUpdate = CurrentInvasion.OnWaveUpdate;
-							if( onWaveUpdate != null )
-							{
-								Utils.TryExecuteLua(() => onWaveUpdate.Call(_currentWaveIndex, wave, _currentPoints), CurrentInvasion.Name);
-							}
+							onWaveUpdate?.Call(CurrentInvasion.Name, _currentWaveIndex, wave, _currentPoints);
 						}
 					}
 				}
@@ -311,10 +302,7 @@ namespace CustomNpcs.Invasions
 				lock( _lock )
 				{
 					var onWaveStart = CurrentInvasion.OnWaveStart;
-					if( onWaveStart != null )
-					{
-						Utils.TryExecuteLua(() => onWaveStart.Call(_currentWaveIndex, wave), CurrentInvasion.Name);
-					}
+					onWaveStart?.Call(CurrentInvasion.Name, _currentWaveIndex, wave);
 				}
 			}
 		}
@@ -329,10 +317,7 @@ namespace CustomNpcs.Invasions
 				lock( _lock )
 				{
 					var onWaveEnd = CurrentInvasion.OnWaveEnd;
-					if( onWaveEnd != null )
-					{
-						Utils.TryExecuteLua(() => onWaveEnd.Call(previousWaveIndex, previousWave), CurrentInvasion.Name);
-					}
+					onWaveEnd?.Call(CurrentInvasion.Name, previousWaveIndex, previousWave);
 				}
 			}
 		}

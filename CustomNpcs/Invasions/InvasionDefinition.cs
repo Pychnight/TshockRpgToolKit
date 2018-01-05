@@ -73,43 +73,43 @@ namespace CustomNpcs.Invasions
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnInvasionStart { get; private set; }
+		public SafeLuaFunction OnInvasionStart { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnInvasionEnd { get; private set; }
+		public SafeLuaFunction OnInvasionEnd { get; private set; }
 		
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is updated.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnUpdate { get; private set; }
+		public SafeLuaFunction OnUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnWaveStart { get; private set; }
+		public SafeLuaFunction OnWaveStart { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnWaveEnd { get; private set; }
+		public SafeLuaFunction OnWaveEnd { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnWaveUpdate { get; private set; }
+		public SafeLuaFunction OnWaveUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
 		[CanBeNull]
-		public LuaFunction OnBossDefeated { get; private set; }
+		public SafeLuaFunction OnBossDefeated { get; private set; }
 
 		/// <summary>
 		///     Disposes the definition.
@@ -147,13 +147,13 @@ namespace CustomNpcs.Invasions
             lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 
-			OnInvasionStart = _lua["OnInvasionStart"] as LuaFunction;
-			OnInvasionEnd = _lua["OnInvasionEnd"] as LuaFunction;
-			OnUpdate = _lua["OnUpdate"] as LuaFunction;
-			OnWaveStart = _lua["OnWaveStart"] as LuaFunction;
-			OnWaveEnd = _lua["OnWaveEnd"] as LuaFunction;
-			OnWaveUpdate = _lua["OnWaveUpdate"] as LuaFunction;
-			OnBossDefeated = _lua["OnBossDefeated"] as LuaFunction;
+			OnInvasionStart = _lua.GetSafeFunction("OnInvasionStart");
+			OnInvasionEnd = _lua.GetSafeFunction("OnInvasionEnd");
+			OnUpdate = _lua.GetSafeFunction("OnUpdate");
+			OnWaveStart = _lua.GetSafeFunction("OnWaveStart");
+			OnWaveEnd = _lua.GetSafeFunction("OnWaveEnd");
+			OnWaveUpdate = _lua.GetSafeFunction("OnWaveUpdate");
+			OnBossDefeated = _lua.GetSafeFunction("OnBossDefeated");
         }
 
         internal void ThrowIfInvalid()
