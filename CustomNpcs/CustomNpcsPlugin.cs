@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
 using TerrariaApi.Server;
+using OTAPI.Tile;
 using TShockAPI;
 using TShockAPI.Hooks;
 using CustomNpcs.Invasions;
@@ -79,10 +80,12 @@ namespace CustomNpcs
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomSpawnMob, "cspawnmob", "csm"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomSpawnProjectile, "cspawnprojectile", "csp"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
-
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomMobControl, "cmob"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomProjectileControl, "cprojectile"));
-			//Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
+
+#if DEBUG
+			Commands.ChatCommands.Add(new Command("customnpcs.debug", TileSnake, "tilesnake"));
+#endif
 		}
 
 		/// <summary>
@@ -435,6 +438,31 @@ namespace CustomNpcs
 			if( lineItems > 0 )
 				player.SendInfoMessage(sb.ToString());
 		}
+
+#if DEBUG
+
+		private void TileSnake(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+
+			var start = new Point(player.TileX, player.TileY - 4);
+			var end = new Point(player.TileX, player.TileY + 4);
+
+			var tiles = new List<ITile>();
+
+			for( var y = start.Y; y <= end.Y; y++ )
+			{
+				var tile = Main.tile[start.X, y];
+				tiles.Add(tile);
+
+				Debug.Print(tile.ToString());
+			}
+
+			//Debugger.Break();
+		}
+
+#endif
 
 		private void OnReload(ReloadEventArgs args)
         {

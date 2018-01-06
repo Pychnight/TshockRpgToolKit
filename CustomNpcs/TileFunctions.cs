@@ -193,11 +193,11 @@ namespace CustomNpcs
 
 			foreach(var hit in hits)
 			{
-				//var tile = Main.tile[hit.X, hit.Y];
+				var tile = Main.tile[hit.X, hit.Y];
 
-				////ignore walls
-				//if( tile.wall > 0 )
-				//	continue;
+				//ignore walls and trees and such.
+				if( tile.collisionType < 1 )
+					continue;
 
 				var tileCenter = new Vector2(hit.X * TileSize,hit.Y * TileSize);
 				tileCenter += tileCenterOffset;
@@ -227,15 +227,12 @@ namespace CustomNpcs
 
 			foreach( var hit in hits )
 			{
-				//var tile = Main.tile[hit.X, hit.Y];
+				var tile = Main.tile[hit.X, hit.Y];
 
-				//ignore walls
-				//if( IsWallTile(hit.X, hit.Y) )
-				//{
-				//	SetTile(hit.X, hit.Y, 1);
-				//	continue;
-				//}
-				
+				//ignore walls and trees and such.
+				if( tile.collisionType < 1 )
+					continue;
+
 				var tileCenter = new Vector2(hit.X * TileSize, hit.Y * TileSize);
 				tileCenter += tileCenterOffset;
 
