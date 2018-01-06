@@ -16,7 +16,11 @@ namespace CustomNpcs.Npcs
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class NpcDefinition : IDisposable
     {
-        [JsonProperty("BaseOverride", Order = 3)]
+		
+		//internal string originalName; //we need to capture the npc's original name before applying our custom name to it, so the exposed lua function
+									  //NameContains() works...
+
+		[JsonProperty("BaseOverride", Order = 3)]
         private BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
 
         [JsonProperty("Loot", Order = 4)]
@@ -177,8 +181,8 @@ namespace CustomNpcs.Npcs
                 throw new ArgumentNullException(nameof(npc));
             }
 
-            // Set NPC to use four life bytes.
-            Main.npcLifeBytes[BaseType] = 4;
+			// Set NPC to use four life bytes.
+			Main.npcLifeBytes[BaseType] = 4;
 
             if (npc.netID != BaseType)
             {
@@ -235,9 +239,9 @@ namespace CustomNpcs.Npcs
 			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
 			lua["Center"] = new CenterOffsetHelper();
 
-			lua["_CustomName"] = "TimmyOToole";
-			lua["_Name"] = "Tim";
-			
+			lua["_CustomName"] = _baseOverride.Name;
+			//lua["_Name"] = "Tim";
+						
 			lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 
@@ -294,12 +298,6 @@ namespace CustomNpcs.Npcs
             _baseOverride.ThrowIfInvalid();
         }
 
-		//needed during npc transforms in NpcManager.
-		internal BaseOverrideDefinition GetBaseOverrideDefinition()
-		{
-			return _baseOverride;
-		}
-
         [JsonObject(MemberSerialization.OptIn)]
         internal sealed class BaseOverrideDefinition
         {
@@ -344,7 +342,7 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty]
             public float? Value { get; private set; }
-
+			
             internal void ThrowIfInvalid()
             {
                 if (BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes))

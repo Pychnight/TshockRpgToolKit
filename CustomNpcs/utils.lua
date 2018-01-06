@@ -176,10 +176,18 @@ function IsType(baseNpc, type)
     return baseNpc.netID == type
 end
 
+function CustomNameContains(txt)
+	return _CustomName:Contains(txt) -- currently only works for CustomNpcs
+end
+
+-- function NameContains(txt)
+--	return _definitionNames:NameContains(txt) -- won't ever run as is, we only run lua code for custom npcs, projectiles, etc.
+-- end
+
 -- Tile functions
 
 function TileX(worldX)
-	return worldX / TileSize -- constant is not visibile in this file/scope, for whatever reason...
+	return worldX / TileSize
 end
 
 function TileY(worldY)
