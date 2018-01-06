@@ -4,6 +4,7 @@ using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -70,6 +71,18 @@ namespace CustomNpcs
 			}
 
 			return results.AsReadOnly();
+		}
+		
+		[LuaGlobal]
+		public static bool InTileMapBounds(int column, int row)
+		{
+			if( column < 0 || column > Main.maxTilesX )
+				return false;
+
+			if( row < 0 || row > Main.maxTilesY )
+				return false;
+
+			return true;
 		}
 
 		//[LuaGlobal]
@@ -139,20 +152,34 @@ namespace CustomNpcs
 		[LuaGlobal]
 		public static void SetTile(int column, int row, int type)
 		{
-			if( Main.tile[column, row]?.active()==true )
+			try
 			{
-				Main.tile[column, row].ResetToType((ushort)type);
-				TSPlayer.All.SendTileSquare(column, row);
+				if( Main.tile[column, row]?.active() == true )
+				{
+					Main.tile[column, row].ResetToType((ushort)type);
+					TSPlayer.All.SendTileSquare(column, row);
+				}
+			}
+			catch(IndexOutOfRangeException rex)
+			{
+				//CustomNpcsPlugin.Instance.LogPrint($"Tried to SetTile on an invalid index.", TraceLevel.Error);
 			}
 		}
 
 		[LuaGlobal]
 		public static void KillTile(int column, int row)
 		{
-			if(Main.tile[column,row]?.active()==true)
+			try
 			{
-				WorldGen.KillTile(column, row);
-				TSPlayer.All.SendTileSquare(column, row);
+				if( Main.tile[column, row]?.active() == true )
+				{
+					WorldGen.KillTile(column, row);
+					TSPlayer.All.SendTileSquare(column, row);
+				}
+			}
+			catch(IndexOutOfRangeException rex)
+			{
+				//CustomNpcsPlugin.Instance.LogPrint($"Tried to KillTile on an invalid index.", TraceLevel.Error);
 			}
 		}
 		
@@ -166,6 +193,12 @@ namespace CustomNpcs
 
 			foreach(var hit in hits)
 			{
+				//var tile = Main.tile[hit.X, hit.Y];
+
+				////ignore walls
+				//if( tile.wall > 0 )
+				//	continue;
+
 				var tileCenter = new Vector2(hit.X * TileSize,hit.Y * TileSize);
 				tileCenter += tileCenterOffset;
 
@@ -194,6 +227,15 @@ namespace CustomNpcs
 
 			foreach( var hit in hits )
 			{
+				//var tile = Main.tile[hit.X, hit.Y];
+
+				//ignore walls
+				//if( IsWallTile(hit.X, hit.Y) )
+				//{
+				//	SetTile(hit.X, hit.Y, 1);
+				//	continue;
+				//}
+				
 				var tileCenter = new Vector2(hit.X * TileSize, hit.Y * TileSize);
 				tileCenter += tileCenterOffset;
 
