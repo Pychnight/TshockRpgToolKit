@@ -233,6 +233,7 @@ namespace CustomNpcs.Npcs
             LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
+			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerCommandFunctions));
 
 			lua["TileSize"] = TileFunctions.TileSize;
 			lua["HalfTileSize"] = TileFunctions.HalfTileSize;

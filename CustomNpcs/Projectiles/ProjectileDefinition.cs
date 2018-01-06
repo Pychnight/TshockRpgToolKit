@@ -141,7 +141,8 @@ namespace CustomNpcs.Projectiles
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
 			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
-			
+			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerCommandFunctions));
+
 			lua["TileSize"] = TileFunctions.TileSize;
 			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
 			lua["Center"] = new CenterOffsetHelper();

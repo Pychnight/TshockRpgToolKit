@@ -96,6 +96,7 @@
     <Compile Include="Projectiles\ProjectileDefinition.cs" />
     <Compile Include="Projectiles\ProjectileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PlayerCommandFunctions.cs" />
     <Compile Include="TileFunctions.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
