@@ -176,13 +176,23 @@ function IsType(baseNpc, type)
     return baseNpc.netID == type
 end
 
+-- currently only works for CustomNpcs
 function CustomNameContains(txt)
-	return _CustomName:Contains(txt) -- currently only works for CustomNpcs
+	if __npcNameContainer==nil then
+		return false
+	else
+		return __npcNameContainer:CustomNameContains(txt) 
+	end
 end
 
--- function NameContains(txt)
---	return _definitionNames:NameContains(txt) -- won't ever run as is, we only run lua code for custom npcs, projectiles, etc.
--- end
+ -- not currently working
+function NameContains(txt)
+	if __npcNameContainer==nil then
+		return false
+	else
+		return __npcNameContainer:NameContains(txt)
+	end
+end
 
 -- Tile functions
 

@@ -16,7 +16,6 @@ namespace CustomNpcs.Npcs
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class NpcDefinition : IDisposable
     {
-		
 		//internal string originalName; //we need to capture the npc's original name before applying our custom name to it, so the exposed lua function
 									  //NameContains() works...
 
@@ -26,7 +25,7 @@ namespace CustomNpcs.Npcs
         [JsonProperty("Loot", Order = 4)]
         private LootDefinition _loot = new LootDefinition();
 
-        private Lua _lua;
+        internal Lua _lua;//internal so that our NameContains/OnCheckSpawn global hack works.
 
         [JsonProperty("Spawning", Order = 5)]
         private SpawningDefinition _spawning = new SpawningDefinition();
@@ -239,9 +238,11 @@ namespace CustomNpcs.Npcs
 			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
 			lua["Center"] = new CenterOffsetHelper();
 
-			lua["_CustomName"] = _baseOverride.Name;
-			//lua["_Name"] = "Tim";
-						
+			//lua["_CustomName"] = _baseOverride.Name;
+			//lua["_Name"] = "???"; //Lang.GetNPCNameValue();
+
+			lua["__npcNameContainer"] = new NpcNameContainer("???", _baseOverride.Name);
+
 			lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 

@@ -538,25 +538,11 @@ namespace CustomNpcs.Npcs
 					{
 						var weight = 0;
 						var onCheckSpawn = definition.OnCheckSpawn;
-						//if( onCheckSpawn != null )
-						//{
-						//	// First cast to a double then an integer because NLua will return a double.
-						//	var result = Utils.TryExecuteLua(() => {
-						//		//we must check in case of script not returning a number
-						//		var results = onCheckSpawn.Call(player, tileX, tileY);
-						//		if( results != null && results.Length == 1 && results[0] is double )
-						//			weight = (int)(double)results[0];
-						//		else
-						//			throw new Exception($"NPC '{definition.Name}' function OnCheckSpawn() should return a number.");
-						//	},
-						//	definition.Name);
-
-						//	if(!result)
-						//		definition.OnCheckSpawn = null;
-						//}
-
 						if(onCheckSpawn!=null)
 						{
+							//future? HACK we set a global before each onCheckSpawn call, so that the lua function, NameContains(), works.	
+							//definition._lua["_Name"] = "nope"; 
+
 							var result = onCheckSpawn.Call(definition.Name, player, tileX, tileY).GetResult<double>();
 
 							if( result != null )

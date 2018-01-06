@@ -295,4 +295,29 @@ namespace CustomNpcs
 			}
 		}
     }
+
+	public class NpcNameContainer
+	{
+		string name, customName;
+
+		public NpcNameContainer(string name, string customName)
+		{
+			this.name = name;
+			this.customName = customName;
+		}
+
+		public bool CustomNameContains(string txt)
+		{
+			var result = customName?.Contains(txt);
+			
+			return result==true;
+		}
+
+		public bool NameContains(string txt)
+		{
+			var result = name?.Contains(txt);
+
+			return result == true;
+		}
+	}
 }
