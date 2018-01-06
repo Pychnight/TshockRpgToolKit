@@ -14,6 +14,7 @@ using CustomNpcs.Invasions;
 using CustomNpcs.Npcs;
 using CustomNpcs.Projectiles;
 using JetBrains.Annotations;
+using System.Diagnostics;
 
 namespace CustomNpcs
 {
@@ -105,6 +106,11 @@ namespace CustomNpcs
 			}
 
 			base.Dispose(disposing);
+		}
+
+		public void LogPrint(string message, TraceLevel level )
+		{
+			ServerApi.LogWriter.PluginWriteLine(this, message, level);
 		}
 
 		private void CustomInvade(CommandArgs args)

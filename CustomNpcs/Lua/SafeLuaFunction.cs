@@ -36,33 +36,33 @@ namespace CustomNpcs
 			}
 			catch( LuaScriptException lsex )
 			{
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua script error has originated from {executor}:", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lsex.ToString(), TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint($"A Lua script error has originated from {executor}:", TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint(lsex.ToString(), TraceLevel.Error);
 				if( lsex.InnerException != null )
 				{
-					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lsex.InnerException.ToString(), TraceLevel.Error);
+					CustomNpcsPlugin.Instance.LogPrint(lsex.InnerException.ToString(), TraceLevel.Error);
 				}
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"Containing function will be disabled from further execution.", TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint( $"Containing function will be disabled from further execution.", TraceLevel.Error);
 				WrappedFunction = null;
 			}
 			catch( LuaException lex )
 			{
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua error has originated from {executor}:", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lex.ToString(), TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint($"A Lua error has originated from {executor}:", TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint(lex.ToString(), TraceLevel.Error);
 
 				if( lex.InnerException != null )
 				{
-					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, lex.InnerException.ToString(), TraceLevel.Error);
+					CustomNpcsPlugin.Instance.LogPrint(lex.InnerException.ToString(), TraceLevel.Error);
 				}
 			}
 			catch( Exception ex )
 			{
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"An error has occurred in managed code, while interacting with Lua code ( {executor} ):", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint($"An error has occurred in managed code, while interacting with Lua code ( {executor} ):", TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 
 				if( ex.InnerException != null )
 				{
-					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
+					CustomNpcsPlugin.Instance.LogPrint(ex.InnerException.ToString(), TraceLevel.Error);
 				}
 			}
 
