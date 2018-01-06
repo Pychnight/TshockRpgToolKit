@@ -235,6 +235,9 @@ namespace CustomNpcs.Npcs
 			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
 			lua["Center"] = new CenterOffsetHelper();
 
+			lua["_CustomName"] = "TimmyOToole";
+			lua["_Name"] = "Tim";
+			
 			lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
 

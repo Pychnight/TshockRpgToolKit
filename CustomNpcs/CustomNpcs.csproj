@@ -79,7 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="LuaHelperExtensions.cs" />
+    <Compile Include="Lua\LuaHelperExtensions.cs" />
     <Compile Include="Invasions\InvasionManager.cs" />
     <Compile Include="Lua\SafeLuaFunction.cs" />
     <Compile Include="Npcs\CustomNpc.cs" />
@@ -89,8 +89,8 @@
     <Compile Include="Invasions\InvasionDefinition.cs" />
     <Compile Include="Npcs\LootEntryDefinition.cs" />
     <Compile Include="Invasions\WaveDefinition.cs" />
-    <Compile Include="NpcFunctions.cs" />
-    <Compile Include="ProjectileFunctions.cs" />
+    <Compile Include="Npcs\NpcFunctions.cs" />
+    <Compile Include="Projectiles\ProjectileFunctions.cs" />
     <Compile Include="Projectiles\CustomProjectile.cs" />
     <Compile Include="Projectiles\CenterOffSetHelper.cs" />
     <Compile Include="Projectiles\ProjectileDefinition.cs" />
