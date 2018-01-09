@@ -390,7 +390,7 @@ namespace CustomNpcs.Npcs
             TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
         }
 
-		// NLua doesn't support default parameters, but does support method overloads
+		// NLua doesn't support default parameters, but does support instance method overloads ( static methods are busted )
 		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed)
 		{
 			ShootCustomProjectileAt(target, projectileName, speed, null);

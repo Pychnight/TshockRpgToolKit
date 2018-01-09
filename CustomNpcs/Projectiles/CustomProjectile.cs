@@ -110,6 +110,12 @@ namespace CustomNpcs.Projectiles
 			set => Projectile.timeLeft = value;
 		}
 
+		public int Damage
+		{
+			get => Projectile.damage;
+			set => Projectile.damage = value;
+		}
+
 		public CustomProjectile(Projectile projectile, ProjectileDefinition definition)
 		{
 			Projectile = projectile;
