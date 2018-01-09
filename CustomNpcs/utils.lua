@@ -177,11 +177,11 @@ function IsType(baseNpc, type)
 end
 
 -- currently only works for CustomNpcs
-function CustomNameContains(txt)
+function CustomIDContains(txt)
 	if __npcNameContainer==nil then
 		return false
 	else
-		return __npcNameContainer:CustomNameContains(txt) 
+		return __npcNameContainer:CustomIdContains(txt) 
 	end
 end
 

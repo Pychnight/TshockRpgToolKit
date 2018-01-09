@@ -250,17 +250,17 @@ namespace CustomNpcs
 
 	public class NpcNameContainer
 	{
-		string name, customName;
+		string name, customId;
 
-		public NpcNameContainer(string name, string customName)
+		public NpcNameContainer(string name, string customId)
 		{
 			this.name = name;
-			this.customName = customName;
+			this.customId = customId;
 		}
 
-		public bool CustomNameContains(string txt)
+		public bool CustomIdContains(string txt)
 		{
-			var result = customName?.Contains(txt);
+			var result = customId?.Contains(txt);
 			
 			return result==true;
 		}

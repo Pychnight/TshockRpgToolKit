@@ -243,7 +243,8 @@ namespace CustomNpcs.Npcs
 			//lua["_CustomName"] = _baseOverride.Name;
 			//lua["_Name"] = "???"; //Lang.GetNPCNameValue();
 
-			lua["__npcNameContainer"] = new NpcNameContainer("???", _baseOverride.Name);
+			//lua["__npcNameContainer"] = new NpcNameContainer("???", _baseOverride.Name);
+			lua["__npcNameContainer"] = new NpcNameContainer("???", Name );
 
 			lua.DoFile(Path.Combine("npcs", LuaPath));
             _lua = lua;
