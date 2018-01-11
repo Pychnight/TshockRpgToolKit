@@ -403,7 +403,7 @@ namespace CustomNpcs
 
 		private void sendGroupedInfoMessage(TSPlayer player, IEnumerable<string> items, int itemsPerLine, string separator = ", ")
 		{
-			if( player == null || items==null || itemsPerLine < 1 )
+			if( player == null || items == null || itemsPerLine < 1 )
 				return;
 
 			//var testItems = new List<string>(48);			
@@ -415,10 +415,10 @@ namespace CustomNpcs
 			//	testItems.Add(test);
 			//}
 			//items = items.Concat(testItems);
-			
+
 			var sb = new StringBuilder(256);
 			var lineItems = 0;
-			
+
 			foreach( var i in items )
 			{
 				if( lineItems > 0 )
@@ -426,8 +426,8 @@ namespace CustomNpcs
 
 				sb.Append(i);
 				lineItems++;
-				
-				if(lineItems==itemsPerLine)
+
+				if( lineItems == itemsPerLine )
 				{
 					player.SendInfoMessage(sb.ToString());
 					sb.Clear();
@@ -440,42 +440,120 @@ namespace CustomNpcs
 				player.SendInfoMessage(sb.ToString());
 		}
 
+		private void sendPagedInfoMessage(TSPlayer player, IList<string> items, int page, int itemsPerPage)
+		{
+			if( player == null || items == null || itemsPerPage < 1 || page < 1 )
+				return;
+
+			var pageCount = ( items.Count / itemsPerPage ) +
+							( items.Count % itemsPerPage > 0 ? 1 : 0 );
+
+			if( page > pageCount )
+				page = pageCount;
+
+			var startIndex = ( page - 1 ) * itemsPerPage;
+			
+			for(var i = 0; i<itemsPerPage;i++)
+			{
+				var lineNumber = startIndex + i;
+
+				//reached end
+				if( lineNumber >= items.Count )
+					break;
+
+				player.SendInfoMessage($"{lineNumber+1}. {items[lineNumber]}");
+			}
+
+			//page number out of pages
+			player.SendInfoMessage($"Page# {page} / {pageCount}");
+		}
+
 		private void NoTarget(CommandArgs args)
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			string noTargetPlayerName = null;
+			var ntop = NpcManager.Instance.NoTarget;
 
-			if( parameters.Count == 0 )
+			if(parameters.Count==1)
 			{
-				//clear notarget
-				NpcManager.Instance.NoTarget.PlayerName = null;
-				player.SendInfoMessage($"Cleared notarget.");
-				return;
+				var subCommand = parameters[0];
+
+				switch(subCommand)
+				{
+					case "list":
+						noTargetList(player, ntop, 1, 5); return;
+					case "clear":
+						ntop.Clear();
+						player.SendInfoMessage($"Cleared all names from the notarget list.");
+						return;
+				}
 			}
-			if( parameters.Count == 1 )
+			else if( parameters.Count == 2 )
 			{
-				//set notarget
-				noTargetPlayerName = parameters[0];
+				var subCommand = parameters[0];
+				var nameOrPage = parameters[1];
+				
+				switch(subCommand)
+				{
+					case "add":
+						if(ntop.Add(nameOrPage))
+							player.SendInfoMessage($"Added {nameOrPage} to the notarget list.");
+						else
+							player.SendInfoMessage($"The notarget list already contains {nameOrPage}.");
+						
+						return;
+					
+					case "remove":
+						if(ntop.Remove(nameOrPage) )
+							player.SendInfoMessage($"Removed {nameOrPage} from the notarget list.");
+						else
+							player.SendInfoMessage($"{nameOrPage} was not found in the notarget list.");
+						
+						return;
+					
+					case "list":
+						if(int.TryParse(nameOrPage, out var page))
+						{
+							noTargetList(player, ntop, page, 5);
+							return;
+						}
 
-				var noTargetPlayer = PlayerFunctions.FindPlayerByName(noTargetPlayerName);
-								
-				if(noTargetPlayer!=null)
-				{
-					NpcManager.Instance.NoTarget.PlayerName = noTargetPlayerName;
-					player.SendInfoMessage($"Set notarget to {noTargetPlayerName}.");
+						break;
 				}
-				else
-				{
-					player.SendErrorMessage($"{Commands.Specifier}notarget unchanged: Unable to find player {noTargetPlayerName}.");
-				}
-								
-				return;
 			}
 			
 			//error if we get here...
-			player.SendErrorMessage($"Syntax: {Commands.Specifier}notarget <player>");
-			player.SendErrorMessage($"To clear the notarget playername, use {Commands.Specifier}notarget");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}notarget add <player>");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}notarget remove <player>");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}notarget list <page>");
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}notarget clear");
+		}
+
+		private void noTargetList(TSPlayer player, NoTargetOperation ntop, int page, int itemsPerPage)
+		{
+			var items = from name in ntop.PlayerNames//ntop.EnumerateNoTargetPlayers()
+						orderby name
+						select name;
+
+			//var testItems = new List<string>(15);
+			//for( int i = 0; i < testItems.Capacity; i++ )
+			//{
+			//	var t = i;
+			//	var n = $"test{i}";
+			//	var test = $"{n} - {t}";
+			//	testItems.Add(test);
+			//}
+			//items = items.Concat(testItems);
+
+			var itemsList = items.ToList();
+
+			if(itemsList.Count<1)
+			{
+				player.SendInfoMessage($"The notarget list is empty.");
+				return;
+			}
+
+			sendPagedInfoMessage(player, itemsList, page, itemsPerPage);
 		}
 
 #if DEBUG
