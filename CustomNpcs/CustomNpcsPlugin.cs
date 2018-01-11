@@ -342,29 +342,31 @@ namespace CustomNpcs
 			var parameters = args.Parameters;
 			var player = args.Player;
 			var subCommand = "list";
-			if( parameters.Count > 1 )
-			{
-				subCommand = parameters[0];
-			}
+			var page = 1;
 
+			if( parameters.Count == 1 )
+			{
+				if( int.TryParse(parameters[0], out var parsedPage) )
+					page = parsedPage;
+				else
+					subCommand = null;//force it to show syntax... yes this is hacky.
+			}
+			
 			if( subCommand == "list" )
 			{
 				var definitions = NpcManager.Instance?._definitions;
 				if( definitions != null )
 				{
-					player.SendInfoMessage($"Listing CustomNpcs:");
-
 					var defs = from def in definitions
-							   orderby def.Name
-							   select $"{def.Name} - {def.BaseType}";
-					
-					sendGroupedInfoMessage(player, defs, 5, ", ");
+							   select $"{def.Name}: \"{def._baseOverride.Name}\", {def.BaseType}";
+
+					sendPagedInfoMessage(player, defs.ToList(), page, 5);
 					return;
 				}
 			}
 			else
 			{
-				player.SendErrorMessage($"Syntax: {Commands.Specifier}cmob <subcommand>");
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}cmob <page>");
 				return;
 			}
 		}
@@ -374,9 +376,14 @@ namespace CustomNpcs
 			var parameters = args.Parameters;
 			var player = args.Player;
 			var subCommand = "list";
-			if( parameters.Count > 1 )
+			var page = 1;
+
+			if( parameters.Count == 1 )
 			{
-				subCommand = parameters[0];
+				if( int.TryParse(parameters[0], out var parsedPage) )
+					page = parsedPage;
+				else
+					subCommand = null;//force it to show syntax... yes this is hacky.
 			}
 
 			if( subCommand == "list" )
@@ -384,19 +391,16 @@ namespace CustomNpcs
 				var definitions = ProjectileManager.Instance?.Definitions;
 				if( definitions != null )
 				{
-					player.SendInfoMessage($"Listing CustomProjectiles:");
-
 					var defs = from def in definitions
-							   orderby def.Name
-							   select $"{def.Name} - {def.BaseType}";
+							   select $"{def.Name}: \"{Lang.GetProjectileName(def.BaseType).Value}\", {def.BaseType}";
 
-					sendGroupedInfoMessage(player, defs, 5, ", ");
+					sendPagedInfoMessage(player, defs.ToList(), page, 5);
 					return;
 				}
 			}
 			else
 			{
-				player.SendErrorMessage($"Syntax: {Commands.Specifier}cprojectile <subcommand>");
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}cprojectile <page>");
 				return;
 			}
 		}

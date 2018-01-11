@@ -120,6 +120,8 @@ namespace CustomNpcs.Projectiles
 			//projectile.bobber = false;
 			//projectile.alpha = 1;
 			//projectile.direction = 0;
+
+			//projectile.Name // this is readonly...
 		}
 
 		/// <summary>

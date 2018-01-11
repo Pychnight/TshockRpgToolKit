@@ -20,7 +20,7 @@ namespace CustomNpcs.Npcs
 									  //NameContains() works...
 
 		[JsonProperty("BaseOverride", Order = 3)]
-        private BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
+        internal BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
 
         [JsonProperty("Loot", Order = 4)]
         private LootDefinition _loot = new LootDefinition();
