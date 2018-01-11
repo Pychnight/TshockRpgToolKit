@@ -82,6 +82,7 @@ namespace CustomNpcs
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnrate", CustomSpawnRate, "cspawnrate"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomMobControl, "cmob"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomProjectileControl, "cprojectile"));
+			Commands.ChatCommands.Add(new Command("customnpcs.notarget", NoTarget, "notarget"));
 
 #if DEBUG
 			Commands.ChatCommands.Add(new Command("customnpcs.debug", TileSnake, "tilesnake"));
@@ -439,6 +440,44 @@ namespace CustomNpcs
 				player.SendInfoMessage(sb.ToString());
 		}
 
+		private void NoTarget(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			string noTargetPlayerName = null;
+
+			if( parameters.Count == 0 )
+			{
+				//clear notarget
+				NpcManager.Instance.NoTarget.PlayerName = null;
+				player.SendInfoMessage($"Cleared notarget.");
+				return;
+			}
+			if( parameters.Count == 1 )
+			{
+				//set notarget
+				noTargetPlayerName = parameters[0];
+
+				var noTargetPlayer = PlayerFunctions.FindPlayerByName(noTargetPlayerName);
+								
+				if(noTargetPlayer!=null)
+				{
+					NpcManager.Instance.NoTarget.PlayerName = noTargetPlayerName;
+					player.SendInfoMessage($"Set notarget to {noTargetPlayerName}.");
+				}
+				else
+				{
+					player.SendErrorMessage($"{Commands.Specifier}notarget unchanged: Unable to find player {noTargetPlayerName}.");
+				}
+								
+				return;
+			}
+			
+			//error if we get here...
+			player.SendErrorMessage($"Syntax: {Commands.Specifier}notarget <player>");
+			player.SendErrorMessage($"To clear the notarget playername, use {Commands.Specifier}notarget");
+		}
+
 #if DEBUG
 
 		private void TileSnake(CommandArgs args)
@@ -446,20 +485,23 @@ namespace CustomNpcs
 			var parameters = args.Parameters;
 			var player = args.Player;
 
-			var start = new Point(player.TileX, player.TileY - 4);
-			var end = new Point(player.TileX, player.TileY + 4);
+			var start = new Point(player.TileX, player.TileY);
+			var end = new Point(player.TileX, player.TileY + 5);
 
 			var tiles = new List<ITile>();
+			var colors = new List<int>();
 
 			for( var y = start.Y; y <= end.Y; y++ )
 			{
 				var tile = Main.tile[start.X, y];
 				tiles.Add(tile);
 
+
+				
 				Debug.Print(tile.ToString());
 			}
 
-			//Debugger.Break();
+			Debugger.Break();
 		}
 
 #endif

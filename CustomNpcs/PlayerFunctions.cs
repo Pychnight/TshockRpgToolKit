@@ -100,14 +100,16 @@ namespace CustomNpcs
 			}
 		}
 
-		public static ReadOnlyCollection<TSPlayer> FindPlayersInRadius(float x, float y, float radius)
+		//not sure if we should expose following methods to lua...
+
+		public static List<TSPlayer> FindPlayersInRadius(float x, float y, float radius)
 		{
 			var results = new List<TSPlayer>();
 			var center = new Vector2(x, y);
 
 			foreach( var player in TShock.Players )
 			{
-				if( player != null && player.Active )
+				if( player?.Active==true )
 				{
 					var pos = new Vector2(player.X, player.Y);
 					var delta = pos - center;
@@ -117,7 +119,13 @@ namespace CustomNpcs
 				}
 			}
 
-			return results.AsReadOnly();
+			return results;//.AsReadOnly();
+		}
+
+		public static TSPlayer FindPlayerByName(string name)
+		{
+			var player = TShock.Players.Where(n => n?.Name == name).SingleOrDefault();
+			return player;
 		}
 	}
 }

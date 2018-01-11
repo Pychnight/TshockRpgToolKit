@@ -47,10 +47,14 @@ namespace CustomNpcs.Npcs
         private readonly Random _random = new Random();
 		
         internal List<NpcDefinition> _definitions = new List<NpcDefinition>();
-
+			
+		internal NoTargetOperation NoTarget { get; set; }
+		
         internal NpcManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
+
+			NoTarget = new NoTargetOperation();
 
             Utils.TryExecuteLua(LoadDefinitions, "NpcManager");
 			
@@ -217,9 +221,12 @@ namespace CustomNpcs.Npcs
 			
             lock (_checkNpcLock)
             {
-                foreach (var npc in Main.npc.Where(n => n?.active == true))
+				//not working
+				NoTarget.Ensure();
+
+				foreach (var npc in Main.npc.Where(n => n?.active == true))
                 {
-                    var customNpc = GetCustomNpc(npc);
+					var customNpc = GetCustomNpc(npc);
                     if (customNpc?.Definition.ShouldAggressivelyUpdate == true)
                     {
                         npc.netUpdate = true;
