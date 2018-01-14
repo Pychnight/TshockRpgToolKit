@@ -84,6 +84,8 @@ namespace CustomNpcs
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomProjectileControl, "cprojectile"));
 			Commands.ChatCommands.Add(new Command("customnpcs.notarget", NoTarget, "notarget"));
 
+			//Commands.ChatCommands.Add(new Command("customnpcs.boo", RunBoo, "boo"));
+
 #if DEBUG
 			Commands.ChatCommands.Add(new Command("customnpcs.debug", TileSnake, "tilesnake"));
 #endif
@@ -560,9 +562,52 @@ namespace CustomNpcs
 			sendPagedInfoMessage(player, itemsList, page, itemsPerPage);
 		}
 
+		//private Dictionary<string, BooRunner> runners = new Dictionary<string, BooRunner>();
+
+		//private void RunBoo(CommandArgs args)
+		//{
+		//	var parameters = args.Parameters;
+		//	var player = args.Player;
+		//	if( parameters.Count != 1 )
+		//	{
+		//		player.SendErrorMessage($"Syntax: {Commands.Specifier}boo <filename>");
+		//		return;
+		//	}
+
+		//	var fileName = parameters[0];
+
+		//	try
+		//	{
+		//		//var bi = new BooInterpreter();
+		//		//var result = bi.Run(fileName);
+		//		//bi = bi ?? new BooRunner();
+
+		//		if(!runners.TryGetValue(fileName, out var bi))
+		//		{
+		//			bi = new BooRunner();
+		//			runners.Add(fileName, bi);
+		//		}
+				
+		//		var result = bi.RunScript(fileName);
+
+		//		if( result )
+		//			player.SendInfoMessage($"Script {fileName} completed succesfully.");
+		//		else
+		//			player.SendErrorMessage($"Script {fileName} failed. See serverlog for information.");
+		//	}
+		//	catch( FileNotFoundException fex )
+		//	{
+		//		player.SendErrorMessage($"Script {fileName} failed. {fex.Message}");
+		//	}
+		//	catch( Exception ex )
+		//	{
+		//		player.SendErrorMessage($"Script {fileName} failed. {ex.Message}");
+		//	}
+		//}
+
 #if DEBUG
 
-		private void TileSnake(CommandArgs args)
+			private void TileSnake(CommandArgs args)
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;

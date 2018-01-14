@@ -11,6 +11,7 @@ using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace CustomNpcs.Npcs
 {
@@ -47,6 +48,8 @@ namespace CustomNpcs.Npcs
         private readonly Random _random = new Random();
 		
         internal List<NpcDefinition> _definitions = new List<NpcDefinition>();
+
+		Assembly scriptsAssembly;
 			
 		internal NoTargetOperation NoTarget { get; set; }
 		
@@ -170,10 +173,17 @@ namespace CustomNpcs.Npcs
             _customNpcs.Remove(npc);
             _customNpcs.Add(npc, customNpc);
 
-            lock (_lock)
-            {
-				var onSpawn = definition.OnSpawn;
-				onSpawn?.Call(definition.Name, customNpc);
+			if( definition.BooSpawn != null )
+			{
+				definition.BooSpawn(customNpc);
+			}
+			else
+			{
+				lock( _lock )
+				{
+					var onSpawn = definition.OnSpawn;
+					onSpawn?.Call(definition.Name, customNpc);
+				}
 			}
 
             // Ensure that all players see the changes.
@@ -188,6 +198,8 @@ namespace CustomNpcs.Npcs
         {
             if (File.Exists(NpcsPath))
             {
+				var booScripts = new List<string>();
+
                 _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(NpcsPath));
                 var failedDefinitions = new List<NpcDefinition>();
                 foreach (var definition in _definitions)
@@ -203,9 +215,39 @@ namespace CustomNpcs.Npcs
                         failedDefinitions.Add(definition);
                         continue;
                     }
-                    definition.LoadLuaDefinition();
-                }
+                    //definition.LoadLuaDefinition();
+
+					if(!string.IsNullOrWhiteSpace(definition.BooPath))
+					{
+						Debug.Print($"Added npc script '{definition.BooPath}'.");
+						booScripts.Add(definition.BooPath);
+					}
+					else
+					{
+						definition.LoadLuaDefinition();
+					}
+				}
                 _definitions = _definitions.Except(failedDefinitions).ToList();
+
+				if(booScripts.Count>0)
+				{
+					Debug.Print($"Compiling boo npc scripts.");
+					scriptsAssembly = BooScriptCompiler.Compile(booScripts.ToArray());
+
+					if( scriptsAssembly != null )
+					{
+						Debug.Print($"Compilation succeeded.");
+
+						foreach(var d in _definitions)
+						{
+							if(!string.IsNullOrWhiteSpace(d.BooPath))
+								d.LinkBooModule(scriptsAssembly);
+						}
+					}
+					else
+						Debug.Print($"Compilation failed.");
+
+				}
             }
 			else
 			{
@@ -238,13 +280,24 @@ namespace CustomNpcs.Npcs
 						customNpc.HasTransformed = false;
 
 						var definition = customNpc.Definition;
-						var onTransformed = definition.OnTransformed;
-						if( onTransformed!=null )
+
+						if( definition.BooTransformed != null )
 						{
-							onTransformed.Call(definition.Name, customNpc);
+							definition.BooTransformed(customNpc);
 
 							TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
 							TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
+						}
+						else
+						{
+							var onTransformed = definition.OnTransformed;
+							if( onTransformed != null )
+							{
+								onTransformed.Call(definition.Name, customNpc);
+
+								TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
+								TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
+							}
 						}
 					}
 
@@ -272,15 +325,29 @@ namespace CustomNpcs.Npcs
 						if( customNpc != null )
 						{
 							var definition = customNpc.Definition;
-							var onCollision = definition.OnCollision;
-							if( onCollision!=null)
+
+							if( definition.BooCollision != null )
 							{
 								if( npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey) )
 								{
-									onCollision.Call(definition.Name, customNpc, player);
-									
+									definition.BooCollision(customNpc, player);
+
 									//player.SetData(IgnoreCollisionKey, true);
 									//break;//should this be a continue instead??
+								}
+							}
+							else
+							{
+								var onCollision = definition.OnCollision;
+								if( onCollision != null )
+								{
+									if( npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey) )
+									{
+										onCollision.Call(definition.Name, customNpc, player);
+
+										//player.SetData(IgnoreCollisionKey, true);
+										//break;//should this be a continue instead??
+									}
 								}
 							}
 						}
@@ -299,15 +366,27 @@ namespace CustomNpcs.Npcs
 					if( customNpc != null )
 					{
 						var definition = customNpc.Definition;
-						var onTileCollision = definition.OnTileCollision;
-						if( onTileCollision?.IsLoaded==true )
+
+						if( definition.BooTileCollision != null )
 						{
 							var tileCollisions = TileFunctions.GetOverlappedTiles(npc.Hitbox);
 							if( tileCollisions.Count > 0 )
 							{
-								lock(_lock)
+								definition.BooTileCollision(customNpc, tileCollisions);
+							}
+						}
+						else
+						{
+							var onTileCollision = definition.OnTileCollision;
+							if( onTileCollision?.IsLoaded == true )
+							{
+								var tileCollisions = TileFunctions.GetOverlappedTiles(npc.Hitbox);
+								if( tileCollisions.Count > 0 )
 								{
-									onTileCollision?.Call(definition.Name, customNpc, tileCollisions);
+									lock( _lock )
+									{
+										onTileCollision?.Call(definition.Name, customNpc, tileCollisions);
+									}
 								}
 							}
 						}
@@ -329,18 +408,27 @@ namespace CustomNpcs.Npcs
                 return;
             }
 
-			lock (_lock)
-            {
-                var definition = customNpc.Definition;
-				var onAiUpdate = definition.OnAiUpdate;
-				if(onAiUpdate!=null)
-				{
-					var result = definition.OnAiUpdate.Call(definition.Name, customNpc).GetResult<bool>();
+			var definition = customNpc.Definition;
 
-					if( result != null )
-						args.Handled = (bool)result;
+			if( definition.BooAiUpdate != null )
+			{
+				args.Handled = definition.BooAiUpdate(customNpc);
+			}
+			else
+			{
+				lock( _lock )
+				{
+
+					var onAiUpdate = definition.OnAiUpdate;
+					if( onAiUpdate != null )
+					{
+						var result = definition.OnAiUpdate.Call(definition.Name, customNpc).GetResult<bool>();
+
+						if( result != null )
+							args.Handled = (bool)result;
+					}
 				}
-            }
+			}
 
 			TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", args.Npc.whoAmI);
         }
@@ -370,11 +458,18 @@ namespace CustomNpcs.Npcs
                 }
             }
 
-            lock (_lock)
-            {
-				var onKilled = definition.OnKilled;
-				onKilled?.Call(definition.Name, customNpc);
-            }
+			if( definition.BooKilled != null )
+			{
+				definition.BooKilled(customNpc);
+			}
+			else
+			{
+				lock( _lock )
+				{
+					var onKilled = definition.OnKilled;
+					onKilled?.Call(definition.Name, customNpc);
+				}
+			}
         }
 
         private void OnNpcLootDrop(NpcLootDropEventArgs args)
@@ -449,15 +544,22 @@ namespace CustomNpcs.Npcs
                 customNpc.SendNetUpdate = true;
             }
 
-            lock (_lock)
-            {
-				var onStrike = definition.OnStrike;
-				if(onStrike!=null)
+			if( definition.BooStrike != null )
+			{
+				args.Handled = definition.BooStrike(customNpc, player, args.Damage, args.KnockBack, args.Critical);
+			}
+			else
+			{
+				lock( _lock )
 				{
-					var result = onStrike.Call(definition.Name, customNpc, player, args.Damage, args.KnockBack, args.Critical).GetResult<bool>();
+					var onStrike = definition.OnStrike;
+					if( onStrike != null )
+					{
+						var result = onStrike.Call(definition.Name, customNpc, player, args.Damage, args.KnockBack, args.Critical).GetResult<bool>();
 
-					if( result != null )
-						args.Handled = (bool)result;
+						if( result != null )
+							args.Handled = (bool)result;
+					}
 				}
 			}
         }
@@ -496,13 +598,21 @@ namespace CustomNpcs.Npcs
                 foreach (var definition in _definitions.Where(d => d.ShouldReplace))
                 {
                     var chance = 0.0;
-                    var onCheckReplace = definition.OnCheckReplace;
-					if(onCheckReplace!=null)
-					{
-						var result = onCheckReplace.Call(definition.Name, npc).GetResult<double>();
 
-						if( result != null )
-							chance = (double)result;
+					if( definition.BooCheckReplace != null )
+					{
+						chance = definition.BooCheckReplace(npc);
+					}
+					else
+					{
+						var onCheckReplace = definition.OnCheckReplace;
+						if( onCheckReplace != null )
+						{
+							var result = onCheckReplace.Call(definition.Name, npc).GetResult<double>();
+
+							if( result != null )
+								chance = (double)result;
+						}
 					}
 
 					chances[definition] = chance;
@@ -544,18 +654,25 @@ namespace CustomNpcs.Npcs
 					if(candidateForSpawning)
 					{
 						var weight = 0;
-						var onCheckSpawn = definition.OnCheckSpawn;
-						if(onCheckSpawn!=null)
+
+						if(definition.BooCheckSpawn!=null)
 						{
-							//future? HACK we set a global before each onCheckSpawn call, so that the lua function, NameContains(), works.	
-							//definition._lua["_Name"] = "nope"; 
-
-							var result = onCheckSpawn.Call(definition.Name, player, tileX, tileY).GetResult<double>();
-
-							if( result != null )
-								weight = (int)(double)result;
+							weight = definition.BooCheckSpawn(player, tileX, tileY);
 						}
+						else
+						{
+							var onCheckSpawn = definition.OnCheckSpawn;
+							if( onCheckSpawn != null )
+							{
+								//future? HACK we set a global before each onCheckSpawn call, so that the lua function, NameContains(), works.	
+								//definition._lua["_Name"] = "nope"; 
+								var result = onCheckSpawn.Call(definition.Name, player, tileX, tileY).GetResult<double>();
 
+								if( result != null )
+									weight = (int)(double)result;
+							}
+						}
+					
 						weights[definition] = weight;
 					}
 				}

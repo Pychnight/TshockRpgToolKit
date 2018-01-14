@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 using NLua;
 using Terraria;
 using CustomNpcs.Projectiles;
+using System.Reflection;
+using TShockAPI;
+using System.Diagnostics;
 
 namespace CustomNpcs.Npcs
 {
@@ -50,10 +53,14 @@ namespace CustomNpcs.Npcs
         [JsonProperty(Order = 1)]
         public string LuaPath { get; private set; }
 
-        /// <summary>
-        ///     Gets the internal name.
-        /// </summary>
-        [JsonProperty(Order = 0)]
+		[CanBeNull]
+		[JsonProperty(Order = 6)]
+		public string BooPath { get; private set; }
+
+		/// <summary>
+		///     Gets the internal name.
+		/// </summary>
+		[JsonProperty(Order = 0)]
         [NotNull]
         public string Name { get; private set; } = "example";
 
@@ -109,6 +116,16 @@ namespace CustomNpcs.Npcs
 		///     Gets a function that is invoked when the NPC collides with a tile.
 		/// </summary>
 		public SafeLuaFunction OnTileCollision { get; private set; }
+
+		public CheckReplaceHandler BooCheckReplace { get; set; }
+		public CheckSpawnHandler BooCheckSpawn { get; set; }
+		public SpawnHandler BooSpawn { get; set; }
+		public CollisionHandler BooCollision { get; set; }
+		public TileCollisionHandler BooTileCollision { get; set; }
+		public KilledHandler BooKilled { get; set; }
+		public TransformedHandler BooTransformed { get; set; }
+		public StrikeHandler BooStrike { get; set; }
+		public AiUpdateHandler BooAiUpdate { get; set; }		
 
 		/// <summary>
 		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
@@ -166,7 +183,17 @@ namespace CustomNpcs.Npcs
 			OnTransformed = null;
 			_lua?.Dispose();
             _lua = null;
-        }
+
+			BooCheckReplace = null;
+			BooCheckSpawn = null;
+			BooSpawn = null;
+			BooKilled = null;
+			BooTransformed = null;
+			BooCollision = null;
+			BooTileCollision = null;
+			BooStrike = null;
+			BooAiUpdate = null;
+		}
 
         /// <summary>
         ///     Applies the definition to the specified NPC.
@@ -259,7 +286,33 @@ namespace CustomNpcs.Npcs
             OnStrike =			_lua.GetSafeFunction("OnStrike");
 			OnTransformed =		_lua.GetSafeFunction("OnTransformed");
         }
-		
+
+		internal void LinkBooModule(Assembly ass)
+		{
+			var moduleName = $"{Path.GetFileNameWithoutExtension(BooPath)}Module";
+			var moduleType = ass.DefinedTypes.Where( dt => dt.Name == moduleName).FirstOrDefault();
+
+			if(moduleType!=null)
+			{
+				var methods = moduleType.GetMethods(BindingFlags.Static|BindingFlags.Public);
+
+				BooCheckReplace = methods.FindByName("OnCheckReplace")?.TryCreateDelegate<CheckReplaceHandler>();
+				BooCheckSpawn = methods.FindByName("OnCheckSpawn")?.TryCreateDelegate<CheckSpawnHandler>();
+				BooSpawn = methods.FindByName("OnSpawn")?.TryCreateDelegate<SpawnHandler>();
+				BooCollision = methods.FindByName("OnCollision")?.TryCreateDelegate<CollisionHandler>();
+				BooTileCollision = methods.FindByName("OnTileCollision")?.TryCreateDelegate<TileCollisionHandler>();
+				BooTransformed = methods.FindByName("OnTransformed").TryCreateDelegate<TransformedHandler>();
+				BooKilled = methods.FindByName("OnKilled").TryCreateDelegate<KilledHandler>();
+				BooStrike = methods.FindByName("OnStrike").TryCreateDelegate<StrikeHandler>();
+				BooAiUpdate = methods.FindByName("OnAiUpdate").TryCreateDelegate<AiUpdateHandler>();
+
+				//var res = BooSpawn(null);
+
+				//if( res )
+				//	Debug.Print($"res={res}");
+			}
+		}
+				
 		internal void ThrowIfInvalid()
         {
             if (Name == null)
