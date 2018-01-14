@@ -80,7 +80,18 @@ namespace CustomNpcs.Projectiles
 
 			//projectile.type = 0;
 			projectile.aiStyle = BaseOverride.AiStyle ?? projectile.aiStyle;
-			projectile.ai = BaseOverride.Ai ?? projectile.ai;
+			if(BaseOverride.Ai!=null)
+			{
+				//const int maxAis = 2;
+				for(var i=0;i<projectile.ai.Length;i++)
+				{
+					if(i<BaseOverride.Ai.Length)
+					{
+						projectile.ai[i] = BaseOverride.Ai[i];	
+					}
+				}
+			}
+			
 			projectile.damage = BaseOverride.Damage ?? projectile.damage;
 			projectile.knockBack = BaseOverride.KnockBack ?? projectile.knockBack;
 			projectile.friendly = BaseOverride.Friendly ?? projectile.friendly;
