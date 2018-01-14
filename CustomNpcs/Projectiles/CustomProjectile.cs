@@ -22,6 +22,11 @@ namespace CustomNpcs.Projectiles
 		/// </summary>
 		public int Index => Projectile.whoAmI;
 
+		public bool Active
+		{
+			get => Projectile.active;
+		}
+
 		/// <summary>
 		///     Gets the Center of the npc and sets it.
 		///     Useful for Custom AI
@@ -67,16 +72,7 @@ namespace CustomNpcs.Projectiles
 			get => Projectile.direction;
 			set => Projectile.direction = value;
 		}
-
-		/// <summary>
-		///     Gets or sets the direction Y.
-		/// </summary>
-		//public int DirectionY
-		//{
-		//	get => Projectile.directionY;
-		//	set => Projectile.directionY = value;
-		//}
-
+		
 		/// <summary>
 		///     Gets or sets a value indicating whether to send a network update.
 		/// </summary>
@@ -85,15 +81,6 @@ namespace CustomNpcs.Projectiles
 			get => Projectile.netUpdate;
 			set => Projectile.netUpdate = value;
 		}
-
-		/// <summary>
-		///     Gets or sets the target.
-		/// </summary>
-		//public TSPlayer Target
-		//{
-		//	get => Projectile.target < 0 || Npc.target >= Main.maxPlayers ? null : TShock.Players[Npc.target];
-		//	set => Projectile.target = value?.Index ?? -1;
-		//}
 
 		/// <summary>
 		///     Gets or sets the velocity.
@@ -114,6 +101,23 @@ namespace CustomNpcs.Projectiles
 		{
 			get => Projectile.damage;
 			set => Projectile.damage = value;
+		}
+
+		public float Knockback
+		{
+			get => Projectile.knockBack;
+			set => Projectile.knockBack = value;
+		}
+
+		public int Owner
+		{
+			get => Projectile.owner;
+			set => Projectile.owner = value;
+		}
+
+		public float[] Ai
+		{
+			get => Projectile.ai;
 		}
 
 		public CustomProjectile(Projectile projectile, ProjectileDefinition definition)
