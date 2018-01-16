@@ -137,21 +137,20 @@ namespace CustomNpcs
 		/// <param name="minAmount"></param>
 		/// <returns></returns>
 		[LuaGlobal]
-		public static bool PlayerAmountInRegion(int x, int y, int minAmount)
+		public static bool PlayerAmountInRegion(string regionName, int minAmount)
 		{
 			if( minAmount < 0 )
 				return true;
 
-			var regions = TShock.Regions.InAreaRegion(x, y);
+			var region = TShock.Regions.GetRegionByName(regionName);
 
-			if(regions.Count()>0)
+			if(region!=null)
 			{
-				var top = TShock.Regions.GetTopRegion(regions);
 				var activePlayers = TShock.Players.Where(p => p?.Active == true);
 				
 				foreach(var player in activePlayers)
 				{
-					if(top.InArea(player.TileX, player.TileY))
+					if(region.InArea(player.TileX, player.TileY))
 					{
 						minAmount--;
 
@@ -265,6 +264,13 @@ namespace CustomNpcs
 			return Main.moonPhase == phase;
 		}
 
+		/// <summary>
+		/// Returns whether the current Terraria time is within min and max.
+		/// </summary>
+		/// <param name="min">Minimum time, in 24 hour format.</param>
+		/// <param name="max">Maximum time, in 24 hour format.</param>
+		/// <returns>Boolean result.</returns>
+		/// <remarks>Min and max are both inclusive.</remarks>
 		[LuaGlobal]
 		public static bool DuringTime(string min, string max)
 		{
