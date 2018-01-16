@@ -117,12 +117,13 @@ namespace CustomNpcs.Projectiles
 		public static void SendProjectileUpdate(int index)
 		{
 			TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", index);
+			//Debug.Print($"Sent projectile new or update for index #{index}!");
 		}
 
 		public static void SendProjectileKill(int index, int owner = 255)
 		{
 			TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", index, owner);
-			//Debug.Print("Sent projectile destroy!");
+			//Debug.Print($"Sent projectile destroy for index #{index}!");
 		}
 
 		public CustomProjectile SpawnCustomProjectile(ProjectileDefinition definition, float x, float y, float xSpeed, float ySpeed, int owner = 255 )
@@ -227,7 +228,7 @@ namespace CustomNpcs.Projectiles
 					projectile.AI();
 				}
 
-				//try to update projectile
+				//try to update projectile	
 				//if( Main.projectile[projectile.whoAmI] != null && projectile.active )
 				if(customProjectile?.Active==true)
 				{
