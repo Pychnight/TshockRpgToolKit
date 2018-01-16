@@ -258,5 +258,46 @@ namespace CustomNpcs
 				return false;
 			}
 		}
+
+		[LuaGlobal]
+		public static bool DuringMoonPhase(int phase)
+		{
+			return Main.moonPhase == phase;
+		}
+
+		[LuaGlobal]
+		public static bool DuringTime(string min, string max)
+		{
+			var timeOfDay = GetTimeOfDay();
+		
+			if( !TimeSpan.TryParse(min, out var minTime) )
+				return false;
+
+			if( !TimeSpan.TryParse(max, out var maxTime) )
+				return false;
+
+			if( minTime <= timeOfDay && maxTime >= timeOfDay )
+				return true;
+
+			return false;
+		}
+
+		public static TimeSpan GetTimeOfDay()
+		{
+			//ripped from tshocks /time command...
+			double num = Main.time / 3600.0;
+			num += 4.5;
+			if( !Main.dayTime )
+			{
+				num += 15.0;
+			}
+			num %= 24.0;
+			
+			var hour = (int)Math.Floor(num);
+			var min = (int)Math.Round(num % 1.0 * 60.0);
+			var ts = new TimeSpan(0, hour, min, 0, 0);
+			
+			return ts;
+		}	
 	}
 }
