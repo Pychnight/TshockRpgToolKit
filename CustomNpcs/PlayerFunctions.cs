@@ -127,5 +127,78 @@ namespace CustomNpcs
 			var player = TShock.Players.Where(n => n?.Name == name).SingleOrDefault();
 			return player;
 		}
+
+		/// <summary>
+		/// Returns whether the player has any of the supplied permissions.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="permissions"></param>
+		/// <returns></returns>
+		[LuaGlobal]
+		public static bool PlayerHasPermission(TSPlayer player, LuaTable permissions)
+		{
+			if(permissions==null || permissions.Values.Count < 1 )
+				return false;
+			
+			try
+			{
+				foreach( var value in permissions.Values )
+				{
+					if(value is string)
+					{
+						var perm = (string)value;
+						
+						if( player.HasPermission(perm) )
+							return true;
+					}
+				}
+
+				return false;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Returns whether the player is part of any of the named groups.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="groups"></param>
+		/// <returns></returns>
+		[LuaGlobal]
+		public static bool PlayerHasGroup(TSPlayer player, LuaTable groups)
+		{
+			if( groups == null || groups.Values.Count < 1 )
+				return false;
+
+			try
+			{
+				var playerGroup = player.Group;
+
+				while( playerGroup != null )
+				{
+					foreach( var value in groups.Values )
+					{
+						if( value is string )
+						{
+							var groupName = (string)value;
+
+							if( playerGroup.Name == groupName )
+								return true;
+						}
+					}
+
+					playerGroup = playerGroup.Parent;
+				}
+
+				return false;
+			}
+			catch
+			{
+				return false;
+			}
+		}
 	}
 }
