@@ -198,8 +198,7 @@ namespace CustomNpcs.Npcs
                     }
                     catch (FormatException ex)
                     {
-                        TShock.Log.ConsoleError(
-                            $"[CustomNpcs] An error occurred while parsing NPC '{definition.Name}': {ex.Message}");
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing NPC '{definition.Name}': {ex.Message}",TraceLevel.Error);
                         failedDefinitions.Add(definition);
                         continue;
                     }
@@ -209,8 +208,7 @@ namespace CustomNpcs.Npcs
             }
 			else
 			{
-				ServerApi.LogWriter.PluginWriteLine(_plugin, $"Npc's configuration does not exist. Expected config file to be at: {NpcsPath}", TraceLevel.Error);
-
+				CustomNpcsPlugin.Instance.LogPrint($"Npc's configuration does not exist. Expected config file to be at: {NpcsPath}", TraceLevel.Error);
 				_definitions = new List<NpcDefinition>();
 			}
         }
@@ -221,7 +219,6 @@ namespace CustomNpcs.Npcs
 			
             lock (_checkNpcLock)
             {
-				//not working
 				NoTarget.Ensure();
 
 				foreach (var npc in Main.npc.Where(n => n?.active == true))
