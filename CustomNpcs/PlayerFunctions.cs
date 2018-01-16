@@ -128,6 +128,64 @@ namespace CustomNpcs
 			return player;
 		}
 
+
+		/// <summary>
+		/// Returns whether the topmost region at (x,y) contains a minimum amount of players.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="minAmount"></param>
+		/// <returns></returns>
+		[LuaGlobal]
+		public static bool PlayerAmountInRegion(int x, int y, int minAmount)
+		{
+			if( minAmount < 0 )
+				return true;
+
+			var regions = TShock.Regions.InAreaRegion(x, y);
+
+			if(regions.Count()>0)
+			{
+				var top = TShock.Regions.GetTopRegion(regions);
+				var activePlayers = TShock.Players.Where(p => p?.Active == true);
+				
+				foreach(var player in activePlayers)
+				{
+					if(top.InArea(player.TileX, player.TileY))
+					{
+						minAmount--;
+
+						if( minAmount < 1 )
+							break;
+					}
+				}
+			}
+
+			return minAmount<1;
+		}
+		
+		/// <summary>
+		/// Returns whether the minimum amount of players are currently connected and active.
+		/// </summary>
+		/// <param name="minAmount"></param>
+		/// <returns></returns>
+		[LuaGlobal]
+		public static bool PlayerAmountConnected(int minAmount)
+		{
+			foreach(var p in TShock.Players)
+			{
+				if( p.Active )
+				{
+					minAmount--;
+
+					if( minAmount < 1 )
+						break;
+				}
+			}
+
+			return minAmount<1;
+		}
+
 		/// <summary>
 		/// Returns whether the player has any of the supplied permissions.
 		/// </summary>
