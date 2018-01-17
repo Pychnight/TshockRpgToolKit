@@ -4,7 +4,6 @@ using System.Linq;
 using CustomNpcs.Npcs;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
-using NLua.Exceptions;
 using OTAPI.Tile;
 using Terraria;
 using TShockAPI;
@@ -189,53 +188,8 @@ namespace CustomNpcs
                 NpcManager.Instance.SpawnCustomNpc(definition, 16 * tileX + 8, 16 * tileY);
             }
         }
-
-        /// <summary>
-        ///     Tries to execute the specified action.
-        /// </summary>
-        /// <param name="action">The action, which must not be <c>null</c>.</param>
-        /// <param name="executor">The executor of the action, which must not be <c>null</c>.</param>
-		/// <returns>True if the action ran without throwing any exceptions, false otherwise.</returns>
-		[Obsolete("Consider using SafeLuaFunction's in place of TryExecuteLua().")]
-        public static bool TryExecuteLua([NotNull] Action action, string executor)
-        {
-            try
-            {
-                action();
-				return true;
-			}
-			catch(LuaScriptException ex )
-			{
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua script error has originated from {executor}:", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
-				if( ex.InnerException != null )
-				{
-					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
-				}
-			}
-			catch (LuaException ex)
-            {
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"A Lua error has originated from {executor}:", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
-				if( ex.InnerException != null )
-				{
-					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
-				}
-            }
-			catch(Exception ex)
-			{
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, $"An error occurred in managed code, while interacting with Lua code ( {executor} ):", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.ToString(), TraceLevel.Error);
-				if( ex.InnerException != null )
-				{
-					ServerApi.LogWriter.PluginWriteLine(CustomNpcsPlugin.Instance, ex.InnerException.ToString(), TraceLevel.Error);
-				}
-			}
-
-			return false;
-        }
-
-        /// <summary>
+		
+		/// <summary>
         ///     Tries to pick a random key from a dictionary using the values as chances.
         /// </summary>
         /// <typeparam name="TKey">The type of key.</typeparam>

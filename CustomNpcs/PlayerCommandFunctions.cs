@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using NLua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,6 @@ namespace CustomNpcs
 {
 	public static class PlayerCommandFunctions
 	{
-		[LuaGlobal]
 		public static bool ExecuteCommand(TSPlayer player, string text)
 		{
 			if( player == null || text == null )

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
-using NLua;
 using Terraria;
 using TShockAPI;
 using CustomNpcs.Projectiles;
@@ -222,7 +221,7 @@ namespace CustomNpcs.Npcs
         /// <param name="tileRadius">The tile radius, which must be positive.</param>
         /// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="tileRadius" /> is not positive.</exception>
-        public void ForEachNearbyPlayer([NotNull] LuaFunction callback, int tileRadius = 50)
+        public void ForEachNearbyPlayer( Action<TSPlayer> callback, int tileRadius = 50)
         {
             if (callback == null)
             {
@@ -237,7 +236,7 @@ namespace CustomNpcs.Npcs
                 p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
                      256 * tileRadius * tileRadius))
             {
-                callback.Call(player);
+                callback?.Invoke(player);
             }
         }
 
@@ -315,7 +314,7 @@ namespace CustomNpcs.Npcs
         /// <param name="key">The key, which must be unique.</param>
         /// <param name="callback">The callback, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-        public void OnlyOnce(int key, [NotNull] LuaFunction callback)
+        public void OnlyOnce(int key, Action callback)
         {
             if (callback == null)
             {
@@ -325,7 +324,7 @@ namespace CustomNpcs.Npcs
             if (!HasVariable($"OnlyOnce{key}"))
             {
                 SetVariable($"OnlyOnce{key}", true);
-                callback.Call();
+                callback?.Invoke();
             }
         }
 
@@ -337,7 +336,7 @@ namespace CustomNpcs.Npcs
         /// <param name="period">The period, which must be positive.</param>
         /// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="period" /> is not positive.</exception>
-        public void Periodically(int key, [NotNull] LuaFunction callback, int period)
+        public void Periodically(int key, Action callback, int period)
         {
             if (callback == null)
             {
@@ -352,7 +351,7 @@ namespace CustomNpcs.Npcs
             var timer = (int)GetVariable($"Periodically{key}", 0);
             if (timer++ == 0)
             {
-                callback.Call();
+                callback?.Invoke();
             }
 
             timer %= period;

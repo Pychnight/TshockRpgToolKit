@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using NLua;
 using System;
 using System.Collections.Generic;
 using System.IO;

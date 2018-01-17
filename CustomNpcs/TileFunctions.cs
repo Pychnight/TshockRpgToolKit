@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using NLua;
 using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
@@ -73,7 +72,7 @@ namespace CustomNpcs
 			return results;//.AsReadOnly();
 		}
 		
-		[LuaGlobal]
+		
 		public static bool InTileMapBounds(int column, int row)
 		{
 			if( column < 0 || column > Main.maxTilesX )
@@ -84,17 +83,25 @@ namespace CustomNpcs
 
 			return true;
 		}
-
-		//[LuaGlobal]
-		public static int TileX(float x)
+				
+		public static int TileX(float worldX)
 		{
-			return (int)( x / TileSize );
+			return (int)( worldX / TileSize );
+		}
+				
+		public static int TileY(float worldY)
+		{
+			return (int)( worldY / TileSize );
 		}
 
-		//[LuaGlobal]
-		public static int TileY(float y)
+		public static int WorldX(int tileX)
 		{
-			return (int)( y / TileSize );
+			return tileX * TileSize;
+		}
+
+		public static int WorldY(int tileY)
+		{
+			return tileY * TileSize;
 		}
 
 		/// <summary>
@@ -103,35 +110,31 @@ namespace CustomNpcs
 		/// <param name="x">The X coordinate, which must be in bounds.</param>
 		/// <param name="y">The Y coordinate, which must be in bounds.</param>
 		/// <returns>The tile.</returns>
-		[LuaGlobal]
 		public static ITile GetTile(int x, int y) => Main.tile[x, y];
 
-		//[LuaGlobal]
+		//
 		//public static bool SolidTile(ITile tile)
 		//{
 		//	return tile.active() && tile.type < Main.maxTileSets && Main.tileSolid[tile.type];
 		//}
-
-		[LuaGlobal]
+				
 		public static bool IsSolidTile(int column, int row)
 		{
 			return WorldGen.SolidTile(column, row);
 		}
-
-		[LuaGlobal]
+				
 		public static bool IsSolidOrSlopedTile(int column, int row)
 		{
 			return WorldGen.SolidOrSlopedTile(column, row);
 		}
-
-		[LuaGlobal]
+				
 		public static bool IsWallTile(int column, int row)
 		{
 			var tile = GetTile(column, row);
 			return tile.wall > 0;
 		}
 
-		[LuaGlobal]
+		
 		public static bool IsLiquidTile(int column, int row)
 		{
 			var tile = GetTile(column, row);
@@ -148,8 +151,7 @@ namespace CustomNpcs
 		//{
 		//	return tile.active() && tile.liquid 
 		//}
-
-		[LuaGlobal]
+				
 		public static void SetTile(int column, int row, int type)
 		{
 			try
@@ -165,8 +167,7 @@ namespace CustomNpcs
 				//CustomNpcsPlugin.Instance.LogPrint($"Tried to SetTile on an invalid index.", TraceLevel.Error);
 			}
 		}
-
-		[LuaGlobal]
+				
 		public static void KillTile(int column, int row)
 		{
 			try
@@ -182,8 +183,7 @@ namespace CustomNpcs
 				//CustomNpcsPlugin.Instance.LogPrint($"Tried to KillTile on an invalid index.", TraceLevel.Error);
 			}
 		}
-		
-		[LuaGlobal]
+				
 		public static void RadialKillTile(int x, int y, int radius)
 		{
 			var box = new Rectangle(x - radius, y - radius, radius * 2, radius * 2);
@@ -211,13 +211,12 @@ namespace CustomNpcs
 			}
 		}
 
-		//[LuaGlobal]
+		//
 		//public static void RadialKillTile(Vector2 position, int radius)
 		//{
 		//	RadialKillTile((int)position.X, (int)position.Y, radius);
 		//}
-
-		[LuaGlobal]
+				
 		public static void RadialSetTile(int x, int y, int radius, int type)
 		{
 			var box = new Rectangle(x - radius, y - radius, radius * 2, radius * 2);

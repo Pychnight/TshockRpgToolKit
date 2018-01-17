@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using NLua;
 
 namespace CustomNpcs.Invasions
 {

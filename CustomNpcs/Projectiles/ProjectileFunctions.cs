@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
-using NLua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomNpcs.Projectiles;
 
-namespace CustomNpcs.Projectiles
+namespace CustomNpcs
 {
 	public static class ProjectileFunctions
 	{
@@ -18,7 +18,6 @@ namespace CustomNpcs.Projectiles
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
 		/// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
-		[LuaGlobal]
 		public static CustomProjectile SpawnCustomProjectile(int owner, string name, float x, float y, float xSpeed, float ySpeed)
 		{
 			if (name == null)

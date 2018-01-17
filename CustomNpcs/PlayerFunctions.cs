@@ -1,7 +1,6 @@
 ﻿using CustomNpcs.Npcs;
 using CustomNpcs.Projectiles;
 using Microsoft.Xna.Framework;
-using NLua;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -45,7 +44,6 @@ namespace CustomNpcs
 			}
 		}
 		
-		[LuaGlobal]
 		public static void HurtPlayer(TSPlayer player, int damage, bool critical, string deathReason)
 		{
 			var reason = createPlayerDeathReason(null, deathReason);
@@ -57,7 +55,6 @@ namespace CustomNpcs
 			NetMessage.SendPlayerHurt(player.Index, reason, damage, new Random().Next(-1, 1), critical, false, 0, -1, -1);
 		}
 
-		[LuaGlobal]
 		public static void KillPlayer(TSPlayer player, string deathReason) //, bool pvp = false)
 		{
 			var reason = createPlayerDeathReason(null, deathReason);
@@ -68,7 +65,6 @@ namespace CustomNpcs
 			NetMessage.SendPlayerDeath(player.Index, reason, 99999, new Random().Next(-1, 1), false, -1, -1);
 		}
 
-		[LuaGlobal]
 		public static void RadialHurtPlayer(int x, int y, int radius, int damage, float falloff, string deathReason)
 		{
 			if( radius < 1 )
@@ -101,7 +97,6 @@ namespace CustomNpcs
 		}
 
 		//not sure if we should expose following methods to lua...
-
 		public static List<TSPlayer> FindPlayersInRadius(float x, float y, float radius)
 		{
 			var results = new List<TSPlayer>();
@@ -127,8 +122,7 @@ namespace CustomNpcs
 			var player = TShock.Players.Where(n => n?.Name == name).SingleOrDefault();
 			return player;
 		}
-
-
+		
 		/// <summary>
 		/// Returns whether the topmost region at (x,y) contains a minimum amount of players.
 		/// </summary>
@@ -136,7 +130,6 @@ namespace CustomNpcs
 		/// <param name="y"></param>
 		/// <param name="minAmount"></param>
 		/// <returns></returns>
-		[LuaGlobal]
 		public static bool PlayerAmountInRegion(string regionName, int minAmount)
 		{
 			if( minAmount < 0 )
@@ -168,7 +161,6 @@ namespace CustomNpcs
 		/// </summary>
 		/// <param name="minAmount"></param>
 		/// <returns></returns>
-		[LuaGlobal]
 		public static bool PlayerAmountConnected(int minAmount)
 		{
 			foreach(var p in TShock.Players)
@@ -191,23 +183,17 @@ namespace CustomNpcs
 		/// <param name="player"></param>
 		/// <param name="permissions"></param>
 		/// <returns></returns>
-		[LuaGlobal]
-		public static bool PlayerHasPermission(TSPlayer player, LuaTable permissions)
+		public static bool PlayerHasPermission(TSPlayer player, params string[] permissions)
 		{
-			if(permissions==null || permissions.Values.Count < 1 )
+			if(permissions==null || permissions.Length < 1 )
 				return false;
 			
 			try
 			{
-				foreach( var value in permissions.Values )
+				foreach( var perm in permissions )
 				{
-					if(value is string)
-					{
-						var perm = (string)value;
-						
-						if( player.HasPermission(perm) )
-							return true;
-					}
+					if( perm!=null && player.HasPermission(perm) )
+						return true;
 				}
 
 				return false;
@@ -224,10 +210,9 @@ namespace CustomNpcs
 		/// <param name="player"></param>
 		/// <param name="groups"></param>
 		/// <returns></returns>
-		[LuaGlobal]
-		public static bool PlayerHasGroup(TSPlayer player, LuaTable groups)
+		public static bool PlayerHasGroup(TSPlayer player, params string[] groups)
 		{
-			if( groups == null || groups.Values.Count < 1 )
+			if( groups == null || groups.Length < 1 )
 				return false;
 
 			try
@@ -236,13 +221,11 @@ namespace CustomNpcs
 
 				while( playerGroup != null )
 				{
-					foreach( var value in groups.Values )
+					foreach( var group in groups )
 					{
-						if( value is string )
+						if( group != null )
 						{
-							var groupName = (string)value;
-
-							if( playerGroup.Name == groupName )
+							if( playerGroup.Name == group )
 								return true;
 						}
 					}
@@ -257,38 +240,8 @@ namespace CustomNpcs
 				return false;
 			}
 		}
-
-		[LuaGlobal]
-		public static bool DuringMoonPhase(int phase)
-		{
-			return Main.moonPhase == phase;
-		}
-
-		/// <summary>
-		/// Returns whether the current Terraria time is within min and max.
-		/// </summary>
-		/// <param name="min">Minimum time, in 24 hour format.</param>
-		/// <param name="max">Maximum time, in 24 hour format.</param>
-		/// <returns>Boolean result.</returns>
-		/// <remarks>Min and max are both inclusive.</remarks>
-		[LuaGlobal]
-		public static bool DuringTime(string min, string max)
-		{
-			var timeOfDay = GetTimeOfDay();
 		
-			if( !TimeSpan.TryParse(min, out var minTime) )
-				return false;
-
-			if( !TimeSpan.TryParse(max, out var maxTime) )
-				return false;
-
-			if( minTime <= timeOfDay && maxTime >= timeOfDay )
-				return true;
-
-			return false;
-		}
-
-		public static TimeSpan GetTimeOfDay()
+		internal static TimeSpan GetTimeOfDay()
 		{
 			//ripped from tshocks /time command...
 			double num = Main.time / 3600.0;

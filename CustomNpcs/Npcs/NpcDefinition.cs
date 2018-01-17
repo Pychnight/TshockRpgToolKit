@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using NLua;
 using Terraria;
 using CustomNpcs.Projectiles;
 using System.Reflection;
