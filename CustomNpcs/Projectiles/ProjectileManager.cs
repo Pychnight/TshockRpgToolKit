@@ -33,10 +33,7 @@ namespace CustomNpcs.Projectiles
 		public List<ProjectileDefinition> Definitions { get; private set; }
 		ConditionalWeakTable<Projectile, CustomProjectile> customProjectiles;
 		Assembly projectileScriptsAssembly;
-		
-		object locker = new object();
-		object checkProjectileLock = new object();
-		
+				
 		public ProjectileManager(CustomNpcsPlugin plugin)
 		{
 			this.plugin = plugin;
@@ -53,7 +50,6 @@ namespace CustomNpcs.Projectiles
 			OTAPI.Hooks.Projectile.PreUpdate = onProjectilePreUpdate;
 			OTAPI.Hooks.Projectile.PreAI = onProjectilePreAi;
 			OTAPI.Hooks.Projectile.PreKill = onProjectilePreKill;
-			//OTAPI.Hooks.Projectile.PostKilled = onProjectilePostKilled;
 		}
 
 		public void Dispose()
@@ -72,7 +68,6 @@ namespace CustomNpcs.Projectiles
 			OTAPI.Hooks.Projectile.PreUpdate = null;
 			OTAPI.Hooks.Projectile.PreAI = null;
 			OTAPI.Hooks.Projectile.PreKill = null;
-			//OTAPI.Hooks.Projectile.PostKilled = null;
 		}
 
 		private void LoadDefinitions()
@@ -136,10 +131,7 @@ namespace CustomNpcs.Projectiles
 				throw new ArgumentNullException(nameof(name));
 			}
 
-			lock(locker)
-			{
-				return Definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
-			}
+			return Definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		public static void SendProjectileUpdate(int index)
@@ -156,23 +148,17 @@ namespace CustomNpcs.Projectiles
 
 		public CustomProjectile SpawnCustomProjectile(ProjectileDefinition definition, float x, float y, float xSpeed, float ySpeed, int owner = 255 )
 		{
-			// The following code needs to be synchronized since SpawnCustomNpc may run on a different thread than the
-			// main thread. Otherwise, there is a possible race condition where the newly-spawned custom NPC may be
-			// erroneously checked for replacement.
-			lock(checkProjectileLock)
+			var baseOverride = definition.BaseOverride;
+			var projectileId = Projectile.NewProjectile(x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner);
+			var customProjectile = projectileId != Main.maxProjectiles ? AttachCustomProjectile(Main.projectile[projectileId], definition) : null;
+
+			if( customProjectile != null )
 			{
-				var baseOverride = definition.BaseOverride;
-				var projectileId = Projectile.NewProjectile(x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner );
-				var customProjectile =  projectileId != Main.maxProjectiles ? AttachCustomProjectile(Main.projectile[projectileId], definition) : null;
-								
-				if( customProjectile != null )
-				{
-					//customProjectile.SendNetUpdate = true;
-					ProjectileManager.SendProjectileUpdate(projectileId);
-				}
-				
-				return customProjectile;
+				//customProjectile.SendNetUpdate = true;
+				ProjectileManager.SendProjectileUpdate(projectileId);
 			}
+
+			return customProjectile;
 		}
 		
 		public CustomProjectile GetCustomProjectile(Projectile projectile)
@@ -195,13 +181,7 @@ namespace CustomNpcs.Projectiles
 			customProjectiles.Add(projectile, customProjectile);
 
 			definition.ApplyTo(projectile);
-
-			//lock( locker )
-			//{
-			//	var onSpawn = definition.OnSpawn;
-			//	onSpawn?.Call(definition.Name, customProjectile);
-			//}
-
+			
 			definition.OnSpawn?.Invoke(customProjectile);
 
 			return customProjectile;
@@ -240,20 +220,11 @@ namespace CustomNpcs.Projectiles
 				var definition = customProjectile.Definition;
 
 				//game updates
-				lock( locker )
+				var onGameUpdate = definition.OnGameUpdate;
+				if( onGameUpdate != null )
 				{
-					var onGameUpdate = definition.OnGameUpdate;
-					//if(onGameUpdate!=null)
-					//{
-					//	var handled = onGameUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
-					//	result = handled == true ? HookResult.Cancel : HookResult.Continue;
-					//}
-
-					if( onGameUpdate != null )
-					{
-						var handled = onGameUpdate(customProjectile);
-						result = handled == true ? HookResult.Cancel : HookResult.Continue;
-					}
+					var handled = onGameUpdate(customProjectile);
+					result = handled == true ? HookResult.Cancel : HookResult.Continue;
 				}
 
 				if( result == HookResult.Cancel )
@@ -267,7 +238,6 @@ namespace CustomNpcs.Projectiles
 				if(customProjectile?.Active==true)
 				{
 					//projectile.netUpdate = true;
-					//TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
 					ProjectileManager.SendProjectileUpdate(customProjectile.Index);
 				}
 
@@ -280,15 +250,6 @@ namespace CustomNpcs.Projectiles
 
 					if( tileCollisions.Count > 0 )
 					{
-						//var onTileCollision = definition.OnTileCollision;
-						//if(onTileCollision!=null)
-						//{
-						//	lock( locker )
-						//	{
-						//		onTileCollision.Call(definition.Name, customProjectile, tileCollisions);
-						//	}
-						//}
-
 						definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
 					}
 				}
@@ -306,11 +267,6 @@ namespace CustomNpcs.Projectiles
 
 							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
 							{
-								//lock( locker )
-								//{
-								//	onCollision.Call(definition.Name, customProjectile, player);
-								//}
-
 								onCollision(customProjectile, player);
 							}
 						}
@@ -328,18 +284,6 @@ namespace CustomNpcs.Projectiles
 
 			if( customProjectile != null )
 			{
-				//lock( locker )
-				//{
-				//	var definition = customProjectile.Definition;
-				//	var onAiUpdate = definition.OnAiUpdate;
-				//	if( onAiUpdate != null )
-				//	{
-				//		var handled = onAiUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
-
-				//		result = handled == true ? HookResult.Cancel : HookResult.Continue;
-				//	}
-				//}
-								
 				var onAiUpdate = customProjectile.Definition.OnAiUpdate;
 				if( onAiUpdate != null )
 				{
@@ -360,15 +304,6 @@ namespace CustomNpcs.Projectiles
 				var onKilled = definition.OnKilled;
 				if(onKilled!=null)
 				{
-					//lock( locker )
-					//{
-					//	onKilled.Call(definition.Name, customProjectile);
-
-					//	customProjectiles.Remove(projectile);
-					//	projectile.active = false;
-					//	ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
-					//}
-										
 					onKilled(customProjectile);
 
 					customProjectiles.Remove(projectile);
@@ -384,37 +319,9 @@ namespace CustomNpcs.Projectiles
 				return HookResult.Continue;
 			}
 		}
-
-		//private void onProjectilePostKilled(Projectile projectile)
-		//{
-		//	var customProjectile = GetCustomProjectile(projectile);
-		//	if( customProjectile != null )
-		//	{
-		//		lock( locker )
-		//		{
-		//			var definition = customProjectile.Definition;
-		//			Utils.TryExecuteLua(() => definition.OnKilled?.Call(customProjectile), definition.Name);
-
-		//			customProjectiles.Remove(projectile);
-		//			projectile.active = false;
-		//			TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", projectile.whoAmI);
-		//		}
-		//	}
-		//}
-
+		
 		private void OnReload(ReloadEventArgs args)
 		{
-			//lock(locker)
-			//{
-			//	foreach (var definition in Definitions)
-			//	{
-			//		definition.Dispose();
-			//	}
-			//	Definitions.Clear();
-
-			//	Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
-			//}
-
 			foreach( var definition in Definitions )
 			{
 				definition.Dispose();

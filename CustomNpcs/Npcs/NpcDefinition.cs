@@ -202,32 +202,6 @@ namespace CustomNpcs.Npcs
             npc.value = _baseOverride.Value ?? npc.value;
         }
 		
-		//internal void LinkToScript(Assembly ass)
-		//{
-		//	var moduleName = $"{Path.GetFileNameWithoutExtension(ScriptPath)}Module";
-		//	var moduleType = ass.DefinedTypes.Where( dt => dt.Name == moduleName).FirstOrDefault();
-
-		//	if(moduleType!=null)
-		//	{
-		//		var methods = moduleType.GetMethods(BindingFlags.Static|BindingFlags.Public);
-
-		//		OnCheckReplace = methods.FindByName("OnCheckReplace")?.TryCreateDelegate<CheckReplaceHandler>();
-		//		OnCheckSpawn = methods.FindByName("OnCheckSpawn")?.TryCreateDelegate<CheckSpawnHandler>();
-		//		OnSpawn = methods.FindByName("OnSpawn")?.TryCreateDelegate<SpawnHandler>();
-		//		OnCollision = methods.FindByName("OnCollision")?.TryCreateDelegate<CollisionHandler>();
-		//		OnTileCollision = methods.FindByName("OnTileCollision")?.TryCreateDelegate<TileCollisionHandler>();
-		//		OnTransformed = methods.FindByName("OnTransformed").TryCreateDelegate<TransformedHandler>();
-		//		OnKilled = methods.FindByName("OnKilled").TryCreateDelegate<KilledHandler>();
-		//		OnStrike = methods.FindByName("OnStrike").TryCreateDelegate<StrikeHandler>();
-		//		OnAiUpdate = methods.FindByName("OnAiUpdate").TryCreateDelegate<AiUpdateHandler>();
-
-		//		//var res = BooSpawn(null);
-
-		//		//if( res )
-		//		//	Debug.Print($"res={res}");
-		//	}
-		//}
-
 		internal bool LinkToScript(Assembly ass)
 		{
 			if( ass == null )
