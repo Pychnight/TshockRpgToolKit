@@ -33,7 +33,7 @@ namespace CustomNpcs.Invasions
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
         private DateTime _lastProgressUpdate;
         private int _requiredPoints;
-
+				
 		private Assembly invasionScriptsAssembly;
 				
         internal InvasionManager(CustomNpcsPlugin plugin)
@@ -128,7 +128,30 @@ namespace CustomNpcs.Invasions
 			}
 		}
 
-        private void LoadDefinitions()
+		private IEnumerable<string> getDefaultImports()
+		{
+			var imports = new List<string>()
+			{
+				"System.Collections.Generic",
+				"Microsoft.Xna.Framework",
+				"TShockAPI",
+				"CustomNpcs",
+				"CustomNpcs.Invasions",
+				"CustomNpcs.Npcs",
+				"CustomNpcs.Projectiles",
+				"CustomNpcs.NpcFunctions",
+				"CustomNpcs.ProjectileFunctions",
+				"CustomNpcs.AreaFunctions",
+				"CustomNpcs.TimeFunctions",
+				"CustomNpcs.TileFunctions",
+				"CustomNpcs.PlayerFunctions",
+				"CustomNpcs.PlayerCommandFunctions"
+			};
+
+			return imports;
+		}
+
+		private void LoadDefinitions()
         {
             if (File.Exists(InvasionsConfigPath))
             {
@@ -163,7 +186,7 @@ namespace CustomNpcs.Invasions
 				if( booScripts.Count > 0 )
 				{
 					Debug.Print($"Compiling boo invasion scripts.");
-					invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll",booScripts);
+					invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll",booScripts,getDefaultImports());
 
 					if( invasionScriptsAssembly != null )
 					{

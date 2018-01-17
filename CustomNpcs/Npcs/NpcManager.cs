@@ -49,7 +49,7 @@ namespace CustomNpcs.Npcs
         private readonly Random _random = new Random();
 		
         internal List<NpcDefinition> _definitions = new List<NpcDefinition>();
-
+				
 		Assembly npcScriptsAssembly;
 			
 		internal NoTargetOperation NoTarget { get; set; }
@@ -57,7 +57,7 @@ namespace CustomNpcs.Npcs
         internal NpcManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
-
+						
 			NoTarget = new NoTargetOperation();
 			
 			LoadDefinitions();
@@ -187,6 +187,29 @@ namespace CustomNpcs.Npcs
             return customNpc;
         }
 
+		private IEnumerable<string> getDefaultImports()
+		{
+			var imports = new List<string>()
+			{
+				"System.Collections.Generic",
+				"Microsoft.Xna.Framework",
+				"TShockAPI",
+				"CustomNpcs",
+				"CustomNpcs.Invasions",
+				"CustomNpcs.Npcs",
+				"CustomNpcs.Projectiles",
+				"CustomNpcs.NpcFunctions",
+				"CustomNpcs.ProjectileFunctions",
+				"CustomNpcs.AreaFunctions",
+				"CustomNpcs.TimeFunctions",
+				"CustomNpcs.TileFunctions",
+				"CustomNpcs.PlayerFunctions",
+				"CustomNpcs.PlayerCommandFunctions"
+			};
+
+			return imports;
+		}
+
         private void LoadDefinitions()
         {
             if (File.Exists(NpcsConfigPath))
@@ -222,7 +245,7 @@ namespace CustomNpcs.Npcs
 				if(booScripts.Count>0)
 				{
 					Debug.Print($"Compiling boo npc scripts.");
-					npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts);
+					npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts, getDefaultImports());
 
 					if( npcScriptsAssembly != null )
 					{

@@ -69,6 +69,29 @@ namespace CustomNpcs.Projectiles
 			OTAPI.Hooks.Projectile.PreKill = null;
 		}
 
+		private IEnumerable<string> getDefaultImports()
+		{
+			var imports = new List<string>()
+			{
+				"System.Collections.Generic",
+				"Microsoft.Xna.Framework",
+				"TShockAPI",
+				"CustomNpcs",
+				"CustomNpcs.Invasions",
+				"CustomNpcs.Npcs",
+				"CustomNpcs.Projectiles",
+				"CustomNpcs.NpcFunctions",
+				"CustomNpcs.ProjectileFunctions",
+				"CustomNpcs.AreaFunctions",
+				"CustomNpcs.TimeFunctions",
+				"CustomNpcs.TileFunctions",
+				"CustomNpcs.PlayerFunctions",
+				"CustomNpcs.PlayerCommandFunctions"
+			};
+
+			return imports;
+		}
+
 		private void LoadDefinitions()
 		{
 			if(File.Exists(ProjectilesConfigPath))
@@ -103,7 +126,7 @@ namespace CustomNpcs.Projectiles
 				if( booScripts.Count > 0 )
 				{
 					Debug.Print($"Compiling boo projectile scripts.");
-					projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts);
+					projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts, getDefaultImports());
 
 					if( projectileScriptsAssembly != null )
 					{

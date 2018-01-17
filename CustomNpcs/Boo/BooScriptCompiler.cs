@@ -32,6 +32,8 @@ namespace CustomNpcs
 		CompilerParameters parameters;
 		BooCompiler compiler;
 
+		InjectImportsStep injectImportsStep;
+
 		private BooScriptCompiler()
 		{
 			compiler = new BooCompiler();
@@ -54,6 +56,8 @@ namespace CustomNpcs
 			var tshockAss = Assembly.GetAssembly(typeof(TSPlayer));
 			var pluginAss = Assembly.GetExecutingAssembly();
 
+			parameters.DisabledWarnings.Add("BCW0016");//dont warn about unused namespaces...
+			
 			parameters.References.Add(otapiAss);
 			parameters.References.Add(tshockAss);
 			parameters.References.Add(pluginAss);
@@ -61,13 +65,18 @@ namespace CustomNpcs
 			parameters.OutputType = CompilerOutputType.Library;
 			parameters.OutputAssembly = "scripts.dll";
 			parameters.GenerateCollectible = true; //dont leak assemblies...
-			parameters.Pipeline = new CompileToMemory();//...when we compile them to memory.
-														//parameters.Pipeline = new CompileToFile();
-														//parameters.Pipeline = new Parse();
+			var pipeline = new CompileToMemory();//...when we compile them to memory.
+												 //parameters.Pipeline = new CompileToFile();
+												 //parameters.Pipeline = new Parse();
+
+			injectImportsStep = new InjectImportsStep();
 			
+			pipeline.Insert(1,injectImportsStep);
+
+			parameters.Pipeline = pipeline;
 		}
 
-		public static Assembly Compile(string assemblyName, List<string> fileNames)
+		public static Assembly Compile(string assemblyName, List<string> fileNames, IEnumerable<string> imports = null)
 		{
 			Instance.parameters.OutputAssembly = assemblyName;
 			
@@ -75,6 +84,13 @@ namespace CustomNpcs
 			foreach(var fname in fileNames)
 				Instance.parameters.Input.Add(new FileInput(fname));
 
+			Instance.injectImportsStep.Namespaces.Clear();
+
+			if(imports!=null)
+			{
+				Instance.injectImportsStep.SetDefaultImports(imports);
+			}
+			
 			var context = Instance.compiler.Run();
 
 			if( context.Errors.Count > 0 )
