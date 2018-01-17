@@ -18,7 +18,7 @@ namespace CustomNpcs
 		public const int TileSize = 16;
 		public const int HalfTileSize = TileSize / 2;
 
-		public static ReadOnlyCollection<Point> GetOverlappedTiles(Rectangle bounds)
+		public static List<Point> GetOverlappedTiles(Rectangle bounds)
 		{
 			var min = bounds.TopLeft().ToTileCoordinates();
 			var max = bounds.BottomRight().ToTileCoordinates();
@@ -27,7 +27,7 @@ namespace CustomNpcs
 			return tileCollisions;
 		}
 
-		public static ReadOnlyCollection<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow)
+		public static List<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow)
 		{
 			var results = new List<Point>();
 
@@ -70,7 +70,7 @@ namespace CustomNpcs
 				}
 			}
 
-			return results.AsReadOnly();
+			return results;//.AsReadOnly();
 		}
 		
 		[LuaGlobal]
