@@ -114,6 +114,18 @@ namespace CustomNpcs.Projectiles
 			}
 		}
 
+		public static void SendProjectileUpdate(int index)
+		{
+			TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", index);
+			//Debug.Print($"Sent projectile new or update for index #{index}!");
+		}
+
+		public static void SendProjectileKill(int index, int owner = 255)
+		{
+			TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", index, owner);
+			//Debug.Print($"Sent projectile destroy for index #{index}!");
+		}
+
 		public CustomProjectile SpawnCustomProjectile(ProjectileDefinition definition, float x, float y, float xSpeed, float ySpeed, int owner = 255 )
 		{
 			// The following code needs to be synchronized since SpawnCustomNpc may run on a different thread than the
@@ -122,13 +134,13 @@ namespace CustomNpcs.Projectiles
 			lock(checkProjectileLock)
 			{
 				var baseOverride = definition.BaseOverride;
-				var projectileId = Projectile.NewProjectile(x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner);
+				var projectileId = Projectile.NewProjectile(x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner );
 				var customProjectile =  projectileId != Main.maxProjectiles ? AttachCustomProjectile(Main.projectile[projectileId], definition) : null;
 								
 				if( customProjectile != null )
 				{
 					//customProjectile.SendNetUpdate = true;
-					TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
+					ProjectileManager.SendProjectileUpdate(projectileId);
 				}
 				
 				return customProjectile;
@@ -216,11 +228,13 @@ namespace CustomNpcs.Projectiles
 					projectile.AI();
 				}
 
-				//try to update projectile
-				if( Main.projectile[projectile.whoAmI] != null && projectile.active )
+				//try to update projectile	
+				//if( Main.projectile[projectile.whoAmI] != null && projectile.active )
+				if(customProjectile?.Active==true)
 				{
 					//projectile.netUpdate = true;
-					TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
+					//TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
+					ProjectileManager.SendProjectileUpdate(customProjectile.Index);
 				}
 
 				//collision tests
@@ -307,7 +321,7 @@ namespace CustomNpcs.Projectiles
 
 						customProjectiles.Remove(projectile);
 						projectile.active = false;
-						TSPlayer.All.SendData(PacketTypes.ProjectileDestroy, "", projectile.whoAmI);
+						ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
 					}
 				}
 				

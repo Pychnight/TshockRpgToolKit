@@ -182,12 +182,23 @@ namespace CustomNpcs.Invasions
             {
                 return;
             }
+						
+			var activePlayers = TShock.Players.Where(p => p?.Active == true);
+
+			if(activePlayers.Count()<1)
+			{
+				CustomNpcsPlugin.Instance.LogPrint("There no more active players, ending the current invasion.", TraceLevel.Info);
+				EndInvasion();
+				return;
+			}
 
             Utils.TrySpawnForEachPlayer(TrySpawnInvasionNpc);
-            // Prevent other NPCs from spawning for relevant players.
-            foreach (var player in TShock.Players.Where(p => p?.Active == true && ShouldSpawnInvasionNpcs(p)))
+
+			// Prevent other NPCs from spawning for relevant players.
+			foreach( var player in activePlayers )
             {
-                player.TPlayer.activeNPCs = 10000;
+				if(ShouldSpawnInvasionNpcs(player))
+					player.TPlayer.activeNPCs = 10000;
             }
 
             if (_currentPoints >= _requiredPoints && _currentMiniboss == null)
