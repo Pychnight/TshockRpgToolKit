@@ -23,8 +23,7 @@ namespace CustomNpcs.Invasions
 		internal static readonly string InvasionsBasePath = "npcs";
         internal static readonly string InvasionsConfigPath = Path.Combine(InvasionsBasePath, "invasions.json");
         private static readonly Color InvasionTextColor = new Color(175, 25, 255);
-
-        private readonly object _lock = new object();
+		       
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 
@@ -107,12 +106,6 @@ namespace CustomNpcs.Invasions
 			CurrentInvasion = invasion;
             if (CurrentInvasion != null)
             {
-				//lock(_lock )
-				//{
-				//	var onInvasionStart = invasion.OnInvasionStart;
-				//	onInvasionStart?.Call(invasion.Name);
-				//}
-
 				invasion.OnInvasionStart?.Invoke();
 				
 				CurrentInvasion.HasStarted = true;
@@ -126,13 +119,7 @@ namespace CustomNpcs.Invasions
 			if(CurrentInvasion!=null)
 			{
 				TryEndPreviousWave();
-
-				//lock( _lock )
-				//{
-				//	var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
-				//	onInvasionEnd?.Call(CurrentInvasion.Name);
-				//}
-
+				
 				CurrentInvasion.OnInvasionEnd?.Invoke();
 
 				TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
@@ -161,8 +148,6 @@ namespace CustomNpcs.Invasions
 						failedDefinitions.Add(definition);
                         continue;
                     }
-
-					//definition.LoadLuaDefinition();
 					
 					var rootedScriptPath = Path.Combine(InvasionsBasePath, definition.ScriptPath);
 
@@ -185,9 +170,7 @@ namespace CustomNpcs.Invasions
 						Debug.Print($"Compilation succeeded.");
 
 						foreach( var d in _definitions )
-						{
 							d.LinkToScript(invasionScriptsAssembly);
-						}
 					}
 					else
 						Debug.Print($"Compilation failed.");
@@ -255,15 +238,6 @@ namespace CustomNpcs.Invasions
                 _lastProgressUpdate = now;
             }
 
-			//var onUpdate = CurrentInvasion.OnUpdate;
-			//if (onUpdate != null)
-			//{
-			//    lock (_lock)
-			//    {
-			//        onUpdate?.Call(CurrentInvasion.Name);
-			//    }
-			//}
-
 			CurrentInvasion?.OnUpdate?.Invoke();
         }
 
@@ -279,15 +253,6 @@ namespace CustomNpcs.Invasions
             var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
             if (npcNameOrType.Equals(_currentMiniboss, StringComparison.OrdinalIgnoreCase))
             {
-				//lock(_lock)
-				//{
-				//	var onBossDefeated = CurrentInvasion.OnBossDefeated;
-				//	if( onBossDefeated != null )
-				//	{
-				//		onBossDefeated.Call(CurrentInvasion.Name);
-				//	}
-				//}
-
 				CurrentInvasion.OnBossDefeated?.Invoke();
 
                 _currentMiniboss = null;
@@ -303,12 +268,6 @@ namespace CustomNpcs.Invasions
 					var wave = CurrentInvasion.Waves[_currentWaveIndex];
 					if( wave != null )
 					{
-						//lock( _lock )
-						//{
-						//	var onWaveUpdate = CurrentInvasion.OnWaveUpdate;
-						//	onWaveUpdate?.Call(CurrentInvasion.Name, _currentWaveIndex, wave, _currentPoints);
-						//}
-
 						CurrentInvasion.OnWaveUpdate?.Invoke(_currentWaveIndex, wave, _currentPoints);
 					}
 				}
@@ -348,12 +307,6 @@ namespace CustomNpcs.Invasions
 
 			if(wave!=null)
 			{
-				//lock( _lock )
-				//{
-				//	var onWaveStart = CurrentInvasion.OnWaveStart;
-				//	onWaveStart?.Call(CurrentInvasion.Name, _currentWaveIndex, wave);
-				//}
-
 				CurrentInvasion.OnWaveStart?.Invoke(_currentWaveIndex, wave);
 			}
 		}
@@ -365,12 +318,6 @@ namespace CustomNpcs.Invasions
 			if( previousWaveIndex >= 0 )
 			{
 				var previousWave = CurrentInvasion.Waves[previousWaveIndex];
-				//lock( _lock )
-				//{
-				//	var onWaveEnd = CurrentInvasion.OnWaveEnd;
-				//	onWaveEnd?.Call(CurrentInvasion.Name, previousWaveIndex, previousWave);
-				//}
-
 				CurrentInvasion.OnWaveEnd?.Invoke(previousWaveIndex, previousWave);
 			}
 		}
