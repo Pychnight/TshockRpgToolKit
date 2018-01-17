@@ -104,7 +104,7 @@
   <ItemGroup>
     <Compile Include="Boo\BooHelpers.cs" />
     <Compile Include="Boo\BooScriptCompiler.cs" />
-    <Compile Include="Boo\Delegates.cs" />
+    <Compile Include="Npcs\NpcDelegates.cs" />
     <Compile Include="Boo\BooModuleLinker.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Invasions\InvasionDelegates.cs" />

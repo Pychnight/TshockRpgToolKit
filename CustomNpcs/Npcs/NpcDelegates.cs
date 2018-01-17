@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TShockAPI;
 
-namespace CustomNpcs
+namespace CustomNpcs.Npcs
 {
 	//delegates for custom npcs.
 
