@@ -64,7 +64,7 @@ namespace CustomNpcs
 
 			try
 			{
-				result = this[methodName].CreateDelegate(typeof(T)) as T;
+				result = this[methodName]?.CreateDelegate(typeof(T)) as T;
 			}
 			catch( Exception ex )
 			{
