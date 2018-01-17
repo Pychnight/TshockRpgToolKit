@@ -20,25 +20,34 @@ namespace CustomNpcs.Npcs
     public sealed class NpcDefinition : IDisposable
     {
 		//internal string originalName; //we need to capture the npc's original name before applying our custom name to it, so the exposed lua function
-									  //NameContains() works...
+		//NameContains() works...
 
+		/// <summary>
+		///     Gets the internal name.
+		/// </summary>
+		[JsonProperty(Order = 0)]
+		[NotNull]
+		public string Name { get; private set; } = "example";
+
+		/// <summary>
+		///     Gets the base type.
+		/// </summary>
+		[JsonProperty(Order = 1)]
+		public int BaseType { get; private set; }
+
+		[CanBeNull]
+		[JsonProperty(Order = 2)]
+		public string ScriptPath { get; private set; }
+		
 		[JsonProperty("BaseOverride", Order = 3)]
         internal BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
 
         [JsonProperty("Loot", Order = 4)]
         private LootDefinition _loot = new LootDefinition();
 
-        internal Lua _lua;//internal so that our NameContains/OnCheckSpawn global hack works.
-
         [JsonProperty("Spawning", Order = 5)]
         private SpawningDefinition _spawning = new SpawningDefinition();
-
-        /// <summary>
-        ///     Gets the base type.
-        /// </summary>
-        [JsonProperty(Order = 2)]
-        public int BaseType { get; private set; }
-
+		
         /// <summary>
         ///     Gets the loot entries.
         /// </summary>
@@ -46,86 +55,50 @@ namespace CustomNpcs.Npcs
         [NotNull]
         public List<LootEntryDefinition> LootEntries => _loot.Entries;
 
-        /// <summary>
-        ///     Gets the Lua path.
-        /// </summary>
-        [CanBeNull]
-        [JsonProperty(Order = 1)]
-        public string LuaPath { get; private set; }
-
-		[CanBeNull]
-		[JsonProperty(Order = 6)]
-		public string BooPath { get; private set; }
+		/// <summary>
+		///     Gets a function that is invoked when the NPC is checked for replacing.
+		/// </summary>
+		public CheckReplaceHandler OnCheckReplace { get; set; }
 
 		/// <summary>
-		///     Gets the internal name.
+		///     Gets a function that is invoked when the NPC is checked for spawning.
 		/// </summary>
-		[JsonProperty(Order = 0)]
-        [NotNull]
-        public string Name { get; private set; } = "example";
-
-        /// <summary>
-        ///     Gets a function that is invoked when the NPC AI is updated.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnAiUpdate { get; private set; }
-
-        /// <summary>
-        ///     Gets a function that is invoked when the NPC is checked for replacing.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnCheckReplace { get; private set; }
-
-        /// <summary>
-        ///     Gets a function that is invoked when the NPC is checked for spawning.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnCheckSpawn { get; private set; }
-
-        /// <summary>
-        ///     Gets a function that is invoked when the NPC collides with a player.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnCollision { get; private set; }
-
-        /// <summary>
-        ///     Gets a function that is invoked when NPC is killed.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnKilled { get; private set; }
-
-        /// <summary>
-        ///     Gets a function that is invoked when the NPC is spawned.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnSpawn { get; private set; }
-
-        /// <summary>
-        ///     Gets a function that is invoked when the NPC is struck.
-        /// </summary>
-        [CanBeNull]
-        public SafeLuaFunction OnStrike { get; private set; }
+		public CheckSpawnHandler OnCheckSpawn { get; set; }
 
 		/// <summary>
-		///     Gets a function that is invoked after the NPC has transformed.
+		///     Gets a function that is invoked when the NPC is spawned.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnTransformed { get; private set; }
+		public SpawnHandler OnSpawn { get; set; }
+
+		/// <summary>
+		///     Gets a function that is invoked when the NPC collides with a player.
+		/// </summary>
+		public CollisionHandler OnCollision { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC collides with a tile.
 		/// </summary>
-		public SafeLuaFunction OnTileCollision { get; private set; }
+		public TileCollisionHandler OnTileCollision { get; set; }
 
-		public CheckReplaceHandler BooCheckReplace { get; set; }
-		public CheckSpawnHandler BooCheckSpawn { get; set; }
-		public SpawnHandler BooSpawn { get; set; }
-		public CollisionHandler BooCollision { get; set; }
-		public TileCollisionHandler BooTileCollision { get; set; }
-		public KilledHandler BooKilled { get; set; }
-		public TransformedHandler BooTransformed { get; set; }
-		public StrikeHandler BooStrike { get; set; }
-		public AiUpdateHandler BooAiUpdate { get; set; }		
+		/// <summary>
+		///     Gets a function that is invoked when NPC is killed.
+		/// </summary>
+		public KilledHandler OnKilled { get; set; }
+
+		/// <summary>
+		///     Gets a function that is invoked after the NPC has transformed.
+		/// </summary>
+		public TransformedHandler OnTransformed { get; set; }
+
+		/// <summary>
+		///     Gets a function that is invoked when the NPC is struck.
+		/// </summary>
+		public StrikeHandler OnStrike { get; set; }
+
+		/// <summary>
+		///     Gets a function that is invoked when the NPC AI is updated.
+		/// </summary>
+		public AiUpdateHandler OnAiUpdate { get; set; }		
 
 		/// <summary>
 		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
@@ -172,27 +145,15 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void Dispose()
         {
-            OnAiUpdate = null;
-            OnCheckReplace = null;
-            OnCheckSpawn = null;
-            OnCollision = null;
-			OnTileCollision = null;
+   			OnCheckReplace = null;
+			OnCheckSpawn = null;
+			OnSpawn = null;
 			OnKilled = null;
-            OnSpawn = null;
-            OnStrike = null;
 			OnTransformed = null;
-			_lua?.Dispose();
-            _lua = null;
-
-			BooCheckReplace = null;
-			BooCheckSpawn = null;
-			BooSpawn = null;
-			BooKilled = null;
-			BooTransformed = null;
-			BooCollision = null;
-			BooTileCollision = null;
-			BooStrike = null;
-			BooAiUpdate = null;
+			OnCollision = null;
+			OnTileCollision = null;
+			OnStrike = null;
+			OnAiUpdate = null;
 		}
 
         /// <summary>
@@ -240,71 +201,25 @@ namespace CustomNpcs.Npcs
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
         }
-
-        /// <summary>
-        ///     Loads the Lua definition, if possible.
-        /// </summary>
-        public void LoadLuaDefinition()
-        {
-            if (LuaPath == null)
-            {
-                return;
-            }
-
-            var lua = new Lua();
-            lua.LoadCLRPackage();
-            lua.DoString("import('System')");
-            lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-            lua.DoString("import('OTAPI', 'Terraria')");
-            lua.DoString("import('TShock', 'TShockAPI')");
-            LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerCommandFunctions));
-
-			lua["TileSize"] = TileFunctions.TileSize;
-			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
-			lua["Center"] = new CenterOffsetHelper();
-
-			//lua["_CustomName"] = _baseOverride.Name;
-			//lua["_Name"] = "???"; //Lang.GetNPCNameValue();
-
-			//lua["__npcNameContainer"] = new NpcNameContainer("???", _baseOverride.Name);
-			lua["__npcNameContainer"] = new NpcNameContainer("???", Name );
-
-			lua.DoFile(Path.Combine("npcs", LuaPath));
-            _lua = lua;
-
-			OnAiUpdate =		_lua.GetSafeFunction("OnAiUpdate");
-			OnCheckReplace =	_lua.GetSafeFunction("OnCheckReplace");
-            OnCheckSpawn =		_lua.GetSafeFunction("OnCheckSpawn");
-            OnCollision =		_lua.GetSafeFunction("OnCollision");
-			OnTileCollision =	_lua.GetSafeFunction("OnTileCollision");
-			OnKilled =			_lua.GetSafeFunction("OnKilled");
-            OnSpawn =			_lua.GetSafeFunction("OnSpawn");
-            OnStrike =			_lua.GetSafeFunction("OnStrike");
-			OnTransformed =		_lua.GetSafeFunction("OnTransformed");
-        }
-
+		
 		internal void LinkBooModule(Assembly ass)
 		{
-			var moduleName = $"{Path.GetFileNameWithoutExtension(BooPath)}Module";
+			var moduleName = $"{Path.GetFileNameWithoutExtension(ScriptPath)}Module";
 			var moduleType = ass.DefinedTypes.Where( dt => dt.Name == moduleName).FirstOrDefault();
 
 			if(moduleType!=null)
 			{
 				var methods = moduleType.GetMethods(BindingFlags.Static|BindingFlags.Public);
 
-				BooCheckReplace = methods.FindByName("OnCheckReplace")?.TryCreateDelegate<CheckReplaceHandler>();
-				BooCheckSpawn = methods.FindByName("OnCheckSpawn")?.TryCreateDelegate<CheckSpawnHandler>();
-				BooSpawn = methods.FindByName("OnSpawn")?.TryCreateDelegate<SpawnHandler>();
-				BooCollision = methods.FindByName("OnCollision")?.TryCreateDelegate<CollisionHandler>();
-				BooTileCollision = methods.FindByName("OnTileCollision")?.TryCreateDelegate<TileCollisionHandler>();
-				BooTransformed = methods.FindByName("OnTransformed").TryCreateDelegate<TransformedHandler>();
-				BooKilled = methods.FindByName("OnKilled").TryCreateDelegate<KilledHandler>();
-				BooStrike = methods.FindByName("OnStrike").TryCreateDelegate<StrikeHandler>();
-				BooAiUpdate = methods.FindByName("OnAiUpdate").TryCreateDelegate<AiUpdateHandler>();
+				OnCheckReplace = methods.FindByName("OnCheckReplace")?.TryCreateDelegate<CheckReplaceHandler>();
+				OnCheckSpawn = methods.FindByName("OnCheckSpawn")?.TryCreateDelegate<CheckSpawnHandler>();
+				OnSpawn = methods.FindByName("OnSpawn")?.TryCreateDelegate<SpawnHandler>();
+				OnCollision = methods.FindByName("OnCollision")?.TryCreateDelegate<CollisionHandler>();
+				OnTileCollision = methods.FindByName("OnTileCollision")?.TryCreateDelegate<TileCollisionHandler>();
+				OnTransformed = methods.FindByName("OnTransformed").TryCreateDelegate<TransformedHandler>();
+				OnKilled = methods.FindByName("OnKilled").TryCreateDelegate<KilledHandler>();
+				OnStrike = methods.FindByName("OnStrike").TryCreateDelegate<StrikeHandler>();
+				OnAiUpdate = methods.FindByName("OnAiUpdate").TryCreateDelegate<AiUpdateHandler>();
 
 				//var res = BooSpawn(null);
 
@@ -335,9 +250,9 @@ namespace CustomNpcs.Npcs
             {
                 throw new FormatException($"{nameof(BaseType)} is too large.");
             }
-            if (LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)))
+            if (ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)))
             {
-                throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
+                throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
             }
             if (_loot == null)
             {
