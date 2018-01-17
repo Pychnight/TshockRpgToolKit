@@ -121,6 +121,7 @@
     <Compile Include="Invasions\WaveDefinition.cs" />
     <Compile Include="Npcs\NpcFunctions.cs" />
     <Compile Include="PlayerFunctions.cs" />
+    <Compile Include="Projectiles\ProjectileDelegates.cs" />
     <Compile Include="Projectiles\ProjectileFunctions.cs" />
     <Compile Include="Projectiles\CustomProjectile.cs" />
     <Compile Include="Projectiles\CenterOffSetHelper.cs" />

@@ -159,7 +159,7 @@ namespace CustomNpcs.Npcs
             // The following code needs to be synchronized since SpawnCustomNpc may run on a different thread than the
             // main thread. Otherwise, there is a possible race condition where the newly-spawned custom NPC may be
             // erroneously checked for replacement.
-            lock (_checkNpcLock)
+            //lock (_checkNpcLock)
             {
                 var npcId = NPC.NewNPC(x, y, definition.BaseType);
                 return npcId != Main.maxNPCs ? AttachCustomNpc(Main.npc[npcId], definition) : null;
@@ -207,8 +207,7 @@ namespace CustomNpcs.Npcs
                         failedDefinitions.Add(definition);
                         continue;
                     }
-					//definition.LoadLuaDefinition();
-
+					
 					var rootedScriptPath = Path.Combine(NpcsBasePath, definition.ScriptPath);
 
 					if(!string.IsNullOrWhiteSpace(definition.ScriptPath))
@@ -249,80 +248,51 @@ namespace CustomNpcs.Npcs
         private void OnGameUpdate(EventArgs args)
         {
             Utils.TrySpawnForEachPlayer(TrySpawnCustomNpc);
-			
-            lock (_checkNpcLock)
+			           
+			NoTarget.Ensure();
+
+			foreach (var npc in Main.npc.Where(n => n?.active == true))
             {
-				NoTarget.Ensure();
-
-				foreach (var npc in Main.npc.Where(n => n?.active == true))
+				var customNpc = GetCustomNpc(npc);
+                if (customNpc?.Definition.ShouldAggressivelyUpdate == true)
                 {
-					var customNpc = GetCustomNpc(npc);
-                    if (customNpc?.Definition.ShouldAggressivelyUpdate == true)
-                    {
-                        npc.netUpdate = true;
-                    }
-
-					if(customNpc?.HasTransformed == true)
-					{
-						var id = customNpc.Npc.whoAmI;
-						customNpc.HasTransformed = false;
-
-						var definition = customNpc.Definition;
-
-						if( definition.OnTransformed != null )
-						{
-							definition.OnTransformed(customNpc);
-
-							TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
-							TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
-						}
-					}
-
-					var npcId = npc.whoAmI;
-                    if (_checkNpcForReplacement[npcId])
-                    {
-                        TryReplaceNpc(npc);
-                        _checkNpcForReplacement[npcId] = false;
-                    }
+                    npc.netUpdate = true;
                 }
 
-				//player - npc collisions
-				foreach( var player in TShock.Players.Where(p => p?.Active == true) )
+				if(customNpc?.HasTransformed == true)
 				{
-					var tplayer = player.TPlayer;
-					var playerHitbox = tplayer.Hitbox;
-					if( !tplayer.immune )
+					var id = customNpc.Npc.whoAmI;
+					customNpc.HasTransformed = false;
+
+					var definition = customNpc.Definition;
+
+					if( definition.OnTransformed != null )
 					{
-						player.SetData(IgnoreCollisionKey, false);
-					}
+						definition.OnTransformed(customNpc);
 
-					foreach( var npc in Main.npc.Where(n => n?.active == true) )
-					{
-						var customNpc = GetCustomNpc(npc);
-						if( customNpc != null )
-						{
-							var definition = customNpc.Definition;
-
-							if( definition.OnCollision != null )
-							{
-								if( npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey) )
-								{
-									definition.OnCollision(customNpc, player);
-
-									//player.SetData(IgnoreCollisionKey, true);
-									//break;//should this be a continue instead??
-								}
-							}
-						}
-					}
-
-					if( !tplayer.immune )
-					{
-						player.SetData(IgnoreCollisionKey, true);
+						TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
+						TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
 					}
 				}
 
-				//npc - tile collisions
+				var npcId = npc.whoAmI;
+                if (_checkNpcForReplacement[npcId])
+                {
+                    TryReplaceNpc(npc);
+                    _checkNpcForReplacement[npcId] = false;
+                }
+            }
+
+			//player - npc collisions
+			foreach( var player in TShock.Players.Where(p => p?.Active == true) )
+			{
+				var tplayer = player.TPlayer;
+				var playerHitbox = tplayer.Hitbox;
+				if( !tplayer.immune )
+				{
+					player.SetData(IgnoreCollisionKey, false);
+				}
+
 				foreach( var npc in Main.npc.Where(n => n?.active == true) )
 				{
 					var customNpc = GetCustomNpc(npc);
@@ -330,13 +300,39 @@ namespace CustomNpcs.Npcs
 					{
 						var definition = customNpc.Definition;
 
-						if( definition.OnTileCollision != null )
+						if( definition.OnCollision != null )
 						{
-							var tileCollisions = TileFunctions.GetOverlappedTiles(npc.Hitbox);
-							if( tileCollisions.Count > 0 )
+							if( npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey) )
 							{
-								definition.OnTileCollision(customNpc, tileCollisions);
+								definition.OnCollision(customNpc, player);
+
+								//player.SetData(IgnoreCollisionKey, true);
+								//break;//should this be a continue instead??
 							}
+						}
+					}
+				}
+
+				if( !tplayer.immune )
+				{
+					player.SetData(IgnoreCollisionKey, true);
+				}
+			}
+
+			//npc - tile collisions
+			foreach( var npc in Main.npc.Where(n => n?.active == true) )
+			{
+				var customNpc = GetCustomNpc(npc);
+				if( customNpc != null )
+				{
+					var definition = customNpc.Definition;
+
+					if( definition.OnTileCollision != null )
+					{
+						var tileCollisions = TileFunctions.GetOverlappedTiles(npc.Hitbox);
+						if( tileCollisions.Count > 0 )
+						{
+							definition.OnTileCollision(customNpc, tileCollisions);
 						}
 					}
 				}

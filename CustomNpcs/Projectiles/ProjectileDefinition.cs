@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
@@ -14,49 +15,47 @@ namespace CustomNpcs.Projectiles
 	[JsonObject(MemberSerialization.OptIn)]
 	public class ProjectileDefinition : IDisposable
 	{
-		Lua lua;
-
 		[JsonProperty(Order = 0)]
 		public string Name { get; set; }
-
+		
 		[JsonProperty(Order = 1)]
-		public string LuaPath { get; set; }
+		public string ScriptPath { get; set; }
 
 		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }
 
 		[JsonProperty("BaseOverride",Order = 3)]
 		internal BaseOverrideDefinition BaseOverride { get; set; } = new BaseOverrideDefinition();
-
+		
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is spawned.
 		/// </summary>
-		public SafeLuaFunction OnSpawn { get; private set; }
+		public ProjectileSpawnHandler OnSpawn { get; private set; }
 
 		/// <summary>
 		/// Gets a function that is invoked when the projectile becomes inactive.
 		/// </summary>
-		public SafeLuaFunction OnKilled { get; private set; }
+		public ProjectileKilledHandler OnKilled { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked for the projectile on each game update.
 		/// </summary>
-		public SafeLuaFunction OnGameUpdate { get; private set; }
+		public ProjectileGameUpdateHandler OnGameUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is updated.
 		/// </summary>
-		public SafeLuaFunction OnAiUpdate { get; private set; }
+		public ProjectileAiUpdateHandler OnAiUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile collides with a player.
 		/// </summary>
-		public SafeLuaFunction OnCollision { get; private set; }
+		public ProjectileCollisionHandler OnCollision { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile collides with a tile.
 		/// </summary>
-		public SafeLuaFunction OnTileCollision { get; private set; }
+		public ProjectileTileCollisionHandler OnTileCollision { get; private set; }
 
 		public void Dispose()
 		{
@@ -66,9 +65,6 @@ namespace CustomNpcs.Projectiles
 			OnAiUpdate = null;
 			OnCollision = null;
 			OnTileCollision = null;
-			
-			lua?.Dispose();
-			lua = null;
 		}
 
 		public void ApplyTo(Projectile projectile)
@@ -138,37 +134,57 @@ namespace CustomNpcs.Projectiles
 		/// <summary>
 		///     Loads the Lua definition, if possible.
 		/// </summary>
-		public void LoadLuaDefinition()
-		{
-			if(LuaPath == null)
-			{
-				return;
-			}
+		//public void LoadLuaDefinition()
+		//{
+		//	if(LuaPath == null)
+		//	{
+		//		return;
+		//	}
 
-			var lua = this.lua = new Lua();
-			lua.LoadCLRPackage();
-			lua.DoString("import('System')");
-			lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-			lua.DoString("import('OTAPI', 'Terraria')");
-			lua.DoString("import('TShock', 'TShockAPI')");
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerFunctions));
-			LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerCommandFunctions));
+		//	var lua = this.lua = new Lua();
+		//	lua.LoadCLRPackage();
+		//	lua.DoString("import('System')");
+		//	lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
+		//	lua.DoString("import('OTAPI', 'Terraria')");
+		//	lua.DoString("import('TShock', 'TShockAPI')");
+		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
+		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
+		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
+		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerFunctions));
+		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerCommandFunctions));
 
-			lua["TileSize"] = TileFunctions.TileSize;
-			lua["HalfTileSize"] = TileFunctions.HalfTileSize;
-			lua["Center"] = new CenterOffsetHelper();
+		//	lua["TileSize"] = TileFunctions.TileSize;
+		//	lua["HalfTileSize"] = TileFunctions.HalfTileSize;
+		//	lua["Center"] = new CenterOffsetHelper();
 
-			lua.DoFile(Path.Combine("npcs", LuaPath));
+		//	lua.DoFile(Path.Combine("npcs", LuaPath));
 			
-			OnAiUpdate = lua.GetSafeFunction("OnAiUpdate");
-			OnGameUpdate = lua.GetSafeFunction("OnGameUpdate");
-			OnCollision = lua.GetSafeFunction("OnCollision");
-			OnTileCollision = lua.GetSafeFunction("OnTileCollision");
-			OnKilled = lua.GetSafeFunction("OnKilled");
-			OnSpawn = lua.GetSafeFunction("OnSpawn");
+		//	OnAiUpdate = lua.GetSafeFunction("OnAiUpdate");
+		//	OnGameUpdate = lua.GetSafeFunction("OnGameUpdate");
+		//	OnCollision = lua.GetSafeFunction("OnCollision");
+		//	OnTileCollision = lua.GetSafeFunction("OnTileCollision");
+		//	OnKilled = lua.GetSafeFunction("OnKilled");
+		//	OnSpawn = lua.GetSafeFunction("OnSpawn");
+		//}
+
+		internal bool LinkToScript(Assembly assembly)
+		{
+			if( assembly == null )
+				return false;
+
+			if( string.IsNullOrWhiteSpace(ScriptPath) )
+				return false;
+
+			var linker = new BooModuleLinker(assembly, ScriptPath);
+
+			OnSpawn = linker.TryCreateDelegate<ProjectileSpawnHandler>("OnSpawn");
+			OnKilled = linker.TryCreateDelegate<ProjectileKilledHandler>("OnKilled");
+			OnAiUpdate = linker.TryCreateDelegate<ProjectileAiUpdateHandler>("OnAiUpdate");
+			OnGameUpdate = linker.TryCreateDelegate<ProjectileGameUpdateHandler>("OnGameUpdate");
+			OnCollision = linker.TryCreateDelegate<ProjectileCollisionHandler>("OnCollision");
+			OnTileCollision = linker.TryCreateDelegate<ProjectileTileCollisionHandler>("OnTileCollision");
+			
+			return true;
 		}
 
 		internal void ThrowIfInvalid()
@@ -193,9 +209,9 @@ namespace CustomNpcs.Projectiles
 			//{
 			//	throw new FormatException($"{nameof(BaseType)} is too large.");
 			//}
-			if( LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)) )
+			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
 			{
-				throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
+				throw new FormatException($"{nameof(ScriptPath)} points to an invalid Lua file.");
 			}
 			//if (_loot == null)
 			//{

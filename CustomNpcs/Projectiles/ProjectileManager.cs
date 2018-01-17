@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,12 +25,14 @@ namespace CustomNpcs.Projectiles
 	{
 		public static ProjectileManager Instance { get; set; }
 
-		public string ProjectilesPath { get; set; } = Path.Combine("npcs", "projectiles.json");
+		public static readonly string ProjectilesBasePath = "npcs";
+		public static readonly string ProjectilesConfigPath = Path.Combine(ProjectilesBasePath, "projectiles.json");
 
 		CustomNpcsPlugin plugin;
 
 		public List<ProjectileDefinition> Definitions { get; private set; }
 		ConditionalWeakTable<Projectile, CustomProjectile> customProjectiles;
+		Assembly projectileScriptsAssembly;
 		
 		object locker = new object();
 		object checkProjectileLock = new object();
@@ -39,8 +42,8 @@ namespace CustomNpcs.Projectiles
 			this.plugin = plugin;
 
 			customProjectiles = new ConditionalWeakTable<Projectile, CustomProjectile>();
-			
-			Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
+						
+			LoadDefinitions();
 
 			GeneralHooks.ReloadEvent += OnReload;
 			//ServerApi.Hooks.GameUpdate.Register(plugin, onGameUpdate);
@@ -74,29 +77,54 @@ namespace CustomNpcs.Projectiles
 
 		private void LoadDefinitions()
 		{
-			if(File.Exists(ProjectilesPath))
+			if(File.Exists(ProjectilesConfigPath))
 			{
-				var definitions = JsonConvert.DeserializeObject<List<ProjectileDefinition>>(File.ReadAllText(ProjectilesPath));
+				var booScripts = new List<string>();
+
+				var definitions = JsonConvert.DeserializeObject<List<ProjectileDefinition>>(File.ReadAllText(ProjectilesConfigPath));
 				var failedDefinitions = new List<ProjectileDefinition>();
 				foreach(var def in definitions)
 				{
 					try
 					{
 						def.ThrowIfInvalid();
-						def.LoadLuaDefinition();
 					}
 					catch(FormatException ex)
 					{
-						TShock.Log.ConsoleError( $"[CustomNpcs] An error occurred while parsing CustomProjectile '{def.Name}': {ex.Message}");
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing CustomProjectile '{def.Name}': {ex.Message}", TraceLevel.Error);
 						failedDefinitions.Add(def);
+					}
+
+					var rootedScriptPath = Path.Combine(ProjectilesBasePath, def.ScriptPath);
+
+					if( !string.IsNullOrWhiteSpace(def.ScriptPath) )
+					{
+						Debug.Print($"Added projectile script '{def.ScriptPath}'.");
+						booScripts.Add(rootedScriptPath);
 					}
 				}
 
 				Definitions = definitions.Except(failedDefinitions).ToList();
+
+				if( booScripts.Count > 0 )
+				{
+					Debug.Print($"Compiling boo projectile scripts.");
+					projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts);
+
+					if( projectileScriptsAssembly != null )
+					{
+						Debug.Print($"Compilation succeeded.");
+
+						foreach( var d in Definitions )
+							d.LinkToScript(projectileScriptsAssembly);
+					}
+					else
+						Debug.Print($"Compilation failed.");
+				}
 			}
 			else
 			{
-				ServerApi.LogWriter.PluginWriteLine(plugin, $"Projectiles configuration does not exist. Expected config file to be at: {ProjectilesPath}", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(plugin, $"Projectiles configuration does not exist. Expected config file to be at: {ProjectilesConfigPath}", TraceLevel.Error);
 				Definitions = new List<ProjectileDefinition>();
 			}
 		}
@@ -168,13 +196,13 @@ namespace CustomNpcs.Projectiles
 
 			definition.ApplyTo(projectile);
 
-			lock( locker )
-			{
-				var onSpawn = definition.OnSpawn;
-				onSpawn?.Call(definition.Name, customProjectile);
-			}
-						
-			//TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectile.whoAmI);
+			//lock( locker )
+			//{
+			//	var onSpawn = definition.OnSpawn;
+			//	onSpawn?.Call(definition.Name, customProjectile);
+			//}
+
+			definition.OnSpawn?.Invoke(customProjectile);
 
 			return customProjectile;
 		}
@@ -215,9 +243,15 @@ namespace CustomNpcs.Projectiles
 				lock( locker )
 				{
 					var onGameUpdate = definition.OnGameUpdate;
-					if(onGameUpdate!=null)
+					//if(onGameUpdate!=null)
+					//{
+					//	var handled = onGameUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
+					//	result = handled == true ? HookResult.Cancel : HookResult.Continue;
+					//}
+
+					if( onGameUpdate != null )
 					{
-						var handled = onGameUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
+						var handled = onGameUpdate(customProjectile);
 						result = handled == true ? HookResult.Cancel : HookResult.Continue;
 					}
 				}
@@ -246,14 +280,16 @@ namespace CustomNpcs.Projectiles
 
 					if( tileCollisions.Count > 0 )
 					{
-						var onTileCollision = definition.OnTileCollision;
-						if(onTileCollision!=null)
-						{
-							lock( locker )
-							{
-								onTileCollision.Call(definition.Name, customProjectile, tileCollisions);
-							}
-						}
+						//var onTileCollision = definition.OnTileCollision;
+						//if(onTileCollision!=null)
+						//{
+						//	lock( locker )
+						//	{
+						//		onTileCollision.Call(definition.Name, customProjectile, tileCollisions);
+						//	}
+						//}
+
+						definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
 					}
 				}
 								
@@ -270,10 +306,12 @@ namespace CustomNpcs.Projectiles
 
 							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
 							{
-								lock( locker )
-								{
-									onCollision.Call(definition.Name, customProjectile, player);
-								}
+								//lock( locker )
+								//{
+								//	onCollision.Call(definition.Name, customProjectile, player);
+								//}
+
+								onCollision(customProjectile, player);
 							}
 						}
 					}
@@ -290,16 +328,23 @@ namespace CustomNpcs.Projectiles
 
 			if( customProjectile != null )
 			{
-				lock( locker )
-				{
-					var definition = customProjectile.Definition;
-					var onAiUpdate = definition.OnAiUpdate;
-					if( onAiUpdate != null )
-					{
-						var handled = onAiUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
+				//lock( locker )
+				//{
+				//	var definition = customProjectile.Definition;
+				//	var onAiUpdate = definition.OnAiUpdate;
+				//	if( onAiUpdate != null )
+				//	{
+				//		var handled = onAiUpdate.Call(definition.Name, customProjectile).GetResult<bool>();
 
-						result = handled == true ? HookResult.Cancel : HookResult.Continue;
-					}
+				//		result = handled == true ? HookResult.Cancel : HookResult.Continue;
+				//	}
+				//}
+								
+				var onAiUpdate = customProjectile.Definition.OnAiUpdate;
+				if( onAiUpdate != null )
+				{
+					var handled = onAiUpdate(customProjectile);
+					result = handled == true ? HookResult.Cancel : HookResult.Continue;
 				}
 			}
 
@@ -315,14 +360,21 @@ namespace CustomNpcs.Projectiles
 				var onKilled = definition.OnKilled;
 				if(onKilled!=null)
 				{
-					lock( locker )
-					{
-						onKilled.Call(definition.Name, customProjectile);
+					//lock( locker )
+					//{
+					//	onKilled.Call(definition.Name, customProjectile);
 
-						customProjectiles.Remove(projectile);
-						projectile.active = false;
-						ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
-					}
+					//	customProjectiles.Remove(projectile);
+					//	projectile.active = false;
+					//	ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
+					//}
+										
+					onKilled(customProjectile);
+
+					customProjectiles.Remove(projectile);
+					projectile.active = false;
+					ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
+					
 				}
 				
 				return HookResult.Cancel;
@@ -352,16 +404,25 @@ namespace CustomNpcs.Projectiles
 
 		private void OnReload(ReloadEventArgs args)
 		{
-			lock(locker)
-			{
-				foreach (var definition in Definitions)
-				{
-					definition.Dispose();
-				}
-				Definitions.Clear();
+			//lock(locker)
+			//{
+			//	foreach (var definition in Definitions)
+			//	{
+			//		definition.Dispose();
+			//	}
+			//	Definitions.Clear();
 
-				Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
+			//	Utils.TryExecuteLua(LoadDefinitions, "ProjectileManager");
+			//}
+
+			foreach( var definition in Definitions )
+			{
+				definition.Dispose();
 			}
+			Definitions.Clear();
+
+			LoadDefinitions();
+			
 			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded Projectiles!");
 		}
 	}
