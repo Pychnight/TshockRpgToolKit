@@ -67,8 +67,10 @@ namespace CustomNpcs
 			
 		}
 
-		public static Assembly Compile(params string[] fileNames)
+		public static Assembly Compile(string assemblyName, List<string> fileNames)
 		{
+			Instance.parameters.OutputAssembly = assemblyName;
+			
 			Instance.parameters.Input.Clear();
 			foreach(var fname in fileNames)
 				Instance.parameters.Input.Add(new FileInput(fname));

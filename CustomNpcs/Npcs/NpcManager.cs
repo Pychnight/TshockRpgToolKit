@@ -37,7 +37,8 @@ namespace CustomNpcs.Npcs
             // Allow dropping nebula armor items.
             ItemID.NebulaPickup1, ItemID.NebulaPickup2, ItemID.NebulaPickup3);
 
-        private static readonly string NpcsPath = Path.Combine("npcs", "npcs.json");
+		private static readonly string NpcsBasePath = "npcs";
+		private static readonly string NpcsConfigPath = Path.Combine(NpcsBasePath, "npcs.json");
 
 		private readonly object _checkNpcLock = new object();
 		private readonly object _lock = new object();
@@ -49,7 +50,7 @@ namespace CustomNpcs.Npcs
 		
         internal List<NpcDefinition> _definitions = new List<NpcDefinition>();
 
-		Assembly scriptsAssembly;
+		Assembly npcScriptsAssembly;
 			
 		internal NoTargetOperation NoTarget { get; set; }
 		
@@ -84,7 +85,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void Dispose()
         {
-            File.WriteAllText(NpcsPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
+            File.WriteAllText(NpcsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
 
             foreach (var definition in _definitions)
             {
@@ -188,11 +189,11 @@ namespace CustomNpcs.Npcs
 
         private void LoadDefinitions()
         {
-            if (File.Exists(NpcsPath))
+            if (File.Exists(NpcsConfigPath))
             {
 				var booScripts = new List<string>();
 
-                _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(NpcsPath));
+                _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(NpcsConfigPath));
                 var failedDefinitions = new List<NpcDefinition>();
                 foreach (var definition in _definitions)
                 {
@@ -206,12 +207,14 @@ namespace CustomNpcs.Npcs
                         failedDefinitions.Add(definition);
                         continue;
                     }
-                    //definition.LoadLuaDefinition();
+					//definition.LoadLuaDefinition();
+
+					var rootedScriptPath = Path.Combine(NpcsBasePath, definition.ScriptPath);
 
 					if(!string.IsNullOrWhiteSpace(definition.ScriptPath))
 					{
 						Debug.Print($"Added npc script '{definition.ScriptPath}'.");
-						booScripts.Add(definition.ScriptPath);
+						booScripts.Add(rootedScriptPath);
 					}
 				}
 
@@ -220,16 +223,16 @@ namespace CustomNpcs.Npcs
 				if(booScripts.Count>0)
 				{
 					Debug.Print($"Compiling boo npc scripts.");
-					scriptsAssembly = BooScriptCompiler.Compile(booScripts.ToArray());
+					npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts);
 
-					if( scriptsAssembly != null )
+					if( npcScriptsAssembly != null )
 					{
 						Debug.Print($"Compilation succeeded.");
 
 						foreach(var d in _definitions)
 						{
 							if(!string.IsNullOrWhiteSpace(d.ScriptPath))
-								d.LinkBooModule(scriptsAssembly);
+								d.LinkToScript(npcScriptsAssembly);
 						}
 					}
 					else
@@ -238,7 +241,7 @@ namespace CustomNpcs.Npcs
             }
 			else
 			{
-				CustomNpcsPlugin.Instance.LogPrint($"Npc's configuration does not exist. Expected config file to be at: {NpcsPath}", TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint($"Npc's configuration does not exist. Expected config file to be at: {NpcsConfigPath}", TraceLevel.Error);
 				_definitions = new List<NpcDefinition>();
 			}
         }
@@ -498,22 +501,18 @@ namespace CustomNpcs.Npcs
         private void TryReplaceNpc(NPC npc)
         {
             var chances = new Dictionary<NpcDefinition, double>();
-            lock (_lock)
-            {
-                foreach (var definition in _definitions.Where(d => d.ShouldReplace))
-                {
-                    var chance = 0.0;
+           
+			foreach( var definition in _definitions.Where(d => d.ShouldReplace) )
+			{
+				var chance = 0.0;
 
-					if( definition.OnCheckReplace != null )
-					{
-						chance = definition.OnCheckReplace(npc);
-					}
+				if( definition.OnCheckReplace != null )
+					chance = definition.OnCheckReplace(npc);
 				
 					chances[definition] = chance;
-                }
-            }
+			}
 
-            var randomDefinition = Utils.TryPickRandomKey(chances);
+			var randomDefinition = Utils.TryPickRandomKey(chances);
             if (randomDefinition != null)
             {
                 AttachCustomNpc(npc, randomDefinition);

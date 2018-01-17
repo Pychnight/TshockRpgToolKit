@@ -107,6 +107,7 @@
     <Compile Include="Boo\Delegates.cs" />
     <Compile Include="Boo\BooModuleLinker.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Invasions\InvasionDelegates.cs" />
     <Compile Include="Lua\LuaHelperExtensions.cs" />
     <Compile Include="Invasions\InvasionManager.cs" />
     <Compile Include="Lua\SafeLuaFunction.cs" />

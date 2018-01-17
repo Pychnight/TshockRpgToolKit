@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NLua;
@@ -14,9 +15,7 @@ namespace CustomNpcs.Invasions
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class InvasionDefinition : IDisposable
     {
-        private Lua _lua;
-
-		/// <summary>
+       	/// <summary>
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
@@ -24,11 +23,11 @@ namespace CustomNpcs.Invasions
 		public string Name { get; private set; } = "example";
 
 		/// <summary>
-		///     Gets the Lua path.
+		///     Gets the script path.
 		/// </summary>
 		[JsonProperty(Order = 1)]
         [CanBeNull]
-        public string LuaPath { get; private set; }
+        public string ScriptPath { get; private set; }
 		
         /// <summary>
         ///     Gets the NPC point values.
@@ -72,44 +71,37 @@ namespace CustomNpcs.Invasions
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnInvasionStart { get; private set; }
+		public InvasionStartHandler OnInvasionStart { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnInvasionEnd { get; private set; }
-		
+		public InvasionEndHandler OnInvasionEnd { get; private set; }
+
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is updated.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnUpdate { get; private set; }
+		public InvasionUpdateHandler OnUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnWaveStart { get; private set; }
+		public WaveStartHandler OnWaveStart { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnWaveEnd { get; private set; }
+		public WaveEndHandler OnWaveEnd { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnWaveUpdate { get; private set; }
+		public WaveUpdateHandler OnWaveUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		[CanBeNull]
-		public SafeLuaFunction OnBossDefeated { get; private set; }
+		public BossDefeatedHandler OnBossDefeated { get; private set; }
 
 		/// <summary>
 		///     Disposes the definition.
@@ -118,45 +110,64 @@ namespace CustomNpcs.Invasions
         {
 			OnInvasionStart = null;
 			OnInvasionEnd = null;
-            OnUpdate = null;
+			OnUpdate = null;
 			OnWaveStart = null;
 			OnWaveEnd = null;
 			OnWaveUpdate = null;
 			OnBossDefeated = null;
-            _lua?.Dispose();
-            _lua = null;
         }
 
-        /// <summary>
-        ///     Loads the Lua definition.
-        /// </summary>
-        public void LoadLuaDefinition()
-        {
-            if (LuaPath == null)
-            {
-                return;
-            }
+		//      /// <summary>
+		//      ///     Loads the Lua definition.
+		//      /// </summary>
+		//      public void LoadLuaDefinition()
+		//      {
+		//          if (ScriptPath == null)
+		//          {
+		//              return;
+		//          }
 
-            var lua = new Lua();
-            lua.LoadCLRPackage();
-            lua.DoString("import('System')");
-            lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-            lua.DoString("import('OTAPI', 'Terraria')");
-            lua.DoString("import('TShock', 'TShockAPI')");
-            LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-            lua.DoFile(Path.Combine("npcs", LuaPath));
-            _lua = lua;
+		//          var lua = new Lua();
+		//	lua.LoadCLRPackage();
+		//	lua.DoString("import('System')");
+		//	lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
+		//	lua.DoString("import('OTAPI', 'Terraria')");
+		//	lua.DoString("import('TShock', 'TShockAPI')");
+		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
+		//	lua.DoFile(Path.Combine("npcs", ScriptPath));
+		//	_lua = lua;
 
-			OnInvasionStart = _lua.GetSafeFunction("OnInvasionStart");
-			OnInvasionEnd = _lua.GetSafeFunction("OnInvasionEnd");
-			OnUpdate = _lua.GetSafeFunction("OnUpdate");
-			OnWaveStart = _lua.GetSafeFunction("OnWaveStart");
-			OnWaveEnd = _lua.GetSafeFunction("OnWaveEnd");
-			OnWaveUpdate = _lua.GetSafeFunction("OnWaveUpdate");
-			OnBossDefeated = _lua.GetSafeFunction("OnBossDefeated");
-        }
+		//	OnInvasionStart = _lua.GetSafeFunction("OnInvasionStart");
+		//	OnInvasionEnd = _lua.GetSafeFunction("OnInvasionEnd");
+		//	OnUpdate = _lua.GetSafeFunction("OnUpdate");
+		//	OnWaveStart = _lua.GetSafeFunction("OnWaveStart");
+		//	OnWaveEnd = _lua.GetSafeFunction("OnWaveEnd");
+		//	OnWaveUpdate = _lua.GetSafeFunction("OnWaveUpdate");
+		//	OnBossDefeated = _lua.GetSafeFunction("OnBossDefeated");
+		//}
 
-        internal void ThrowIfInvalid()
+		internal bool LinkToScript(Assembly ass)
+		{
+			if( ass == null )
+				return false;
+
+			if( string.IsNullOrWhiteSpace(ScriptPath) )
+				return false;
+
+			var linker = new BooModuleLinker(ass, ScriptPath);
+			
+			OnInvasionStart = linker.TryCreateDelegate<InvasionStartHandler>("OnInvasionStart");
+			OnInvasionEnd = linker.TryCreateDelegate<InvasionEndHandler>("OnInvasionEnd");
+			OnUpdate = linker.TryCreateDelegate<InvasionUpdateHandler>("OnUpdate");
+			OnWaveStart = linker.TryCreateDelegate<WaveStartHandler>("OnWaveStart");
+			OnWaveEnd = linker.TryCreateDelegate<WaveEndHandler>("OnWaveEnd");
+			OnWaveUpdate = linker.TryCreateDelegate<WaveUpdateHandler>("OnWaveUpdate");
+			OnBossDefeated = linker.TryCreateDelegate<BossDefeatedHandler>("OnBossDefeated");
+
+			return true;
+		}
+
+		internal void ThrowIfInvalid()
         {
             if (Name == null)
             {
@@ -166,9 +177,12 @@ namespace CustomNpcs.Invasions
             {
                 throw new FormatException($"{nameof(Name)} is whitespace.");
             }
-            if (LuaPath != null && !File.Exists(Path.Combine("npcs", LuaPath)))
+
+			var rooted = Path.Combine(InvasionManager.InvasionsBasePath, ScriptPath);
+
+			if (ScriptPath != null && !File.Exists(rooted))
             {
-                throw new FormatException($"{nameof(LuaPath)} points to an invalid Lua file.");
+                throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
             }
             if (NpcPointValues == null)
             {

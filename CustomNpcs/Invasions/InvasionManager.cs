@@ -11,6 +11,7 @@ using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace CustomNpcs.Invasions
 {
@@ -19,7 +20,8 @@ namespace CustomNpcs.Invasions
     /// </summary>
     public sealed class InvasionManager : IDisposable
     {
-        private static readonly string InvasionsPath = Path.Combine("npcs", "invasions.json");
+		internal static readonly string InvasionsBasePath = "npcs";
+        internal static readonly string InvasionsConfigPath = Path.Combine(InvasionsBasePath, "invasions.json");
         private static readonly Color InvasionTextColor = new Color(175, 25, 255);
 
         private readonly object _lock = new object();
@@ -32,13 +34,15 @@ namespace CustomNpcs.Invasions
         private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
         private DateTime _lastProgressUpdate;
         private int _requiredPoints;
+
+		private Assembly invasionScriptsAssembly;
 				
         internal InvasionManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
 
-            Utils.TryExecuteLua(LoadDefinitions, "InvasionManager");
-
+			LoadDefinitions();
+			
             GeneralHooks.ReloadEvent += OnReload;
             // Register OnGameUpdate with priority 1 to guarantee that InvasionManager runs before NpcManager.
             ServerApi.Hooks.GameUpdate.Register(_plugin, OnGameUpdate, 1);
@@ -61,7 +65,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         public void Dispose()
         {
-            File.WriteAllText(InvasionsPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
+            File.WriteAllText(InvasionsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
 
             GeneralHooks.ReloadEvent -= OnReload;
             ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);
@@ -89,10 +93,7 @@ namespace CustomNpcs.Invasions
                 throw new ArgumentNullException(nameof(name));
             }
 
-            lock (_lock)
-            {
-                return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
-            }
+			return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -106,12 +107,14 @@ namespace CustomNpcs.Invasions
 			CurrentInvasion = invasion;
             if (CurrentInvasion != null)
             {
-				lock(_lock )
-				{
-					var onInvasionStart = invasion.OnInvasionStart;
-					onInvasionStart?.Call(invasion.Name);
-				}
+				//lock(_lock )
+				//{
+				//	var onInvasionStart = invasion.OnInvasionStart;
+				//	onInvasionStart?.Call(invasion.Name);
+				//}
 
+				invasion.OnInvasionStart?.Invoke();
+				
 				CurrentInvasion.HasStarted = true;
 				_currentWaveIndex = 0;
                 StartCurrentWave();
@@ -124,11 +127,13 @@ namespace CustomNpcs.Invasions
 			{
 				TryEndPreviousWave();
 
-				lock( _lock )
-				{
-					var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
-					onInvasionEnd?.Call(CurrentInvasion.Name);
-				}
+				//lock( _lock )
+				//{
+				//	var onInvasionEnd = CurrentInvasion.OnInvasionEnd;
+				//	onInvasionEnd?.Call(CurrentInvasion.Name);
+				//}
+
+				CurrentInvasion.OnInvasionEnd?.Invoke();
 
 				TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
 				CurrentInvasion.HasStarted = false;//...probably not needed
@@ -138,31 +143,59 @@ namespace CustomNpcs.Invasions
 
         private void LoadDefinitions()
         {
-            if (File.Exists(InvasionsPath))
+            if (File.Exists(InvasionsConfigPath))
             {
-                _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(InvasionsPath));
+				var booScripts = new List<string>();
+
+                _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(InvasionsConfigPath));
                 var failedDefinitions = new List<InvasionDefinition>();
                 foreach (var definition in _definitions)
                 {
-                    try
+					try
                     {
                         definition.ThrowIfInvalid();
-                    }
+					}
                     catch (FormatException ex)
                     {
-                        TShock.Log.ConsoleError(
-                            $"[CustomNpcs] An error occurred while parsing invasion '{definition.Name}': {ex.Message}");
-                        failedDefinitions.Add(definition);
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing Invasion '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						failedDefinitions.Add(definition);
                         continue;
                     }
 
-                    definition.LoadLuaDefinition();
-                }
+					//definition.LoadLuaDefinition();
+					
+					var rootedScriptPath = Path.Combine(InvasionsBasePath, definition.ScriptPath);
+
+					if( !string.IsNullOrWhiteSpace(rootedScriptPath) )
+					{
+						Debug.Print($"Added invasion script '{rootedScriptPath}'.");
+						booScripts.Add(rootedScriptPath);
+					}
+
+				}
                 _definitions = _definitions.Except(failedDefinitions).ToList();
-            }
+
+				if( booScripts.Count > 0 )
+				{
+					Debug.Print($"Compiling boo invasion scripts.");
+					invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll",booScripts);
+
+					if( invasionScriptsAssembly != null )
+					{
+						Debug.Print($"Compilation succeeded.");
+
+						foreach( var d in _definitions )
+						{
+							d.LinkToScript(invasionScriptsAssembly);
+						}
+					}
+					else
+						Debug.Print($"Compilation failed.");
+				}
+			}
 			else
 			{
-				ServerApi.LogWriter.PluginWriteLine(_plugin, $"Invasions configuration does not exist. Expected config file to be at: {InvasionsPath}", TraceLevel.Error);
+				CustomNpcsPlugin.Instance.LogPrint($"Invasions configuration does not exist. Expected config file to be at: {InvasionsConfigPath}", TraceLevel.Error);
 				_definitions = new List<InvasionDefinition>();
 			}
         }
@@ -222,14 +255,16 @@ namespace CustomNpcs.Invasions
                 _lastProgressUpdate = now;
             }
 
-            var onUpdate = CurrentInvasion.OnUpdate;
-            if (onUpdate != null)
-            {
-                lock (_lock)
-                {
-                    onUpdate?.Call(CurrentInvasion.Name);
-                }
-            }
+			//var onUpdate = CurrentInvasion.OnUpdate;
+			//if (onUpdate != null)
+			//{
+			//    lock (_lock)
+			//    {
+			//        onUpdate?.Call(CurrentInvasion.Name);
+			//    }
+			//}
+
+			CurrentInvasion?.OnUpdate?.Invoke();
         }
 
         private void OnNpcKilled(NpcKilledEventArgs args)
@@ -244,14 +279,16 @@ namespace CustomNpcs.Invasions
             var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
             if (npcNameOrType.Equals(_currentMiniboss, StringComparison.OrdinalIgnoreCase))
             {
-				lock(_lock)
-				{
-					var onBossDefeated = CurrentInvasion.OnBossDefeated;
-					if( onBossDefeated != null )
-					{
-						onBossDefeated.Call(CurrentInvasion.Name);
-					}
-				}
+				//lock(_lock)
+				//{
+				//	var onBossDefeated = CurrentInvasion.OnBossDefeated;
+				//	if( onBossDefeated != null )
+				//	{
+				//		onBossDefeated.Call(CurrentInvasion.Name);
+				//	}
+				//}
+
+				CurrentInvasion.OnBossDefeated?.Invoke();
 
                 _currentMiniboss = null;
             }
@@ -266,11 +303,13 @@ namespace CustomNpcs.Invasions
 					var wave = CurrentInvasion.Waves[_currentWaveIndex];
 					if( wave != null )
 					{
-						lock( _lock )
-						{
-							var onWaveUpdate = CurrentInvasion.OnWaveUpdate;
-							onWaveUpdate?.Call(CurrentInvasion.Name, _currentWaveIndex, wave, _currentPoints);
-						}
+						//lock( _lock )
+						//{
+						//	var onWaveUpdate = CurrentInvasion.OnWaveUpdate;
+						//	onWaveUpdate?.Call(CurrentInvasion.Name, _currentWaveIndex, wave, _currentPoints);
+						//}
+
+						CurrentInvasion.OnWaveUpdate?.Invoke(_currentWaveIndex, wave, _currentPoints);
 					}
 				}
 			}
@@ -279,17 +318,16 @@ namespace CustomNpcs.Invasions
         private void OnReload(ReloadEventArgs args)
         {
             CurrentInvasion = null;
-            lock(_lock)
-            {
-                foreach (var definition in _definitions)
-                {
-                    definition.Dispose();
-                }
-                _definitions.Clear();
+            
+			foreach( var definition in _definitions )
+			{
+				definition.Dispose();
+			}
+			_definitions.Clear();
 
-                Utils.TryExecuteLua(LoadDefinitions, "InvasionManager");
-            }
-            args.Player.SendSuccessMessage("[CustomNpcs] Reloaded invasions!");
+			LoadDefinitions();
+
+			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded invasions!");
         }
 
         private bool ShouldSpawnInvasionNpcs(TSPlayer player)
@@ -310,11 +348,13 @@ namespace CustomNpcs.Invasions
 
 			if(wave!=null)
 			{
-				lock( _lock )
-				{
-					var onWaveStart = CurrentInvasion.OnWaveStart;
-					onWaveStart?.Call(CurrentInvasion.Name, _currentWaveIndex, wave);
-				}
+				//lock( _lock )
+				//{
+				//	var onWaveStart = CurrentInvasion.OnWaveStart;
+				//	onWaveStart?.Call(CurrentInvasion.Name, _currentWaveIndex, wave);
+				//}
+
+				CurrentInvasion.OnWaveStart?.Invoke(_currentWaveIndex, wave);
 			}
 		}
 
@@ -325,11 +365,13 @@ namespace CustomNpcs.Invasions
 			if( previousWaveIndex >= 0 )
 			{
 				var previousWave = CurrentInvasion.Waves[previousWaveIndex];
-				lock( _lock )
-				{
-					var onWaveEnd = CurrentInvasion.OnWaveEnd;
-					onWaveEnd?.Call(CurrentInvasion.Name, previousWaveIndex, previousWave);
-				}
+				//lock( _lock )
+				//{
+				//	var onWaveEnd = CurrentInvasion.OnWaveEnd;
+				//	onWaveEnd?.Call(CurrentInvasion.Name, previousWaveIndex, previousWave);
+				//}
+
+				CurrentInvasion.OnWaveEnd?.Invoke(previousWaveIndex, previousWave);
 			}
 		}
 
