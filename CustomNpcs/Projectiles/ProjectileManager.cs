@@ -234,8 +234,16 @@ namespace CustomNpcs.Projectiles
 
 			definition.ApplyTo(projectile);
 			
-			definition.OnSpawn?.Invoke(customProjectile);
-
+			try
+			{
+				definition.OnSpawn?.Invoke(customProjectile);
+			}
+			catch(Exception ex)
+			{
+				Utils.ScriptRuntimeError(ex.Message);
+				definition.OnSpawn = null;
+			}
+			
 			return customProjectile;
 		}
 		
@@ -275,8 +283,16 @@ namespace CustomNpcs.Projectiles
 				var onGameUpdate = definition.OnGameUpdate;
 				if( onGameUpdate != null )
 				{
-					var handled = onGameUpdate(customProjectile);
-					result = handled == true ? HookResult.Cancel : HookResult.Continue;
+					try
+					{
+						var handled = onGameUpdate(customProjectile);
+						result = handled == true ? HookResult.Cancel : HookResult.Continue;
+					}
+					catch(Exception ex)
+					{
+						Utils.ScriptRuntimeError(ex.Message);
+						definition.OnGameUpdate = null;
+					}
 				}
 
 				if( result == HookResult.Cancel )
@@ -302,7 +318,15 @@ namespace CustomNpcs.Projectiles
 
 					if( tileCollisions.Count > 0 )
 					{
-						definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
+						try
+						{
+							definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
+						}
+						catch(Exception ex)
+						{
+							Utils.ScriptRuntimeError(ex.Message);
+							definition.OnTileCollision = null;
+						}
 					}
 				}
 								
@@ -319,7 +343,15 @@ namespace CustomNpcs.Projectiles
 
 							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
 							{
-								onCollision(customProjectile, player);
+								try
+								{
+									onCollision(customProjectile, player);
+								}
+								catch(Exception ex)
+								{
+									Utils.ScriptRuntimeError(ex.Message);
+									definition.OnCollision = null;
+								}
 							}
 						}
 					}
@@ -339,8 +371,16 @@ namespace CustomNpcs.Projectiles
 				var onAiUpdate = customProjectile.Definition.OnAiUpdate;
 				if( onAiUpdate != null )
 				{
-					var handled = onAiUpdate(customProjectile);
-					result = handled == true ? HookResult.Cancel : HookResult.Continue;
+					try
+					{
+						var handled = onAiUpdate(customProjectile);
+						result = handled == true ? HookResult.Cancel : HookResult.Continue;
+					}
+					catch(Exception ex)
+					{
+						Utils.ScriptRuntimeError(ex.Message);
+						customProjectile.Definition.OnAiUpdate = null;
+					}
 				}
 			}
 
@@ -356,12 +396,19 @@ namespace CustomNpcs.Projectiles
 				var onKilled = definition.OnKilled;
 				if(onKilled!=null)
 				{
-					onKilled(customProjectile);
-
+					try
+					{
+						onKilled(customProjectile);
+					}
+					catch(Exception ex)
+					{
+						Utils.ScriptRuntimeError(ex.Message);
+						definition.OnKilled = null;
+					}
+					
 					customProjectiles.Remove(projectile);
 					projectile.active = false;
 					ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
-					
 				}
 				
 				return HookResult.Cancel;

@@ -29,32 +29,32 @@ namespace CustomNpcs.Projectiles
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is spawned.
 		/// </summary>
-		public ProjectileSpawnHandler OnSpawn { get; private set; }
+		public ProjectileSpawnHandler OnSpawn { get; internal set; }
 
 		/// <summary>
 		/// Gets a function that is invoked when the projectile becomes inactive.
 		/// </summary>
-		public ProjectileKilledHandler OnKilled { get; private set; }
+		public ProjectileKilledHandler OnKilled { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked for the projectile on each game update.
 		/// </summary>
-		public ProjectileGameUpdateHandler OnGameUpdate { get; private set; }
+		public ProjectileGameUpdateHandler OnGameUpdate { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is updated.
 		/// </summary>
-		public ProjectileAiUpdateHandler OnAiUpdate { get; private set; }
+		public ProjectileAiUpdateHandler OnAiUpdate { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile collides with a player.
 		/// </summary>
-		public ProjectileCollisionHandler OnCollision { get; private set; }
+		public ProjectileCollisionHandler OnCollision { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the projectile collides with a tile.
 		/// </summary>
-		public ProjectileTileCollisionHandler OnTileCollision { get; private set; }
+		public ProjectileTileCollisionHandler OnTileCollision { get; internal set; }
 
 		public void Dispose()
 		{
