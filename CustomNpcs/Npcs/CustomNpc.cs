@@ -18,6 +18,24 @@ namespace CustomNpcs.Npcs
     {
         private Dictionary<string, object> _variables = new Dictionary<string, object>();
 
+		/// <summary>
+		/// Provides easy access to a CustomNpc's embedded variables.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		public object this[string key]
+		{
+			get
+			{
+				_variables.TryGetValue(key, out var result);
+				return result;
+			}
+			set
+			{
+				_variables[key] = value;
+			}
+		}
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CustomNpc" /> class with the specified NPC and definition.
         /// </summary>

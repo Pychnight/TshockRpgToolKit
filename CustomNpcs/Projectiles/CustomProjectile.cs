@@ -17,6 +17,24 @@ namespace CustomNpcs.Projectiles
 		public ProjectileDefinition Definition { get; set; }
 
 		/// <summary>
+		/// Provides easy access to a CustomProjectile's embedded variables.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		public object this[string key]
+		{
+			get
+			{
+				_variables.TryGetValue(key, out var result);
+				return result;
+			}
+			set
+			{
+				_variables[key] = value;
+			}
+		}
+
+		/// <summary>
 		///     Gets the index.
 		/// </summary>
 		public int Index => Projectile.whoAmI;
