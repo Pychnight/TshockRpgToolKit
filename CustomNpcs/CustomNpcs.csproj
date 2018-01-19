@@ -99,7 +99,8 @@
     <Compile Include="AreaFunctions.cs" />
     <Compile Include="Boo\BooHelpers.cs" />
     <Compile Include="Boo\BooScriptCompiler.cs" />
-    <Compile Include="Boo\InjectImportsStep.cs" />
+    <Compile Include="Boo\Steps\InjectImportsStep.cs" />
+    <Compile Include="Boo\Steps\EnsureMethodSignaturesStep.cs" />
     <Compile Include="Npcs\NpcDelegates.cs" />
     <Compile Include="Boo\BooModuleLinker.cs" />
     <Compile Include="Config.cs" />

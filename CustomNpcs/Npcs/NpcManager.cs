@@ -12,6 +12,7 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 
 namespace CustomNpcs.Npcs
 {
@@ -168,11 +169,8 @@ namespace CustomNpcs.Npcs
             _customNpcs.Remove(npc);
             _customNpcs.Add(npc, customNpc);
 
-			if( definition.OnSpawn != null )
-			{
-				definition.OnSpawn(customNpc);
-			}
-			
+			definition?.OnSpawn(customNpc);
+						
             // Ensure that all players see the changes.
             var npcId = npc.whoAmI;
             _checkNpcForReplacement[npcId] = false;
@@ -202,6 +200,49 @@ namespace CustomNpcs.Npcs
 			};
 
 			return imports;
+		}
+
+		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
+		{
+			var sigs = new List<EnsuredMethodSignature>()
+			{
+				new EnsuredMethodSignature("OnCheckReplace",typeof(double))
+					.AddParameter("npc",typeof(NPC)),
+
+				new EnsuredMethodSignature("OnCheckSpawn", typeof(int))
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("x",typeof(int))
+					.AddParameter("y",typeof(int)),
+
+				new EnsuredMethodSignature("OnSpawn")
+					.AddParameter("npc",typeof(CustomNpc)),
+
+				new EnsuredMethodSignature("OnCollision")
+					.AddParameter("npc",typeof(CustomNpc))
+					.AddParameter("player",typeof(TSPlayer)),
+				
+				new EnsuredMethodSignature("OnTileCollision")
+					.AddParameter("npc",typeof(CustomNpc))
+					.AddParameter("tileHits",typeof(List<Point>)),
+
+				new EnsuredMethodSignature("OnKilled")
+					.AddParameter("npc",typeof(CustomNpc)),
+
+				new EnsuredMethodSignature("OnTransformed")
+					.AddParameter("npc",typeof(CustomNpc)),
+
+				new EnsuredMethodSignature("OnStrike",typeof(bool))
+					.AddParameter("npc",typeof(CustomNpc))
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("damage",typeof(int))
+					.AddParameter("knockback",typeof(float))
+					.AddParameter("critical",typeof(bool)),
+
+				new EnsuredMethodSignature("OnAiUpdate",typeof(bool))
+					.AddParameter("npc",typeof(CustomNpc))
+			};
+			
+			return sigs;
 		}
 
         private void LoadDefinitions()
@@ -239,7 +280,7 @@ namespace CustomNpcs.Npcs
 				if(booScripts.Count>0)
 				{
 					Debug.Print($"Compiling boo npc scripts.");
-					npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts, getDefaultImports());
+					npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
 
 					if( npcScriptsAssembly != null )
 					{

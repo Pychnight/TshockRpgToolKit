@@ -13,18 +13,6 @@ using TShockAPI;
 
 namespace CustomNpcs
 {
-	//public class SafeBooMethod
-	//{
-	//	Func<object,object[]> func;
-
-	//	public SafeBooMethod(MethodInfo methodInfo)
-	//	{
-	//		methodInfo.CreateDelegate(typeof(Func<object>));
-
-	//		methodInfo.Invoke()
-	//	}
-	//}
-	
 	public class BooScriptCompiler
 	{
 		static BooScriptCompiler Instance = new BooScriptCompiler();
@@ -33,6 +21,7 @@ namespace CustomNpcs
 		BooCompiler compiler;
 
 		InjectImportsStep injectImportsStep;
+		EnsureMethodSignaturesStep ensureMethodSignaturesStep;
 
 		private BooScriptCompiler()
 		{
@@ -44,6 +33,8 @@ namespace CustomNpcs
 			parameters.Ducky = true;
 			parameters.WhiteSpaceAgnostic = false;
 			parameters.LoadDefaultReferences();
+
+			//parameters.
 
 			//foreach(var ass in assemblies )
 			//{
@@ -70,13 +61,16 @@ namespace CustomNpcs
 												 //parameters.Pipeline = new Parse();
 
 			injectImportsStep = new InjectImportsStep();
-			
 			pipeline.Insert(1,injectImportsStep);
+
+			ensureMethodSignaturesStep = new EnsureMethodSignaturesStep();
+
+			pipeline.Insert(2, ensureMethodSignaturesStep);
 
 			parameters.Pipeline = pipeline;
 		}
 
-		public static Assembly Compile(string assemblyName, List<string> fileNames, IEnumerable<string> imports = null)
+		public static Assembly Compile(string assemblyName, List<string> fileNames, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
 		{
 			Instance.parameters.OutputAssembly = assemblyName;
 			
@@ -85,11 +79,12 @@ namespace CustomNpcs
 				Instance.parameters.Input.Add(new FileInput(fname));
 
 			Instance.injectImportsStep.Namespaces.Clear();
-
 			if(imports!=null)
 			{
 				Instance.injectImportsStep.SetDefaultImports(imports);
 			}
+
+			Instance.ensureMethodSignaturesStep.SetEnsuredMethodSignatures(ensuredMethodSignatures);
 			
 			var context = Instance.compiler.Run();
 
