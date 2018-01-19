@@ -85,22 +85,22 @@ namespace CustomNpcs.Invasions
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
-		public WaveStartHandler OnWaveStart { get; private set; }
+		public InvasionWaveStartHandler OnWaveStart { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public WaveEndHandler OnWaveEnd { get; private set; }
+		public InvasionWaveEndHandler OnWaveEnd { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public WaveUpdateHandler OnWaveUpdate { get; private set; }
+		public InvasionWaveUpdateHandler OnWaveUpdate { get; private set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public BossDefeatedHandler OnBossDefeated { get; private set; }
+		public InvasionBossDefeatedHandler OnBossDefeated { get; private set; }
 
 		/// <summary>
 		///     Disposes the definition.
@@ -115,36 +115,7 @@ namespace CustomNpcs.Invasions
 			OnWaveUpdate = null;
 			OnBossDefeated = null;
         }
-
-		//      /// <summary>
-		//      ///     Loads the Lua definition.
-		//      /// </summary>
-		//      public void LoadLuaDefinition()
-		//      {
-		//          if (ScriptPath == null)
-		//          {
-		//              return;
-		//          }
-
-		//          var lua = new Lua();
-		//	lua.LoadCLRPackage();
-		//	lua.DoString("import('System')");
-		//	lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-		//	lua.DoString("import('OTAPI', 'Terraria')");
-		//	lua.DoString("import('TShock', 'TShockAPI')");
-		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-		//	lua.DoFile(Path.Combine("npcs", ScriptPath));
-		//	_lua = lua;
-
-		//	OnInvasionStart = _lua.GetSafeFunction("OnInvasionStart");
-		//	OnInvasionEnd = _lua.GetSafeFunction("OnInvasionEnd");
-		//	OnUpdate = _lua.GetSafeFunction("OnUpdate");
-		//	OnWaveStart = _lua.GetSafeFunction("OnWaveStart");
-		//	OnWaveEnd = _lua.GetSafeFunction("OnWaveEnd");
-		//	OnWaveUpdate = _lua.GetSafeFunction("OnWaveUpdate");
-		//	OnBossDefeated = _lua.GetSafeFunction("OnBossDefeated");
-		//}
-
+		
 		internal bool LinkToScript(Assembly ass)
 		{
 			if( ass == null )
@@ -158,10 +129,10 @@ namespace CustomNpcs.Invasions
 			OnInvasionStart = linker.TryCreateDelegate<InvasionStartHandler>("OnInvasionStart");
 			OnInvasionEnd = linker.TryCreateDelegate<InvasionEndHandler>("OnInvasionEnd");
 			OnUpdate = linker.TryCreateDelegate<InvasionUpdateHandler>("OnUpdate");
-			OnWaveStart = linker.TryCreateDelegate<WaveStartHandler>("OnWaveStart");
-			OnWaveEnd = linker.TryCreateDelegate<WaveEndHandler>("OnWaveEnd");
-			OnWaveUpdate = linker.TryCreateDelegate<WaveUpdateHandler>("OnWaveUpdate");
-			OnBossDefeated = linker.TryCreateDelegate<BossDefeatedHandler>("OnBossDefeated");
+			OnWaveStart = linker.TryCreateDelegate<InvasionWaveStartHandler>("OnWaveStart");
+			OnWaveEnd = linker.TryCreateDelegate<InvasionWaveEndHandler>("OnWaveEnd");
+			OnWaveUpdate = linker.TryCreateDelegate<InvasionWaveUpdateHandler>("OnWaveUpdate");
+			OnBossDefeated = linker.TryCreateDelegate<InvasionBossDefeatedHandler>("OnBossDefeated");
 
 			return true;
 		}

@@ -151,6 +151,27 @@ namespace CustomNpcs.Invasions
 			return imports;
 		}
 
+		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
+		{
+			var sigs = new List<EnsuredMethodSignature>()
+			{
+				new EnsuredMethodSignature("OnWaveStart")
+					.AddParameter("waveIndex",typeof(int))
+					.AddParameter("waveDefinition",typeof(WaveDefinition)),
+
+				new EnsuredMethodSignature("OnWaveEnd")
+					.AddParameter("waveIndex",typeof(int))
+					.AddParameter("waveDefinition",typeof(WaveDefinition)),
+
+				new EnsuredMethodSignature("OnWaveUpdate")
+					.AddParameter("waveIndex",typeof(int))
+					.AddParameter("waveDefinition",typeof(WaveDefinition))
+					.AddParameter("currentPoints",typeof(int)),
+			};
+
+			return sigs;
+		}
+
 		private void LoadDefinitions()
         {
             if (File.Exists(InvasionsConfigPath))
@@ -186,7 +207,7 @@ namespace CustomNpcs.Invasions
 				if( booScripts.Count > 0 )
 				{
 					Debug.Print($"Compiling boo invasion scripts.");
-					invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll",booScripts,getDefaultImports());
+					invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll",booScripts,getDefaultImports(),getEnsuredMethodSignatures());
 
 					if( invasionScriptsAssembly != null )
 					{

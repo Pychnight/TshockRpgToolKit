@@ -9,8 +9,8 @@ namespace CustomNpcs.Invasions
 	public delegate void InvasionStartHandler();
 	public delegate void InvasionEndHandler();
 	public delegate void InvasionUpdateHandler();
-	public delegate void WaveStartHandler(int waveIndex, WaveDefinition wave);
-	public delegate void WaveEndHandler(int a, WaveDefinition waveDefinition);
-	public delegate void WaveUpdateHandler(int a, WaveDefinition waveDefinition, int b);
-	public delegate void BossDefeatedHandler();
+	public delegate void InvasionWaveStartHandler(int waveIndex, WaveDefinition waveDefinition);
+	public delegate void InvasionWaveEndHandler(int waveIndex, WaveDefinition waveDefinition);
+	public delegate void InvasionWaveUpdateHandler(int waveIndex, WaveDefinition waveDefinition, int currentPoints);
+	public delegate void InvasionBossDefeatedHandler();
 }
