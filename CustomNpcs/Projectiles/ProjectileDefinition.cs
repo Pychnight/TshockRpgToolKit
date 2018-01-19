@@ -130,42 +130,6 @@ namespace CustomNpcs.Projectiles
 			//projectile.Name // this is readonly...
 		}
 
-		/// <summary>
-		///     Loads the Lua definition, if possible.
-		/// </summary>
-		//public void LoadLuaDefinition()
-		//{
-		//	if(LuaPath == null)
-		//	{
-		//		return;
-		//	}
-
-		//	var lua = this.lua = new Lua();
-		//	lua.LoadCLRPackage();
-		//	lua.DoString("import('System')");
-		//	lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-		//	lua.DoString("import('OTAPI', 'Terraria')");
-		//	lua.DoString("import('TShock', 'TShockAPI')");
-		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(NpcFunctions));
-		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(ProjectileFunctions));
-		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(TileFunctions));
-		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerFunctions));
-		//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(PlayerCommandFunctions));
-
-		//	lua["TileSize"] = TileFunctions.TileSize;
-		//	lua["HalfTileSize"] = TileFunctions.HalfTileSize;
-		//	lua["Center"] = new CenterOffsetHelper();
-
-		//	lua.DoFile(Path.Combine("npcs", LuaPath));
-			
-		//	OnAiUpdate = lua.GetSafeFunction("OnAiUpdate");
-		//	OnGameUpdate = lua.GetSafeFunction("OnGameUpdate");
-		//	OnCollision = lua.GetSafeFunction("OnCollision");
-		//	OnTileCollision = lua.GetSafeFunction("OnTileCollision");
-		//	OnKilled = lua.GetSafeFunction("OnKilled");
-		//	OnSpawn = lua.GetSafeFunction("OnSpawn");
-		//}
-
 		internal bool LinkToScript(Assembly assembly)
 		{
 			if( assembly == null )
