@@ -25,7 +25,7 @@ namespace CustomNpcs.Npcs
 
 	public delegate double NpcCheckReplaceHandler(NPC npc);//does this need to be a CustomNpc??? original code uses NPC *shrugs*
 	public delegate int NpcCheckSpawnHandler(TSPlayer player, int x, int y);
-	public delegate bool NpcSpawnHandler(CustomNpc npc);
+	public delegate void NpcSpawnHandler(CustomNpc npc);
 	public delegate void NpcCollisionHandler(CustomNpc npc, TSPlayer player);
 	public delegate void NpcTileCollisionHandler(CustomNpc npc, List<Point> tileHits);
 	public delegate void NpcKilledHandler(CustomNpc npc);
