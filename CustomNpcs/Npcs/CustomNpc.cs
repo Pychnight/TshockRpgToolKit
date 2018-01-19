@@ -7,6 +7,8 @@ using Terraria;
 using TShockAPI;
 using CustomNpcs.Projectiles;
 using System.Diagnostics;
+using Terraria.GameContent.UI;
+using Terraria.Localization;
 
 namespace CustomNpcs.Npcs
 {
@@ -471,6 +473,11 @@ namespace CustomNpcs.Npcs
 		public bool CustomIDContains(string text)
 		{
 			return this.Definition?.Name.Contains(text) == true;
+		}
+
+		public void AttachEmote(int emoteId, int lifeTime)
+		{
+			EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeNpc, this.Index, emoteId, lifeTime);
 		}
 	}
 }

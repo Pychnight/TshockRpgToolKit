@@ -115,6 +115,7 @@
     <Compile Include="Npcs\LootEntryDefinition.cs" />
     <Compile Include="Invasions\WaveDefinition.cs" />
     <Compile Include="Npcs\NpcFunctions.cs" />
+    <Compile Include="Runtime\EmoteFunctions.cs" />
     <Compile Include="Runtime\PlayerFunctions.cs" />
     <Compile Include="Projectiles\ProjectileDelegates.cs" />
     <Compile Include="Projectiles\ProjectileFunctions.cs" />

@@ -207,6 +207,11 @@ namespace CustomNpcs.Projectiles
 			//ProjectileManager.SendProjectileUpdate(this.Index);
 		}
 
+		public void AttachEmote(int emoteId, int lifeTime)
+		{
+			EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeProjectile, this.Index, emoteId, lifeTime);
+		}
+
 		public bool CustomIDContains(string text)
 		{
 			return this.Definition?.Name.Contains(text)==true;
