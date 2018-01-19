@@ -19,6 +19,12 @@ namespace CustomNpcs
     {
         private static readonly Random Random = new Random();
 
+		public static void ScriptRuntimeError(string message)
+		{
+			CustomNpcsPlugin.Instance.LogPrint(message, TraceLevel.Error);
+			CustomNpcsPlugin.Instance.LogPrint("Disabling event callback.", TraceLevel.Error);
+		}
+
         /// <summary>
         ///     Calculates spawn data for the specified player based on the global spawn data.
         /// </summary>

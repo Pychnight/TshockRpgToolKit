@@ -70,37 +70,37 @@ namespace CustomNpcs.Invasions
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
-		public InvasionStartHandler OnInvasionStart { get; private set; }
+		public InvasionStartHandler OnInvasionStart { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public InvasionEndHandler OnInvasionEnd { get; private set; }
+		public InvasionEndHandler OnInvasionEnd { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is updated.
 		/// </summary>
-		public InvasionUpdateHandler OnUpdate { get; private set; }
+		public InvasionUpdateHandler OnUpdate { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is started.
 		/// </summary>
-		public InvasionWaveStartHandler OnWaveStart { get; private set; }
+		public InvasionWaveStartHandler OnWaveStart { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public InvasionWaveEndHandler OnWaveEnd { get; private set; }
+		public InvasionWaveEndHandler OnWaveEnd { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public InvasionWaveUpdateHandler OnWaveUpdate { get; private set; }
+		public InvasionWaveUpdateHandler OnWaveUpdate { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the invasion is ending.
 		/// </summary>
-		public InvasionBossDefeatedHandler OnBossDefeated { get; private set; }
+		public InvasionBossDefeatedHandler OnBossDefeated { get; internal set; }
 
 		/// <summary>
 		///     Disposes the definition.

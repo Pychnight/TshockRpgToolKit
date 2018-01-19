@@ -106,7 +106,15 @@ namespace CustomNpcs.Invasions
 			CurrentInvasion = invasion;
             if (CurrentInvasion != null)
             {
-				invasion.OnInvasionStart?.Invoke();
+				try
+				{
+					invasion.OnInvasionStart?.Invoke();
+				}
+				catch(Exception ex)
+				{
+					Utils.ScriptRuntimeError(ex.Message);
+					invasion.OnInvasionStart = null;
+				}
 				
 				CurrentInvasion.HasStarted = true;
 				_currentWaveIndex = 0;
@@ -119,9 +127,17 @@ namespace CustomNpcs.Invasions
 			if(CurrentInvasion!=null)
 			{
 				TryEndPreviousWave();
+								
+				try
+				{
+					CurrentInvasion.OnInvasionEnd?.Invoke();
+				}
+				catch( Exception ex )
+				{
+					Utils.ScriptRuntimeError(ex.Message);
+					CurrentInvasion.OnInvasionEnd = null;
+				}
 				
-				CurrentInvasion.OnInvasionEnd?.Invoke();
-
 				TSPlayer.All.SendMessage(CurrentInvasion.CompletedMessage, new Color(175, 75, 225));
 				CurrentInvasion.HasStarted = false;//...probably not needed
 				CurrentInvasion = null;
@@ -282,10 +298,18 @@ namespace CustomNpcs.Invasions
                 _lastProgressUpdate = now;
             }
 
-			CurrentInvasion?.OnUpdate?.Invoke();
-        }
+			try
+			{
+				CurrentInvasion?.OnUpdate?.Invoke();
+			}
+			catch( Exception ex )
+			{
+				Utils.ScriptRuntimeError(ex.Message);
+				CurrentInvasion.OnUpdate = null;
+			}
+		}
 
-        private void OnNpcKilled(NpcKilledEventArgs args)
+		private void OnNpcKilled(NpcKilledEventArgs args)
         {
             if (CurrentInvasion == null)
             {
@@ -297,10 +321,17 @@ namespace CustomNpcs.Invasions
             var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
             if (npcNameOrType.Equals(_currentMiniboss, StringComparison.OrdinalIgnoreCase))
             {
-				CurrentInvasion.OnBossDefeated?.Invoke();
-
-                _currentMiniboss = null;
-            }
+				try
+				{
+					CurrentInvasion.OnBossDefeated?.Invoke();
+				}
+				catch(Exception ex)
+				{
+					Utils.ScriptRuntimeError(ex.Message);
+					CurrentInvasion.OnBossDefeated = null;
+					_currentMiniboss = null;
+				}
+	        }
             else if (CurrentInvasion.NpcPointValues.TryGetValue(npcNameOrType, out var points))
             {
                 _currentPoints += points;
@@ -312,7 +343,15 @@ namespace CustomNpcs.Invasions
 					var wave = CurrentInvasion.Waves[_currentWaveIndex];
 					if( wave != null )
 					{
-						CurrentInvasion.OnWaveUpdate?.Invoke(_currentWaveIndex, wave, _currentPoints);
+						try
+						{
+							CurrentInvasion.OnWaveUpdate?.Invoke(_currentWaveIndex, wave, _currentPoints);
+						}
+						catch( Exception ex )
+						{
+							Utils.ScriptRuntimeError(ex.Message);
+							CurrentInvasion.OnWaveUpdate = null;
+						}
 					}
 				}
 			}
@@ -351,7 +390,15 @@ namespace CustomNpcs.Invasions
 
 			if(wave!=null)
 			{
-				CurrentInvasion.OnWaveStart?.Invoke(_currentWaveIndex, wave);
+				try
+				{
+					CurrentInvasion.OnWaveStart?.Invoke(_currentWaveIndex, wave);
+				}
+				catch( Exception ex )
+				{
+					Utils.ScriptRuntimeError(ex.Message);
+					CurrentInvasion.OnWaveStart = null;
+				}
 			}
 		}
 
@@ -362,7 +409,16 @@ namespace CustomNpcs.Invasions
 			if( previousWaveIndex >= 0 )
 			{
 				var previousWave = CurrentInvasion.Waves[previousWaveIndex];
-				CurrentInvasion.OnWaveEnd?.Invoke(previousWaveIndex, previousWave);
+
+				try
+				{
+					CurrentInvasion.OnWaveEnd?.Invoke(previousWaveIndex, previousWave);
+				}
+				catch( Exception ex )
+				{
+					Utils.ScriptRuntimeError(ex.Message);
+					CurrentInvasion.OnWaveEnd = null;
+				}
 			}
 		}
 
