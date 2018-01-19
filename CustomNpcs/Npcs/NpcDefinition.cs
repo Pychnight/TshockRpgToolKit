@@ -57,47 +57,47 @@ namespace CustomNpcs.Npcs
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is checked for replacing.
 		/// </summary>
-		public NpcCheckReplaceHandler OnCheckReplace { get; set; }
+		public NpcCheckReplaceHandler OnCheckReplace { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is checked for spawning.
 		/// </summary>
-		public NpcCheckSpawnHandler OnCheckSpawn { get; set; }
+		public NpcCheckSpawnHandler OnCheckSpawn { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is spawned.
 		/// </summary>
-		public NpcSpawnHandler OnSpawn { get; set; }
+		public NpcSpawnHandler OnSpawn { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC collides with a player.
 		/// </summary>
-		public NpcCollisionHandler OnCollision { get; set; }
+		public NpcCollisionHandler OnCollision { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC collides with a tile.
 		/// </summary>
-		public NpcTileCollisionHandler OnTileCollision { get; set; }
+		public NpcTileCollisionHandler OnTileCollision { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when NPC is killed.
 		/// </summary>
-		public NpcKilledHandler OnKilled { get; set; }
+		public NpcKilledHandler OnKilled { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked after the NPC has transformed.
 		/// </summary>
-		public NpcTransformedHandler OnTransformed { get; set; }
+		public NpcTransformedHandler OnTransformed { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is struck.
 		/// </summary>
-		public NpcStrikeHandler OnStrike { get; set; }
+		public NpcStrikeHandler OnStrike { get; internal set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC AI is updated.
 		/// </summary>
-		public NpcAiUpdateHandler OnAiUpdate { get; set; }		
+		public NpcAiUpdateHandler OnAiUpdate { get; internal set; }		
 
 		/// <summary>
 		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.

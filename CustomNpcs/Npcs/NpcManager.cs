@@ -169,8 +169,16 @@ namespace CustomNpcs.Npcs
             _customNpcs.Remove(npc);
             _customNpcs.Add(npc, customNpc);
 
-			definition?.OnSpawn(customNpc);
-						
+			try
+			{
+				definition?.OnSpawn(customNpc);
+			}
+			catch(Exception ex)
+			{
+				Utils.ScriptRuntimeError(ex.Message);
+				definition.OnSpawn = null;
+			}
+			
             // Ensure that all players see the changes.
             var npcId = npc.whoAmI;
             _checkNpcForReplacement[npcId] = false;
@@ -326,8 +334,16 @@ namespace CustomNpcs.Npcs
 
 					if( definition.OnTransformed != null )
 					{
-						definition.OnTransformed(customNpc);
-
+						try
+						{
+							definition.OnTransformed(customNpc);
+						}
+						catch(Exception ex)
+						{
+							Utils.ScriptRuntimeError(ex.Message);
+							definition.OnTransformed = null;
+						}
+						
 						TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", id);
 						TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", id);
 					}
@@ -362,8 +378,16 @@ namespace CustomNpcs.Npcs
 						{
 							if( npc.Hitbox.Intersects(playerHitbox) && !player.GetData<bool>(IgnoreCollisionKey) )
 							{
-								definition.OnCollision(customNpc, player);
-
+								try
+								{
+									definition.OnCollision(customNpc, player);
+								}
+								catch(Exception ex)
+								{
+									Utils.ScriptRuntimeError(ex.Message);
+									definition.OnCollision = null;
+								}
+																
 								//player.SetData(IgnoreCollisionKey, true);
 								//break;//should this be a continue instead??
 							}
@@ -390,7 +414,15 @@ namespace CustomNpcs.Npcs
 						var tileCollisions = TileFunctions.GetOverlappedTiles(npc.Hitbox);
 						if( tileCollisions.Count > 0 )
 						{
-							definition.OnTileCollision(customNpc, tileCollisions);
+							try
+							{
+								definition.OnTileCollision(customNpc, tileCollisions);
+							}
+							catch(Exception ex)
+							{
+								Utils.ScriptRuntimeError(ex.Message);
+								definition.OnTileCollision = null;
+							}
 						}
 					}
 				}
@@ -412,9 +444,14 @@ namespace CustomNpcs.Npcs
 
 			var definition = customNpc.Definition;
 
-			if( definition.OnAiUpdate != null )
+			try
 			{
 				args.Handled = definition.OnAiUpdate(customNpc);
+			}
+			catch(Exception ex)
+			{
+				Utils.ScriptRuntimeError(ex.Message);
+				definition.OnAiUpdate = null;
 			}
 			
 			TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", args.Npc.whoAmI);
@@ -445,9 +482,14 @@ namespace CustomNpcs.Npcs
                 }
             }
 
-			if( definition.OnKilled != null )
+			try
 			{
-				definition.OnKilled(customNpc);
+				definition.OnKilled?.Invoke(customNpc);
+			}
+			catch(Exception ex)
+			{
+				Utils.ScriptRuntimeError(ex.Message);
+				definition.OnKilled = null;
 			}
 		}
 
@@ -523,9 +565,14 @@ namespace CustomNpcs.Npcs
                 customNpc.SendNetUpdate = true;
             }
 
-			if( definition.OnStrike != null )
+			try
 			{
 				args.Handled = definition.OnStrike(customNpc, player, args.Damage, args.KnockBack, args.Critical);
+			}
+			catch(Exception ex)
+			{
+				Utils.ScriptRuntimeError(ex.Message);
+				definition.OnStrike = null;
 			}
 		}
 		
@@ -561,9 +608,19 @@ namespace CustomNpcs.Npcs
 				var chance = 0.0;
 
 				if( definition.OnCheckReplace != null )
-					chance = definition.OnCheckReplace(npc);
-				
-					chances[definition] = chance;
+				{
+					try
+					{
+						chance = definition.OnCheckReplace(npc);
+					}
+					catch(Exception ex)
+					{
+						Utils.ScriptRuntimeError(ex.Message);
+						definition.OnCheckReplace = null;
+					}
+				}
+								
+				chances[definition] = chance;
 			}
 
 			var randomDefinition = Utils.TryPickRandomKey(chances);
@@ -603,7 +660,15 @@ namespace CustomNpcs.Npcs
 
 					if(definition.OnCheckSpawn!=null)
 					{
-						weight = definition.OnCheckSpawn(player, tileX, tileY);
+						try
+						{
+							weight = definition.OnCheckSpawn(player, tileX, tileY);
+						}
+						catch(Exception ex)
+						{
+							Utils.ScriptRuntimeError(ex.Message);
+							definition.OnCheckSpawn = null;
+						}
 					}
 											
 					weights[definition] = weight;
