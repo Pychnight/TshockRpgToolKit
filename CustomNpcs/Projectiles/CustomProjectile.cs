@@ -186,5 +186,10 @@ namespace CustomNpcs.Projectiles
 			OldPosition = Position;
 			Position = Position + Velocity;
 		}
+
+		public bool CustomIDContains(string text)
+		{
+			return this.Definition?.Name.Contains(text)==true;
+		}
 	}
 }

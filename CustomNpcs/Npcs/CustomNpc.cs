@@ -461,5 +461,10 @@ namespace CustomNpcs.Npcs
 				//TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", Npc.whoAmI);
 			}
 		}
+
+		public bool CustomIDContains(string text)
+		{
+			return this.Definition?.Name.Contains(text) == true;
+		}
 	}
 }

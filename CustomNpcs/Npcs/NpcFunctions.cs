@@ -228,29 +228,4 @@ namespace CustomNpcs
 			return baseNpc.netID == type;
 		}
 	}
-
-	public class NpcNameContainer
-	{
-		string name, customId;
-
-		public NpcNameContainer(string name, string customId)
-		{
-			this.name = name;
-			this.customId = customId;
-		}
-
-		public bool CustomIdContains(string txt)
-		{
-			var result = customId?.Contains(txt);
-			
-			return result==true;
-		}
-
-		public bool NameContains(string txt)
-		{
-			var result = name?.Contains(txt);
-
-			return result == true;
-		}
-	}
 }
