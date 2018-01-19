@@ -40,9 +40,6 @@ namespace CustomNpcs.Npcs
 		private static readonly string NpcsBasePath = "npcs";
 		private static readonly string NpcsConfigPath = Path.Combine(NpcsBasePath, "npcs.json");
 
-		private readonly object _checkNpcLock = new object();
-		private readonly object _lock = new object();
-
 		private readonly bool[] _checkNpcForReplacement = new bool[Main.maxNPCs + 1];
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly CustomNpcsPlugin _plugin;
@@ -119,10 +116,7 @@ namespace CustomNpcs.Npcs
                 throw new ArgumentNullException(nameof(name));
             }
 
-            lock (_lock)
-            {
-                return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
-            }
+			return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -549,34 +543,32 @@ namespace CustomNpcs.Npcs
 			var spawnViaGlobalRate = _random.Next((int)spawnRate) == 0;
 
 			var weights = new Dictionary<NpcDefinition, int>(_definitions.Count);
-			lock( _lock )
+			
+			foreach( var definition in _definitions )
 			{
-				foreach( var definition in _definitions )
+				if( !definition.ShouldSpawn )
+					continue;
+
+				var candidateForSpawning = spawnViaGlobalRate;
+
+				if(definition.SpawnRateOverride!=null)
 				{
-					if( !definition.ShouldSpawn )
-						continue;
+					candidateForSpawning = _random.Next((int)definition.SpawnRateOverride) == 0;
+				}
 
-					var candidateForSpawning = spawnViaGlobalRate;
+				if(candidateForSpawning)
+				{
+					var weight = 0;
 
-					if(definition.SpawnRateOverride!=null)
+					if(definition.OnCheckSpawn!=null)
 					{
-						candidateForSpawning = _random.Next((int)definition.SpawnRateOverride) == 0;
+						weight = definition.OnCheckSpawn(player, tileX, tileY);
 					}
-
-					if(candidateForSpawning)
-					{
-						var weight = 0;
-
-						if(definition.OnCheckSpawn!=null)
-						{
-							weight = definition.OnCheckSpawn(player, tileX, tileY);
-						}
 											
-						weights[definition] = weight;
-					}
+					weights[definition] = weight;
 				}
 			}
-
+			
 			if(weights.Count>0)
 			{
 				var randomDefinition = Utils.PickRandomWeightedKey(weights);
