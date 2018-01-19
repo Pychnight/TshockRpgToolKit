@@ -57,47 +57,47 @@ namespace CustomNpcs.Npcs
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is checked for replacing.
 		/// </summary>
-		public CheckReplaceHandler OnCheckReplace { get; set; }
+		public NpcCheckReplaceHandler OnCheckReplace { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is checked for spawning.
 		/// </summary>
-		public CheckSpawnHandler OnCheckSpawn { get; set; }
+		public NpcCheckSpawnHandler OnCheckSpawn { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is spawned.
 		/// </summary>
-		public SpawnHandler OnSpawn { get; set; }
+		public NpcSpawnHandler OnSpawn { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC collides with a player.
 		/// </summary>
-		public CollisionHandler OnCollision { get; set; }
+		public NpcCollisionHandler OnCollision { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC collides with a tile.
 		/// </summary>
-		public TileCollisionHandler OnTileCollision { get; set; }
+		public NpcTileCollisionHandler OnTileCollision { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when NPC is killed.
 		/// </summary>
-		public KilledHandler OnKilled { get; set; }
+		public NpcKilledHandler OnKilled { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked after the NPC has transformed.
 		/// </summary>
-		public TransformedHandler OnTransformed { get; set; }
+		public NpcTransformedHandler OnTransformed { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC is struck.
 		/// </summary>
-		public StrikeHandler OnStrike { get; set; }
+		public NpcStrikeHandler OnStrike { get; set; }
 
 		/// <summary>
 		///     Gets a function that is invoked when the NPC AI is updated.
 		/// </summary>
-		public AiUpdateHandler OnAiUpdate { get; set; }		
+		public NpcAiUpdateHandler OnAiUpdate { get; set; }		
 
 		/// <summary>
 		///     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
@@ -211,15 +211,15 @@ namespace CustomNpcs.Npcs
 
 			var linker = new BooModuleLinker(ass, ScriptPath);
 
-			OnCheckReplace = linker.TryCreateDelegate<CheckReplaceHandler>("OnCheckReplace");
-			OnCheckSpawn = linker.TryCreateDelegate<CheckSpawnHandler>("OnCheckSpawn");
-			OnSpawn = linker.TryCreateDelegate<SpawnHandler>("OnSpawn");
-			OnCollision = linker.TryCreateDelegate<CollisionHandler>("OnCollision");
-			OnTileCollision = linker.TryCreateDelegate<TileCollisionHandler>("OnTileCollision");
-			OnTransformed = linker.TryCreateDelegate<TransformedHandler>("OnTransformed");
-			OnKilled = linker.TryCreateDelegate<KilledHandler>("OnKilled");
-			OnStrike = linker.TryCreateDelegate<StrikeHandler>("OnStrike");
-			OnAiUpdate = linker.TryCreateDelegate<AiUpdateHandler>("OnAiUpdate");
+			OnCheckReplace = linker.TryCreateDelegate<NpcCheckReplaceHandler>("OnCheckReplace");
+			OnCheckSpawn = linker.TryCreateDelegate<NpcCheckSpawnHandler>("OnCheckSpawn");
+			OnSpawn = linker.TryCreateDelegate<NpcSpawnHandler>("OnSpawn");
+			OnCollision = linker.TryCreateDelegate<NpcCollisionHandler>("OnCollision");
+			OnTileCollision = linker.TryCreateDelegate<NpcTileCollisionHandler>("OnTileCollision");
+			OnTransformed = linker.TryCreateDelegate<NpcTransformedHandler>("OnTransformed");
+			OnKilled = linker.TryCreateDelegate<NpcKilledHandler>("OnKilled");
+			OnStrike = linker.TryCreateDelegate<NpcStrikeHandler>("OnStrike");
+			OnAiUpdate = linker.TryCreateDelegate<NpcAiUpdateHandler>("OnAiUpdate");
 			
 			return true;
 		}
