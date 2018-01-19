@@ -92,6 +92,34 @@ namespace CustomNpcs.Projectiles
 			return imports;
 		}
 
+		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
+		{
+			var sigs = new List<EnsuredMethodSignature>()
+			{
+				new EnsuredMethodSignature("OnSpawn")
+					.AddParameter("projectile",typeof(CustomProjectile)),
+
+				new EnsuredMethodSignature("OnKilled")
+					.AddParameter("projectile",typeof(CustomProjectile)),
+
+				new EnsuredMethodSignature("OnGameUpdate",typeof(bool))
+					.AddParameter("projectile",typeof(CustomProjectile)),
+
+				new EnsuredMethodSignature("OnAiUpdate",typeof(bool))
+					.AddParameter("projectile",typeof(CustomProjectile)),
+
+				new EnsuredMethodSignature("OnCollision")
+					.AddParameter("projectile",typeof(CustomProjectile))
+					.AddParameter("player",typeof(TSPlayer)),
+
+				new EnsuredMethodSignature("OnTileCollision")
+					.AddParameter("projectile",typeof(CustomProjectile))
+					.AddParameter("tileHits",typeof(List<Point>))
+			};
+
+			return sigs;
+		}
+
 		private void LoadDefinitions()
 		{
 			if(File.Exists(ProjectilesConfigPath))
@@ -126,7 +154,7 @@ namespace CustomNpcs.Projectiles
 				if( booScripts.Count > 0 )
 				{
 					Debug.Print($"Compiling boo projectile scripts.");
-					projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts, getDefaultImports());
+					projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts, getDefaultImports(),getEnsuredMethodSignatures());
 
 					if( projectileScriptsAssembly != null )
 					{
