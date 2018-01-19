@@ -119,7 +119,7 @@
     <Compile Include="Projectiles\ProjectileDelegates.cs" />
     <Compile Include="Projectiles\ProjectileFunctions.cs" />
     <Compile Include="Projectiles\CustomProjectile.cs" />
-    <Compile Include="Projectiles\CenterOffSetHelper.cs" />
+    <Compile Include="Projectiles\Offset.cs" />
     <Compile Include="Projectiles\ProjectileDefinition.cs" />
     <Compile Include="Projectiles\ProjectileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

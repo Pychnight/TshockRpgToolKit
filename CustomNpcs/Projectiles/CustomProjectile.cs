@@ -185,6 +185,8 @@ namespace CustomNpcs.Projectiles
 			OldDirection = Direction;
 			OldPosition = Position;
 			Position = Position + Velocity;
+
+			//ProjectileManager.SendProjectileUpdate(this.Index);
 		}
 
 		public bool CustomIDContains(string text)

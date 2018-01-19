@@ -388,47 +388,35 @@ namespace CustomNpcs.Npcs
                 (position - Position) * speed / Vector2.Distance(Position, position), type, damage, knockback);
             TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
         }
-
-		// NLua doesn't support default parameters, but does support instance method overloads ( static methods are busted )
+				
 		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed)
 		{
-			ShootCustomProjectileAt(target, projectileName, speed, null);
+			ShootCustomProjectileAt(target, projectileName, speed, new Vector2(0,0));
 		}
 
-		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed, object offset)
+		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed, Offset offset)
 		{
-			Vector2 offsetVector = new Vector2(0, 0);
+			var v = offset.ToUnitVector();
+			var hWidth = Npc.width * 0.5f;
+			var hHeight = Npc.height * 0.5f;
+			var offsetVector = new Vector2(v.X * hWidth, v.Y * hHeight);
 			
-			if( offset is Vector2 )
-			{
-				offsetVector = (Vector2)offset;
-			}
-			else if(offset is NpcEdge)
-			{
-				var edge = CenterOffsetHelper.GetUnitVectorFromNpcEdge((NpcEdge)offset);
-				var hWidth = Npc.width * 0.5f;
-				var hHeight = Npc.height * 0.5f;
-				offsetVector.X = edge.X * hWidth;
-				offsetVector.Y = edge.Y * hHeight;
-			}
-			else// if( offset is CenterOffsetHelper || offset is null )
-			{
-				//we do nothing! This is an implicit, no offset. ( caller passed in Center or null )
-			}
+			ShootCustomProjectileAt(target, projectileName, speed, offsetVector);
+		}
 
+		public void ShootCustomProjectileAt(Vector2 target, string projectileName, float speed, Vector2 offset)
+		{
 			int owner = this.Index;//how does owner affect projectiles? Not seeing difference when I change it to the launching npc.
-			var start = Center + offsetVector;
-			var vel = target - start;
+			var start = Center + offset;
+			var delta = target - start;
 
+			var vel = delta;
+			
 			vel.Normalize();
 			vel *= speed;
 
 			var customProjectile = ProjectileFunctions.SpawnCustomProjectile(255, projectileName, start.X, start.Y, vel.X, vel.Y);
-
 			//var customProjectile = ProjectileFunctions.SpawnCustomProjectile(owner, projectileName, start.X, start.Y, 20, 0);
-
-			//customProjectile.Position = start;
-			//customProjectile.Velocity = vel;
 		}
 
 		/// <summary>

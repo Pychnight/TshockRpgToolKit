@@ -204,8 +204,10 @@ namespace CustomNpcs.Projectiles
 
 			if( customProjectile != null )
 			{
+				customProjectile.OldPosition = new Vector2(x, y);
 				//customProjectile.SendNetUpdate = true;
 				ProjectileManager.SendProjectileUpdate(projectileId);
+				//Debug.Print($"Sent initial projectile for index #{projectileId}!");
 			}
 
 			return customProjectile;
