@@ -75,7 +75,11 @@ namespace CustomNpcs
 			Instance.parameters.OutputAssembly = assemblyName;
 			
 			Instance.parameters.Input.Clear();
-			foreach(var fname in fileNames)
+
+			//multiple npc types may use the same script
+			var distinctFileNames = fileNames.Distinct();
+
+			foreach(var fname in distinctFileNames)
 				Instance.parameters.Input.Add(new FileInput(fname));
 
 			Instance.injectImportsStep.Namespaces.Clear();
