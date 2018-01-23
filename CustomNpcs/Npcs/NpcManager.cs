@@ -171,7 +171,7 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
-				definition?.OnSpawn(customNpc);
+				definition.OnSpawn?.Invoke(customNpc);
 			}
 			catch(Exception ex)
 			{
@@ -266,20 +266,24 @@ namespace CustomNpcs.Npcs
                     try
                     {
                         definition.ThrowIfInvalid();
-                    }
+
+						if( !string.IsNullOrWhiteSpace(definition.ScriptPath) )
+						{
+							var rootedScriptPath = Path.Combine(NpcsBasePath, definition.ScriptPath);
+
+							Debug.Print($"Added npc script '{definition.ScriptPath}'.");
+							booScripts.Add(rootedScriptPath);
+						}
+					}
                     catch (FormatException ex)
                     {
 						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing NPC '{definition.Name}': {ex.Message}",TraceLevel.Error);
                         failedDefinitions.Add(definition);
-                        continue;
                     }
-					
-					var rootedScriptPath = Path.Combine(NpcsBasePath, definition.ScriptPath);
-
-					if(!string.IsNullOrWhiteSpace(definition.ScriptPath))
+					catch(Exception ex)
 					{
-						Debug.Print($"Added npc script '{definition.ScriptPath}'.");
-						booScripts.Add(rootedScriptPath);
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load NPC '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						failedDefinitions.Add(definition);
 					}
 				}
 
@@ -446,7 +450,8 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
-				args.Handled = definition.OnAiUpdate(customNpc);
+				var result = definition.OnAiUpdate?.Invoke(customNpc);
+				args.Handled = result==true;
 			}
 			catch(Exception ex)
 			{
@@ -567,7 +572,8 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
-				args.Handled = definition.OnStrike(customNpc, player, args.Damage, args.KnockBack, args.Critical);
+				var result = definition.OnStrike?.Invoke(customNpc, player, args.Damage, args.KnockBack, args.Critical);
+				args.Handled = result == true;
 			}
 			catch(Exception ex)
 			{

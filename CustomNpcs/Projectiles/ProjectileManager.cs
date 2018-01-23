@@ -128,24 +128,29 @@ namespace CustomNpcs.Projectiles
 
 				var definitions = JsonConvert.DeserializeObject<List<ProjectileDefinition>>(File.ReadAllText(ProjectilesConfigPath));
 				var failedDefinitions = new List<ProjectileDefinition>();
-				foreach(var def in definitions)
+				foreach(var definition in definitions)
 				{
 					try
 					{
-						def.ThrowIfInvalid();
+						definition.ThrowIfInvalid();
+
+						if( !string.IsNullOrWhiteSpace(definition.ScriptPath) )
+						{
+							var rootedScriptPath = Path.Combine(ProjectilesBasePath, definition.ScriptPath);
+
+							Debug.Print($"Added projectile script '{definition.ScriptPath}'.");
+							booScripts.Add(rootedScriptPath);
+						}
 					}
 					catch(FormatException ex)
 					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing CustomProjectile '{def.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(def);
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing projectile '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						failedDefinitions.Add(definition);
 					}
-
-					var rootedScriptPath = Path.Combine(ProjectilesBasePath, def.ScriptPath);
-
-					if( !string.IsNullOrWhiteSpace(def.ScriptPath) )
+					catch( Exception ex )
 					{
-						Debug.Print($"Added projectile script '{def.ScriptPath}'.");
-						booScripts.Add(rootedScriptPath);
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load projectile '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						failedDefinitions.Add(definition);
 					}
 				}
 

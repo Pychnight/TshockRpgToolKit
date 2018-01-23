@@ -201,22 +201,26 @@ namespace CustomNpcs.Invasions
 					try
                     {
                         definition.ThrowIfInvalid();
+
+						if( !string.IsNullOrWhiteSpace(definition.ScriptPath) )
+						{
+							var rootedScriptPath = Path.Combine(InvasionsBasePath, definition.ScriptPath);
+
+							Debug.Print($"Added invasion script '{definition.ScriptPath}'.");
+							booScripts.Add(rootedScriptPath);
+						}
 					}
                     catch (FormatException ex)
                     {
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing Invasion '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing invasion '{definition.Name}': {ex.Message}", TraceLevel.Error);
 						failedDefinitions.Add(definition);
                         continue;
                     }
-					
-					var rootedScriptPath = Path.Combine(InvasionsBasePath, definition.ScriptPath);
-
-					if( !string.IsNullOrWhiteSpace(rootedScriptPath) )
+					catch( Exception ex )
 					{
-						Debug.Print($"Added invasion script '{rootedScriptPath}'.");
-						booScripts.Add(rootedScriptPath);
+						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load invasion '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						failedDefinitions.Add(definition);
 					}
-
 				}
                 _definitions = _definitions.Except(failedDefinitions).ToList();
 
