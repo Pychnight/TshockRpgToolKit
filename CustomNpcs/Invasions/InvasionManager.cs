@@ -187,67 +187,39 @@ namespace CustomNpcs.Invasions
 
 			return sigs;
 		}
-
+		
 		private void LoadDefinitions()
-        {
-            if (File.Exists(InvasionsConfigPath))
-            {
-				var booScripts = new List<string>();
+		{
+			_definitions = DefinitionLoader.LoadFromFile<InvasionDefinition>(InvasionsConfigPath);
 
-                _definitions = JsonConvert.DeserializeObject<List<InvasionDefinition>>(File.ReadAllText(InvasionsConfigPath));
-                var failedDefinitions = new List<InvasionDefinition>();
-                foreach (var definition in _definitions)
-                {
-					try
-                    {
-                        definition.ThrowIfInvalid();
+			//get script files paths
+			var booScripts = _definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
+										 .Select( d => Path.Combine(InvasionsBasePath, d.ScriptPath))
+										 .ToList();
 
-						if( !string.IsNullOrWhiteSpace(definition.ScriptPath) )
-						{
-							var rootedScriptPath = Path.Combine(InvasionsBasePath, definition.ScriptPath);
-
-							Debug.Print($"Added invasion script '{definition.ScriptPath}'.");
-							booScripts.Add(rootedScriptPath);
-						}
-					}
-                    catch (FormatException ex)
-                    {
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing invasion '{definition.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(definition);
-                        continue;
-                    }
-					catch( Exception ex )
-					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load invasion '{definition.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(definition);
-					}
-				}
-                _definitions = _definitions.Except(failedDefinitions).ToList();
-
-				if( booScripts.Count > 0 )
-				{
-					Debug.Print($"Compiling boo invasion scripts.");
-					invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll",booScripts,getDefaultImports(),getEnsuredMethodSignatures());
-
-					if( invasionScriptsAssembly != null )
-					{
-						Debug.Print($"Compilation succeeded.");
-
-						foreach( var d in _definitions )
-							d.LinkToScript(invasionScriptsAssembly);
-					}
-					else
-						Debug.Print($"Compilation failed.");
-				}
-			}
-			else
+			if( booScripts.Count > 0 )
 			{
-				CustomNpcsPlugin.Instance.LogPrint($"Invasions configuration does not exist. Expected config file to be at: {InvasionsConfigPath}", TraceLevel.Error);
-				_definitions = new List<InvasionDefinition>();
-			}
-        }
+				//Debug.Print($"Compiling boo invasion scripts.");
+				CustomNpcsPlugin.Instance.LogPrint($"Compiling invasion scripts.", TraceLevel.Info);
+				invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
 
-        private void NotifyRelevantPlayers()
+				if( invasionScriptsAssembly != null )
+				{
+					//Debug.Print($"Compilation succeeded.");
+					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
+
+					foreach( var d in _definitions )
+						d.LinkToScript(invasionScriptsAssembly);
+				}
+				else
+				{
+					//Debug.Print($"Compilation failed.");
+					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
+				}
+			}
+		}
+
+		private void NotifyRelevantPlayers()
         {
             foreach (var player in TShock.Players.Where(p => p != null && p.Active && ShouldSpawnInvasionNpcs(p)))
             {

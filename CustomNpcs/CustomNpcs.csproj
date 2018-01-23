@@ -96,6 +96,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefinitionBase.cs" />
+    <Compile Include="DefinitionLoader.cs" />
     <Compile Include="Runtime\AreaFunctions.cs" />
     <Compile Include="Boo\BooHelpers.cs" />
     <Compile Include="Boo\BooScriptCompiler.cs" />

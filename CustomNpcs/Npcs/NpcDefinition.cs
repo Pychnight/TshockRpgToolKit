@@ -16,7 +16,7 @@ namespace CustomNpcs.Npcs
     ///     Represents an NPC definition.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class NpcDefinition : IDisposable
+    public sealed class NpcDefinition : DefinitionBase, IDisposable
     {
 		//internal string originalName; //we need to capture the npc's original name before applying our custom name to it, so the exposed lua function
 		//NameContains() works...
@@ -26,7 +26,7 @@ namespace CustomNpcs.Npcs
 		/// </summary>
 		[JsonProperty(Order = 0)]
 		[NotNull]
-		public string Name { get; private set; } = "example";
+		public override string Name { get; protected internal set; } = "example";
 
 		/// <summary>
 		///     Gets the base type.
@@ -224,7 +224,7 @@ namespace CustomNpcs.Npcs
 			return true;
 		}
 
-		internal void ThrowIfInvalid()
+		protected internal override void ThrowIfInvalid()
         {
             if (Name == null)
             {

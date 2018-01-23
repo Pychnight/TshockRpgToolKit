@@ -12,10 +12,10 @@ using Terraria;
 namespace CustomNpcs.Projectiles
 {
 	[JsonObject(MemberSerialization.OptIn)]
-	public class ProjectileDefinition : IDisposable
+	public class ProjectileDefinition : DefinitionBase, IDisposable
 	{
 		[JsonProperty(Order = 0)]
-		public string Name { get; set; }
+		public override string Name { get; protected internal set; }
 		
 		[JsonProperty(Order = 1)]
 		public string ScriptPath { get; set; }
@@ -150,7 +150,7 @@ namespace CustomNpcs.Projectiles
 			return true;
 		}
 
-		internal void ThrowIfInvalid()
+		protected internal override void ThrowIfInvalid()
 		{
 			if (Name == null)
 			{

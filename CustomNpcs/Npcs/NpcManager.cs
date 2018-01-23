@@ -253,69 +253,38 @@ namespace CustomNpcs.Npcs
 			return sigs;
 		}
 
-        private void LoadDefinitions()
-        {
-            if (File.Exists(NpcsConfigPath))
-            {
-				var booScripts = new List<string>();
+		private void LoadDefinitions()
+		{
+			_definitions = DefinitionLoader.LoadFromFile<NpcDefinition>(NpcsConfigPath);
 
-                _definitions = JsonConvert.DeserializeObject<List<NpcDefinition>>(File.ReadAllText(NpcsConfigPath));
-                var failedDefinitions = new List<NpcDefinition>();
-                foreach (var definition in _definitions)
-                {
-                    try
-                    {
-                        definition.ThrowIfInvalid();
+			//get script files paths
+			var booScripts = _definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
+										 .Select(d => Path.Combine(NpcsBasePath, d.ScriptPath))
+										 .ToList();
 
-						if( !string.IsNullOrWhiteSpace(definition.ScriptPath) )
-						{
-							var rootedScriptPath = Path.Combine(NpcsBasePath, definition.ScriptPath);
-
-							Debug.Print($"Added npc script '{definition.ScriptPath}'.");
-							booScripts.Add(rootedScriptPath);
-						}
-					}
-                    catch (FormatException ex)
-                    {
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing NPC '{definition.Name}': {ex.Message}",TraceLevel.Error);
-                        failedDefinitions.Add(definition);
-                    }
-					catch(Exception ex)
-					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load NPC '{definition.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(definition);
-					}
-				}
-
-                _definitions = _definitions.Except(failedDefinitions).ToList();
-
-				if(booScripts.Count>0)
-				{
-					Debug.Print($"Compiling boo npc scripts.");
-					npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
-
-					if( npcScriptsAssembly != null )
-					{
-						Debug.Print($"Compilation succeeded.");
-
-						foreach(var d in _definitions)
-						{
-							if(!string.IsNullOrWhiteSpace(d.ScriptPath))
-								d.LinkToScript(npcScriptsAssembly);
-						}
-					}
-					else
-						Debug.Print($"Compilation failed.");
-				}
-            }
-			else
+			if( booScripts.Count > 0 )
 			{
-				CustomNpcsPlugin.Instance.LogPrint($"Npc's configuration does not exist. Expected config file to be at: {NpcsConfigPath}", TraceLevel.Error);
-				_definitions = new List<NpcDefinition>();
-			}
-        }
+				//Debug.Print($"Compiling boo invasion scripts.");
+				CustomNpcsPlugin.Instance.LogPrint($"Compiling npc scripts.", TraceLevel.Info);
+				npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
 
-        private void OnGameUpdate(EventArgs args)
+				if( npcScriptsAssembly != null )
+				{
+					//Debug.Print($"Compilation succeeded.");
+					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
+
+					foreach( var d in _definitions )
+						d.LinkToScript(npcScriptsAssembly);
+				}
+				else
+				{
+					//Debug.Print($"Compilation failed.");
+					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
+				}
+			}
+		}
+
+		private void OnGameUpdate(EventArgs args)
         {
             Utils.TrySpawnForEachPlayer(TrySpawnCustomNpc);
 			           

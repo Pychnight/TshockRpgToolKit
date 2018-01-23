@@ -119,63 +119,35 @@ namespace CustomNpcs.Projectiles
 
 			return sigs;
 		}
-
+		
 		private void LoadDefinitions()
 		{
-			if(File.Exists(ProjectilesConfigPath))
+			Definitions = DefinitionLoader.LoadFromFile<ProjectileDefinition>(ProjectilesConfigPath);
+
+			//get script files paths
+			var booScripts = Definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
+										 .Select(d => Path.Combine(ProjectilesBasePath, d.ScriptPath))
+										 .ToList();
+
+			if( booScripts.Count > 0 )
 			{
-				var booScripts = new List<string>();
+				//Debug.Print($"Compiling boo invasion scripts.");
+				CustomNpcsPlugin.Instance.LogPrint($"Compiling projectile scripts.", TraceLevel.Info);
+				projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
 
-				var definitions = JsonConvert.DeserializeObject<List<ProjectileDefinition>>(File.ReadAllText(ProjectilesConfigPath));
-				var failedDefinitions = new List<ProjectileDefinition>();
-				foreach(var definition in definitions)
+				if( projectileScriptsAssembly != null )
 				{
-					try
-					{
-						definition.ThrowIfInvalid();
+					//Debug.Print($"Compilation succeeded.");
+					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
 
-						if( !string.IsNullOrWhiteSpace(definition.ScriptPath) )
-						{
-							var rootedScriptPath = Path.Combine(ProjectilesBasePath, definition.ScriptPath);
-
-							Debug.Print($"Added projectile script '{definition.ScriptPath}'.");
-							booScripts.Add(rootedScriptPath);
-						}
-					}
-					catch(FormatException ex)
-					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing projectile '{definition.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(definition);
-					}
-					catch( Exception ex )
-					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load projectile '{definition.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(definition);
-					}
+					foreach( var d in Definitions )
+						d.LinkToScript(projectileScriptsAssembly);
 				}
-
-				Definitions = definitions.Except(failedDefinitions).ToList();
-
-				if( booScripts.Count > 0 )
+				else
 				{
-					Debug.Print($"Compiling boo projectile scripts.");
-					projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts, getDefaultImports(),getEnsuredMethodSignatures());
-
-					if( projectileScriptsAssembly != null )
-					{
-						Debug.Print($"Compilation succeeded.");
-
-						foreach( var d in Definitions )
-							d.LinkToScript(projectileScriptsAssembly);
-					}
-					else
-						Debug.Print($"Compilation failed.");
+					//Debug.Print($"Compilation failed.");
+					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
 				}
-			}
-			else
-			{
-				ServerApi.LogWriter.PluginWriteLine(plugin, $"Projectiles configuration does not exist. Expected config file to be at: {ProjectilesConfigPath}", TraceLevel.Error);
-				Definitions = new List<ProjectileDefinition>();
 			}
 		}
 

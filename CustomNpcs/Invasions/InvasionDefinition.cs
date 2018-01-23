@@ -12,14 +12,14 @@ namespace CustomNpcs.Invasions
     ///     Represents an invasion definition.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class InvasionDefinition : IDisposable
+    public sealed class InvasionDefinition : DefinitionBase, IDisposable
     {
        	/// <summary>
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
 		[NotNull]
-		public string Name { get; private set; } = "example";
+		public override string Name { get; protected internal set; } = "example";
 
 		/// <summary>
 		///     Gets the script path.
@@ -137,7 +137,7 @@ namespace CustomNpcs.Invasions
 			return true;
 		}
 
-		internal void ThrowIfInvalid()
+		protected internal override void ThrowIfInvalid()
         {
             if (Name == null)
             {
