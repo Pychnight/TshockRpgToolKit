@@ -93,8 +93,8 @@ namespace CustomNpcs.Projectiles
 			projectile.hostile = BaseOverride.Hostile ?? projectile.hostile;
 			projectile.maxPenetrate = BaseOverride.MaxPenetrate ?? projectile.maxPenetrate;
 			projectile.timeLeft = BaseOverride.TimeLeft ?? projectile.timeLeft;
-			projectile.width = BaseOverride.Width ?? projectile.width;
-			projectile.height = BaseOverride.Height ?? projectile.height;
+			//projectile.width = BaseOverride.Width ?? projectile.width;
+			//projectile.height = BaseOverride.Height ?? projectile.height;
 			projectile.magic = BaseOverride.Magic ?? projectile.magic;
 			projectile.light = BaseOverride.Light ?? projectile.light;
 			projectile.thrown = BaseOverride.Thrown ?? projectile.thrown;
@@ -103,8 +103,8 @@ namespace CustomNpcs.Projectiles
 			projectile.tileCollide = BaseOverride.TileCollide ?? projectile.tileCollide;
 			projectile.ignoreWater = BaseOverride.IgnoreWater ?? projectile.ignoreWater;
 			//projectile.wet = baseOverride.Wet ?? projectile.wet;
-			projectile.bobber = BaseOverride.Bobber ?? projectile.bobber;
-			projectile.counterweight = BaseOverride.Counterweight ?? projectile.counterweight;
+			//projectile.bobber = BaseOverride.Bobber ?? projectile.bobber;
+			//projectile.counterweight = BaseOverride.Counterweight ?? projectile.counterweight;
 			//projectile.hide = false;
 			//projectile.honeyWet = false;
 			//projectile.miscText = "test";
@@ -219,11 +219,11 @@ namespace CustomNpcs.Projectiles
 			[JsonProperty]
 			public int? TimeLeft { get; set; }
 			
-			[JsonProperty]
-			public int? Width { get; set;}
+			//[JsonProperty]
+			//public int? Width { get; set;}
 			
-			[JsonProperty]
-			public int? Height { get; set;}
+			//[JsonProperty]
+			//public int? Height { get; set;}
 			
 			[JsonProperty]
 			public bool? Magic { get; set; }
@@ -249,11 +249,11 @@ namespace CustomNpcs.Projectiles
 		/* 	[JsonProperty]
 			public bool? Wet { get; set; } */
 
-			[JsonProperty]
-			public bool? Bobber { get; set; }
+			//[JsonProperty]
+			//public bool? Bobber { get; set; }
 			
-			[JsonProperty]
-			public bool? Counterweight { get; set; }
+			//[JsonProperty]
+			//public bool? Counterweight { get; set; }
 		}
 	}
 }
