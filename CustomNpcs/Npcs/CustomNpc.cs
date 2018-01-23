@@ -109,7 +109,7 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets or sets the old direction.
         /// </summary>
-        public int oldDirection
+        public int OldDirection
         {
             get => Npc.oldDirection;
             set => Npc.oldDirection = value;
@@ -118,7 +118,7 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets or sets the old direction Y.
         /// </summary>
-        public int oldDirectionY
+        public int OldDirectionY
         {
             get => Npc.oldDirectionY;
             set => Npc.oldDirectionY = value;
