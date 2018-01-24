@@ -32,27 +32,29 @@ namespace CustomNpcs
 			parameters.GenerateInMemory = true;
 			parameters.Ducky = true;
 			parameters.WhiteSpaceAgnostic = false;
-			parameters.LoadDefaultReferences();
-
-			//parameters.
-
-			//foreach(var ass in assemblies )
-			//{
-			//	Debug.Print($"Referenced assembly: {ass}");
-			//}
-
+			//parameters.References.Clear();
+			//parameters.LoadDefaultReferences();
+			//parameters.StdLib = false;
+			
 			//var otapiAss = assemblies.Where(a => a.FullName.Contains("OTAPI")).Select( a => Assembly.Load( a )).SingleOrDefault();
 			var assemblies = Assembly.GetEntryAssembly().GetReferencedAssemblies();
+			var sysAss = Assembly.GetAssembly(typeof(Random));
 			var otapiAss = Assembly.GetAssembly(typeof(Vector2));
 			var tshockAss = Assembly.GetAssembly(typeof(TSPlayer));
 			var pluginAss = Assembly.GetExecutingAssembly();
 
 			parameters.DisabledWarnings.Add("BCW0016");//dont warn about unused namespaces...
-			
+
+			//parameters.References.Add(sysAss);
 			parameters.References.Add(otapiAss);
 			parameters.References.Add(tshockAss);
 			parameters.References.Add(pluginAss);
 
+			//parameters.AddAssembly(sysAss);
+			//parameters.AddAssembly(otapiAss);
+			//parameters.AddAssembly(tshockAss);
+			//parameters.AddAssembly(pluginAss);
+			
 			parameters.OutputType = CompilerOutputType.Library;
 			parameters.OutputAssembly = "scripts.dll";
 			parameters.GenerateCollectible = true; //dont leak assemblies...

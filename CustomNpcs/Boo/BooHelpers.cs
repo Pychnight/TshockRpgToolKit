@@ -32,5 +32,16 @@ namespace CustomNpcs
 
 			return result;
 		}
+
+		[Conditional("DEBUG")]
+		public static void DebugDumpAssemblies(this Assembly assembly)
+		{
+			var refs = assembly.GetReferencedAssemblies();
+
+			Debug.Print($"Assembly {assembly}");
+
+			foreach( var r in refs )
+				Debug.Print($"Reference: {r}");
+		}
 	}
 }
