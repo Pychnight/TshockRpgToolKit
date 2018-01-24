@@ -35,7 +35,7 @@ namespace CustomNpcs
 			FilePath = filePath;
 			var moduleName = getModuleNameFromFilePath(filePath);
 
-			type = assembly.GetType(moduleName);
+			type = assembly.GetType(moduleName, false, true);//ignore case.
 
 			if(type!=null)
 			{
