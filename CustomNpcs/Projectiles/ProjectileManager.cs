@@ -73,6 +73,7 @@ namespace CustomNpcs.Projectiles
 		{
 			var imports = new List<string>()
 			{
+				"System",
 				"System.Collections.Generic",
 				"Microsoft.Xna.Framework",
 				"TShockAPI",

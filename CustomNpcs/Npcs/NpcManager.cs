@@ -191,6 +191,7 @@ namespace CustomNpcs.Npcs
 		{
 			var imports = new List<string>()
 			{
+				"System",
 				"System.Collections.Generic",
 				"Microsoft.Xna.Framework",
 				"TShockAPI",
