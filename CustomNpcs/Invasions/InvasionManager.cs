@@ -64,7 +64,7 @@ namespace CustomNpcs.Invasions
         /// </summary>
         public void Dispose()
         {
-            File.WriteAllText(InvasionsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
+            //File.WriteAllText(InvasionsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
 
             GeneralHooks.ReloadEvent -= OnReload;
             ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);

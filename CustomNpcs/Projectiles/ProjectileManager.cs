@@ -53,6 +53,8 @@ namespace CustomNpcs.Projectiles
 
 		public void Dispose()
 		{
+			//...we never wrote the definitions back, which is fine afaik -- why do the original managers do that? 
+
 			foreach (var def in Definitions)
 			{
 				def.Dispose();

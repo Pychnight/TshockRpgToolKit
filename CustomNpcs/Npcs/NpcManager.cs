@@ -83,7 +83,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void Dispose()
         {
-            File.WriteAllText(NpcsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
+            //File.WriteAllText(NpcsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
 
             foreach (var definition in _definitions)
             {
