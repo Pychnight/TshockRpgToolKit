@@ -96,8 +96,7 @@ namespace CustomNpcs
 			{
 				foreach( var err in context.Errors )
 				{
-					//CustomNpcsPlugin.Instance.LogPrint(err.Message, TraceLevel.Error);
-					Console.WriteLine($"{err.LexicalInfo.FileName} {err.LexicalInfo.Line},{err.LexicalInfo.Column}: {err.Message}");
+					CustomNpcsPlugin.Instance.LogPrint($"{err.LexicalInfo.FileName} {err.LexicalInfo.Line},{err.LexicalInfo.Column}: {err.Message}", TraceLevel.Error);
 				}
 
 				return null;
@@ -107,11 +106,12 @@ namespace CustomNpcs
 			{
 				foreach( var warn in context.Warnings )
 				{
-					//CustomNpcsPlugin.Instance.LogPrint(warning.Message, TraceLevel.Warning);
-					Console.WriteLine($"{warn.LexicalInfo.FileName} {warn.LexicalInfo.Line},{warn.LexicalInfo.Column}: {warn.Message}");
+					CustomNpcsPlugin.Instance.LogPrint($"{warn.LexicalInfo.FileName} {warn.LexicalInfo.Line},{warn.LexicalInfo.Column}: {warn.Message}", TraceLevel.Warning);
 				}
 			}
 
+			//context.GeneratedAssembly.DebugDumpAssemblies();
+			
 			return context.GeneratedAssembly;
 		}
 	}
