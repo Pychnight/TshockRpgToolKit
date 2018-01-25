@@ -96,8 +96,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefinitionLoading\CategoryPlaceholderDefinition.cs" />
     <Compile Include="DefinitionBase.cs" />
-    <Compile Include="DefinitionLoader.cs" />
+    <Compile Include="DefinitionLoading\DefinitionLoader.cs" />
+    <Compile Include="DefinitionLoading\DefinitionOrCategoryJsonConverter.cs" />
     <Compile Include="Runtime\AreaFunctions.cs" />
     <Compile Include="Boo\BooHelpers.cs" />
     <Compile Include="Boo\BooScriptCompiler.cs" />

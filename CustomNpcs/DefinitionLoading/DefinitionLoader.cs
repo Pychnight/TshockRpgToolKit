@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,11 +15,12 @@ namespace CustomNpcs
 		internal static List<T> LoadFromFile<T>(string filePath) where T : DefinitionBase
 		{
 			List<T> result = null;
-			var typeName = typeof(T).Name;
+			var definitionType = typeof(T);
+			var typeName = definitionType.Name;
 
 			if( File.Exists(filePath) )
 			{
-				var definitions = JsonConvert.DeserializeObject<List<T>>(File.ReadAllText(filePath));
+				var definitions = deserializeFromText<T>(filePath);
 				var failedDefinitions = new List<T>();
 
 				foreach( var definition in definitions )
@@ -48,6 +50,42 @@ namespace CustomNpcs
 			}
 			
 			return result;
+		}
+
+		static List<T> deserializeFromText<T>(string filePath) where T : DefinitionBase
+		{
+			var expandedDefinitions = new List<T>();
+
+			if( File.Exists(filePath) )
+			{
+				var json = File.ReadAllText(filePath);
+				var definitionType = typeof(T);
+				var rawDefinitions = (List<DefinitionBase>)JsonConvert.DeserializeObject(json,
+																						typeof(List<DefinitionBase>),
+																						new DefinitionOrCategoryJsonConverter(definitionType));
+				foreach( var rawDef in rawDefinitions )
+				{
+					if( rawDef is T )
+					{
+						//this is a real definition
+						expandedDefinitions.Add(rawDef as T);
+					}
+					else if( rawDef is CategoryPlaceholderDefinition )
+					{
+						//this is a placeholder definition, which points to included definitions.
+						var placeholder = rawDef as CategoryPlaceholderDefinition;
+						var includedDefinitions = placeholder.TryLoadIncludes<T>(filePath);
+
+						expandedDefinitions.AddRange(includedDefinitions);
+					}
+					//else
+					//{
+					//	//throw?
+					//}
+				}
+			}
+
+			return expandedDefinitions;
 		}
 	}
 }
