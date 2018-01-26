@@ -34,10 +34,15 @@ namespace CustomNpcs.Projectiles
 			}
 		}
 
+		///// <summary>
+		/////     Gets the index.
+		///// </summary>
+		//public int Index => Projectile.whoAmI;
+
 		/// <summary>
 		///     Gets the index.
 		/// </summary>
-		public int Index => Projectile.whoAmI;
+		public int Index => Projectile.identity;
 
 		public bool Active
 		{
