@@ -156,39 +156,30 @@ namespace CustomNpcs.Projectiles
 			{
 				throw new FormatException($"{nameof(Name)} is null.");
 			}
-			//if (int.TryParse(Name, out _))
-			//{
-			//	throw new FormatException($"{nameof(Name)} cannot be a number.");
-			//}
-			//if( string.IsNullOrWhiteSpace(Name) )
-			//{
-			//	throw new FormatException($"{nameof(Name)} is whitespace.");
-			//}
+			if( int.TryParse(Name, out _) )
+			{
+				throw new FormatException($"{nameof(Name)} cannot be a number.");
+			}
+			if( string.IsNullOrWhiteSpace(Name) )
+			{
+				throw new FormatException($"{nameof(Name)} is whitespace.");
+			}
 			//if (BaseType < -65)
 			//{
 			//	throw new FormatException($"{nameof(BaseType)} is too small.");
 			//}
-			//if (BaseType >= Main.maxNPCTypes)
-			//{
-			//	throw new FormatException($"{nameof(BaseType)} is too large.");
-			//}
+			if( BaseType >= Main.maxProjectileTypes )
+			{
+				throw new FormatException($"{nameof(BaseType)} is too large.");
+			}
 			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
 			{
-				throw new FormatException($"{nameof(ScriptPath)} points to an invalid Lua file.");
+				throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
 			}
-			//if (_loot == null)
-			//{
-			//	throw new FormatException("Loot is null.");
-			//}
-			//_loot.ThrowIfInvalid();
-			//if (_spawning == null)
-			//{
-			//	throw new FormatException("Spawning is null.");
-			//}
-			//if (_baseOverride == null)
-			//{
-			//	throw new FormatException("BaseOverride is null.");
-			//}
+			if( BaseOverride == null )
+			{
+				throw new FormatException("BaseOverride is null.");
+			}
 			//_baseOverride.ThrowIfInvalid();
 		}
 
