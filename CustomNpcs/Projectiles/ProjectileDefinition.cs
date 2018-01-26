@@ -18,7 +18,7 @@ namespace CustomNpcs.Projectiles
 		public override string Name { get; protected internal set; }
 		
 		[JsonProperty(Order = 1)]
-		public string ScriptPath { get; set; }
+		public override string ScriptPath { get; protected internal set; }
 
 		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }

@@ -17,6 +17,9 @@ namespace CustomNpcs
 		[JsonIgnore]//...in case later down the road, DefinitionBase opts in on this property!
 		public override string Name { get => throw new NotImplementedException(); protected internal set => throw new NotImplementedException(); }
 
+		[JsonIgnore]
+		public override string ScriptPath { get => throw new NotImplementedException(); protected internal set => throw new NotImplementedException(); }
+
 		protected internal override void ThrowIfInvalid()
 		{
 			throw new NotImplementedException();

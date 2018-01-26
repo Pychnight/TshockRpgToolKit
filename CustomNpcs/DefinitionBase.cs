@@ -10,6 +10,8 @@ namespace CustomNpcs
 	{
 		public abstract string Name { get; protected internal set; } //only marking this as abstract so that derived classes override it, so we can apply json attributes. not sure if they'll work otherwise.
 
+		public abstract string ScriptPath { get; protected internal set; }
+
 		protected internal abstract void ThrowIfInvalid();
 	}
 }

@@ -36,7 +36,7 @@ namespace CustomNpcs.Npcs
 
 		[CanBeNull]
 		[JsonProperty(Order = 2)]
-		public string ScriptPath { get; private set; }
+		public override string ScriptPath { get; protected internal set; }
 		
 		[JsonProperty("BaseOverride", Order = 3)]
         internal BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();

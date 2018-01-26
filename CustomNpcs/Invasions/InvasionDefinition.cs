@@ -26,7 +26,7 @@ namespace CustomNpcs.Invasions
 		/// </summary>
 		[JsonProperty(Order = 1)]
         [CanBeNull]
-        public string ScriptPath { get; private set; }
+        public override string ScriptPath { get; protected internal set; }
 		
         /// <summary>
         ///     Gets the NPC point values.

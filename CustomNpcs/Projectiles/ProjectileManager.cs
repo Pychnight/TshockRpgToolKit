@@ -255,62 +255,62 @@ namespace CustomNpcs.Projectiles
 			var result = HookResult.Continue;
 			var customProjectile = GetCustomProjectile(projectile);
 
-			if(customProjectile!=null)
+			if(customProjectile==null)
 			{
-				var definition = customProjectile.Definition;
+				return HookResult.Continue;
+			}
+			
+			var definition = customProjectile.Definition;
 
-				//game updates
-				var onGameUpdate = definition.OnGameUpdate;
-				if( onGameUpdate != null )
+			//game updates
+			var onGameUpdate = definition.OnGameUpdate;
+			if( onGameUpdate != null )
+			{
+				try
+				{
+					var handled = onGameUpdate(customProjectile);
+					result = handled == true ? HookResult.Cancel : HookResult.Continue;
+
+					if( result == HookResult.Cancel )
+					{
+						//if we dont pass execution onto Terraria's Projectile.Update(), AI() will never get run, so we better run it ourselves.
+						projectile.AI();
+					}
+
+					customProjectile.SendNetUpdate = true;
+				}
+				catch(Exception ex)
+				{
+					Utils.ScriptRuntimeError(ex.Message);
+					definition.OnGameUpdate = null;
+				}
+			}
+				
+			//collision tests
+
+			//tiles
+			if(customProjectile.Active && projectile.tileCollide && definition.OnTileCollision!=null)
+			{
+				var tileCollisions = TileFunctions.GetOverlappedTiles(projectile.Hitbox);
+
+				if( tileCollisions.Count > 0 )
 				{
 					try
 					{
-						var handled = onGameUpdate(customProjectile);
-						result = handled == true ? HookResult.Cancel : HookResult.Continue;
+						definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
+						customProjectile.SendNetUpdate = true;
 					}
 					catch(Exception ex)
 					{
 						Utils.ScriptRuntimeError(ex.Message);
-						definition.OnGameUpdate = null;
+						definition.OnTileCollision = null;
 					}
 				}
+			}
 
-				if( result == HookResult.Cancel )
-				{
-					//if we dont pass execution onto Terraria's Projectile.Update(), AI() will never get run, so we better run it ourselves.
-					projectile.AI();
-				}
-
-				//try to update projectile	
-				//if( Main.projectile[projectile.whoAmI] != null && projectile.active )
-				if(customProjectile?.Active==true)
-				{
-					//projectile.netUpdate = true;
-					ProjectileManager.SendProjectileUpdate(customProjectile.Index);
-				}
-
-				//collision tests
-
-				//tiles
-				if(projectile.tileCollide)
-				{
-					var tileCollisions = TileFunctions.GetOverlappedTiles(projectile.Hitbox);
-
-					if( tileCollisions.Count > 0 )
-					{
-						try
-						{
-							definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
-						}
-						catch(Exception ex)
-						{
-							Utils.ScriptRuntimeError(ex.Message);
-							definition.OnTileCollision = null;
-						}
-					}
-				}
-								
-				//players
+			//players
+			if( customProjectile.Active && definition.OnCollision != null )
+			{
 				foreach( var player in TShock.Players )
 				{
 					if( player?.Active == true )
@@ -326,8 +326,9 @@ namespace CustomNpcs.Projectiles
 								try
 								{
 									onCollision(customProjectile, player);
+									customProjectile.SendNetUpdate = true;
 								}
-								catch(Exception ex)
+								catch( Exception ex )
 								{
 									Utils.ScriptRuntimeError(ex.Message);
 									definition.OnCollision = null;
@@ -336,6 +337,11 @@ namespace CustomNpcs.Projectiles
 						}
 					}
 				}
+			}
+
+			if(customProjectile.Active && customProjectile.SendNetUpdate)
+			{
+				ProjectileManager.SendProjectileUpdate(customProjectile.Index);
 			}
 			
 			return result;
@@ -389,9 +395,13 @@ namespace CustomNpcs.Projectiles
 					customProjectiles.Remove(projectile);
 					projectile.active = false;
 					ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
+
+					return HookResult.Cancel;
 				}
-				
-				return HookResult.Cancel;
+				else
+				{
+					return HookResult.Continue;
+				}
 			}
 			else
 			{
