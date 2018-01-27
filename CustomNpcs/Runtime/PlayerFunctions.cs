@@ -52,6 +52,7 @@ namespace CustomNpcs
 			//player.TPlayer.Hurt(reason, damage, hitDirection, false, quiet, crit, cooldownCounter);
 
 			//so we use what player.DamagePlayer(damage) does...
+			//NetMessage.SendPlayerHurt(player.Index, reason, damage, 0, critical, false, 0, -1, -1);
 			NetMessage.SendPlayerHurt(player.Index, reason, damage, new Random().Next(-1, 1), critical, false, 0, -1, -1);
 		}
 

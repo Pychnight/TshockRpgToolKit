@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Terraria;
 using TerrariaApi.Server;
@@ -255,11 +256,11 @@ namespace CustomNpcs.Projectiles
 			var result = HookResult.Continue;
 			var customProjectile = GetCustomProjectile(projectile);
 
-			if(customProjectile==null)
+			if( customProjectile == null )
 			{
 				return HookResult.Continue;
 			}
-			
+
 			var definition = customProjectile.Definition;
 
 			//game updates
@@ -309,6 +310,8 @@ namespace CustomNpcs.Projectiles
 			}
 
 			//players
+			const float InterpolateThreshold = 16f;
+
 			if( customProjectile.Active && definition.OnCollision != null )
 			{
 				foreach( var player in TShock.Players )
@@ -320,6 +323,18 @@ namespace CustomNpcs.Projectiles
 						{
 							var tplayer = player.TPlayer;
 							var playerHitbox = tplayer.Hitbox;
+
+							//var netPos = player.LastNetPosition;
+							//var srvPos = new Vector2(player.X, player.Y);
+							//var delta = netPos - srvPos;
+
+							//if(Math.Abs(delta.X)>InterpolateThreshold || Math.Abs(delta.Y)>InterpolateThreshold)
+							//{
+							//	var inter = Vector2.Lerp(srvPos, netPos, 0.5f);
+
+							//	playerHitbox.X = (int)inter.X;
+							//	playerHitbox.Y = (int)inter.Y;
+							//}
 
 							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
 							{
