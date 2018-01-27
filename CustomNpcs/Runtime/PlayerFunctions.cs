@@ -47,21 +47,22 @@ namespace CustomNpcs
 		public static void HurtPlayer(TSPlayer player, int damage, bool critical, string deathReason)
 		{
 			var reason = createPlayerDeathReason(null, deathReason);
+			var dir = new Random().Next(-1, 1);
 
 			//this isnt working, for whatever reason.
-			//player.TPlayer.Hurt(reason, damage, hitDirection, false, quiet, crit, cooldownCounter);
+			//player.TPlayer.Hurt(reason, damage, dir, false, false, critical);
 
 			//so we use what player.DamagePlayer(damage) does...
+			
 			//NetMessage.SendPlayerHurt(player.Index, reason, damage, 0, critical, false, 0, -1, -1);
-			NetMessage.SendPlayerHurt(player.Index, reason, damage, new Random().Next(-1, 1), critical, false, 0, -1, -1);
+			NetMessage.SendPlayerHurt(player.Index, reason, damage, dir, critical, false, 0, -1, -1);
 		}
 
 		public static void KillPlayer(TSPlayer player, string deathReason) //, bool pvp = false)
 		{
 			var reason = createPlayerDeathReason(null, deathReason);
 			
-			//player.TPlayer.KillMe(reason, damage, new Random().Next(-1, 1), false);
-
+			//player.TPlayer.KillMe(reason, 99999, new Random().Next(-1, 1), false);
 			//player.KillPlayer();
 			NetMessage.SendPlayerDeath(player.Index, reason, 99999, new Random().Next(-1, 1), false, -1, -1);
 		}
