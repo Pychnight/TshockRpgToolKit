@@ -249,7 +249,7 @@ namespace CustomNpcs.Projectiles
 		//		args.Handled = true;
 		//	}
 		//}
-
+		
 		private HookResult onProjectilePreUpdate(Projectile projectile, ref int index)
 		{
 			var result = HookResult.Continue;
@@ -264,7 +264,7 @@ namespace CustomNpcs.Projectiles
 
 			//game updates
 			var onGameUpdate = definition.OnGameUpdate;
-			if( onGameUpdate != null )
+			if( customProjectile.Active && onGameUpdate != null )
 			{
 				try
 				{
@@ -285,7 +285,7 @@ namespace CustomNpcs.Projectiles
 					definition.OnGameUpdate = null;
 				}
 			}
-				
+						
 			//collision tests
 
 			//tiles
@@ -346,7 +346,7 @@ namespace CustomNpcs.Projectiles
 			
 			return result;
 		}
-
+		
 		private HookResult onProjectilePreAi(Projectile projectile)
 		{
 			var result = HookResult.Continue;//we usually let terraria handle ai
@@ -400,6 +400,7 @@ namespace CustomNpcs.Projectiles
 				}
 				else
 				{
+					customProjectiles.Remove(projectile);
 					return HookResult.Continue;
 				}
 			}
