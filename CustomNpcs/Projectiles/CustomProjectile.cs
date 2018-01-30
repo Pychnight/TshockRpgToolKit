@@ -200,22 +200,21 @@ namespace CustomNpcs.Projectiles
 		public void Kill()
 		{
 			Projectile.Kill();
+			//Debug.Print($"Manually killed projectile #{Index}");
 		}
 
 		public void BasicUpdate()
 		{
-			TimeLeft--;
+			//TimeLeft--;
 			OldDirection = Direction;
 			OldPosition = Position;
 			Position = Position + Velocity;
-
-			//ProjectileManager.SendProjectileUpdate(this.Index);
 		}
 
-		public void AttachEmote(int emoteId, int lifeTime)
-		{
-			EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeProjectile, this.Index, emoteId, lifeTime);
-		}
+		//public void AttachEmote(int emoteId, int lifeTime)
+		//{
+		//	EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeProjectile, this.Index, emoteId, lifeTime);
+		//}
 
 		public bool CustomIDContains(string text)
 		{

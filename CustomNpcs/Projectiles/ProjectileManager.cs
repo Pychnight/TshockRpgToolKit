@@ -257,11 +257,12 @@ namespace CustomNpcs.Projectiles
 			var customProjectile = GetCustomProjectile(projectile);
 
 			if( customProjectile == null )
-			{
 				return HookResult.Continue;
-			}
-
+						
 			var definition = customProjectile.Definition;
+			var lastTimeLeft = projectile.timeLeft;	//we capture this to help determine whether we need to decrement timeLeft at the end of this method.
+													//terraria has many points where it sets timeLeft internally, but our custom proj modifies whether/when those points run.
+													//by the end of this method we hopefully have enough information to tell if terraria modified it, or if we need to do it ourselves.
 
 			//game updates
 			var onGameUpdate = definition.OnGameUpdate;
@@ -277,41 +278,19 @@ namespace CustomNpcs.Projectiles
 						//if we dont pass execution onto Terraria's Projectile.Update(), AI() will never get run, so we better run it ourselves.
 						projectile.AI();
 					}
-
+					
 					customProjectile.SendNetUpdate = true;
 				}
-				catch(Exception ex)
+				catch( Exception ex )
 				{
 					Utils.ScriptRuntimeError(ex.Message);
 					definition.OnGameUpdate = null;
 				}
 			}
-						
+
 			//collision tests
-
-			//tiles
-			if(customProjectile.Active && projectile.tileCollide && definition.OnTileCollision!=null)
-			{
-				var tileCollisions = TileFunctions.GetOverlappedTiles(projectile.Hitbox);
-
-				if( tileCollisions.Count > 0 )
-				{
-					try
-					{
-						definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
-						customProjectile.SendNetUpdate = true;
-					}
-					catch(Exception ex)
-					{
-						Utils.ScriptRuntimeError(ex.Message);
-						definition.OnTileCollision = null;
-					}
-				}
-			}
-
+			
 			//players
-			const float InterpolateThreshold = 16f;
-
 			if( customProjectile.Active && definition.OnCollision != null )
 			{
 				foreach( var player in TShock.Players )
@@ -323,18 +302,6 @@ namespace CustomNpcs.Projectiles
 						{
 							var tplayer = player.TPlayer;
 							var playerHitbox = tplayer.Hitbox;
-
-							//var netPos = player.LastNetPosition;
-							//var srvPos = new Vector2(player.X, player.Y);
-							//var delta = netPos - srvPos;
-
-							//if(Math.Abs(delta.X)>InterpolateThreshold || Math.Abs(delta.Y)>InterpolateThreshold)
-							//{
-							//	var inter = Vector2.Lerp(srvPos, netPos, 0.5f);
-
-							//	playerHitbox.X = (int)inter.X;
-							//	playerHitbox.Y = (int)inter.Y;
-							//}
 
 							if( !tplayer.immune && projectile.Hitbox.Intersects(playerHitbox) )
 							{
@@ -352,6 +319,61 @@ namespace CustomNpcs.Projectiles
 						}
 					}
 				}
+			}
+
+			//tiles
+			if( customProjectile.Active && projectile.tileCollide )
+			{
+				// this is a bit convoluted, because of the 2 conditions-- player wants to run custom code on tile collisions and/or player isn't allowing terraria
+				// to run Update(), thus the projectile wont be killed in a timely manner. See condition below for result == HookResult.Cancel
+				if( definition.OnTileCollision != null || result == HookResult.Cancel )
+				{
+					var tileCollisions = TileFunctions.GetOverlappedTiles(projectile.Hitbox);
+
+					if( tileCollisions.Count > 0 )
+					{
+						var killProjectile = false;//do we need to kill the projectile? 
+												
+						//if terrarias code won't be running Update(and thus AI() ), we should kill the projectile ourselves if we hit any applicable tile.
+						if( result != HookResult.Continue )
+						{
+							//...we have to scan the list before the player does, to ensure they dont modify anything(we shouldn't have switched from ReadOnlyCollection. )
+							foreach( var hit in tileCollisions )
+							{
+								if( TileFunctions.IsSolidOrSlopedTile(hit.X, hit.Y) ||
+									( !( definition.BaseOverride.IgnoreWater == true ) && TileFunctions.IsLiquidTile(hit.X, hit.Y) ) )
+								{
+									killProjectile = true;
+									break;
+								}
+							}
+						}
+						
+						try
+						{
+							definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
+							//customProjectile.SendNetUpdate = true;
+						}
+						catch( Exception ex )
+						{
+							Utils.ScriptRuntimeError(ex.Message);
+							definition.OnTileCollision = null;
+						}
+
+						//player hasnt killed projectile, but we did hit something, so lets kill it ourselves
+						if( customProjectile.Active && killProjectile == true )
+							customProjectile.Kill();
+					}
+				}
+			}
+
+			//We need to decrement timeLeft ourselves if no other code has, and no code run after this point will do so
+			if(customProjectile.Active && result == HookResult.Cancel && customProjectile.TimeLeft==lastTimeLeft )
+			{
+				customProjectile.TimeLeft--;
+
+				if( customProjectile.TimeLeft < 1 )
+					customProjectile.Kill();
 			}
 
 			if(customProjectile.Active && customProjectile.SendNetUpdate)
