@@ -86,7 +86,8 @@ namespace CustomNpcs.Projectiles
 					}
 				}
 			}
-			
+
+			//projectile.Name = BaseOverride.Name ?? projectile.Name; //this is readonly
 			projectile.damage = BaseOverride.Damage ?? projectile.damage;
 			projectile.knockBack = BaseOverride.KnockBack ?? projectile.knockBack;
 			projectile.friendly = BaseOverride.Friendly ?? projectile.friendly;
@@ -126,8 +127,6 @@ namespace CustomNpcs.Projectiles
 			//projectile.bobber = false;
 			//projectile.alpha = 1;
 			//projectile.direction = 0;
-
-			//projectile.Name // this is readonly...
 		}
 
 		internal bool LinkToScript(Assembly assembly)

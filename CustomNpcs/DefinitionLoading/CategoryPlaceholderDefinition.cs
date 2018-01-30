@@ -43,9 +43,9 @@ namespace CustomNpcs
 				try
 				{
 					var json = File.ReadAllText(includePath);
-					var definition = JsonConvert.DeserializeObject<T>(json);
+					var definitions = JsonConvert.DeserializeObject<List<T>>(json);
 
-					result.Add(definition);
+					result.AddRange(definitions);
 				}
 				catch( Exception ex )
 				{
