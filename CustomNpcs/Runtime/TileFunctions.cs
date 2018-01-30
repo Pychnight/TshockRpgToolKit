@@ -17,18 +17,63 @@ namespace CustomNpcs
 		public const int TileSize = 16;
 		public const int HalfTileSize = TileSize / 2;
 
+		public static bool DefaultTileFilterFunc(int column, int row)
+		{
+			var tile = Main.tile[column, row];
+			var isActive = tile.active();
+			//if( isActive &&
+			//	( tile.type >= Tile.Type_Solid && tile.type <= Tile.Type_SlopeUpLeft || tile.wall != 0 ) ) // 0 - 5
+			//{
+			//	results.Add(new Point(col, row));
+			//}
+
+			if( !isActive )
+				return false;
+
+			var isEmpty = WorldGen.TileEmpty(column, row);
+
+			if( !isEmpty || tile.wall != 0 || tile.liquid != 0 )
+			{
+				return true;
+
+				//if(WorldGen.SolidOrSlopedTile(col,row))
+				//{
+				//	results.Add(new Point(col, row)); 
+				//}
+				//else
+				//{
+
+				//}
+			}
+
+			return false;
+		}
+		
 		public static List<Point> GetOverlappedTiles(Rectangle bounds)
+		{
+			return GetOverlappedTiles(bounds,DefaultTileFilterFunc);
+		}
+
+		public static List<Point> GetOverlappedTiles(Rectangle bounds, Func<int, int, bool> filterFunc)
 		{
 			var min = bounds.TopLeft().ToTileCoordinates();
 			var max = bounds.BottomRight().ToTileCoordinates();
-			var tileCollisions = GetNonEmptyTiles(min.X, min.Y, max.X, max.Y);
+			var tileCollisions = GetNonEmptyTiles(min.X, min.Y, max.X, max.Y, filterFunc);
 
 			return tileCollisions;
 		}
 
 		public static List<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow)
 		{
+			return GetNonEmptyTiles(minColumn, minRow, maxColumn, maxRow, DefaultTileFilterFunc);
+		}
+
+		public static List<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow, Func<int, int, bool> filterFunc)
+		{
 			var results = new List<Point>();
+
+			if( filterFunc == null )
+				return results;
 
 			//clip to tileset
 			minColumn = Math.Max(minColumn, 0);
@@ -40,38 +85,15 @@ namespace CustomNpcs
 			{
 				for( var col = minColumn; col <= maxColumn; col++ )
 				{
-					var tile = Main.tile[col, row];
-					var isActive = tile.active();
-					//if( isActive &&
-					//	( tile.type >= Tile.Type_Solid && tile.type <= Tile.Type_SlopeUpLeft || tile.wall != 0 ) ) // 0 - 5
-					//{
-					//	results.Add(new Point(col, row));
-					//}
-
-					if( !isActive )
-						continue;
-
-					var isEmpty = WorldGen.TileEmpty(col, row);
-
-					if( !isEmpty || tile.wall != 0 || tile.liquid !=0 )
+					if(filterFunc(col,row))
 					{
 						results.Add(new Point(col, row));
-
-						//if(WorldGen.SolidOrSlopedTile(col,row))
-						//{
-						//	results.Add(new Point(col, row)); 
-						//}
-						//else
-						//{
-
-						//}
 					}
 				}
 			}
 
 			return results;//.AsReadOnly();
 		}
-		
 		
 		public static bool InTileMapBounds(int column, int row)
 		{
