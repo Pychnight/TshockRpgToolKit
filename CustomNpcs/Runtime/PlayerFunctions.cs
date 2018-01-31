@@ -43,6 +43,11 @@ namespace CustomNpcs
 				return result;
 			}
 		}
+
+		public static void HurtPlayer(TSPlayer player, int damage, bool critical)
+		{
+			HurtPlayer(player, damage, critical, null);
+		}
 		
 		public static void HurtPlayer(TSPlayer player, int damage, bool critical, string deathReason)
 		{
@@ -56,6 +61,11 @@ namespace CustomNpcs
 			
 			//NetMessage.SendPlayerHurt(player.Index, reason, damage, 0, critical, false, 0, -1, -1);
 			NetMessage.SendPlayerHurt(player.Index, reason, damage, dir, critical, false, 0, -1, -1);
+		}
+
+		public static void KillPlayer(TSPlayer player)
+		{
+			KillPlayer(player, null);
 		}
 
 		public static void KillPlayer(TSPlayer player, string deathReason) //, bool pvp = false)
