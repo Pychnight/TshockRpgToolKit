@@ -466,6 +466,8 @@ namespace CustomNpcs.Npcs
 				Utils.ScriptRuntimeError(ex.Message);
 				definition.OnKilled = null;
 			}
+
+			customNpc.IsNpcValid = false;
 		}
 
         private void OnNpcLootDrop(NpcLootDropEventArgs args)

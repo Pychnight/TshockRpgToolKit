@@ -19,6 +19,12 @@ namespace CustomNpcs.Npcs
     public sealed class CustomNpc
     {
         private Dictionary<string, object> _variables = new Dictionary<string, object>();
+				
+		internal bool IsNpcValid; // if false, the NPC wrapped by this CustomNpc is no longer valid for usage.
+
+		//OTAPI runs its post transform hook before names have changed. This flag is a work around so we can poll elsewhere, 
+		// and see if we want to do any truly post transform ops. Just make sure to reset it to false once any post ops have been performed.
+		internal bool HasTransformed;
 
 		/// <summary>
 		/// Provides easy access to a CustomNpc's embedded variables.
@@ -50,6 +56,7 @@ namespace CustomNpcs.Npcs
         {
             Npc = npc ?? throw new ArgumentNullException(nameof(npc));
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
+			IsNpcValid = true;
         }
 
         /// <summary>
@@ -179,11 +186,7 @@ namespace CustomNpcs.Npcs
 				TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", Npc.whoAmI);
 			}
 		}
-
-		//OTAPI runs its post transform hook before names have changed. This flag is a work around so we can poll elsewhere, 
-		// and see if we want to do any truly post transform ops. Just make sure to reset it to false once any post ops have been performed.
-		internal bool HasTransformed = false;
-
+						
         /// <summary>
         ///     Buffs the nearby players within the specified tile radius.
         /// </summary>
@@ -456,6 +459,7 @@ namespace CustomNpcs.Npcs
             Npc.Teleport(position);
         }
 
+		//[Conditional("DEBUG")]
 		public void DebugDropIn()
 		{
 			var firstPlayer = TShock.Players.FirstOrDefault();
@@ -477,7 +481,10 @@ namespace CustomNpcs.Npcs
 
 		public void AttachEmote(int emoteId, int lifeTime)
 		{
-			EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeNpc, this.Index, emoteId, lifeTime);
+			if(IsNpcValid)
+			{
+				EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeNpc, this.Index, emoteId, lifeTime);
+			}
 		}
 	}
 }
