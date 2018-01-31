@@ -332,7 +332,7 @@ namespace CustomNpcs.Projectiles
 
 					if( tileCollisions.Count > 0 )
 					{
-						var killProjectile = false;//do we need to kill the projectile? 
+						var killProjectile = false; 
 												
 						//if terrarias code won't be running Update(and thus AI() ), we should kill the projectile ourselves if we hit any applicable tile.
 						if( result != HookResult.Continue )
@@ -360,7 +360,7 @@ namespace CustomNpcs.Projectiles
 							definition.OnTileCollision = null;
 						}
 
-						//player hasnt killed projectile, but we did hit something, so lets kill it ourselves
+						//script hasnt killed projectile, but we did hit a foreground tile, so lets kill it ourselves
 						if( customProjectile.Active && killProjectile == true )
 							customProjectile.Kill();
 					}

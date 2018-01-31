@@ -98,7 +98,7 @@ namespace CustomNpcs
 			}
 		}
 
-		//not sure if we should expose following methods to lua...
+		//not sure if we should expose to scripts...
 		public static List<TSPlayer> FindPlayersInRadius(float x, float y, float radius)
 		{
 			var results = new List<TSPlayer>();
@@ -119,6 +119,7 @@ namespace CustomNpcs
 			return results;//.AsReadOnly();
 		}
 
+		//not sure if we should expose to scripts...
 		public static TSPlayer FindPlayerByName(string name)
 		{
 			var player = TShock.Players.Where(n => n?.Name == name).SingleOrDefault();
