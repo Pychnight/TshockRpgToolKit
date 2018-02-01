@@ -123,13 +123,24 @@ namespace NpcShops.Shops
             for (var i = 0; i < ShopItems.Count; ++i)
             {
                 var shopItem = ShopItems[i];
-                if (shopItem.StackSize != 0 &&
-                    (shopItem.PermissionRequired == null || player.HasPermission(shopItem.PermissionRequired)))
+				if (shopItem.StackSize != 0 &&
+					(shopItem.PermissionRequired == null || player.HasPermission(shopItem.PermissionRequired)))
                 {
-                    sb.Append(shopItem.StackSize < 0
-                                  ? $"[{i + 1}:[i/p{shopItem.PrefixId}:{shopItem.ItemId}]] "
-                                  : $"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
-                }
+					//doesn't look like we can make item image subscripts to render 0 or 1, so for now we ditch the subscripts altogether.
+
+					//sb.Append(shopItem.StackSize < 0
+					//              ? $"[{i + 1}:[i/p{shopItem.PrefixId}:{shopItem.ItemId}]] "
+					//              : $"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
+										
+					string stock; // = shopItem.StackSize;
+
+					if( shopItem.StackSize == -1 || shopItem.StackSize > 99 )
+						stock = "99+";
+					else
+						stock = shopItem.StackSize.ToString();
+
+					sb.Append($"[{i + 1}:[i/p{shopItem.PrefixId}:{shopItem.ItemId}]x{stock}] ");
+				}
                 if (((i + 1) % 10 == 0 || i == ShopItems.Count - 1) && sb.Length > 0)
                 {
                     player.SendInfoMessage(sb.ToString());
