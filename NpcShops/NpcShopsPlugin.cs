@@ -270,8 +270,7 @@ namespace NpcShops
                     for (var i = 0; i < amount; ++i)
                     {
                         Console.WriteLine(shopCommand.Command.Replace("$name", player.GetEscapedName()));
-                        Commands.HandleCommand(TSPlayer.Server,
-                                               shopCommand.Command.Replace("$name", player.GetEscapedName()));
+						shopCommand.ForceHandleCommand(player);
                     }
                     if (shopCommand.StackSize > 0)
                     {
