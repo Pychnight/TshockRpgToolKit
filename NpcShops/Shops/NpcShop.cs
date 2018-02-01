@@ -159,7 +159,14 @@ namespace NpcShops.Shops
                 if (shopCommand.StackSize != 0 &&
                     (shopCommand.PermissionRequired == null || player.HasPermission(shopCommand.PermissionRequired)))
                 {
-                    sb.Append($"[{i + 1 + ShopItems.Count}: {shopCommand.Name}] ");
+					string stock;
+
+					if( shopCommand.StackSize == -1 || shopCommand.StackSize > 99 )
+						stock = "99+";
+					else
+						stock = shopCommand.StackSize.ToString();
+
+                    sb.Append($"[{i + 1 + ShopItems.Count}: {shopCommand.Name} x{stock}] ");
                 }
                 if (((i + 1) % 5 == 0 || i == ShopCommands.Count - 1) && sb.Length > 0)
                 {
