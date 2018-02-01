@@ -16,17 +16,20 @@ using Wolfje.Plugins.SEconomy.Journal;
 
 namespace NpcShops
 {
-    [ApiVersion(2, 1)]
-    public sealed class NpcShopsPlugin : TerrariaPlugin
-    {
-        private const string SessionKey = "NpcShops_Session";
+	[ApiVersion(2, 1)]
+	public sealed class NpcShopsPlugin : TerrariaPlugin
+	{
+		private const string SessionKey = "NpcShops_Session";
 
-        private static readonly string ConfigPath = Path.Combine("npcshops", "config.json");
+		private static readonly string ConfigPath = Path.Combine("npcshops", "config.json");
+
+		internal static NpcShopsPlugin Instance { get; private set; }
 
         private List<NpcShop> _npcShops = new List<NpcShop>();
 
         public NpcShopsPlugin(Main game) : base(game)
         {
+			Instance = this;
         }
 
         public override string Author => "MarioE";
@@ -40,11 +43,7 @@ namespace NpcShops
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
 
-            Directory.CreateDirectory("npcshops");
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
+			tryLoadConfig();
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize, int.MinValue);
@@ -66,7 +65,12 @@ namespace NpcShops
             base.Dispose(disposing);
         }
 
-        private Session GetOrCreateSession(TSPlayer player)
+		public void LogPrint(string message, TraceLevel level)
+		{
+			ServerApi.LogWriter.PluginWriteLine(this, message, level);
+		}
+
+		private Session GetOrCreateSession(TSPlayer player)
         {
             var session = player.GetData<Session>(SessionKey);
             if (session == null)
@@ -76,6 +80,50 @@ namespace NpcShops
             }
             return session;
         }
+
+		private void tryLoadConfig()
+		{
+			try
+			{
+				Directory.CreateDirectory("npcshops");
+				if( File.Exists(ConfigPath) )
+				{
+					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+				}
+			}
+			catch(Exception ex)
+			{
+				LogPrint("An error occured while trying to load shop config.", TraceLevel.Error);
+				LogPrint(ex.Message, TraceLevel.Error);
+			}
+		}
+
+		private void tryLoadShops()
+		{
+			var shops = new List<NpcShop>();
+			var files = Directory.EnumerateFiles("npcshops", "*.shop", SearchOption.AllDirectories);
+			
+			foreach( var file in files )
+			{
+				var definition = NpcShopDefinition.TryLoadFromFile(file);
+				
+				if( definition != null )
+				{
+					try
+					{
+						var shop = new NpcShop(definition);
+						shops.Add(shop);
+					}
+					catch( Exception ex )
+					{
+						LogPrint("An error occured while trying to create NpcShop.", TraceLevel.Error);
+						LogPrint(ex.Message, TraceLevel.Error);
+					}
+				}
+			}
+
+			_npcShops = shops;
+		}
 
         private void NpcBuy(CommandArgs args)
         {
@@ -242,9 +290,7 @@ namespace NpcShops
 
         private void OnGamePostInitialize(EventArgs args)
         {
-            _npcShops = Directory.EnumerateFiles("npcshops", "*.shop", SearchOption.AllDirectories)
-                .Select(p => JsonConvert.DeserializeObject<NpcShopDefinition>(File.ReadAllText(p)))
-                .Select(nsd => new NpcShop(nsd)).ToList();
+			tryLoadShops();
         }
 
         private void OnGameUpdate(EventArgs args)
@@ -280,14 +326,8 @@ namespace NpcShops
 
         private void OnReload(ReloadEventArgs args)
         {
-            Directory.CreateDirectory("npcshops");
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-            _npcShops = Directory.EnumerateFiles("npcshops", "*.shop", SearchOption.AllDirectories)
-                .Select(p => JsonConvert.DeserializeObject<NpcShopDefinition>(File.ReadAllText(p)))
-                .Select(nsd => new NpcShop(nsd)).ToList();
+			tryLoadConfig();
+            tryLoadShops();
 
             args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
         }

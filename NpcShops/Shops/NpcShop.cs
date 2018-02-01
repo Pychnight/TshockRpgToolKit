@@ -33,13 +33,17 @@ namespace NpcShops.Shops
         /// <param name="definition">The definition, which must not be <c>null</c>.</param>
         public NpcShop(NpcShopDefinition definition)
         {
-            Debug.Assert(definition != null, "Definition must not be null.");
+			_definition = definition ?? throw new ArgumentNullException("NpcShopDefinition cannot be null.");
 
-            _definition = definition;
+			var region = TShock.Regions.GetRegionByName(definition.RegionName);
+				
+			if( region == null )
+				throw new Exception($"Could not find region named {definition.RegionName}.");
 
-            Rectangle = TShock.Regions.GetRegionByName(definition.RegionName).Area;
-            ShopCommands = definition.ShopCommands.Select(sc => new ShopCommand(sc)).ToList();
-            ShopItems = definition.ShopItems.Select(si => new ShopItem(si)).ToList();
+			Rectangle = region.Area;
+
+			ShopCommands = definition.ShopCommands.Select(sc => new ShopCommand(sc)).ToList();
+			ShopItems = definition.ShopItems.Select(si => new ShopItem(si)).ToList();
         }
 
         /// <summary>

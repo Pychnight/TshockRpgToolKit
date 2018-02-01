@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace NpcShops.Shops
@@ -56,5 +58,37 @@ namespace NpcShops.Shops
         /// </summary>
         [JsonProperty(Order = 4)]
         public IList<ShopItemDefinition> ShopItems { get; private set; } = new List<ShopItemDefinition>();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="filePath"></param>
+		/// <returns></returns>
+		public static NpcShopDefinition TryLoadFromFile(string filePath)
+		{
+			NpcShopDefinition result = null;
+
+			try
+			{
+				var txt = File.ReadAllText(filePath);
+				result = JsonConvert.DeserializeObject<NpcShopDefinition>(txt);
+
+				return result;
+			}
+			catch( JsonReaderException jrex )
+			{
+				NpcShopsPlugin.Instance.LogPrint($"A json error occured while trying to load NpcShop {filePath}.", TraceLevel.Error);
+				NpcShopsPlugin.Instance.LogPrint(jrex.Message, TraceLevel.Error);
+			}
+			catch( Exception ex )
+			{
+				NpcShopsPlugin.Instance.LogPrint($"An error occured while trying to load NpcShop {filePath}.", TraceLevel.Error);
+				NpcShopsPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
+			}
+
+			NpcShopsPlugin.Instance.LogPrint("Shop disabled.", TraceLevel.Error);
+
+			return result;
+		}
     }
 }
