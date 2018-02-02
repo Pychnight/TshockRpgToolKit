@@ -130,20 +130,7 @@ namespace NpcShops.Shops
 				if (shopItem.StackSize != 0 &&
 					(shopItem.PermissionRequired == null || player.HasPermission(shopItem.PermissionRequired)))
                 {
-					//doesn't look like we can make item image subscripts to render 0 or 1, so for now we ditch the subscripts altogether.
-
-					//sb.Append(shopItem.StackSize < 0
-					//              ? $"[{i + 1}:[i/p{shopItem.PrefixId}:{shopItem.ItemId}]] "
-					//              : $"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
-										
-					string stock; // = shopItem.StackSize;
-
-					if( shopItem.StackSize == -1 || shopItem.StackSize > 99 )
-						stock = "99+";
-					else
-						stock = shopItem.StackSize.ToString();
-
-					sb.Append($"[{i + 1}:[i/p{shopItem.PrefixId}:{shopItem.ItemId}]x{stock}] ");
+					sb.Append($"[{i + 1}:{GetItemRenderString(shopItem.ItemId,shopItem.PrefixId, shopItem.StackSize)}] ");
 				}
                 if (((i + 1) % 10 == 0 || i == ShopItems.Count - 1) && sb.Length > 0)
                 {
@@ -159,14 +146,7 @@ namespace NpcShops.Shops
                 if (shopCommand.StackSize != 0 )// &&
                     //(shopCommand.PermissionRequired == null || player.HasPermission(shopCommand.PermissionRequired)))
                 {
-					string stock;
-
-					if( shopCommand.StackSize == -1 || shopCommand.StackSize > 99 )
-						stock = "99+";
-					else
-						stock = shopCommand.StackSize.ToString();
-
-                    sb.Append($"[{i + 1 + ShopItems.Count}: {shopCommand.Name} x{stock}] ");
+					sb.Append($"[{i + 1 + ShopItems.Count}: {shopCommand.Name} x{GetQuantityRenderString(shopCommand.StackSize)}] ");
                 }
                 if (((i + 1) % 5 == 0 || i == ShopCommands.Count - 1) && sb.Length > 0)
                 {
@@ -199,5 +179,22 @@ namespace NpcShops.Shops
                 shopCommand.Restock();
             }
         }
+
+		public string GetQuantityRenderString(int quantity)
+		{
+			string stock;
+
+			if( quantity == -1 || quantity > 99 )
+				stock = "99+";
+			else
+				stock = quantity.ToString();
+
+			return $"[c/{Color.OrangeRed.Hex3()}:{stock}]";
+		}
+
+		public string GetItemRenderString(int itemId, int itemPrefixId, int quantity)
+		{
+			return $"[i/p{itemPrefixId}:{itemId}]x{GetQuantityRenderString(quantity)}]";
+		}
     }
 }
