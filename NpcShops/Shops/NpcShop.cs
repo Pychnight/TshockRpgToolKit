@@ -156,8 +156,8 @@ namespace NpcShops.Shops
             for (var i = 0; i < ShopCommands.Count; ++i)
             {
                 var shopCommand = ShopCommands[i];
-                if (shopCommand.StackSize != 0 &&
-                    (shopCommand.PermissionRequired == null || player.HasPermission(shopCommand.PermissionRequired)))
+                if (shopCommand.StackSize != 0 )// &&
+                    //(shopCommand.PermissionRequired == null || player.HasPermission(shopCommand.PermissionRequired)))
                 {
 					string stock;
 

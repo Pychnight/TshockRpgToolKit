@@ -226,8 +226,8 @@ namespace NpcShops
             {
                 index -= shop.ShopItems.Count;
                 var shopCommand = shop.ShopCommands[index];
-                if (shopCommand.StackSize == 0 ||
-                    shopCommand.PermissionRequired != null && !player.HasPermission(shopCommand.PermissionRequired))
+                if (shopCommand.StackSize == 0 ) //||
+                    //shopCommand.PermissionRequired != null && !player.HasPermission(shopCommand.PermissionRequired))
                 {
                     player.SendErrorMessage($"Invalid index '{inputIndex}'.");
                     return;

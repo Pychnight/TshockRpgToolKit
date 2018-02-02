@@ -37,7 +37,7 @@ namespace NpcShops.Shops
         /// <summary>
         ///     Gets the permission required.
         /// </summary>
-        public string PermissionRequired => _definition.PermissionRequired;
+        //public string PermissionRequired => _definition.PermissionRequired;
 
         /// <summary>
         ///     Gets or sets the stack size. A value of -1 indicates unlimited.

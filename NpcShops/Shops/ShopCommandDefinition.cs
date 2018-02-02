@@ -22,8 +22,8 @@ namespace NpcShops.Shops
         /// <summary>
         ///     Gets the permission required.
         /// </summary>
-        [JsonProperty(Order = 4)]
-        public string PermissionRequired { get; private set; }
+        //[JsonProperty(Order = 4)]
+        //public string PermissionRequired { get; private set; }
 
         /// <summary>
         ///     Gets the stack size. A value of -1 indicates unlimited.
