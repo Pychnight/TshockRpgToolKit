@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿using NpcShops.Shops;
+using System;
+using System.Diagnostics;
 using TShockAPI;
+using Wolfje.Plugins.SEconomy;
 
 namespace NpcShops
 {
@@ -26,5 +29,78 @@ namespace NpcShops
             name = name.Replace(@"""", @"\""");
             return name;
         }
-    }
+		
+		const int MaxInventorySlot = 179;
+
+		public static bool HasSufficientMaterials(this TSPlayer player, ShopProduct product, int quantity)
+		{
+			var tplayer = player.TPlayer;
+			var inventory = tplayer.inventory;
+
+			foreach( var requiredItem in product.RequiredItems )
+			{
+				var total = 0;
+
+				foreach( var playerItem in inventory )
+				{
+					if( playerItem.active && playerItem.type == requiredItem.ItemId )
+						total += playerItem.stack;
+				}
+
+				if( total < requiredItem.StackSize * quantity )
+					return false;
+			}
+
+			return true;
+		}
+
+		public static void TransferMaterials(this TSPlayer player, ShopProduct product, int quantity)
+		{
+			var tplayer = player.TPlayer;
+			//var inventory = player.PlayerData.inventory;//tplayer.inventory;
+			var inventory = tplayer.inventory;
+
+			foreach( var requiredItem in product.RequiredItems )
+			{
+				var needed = requiredItem.StackSize;
+				var total = 0;
+
+				for( var i = 0; i < MaxInventorySlot; i++ )//playerItem in inventory )
+				{
+					var playerItem = inventory[i];
+
+					if( playerItem.active && playerItem.type == requiredItem.ItemId && playerItem.stack > 0 )
+					//if( playerItem.NetId == requiredItem.ItemId && playerItem.Stack > 0 )
+					{
+						if( total + playerItem.stack > needed )
+						{
+							//take portion of stack
+							var portion = needed - total;
+							playerItem.stack -= portion;
+							total += portion;
+						}
+						else
+						{
+							//take whole stack
+							var portion = playerItem.stack;
+							playerItem.stack = 0;
+							playerItem.active = false;
+							total += portion;
+						}
+					}
+
+					TSPlayer.All.SendData(PacketTypes.PlayerSlot, "", player.Index, i, playerItem.stack, playerItem.prefix, 0);
+
+					if( total == needed )
+						break;
+				}
+
+				if( total != needed )
+					throw new Exception("Total != needed. This should never happen.");
+
+				//if( total < requiredItem.StackSize * quantity )
+				//	return false;
+			}
+		}
+	}
 }

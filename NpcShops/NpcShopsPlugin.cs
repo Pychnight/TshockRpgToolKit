@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NpcShops.Shops;
@@ -178,44 +179,59 @@ namespace NpcShops
                 var purchaseCost = (Money)(amount * shopItem.UnitPrice);
                 var salesTax = (Money)Math.Round(purchaseCost * shop.SalesTaxRate);
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
-                player.SendInfoMessage(
-                    $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
-                    $"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+
+				if(purchaseCost > 0 )
+				{
+					player.SendInfoMessage(	$"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
+											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+				}
+
+				if(shopItem.RequiredItems.Count>0)
+				{
+					player.SendInfoMessage( purchaseCost > 0 ? $"{itemText} will also require materials: " : $"{itemText} requires materials: ");
+					player.SendInfoMessage(shop.GetMaterialsCostRenderString(shopItem, amount));
+				}
+				
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
-                player.AddResponse("yes", args2 =>
-                {
-                    player.AwaitingResponse.Remove("no");
-                    var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-                    if (account == null || account.Balance < purchaseCost + salesTax)
-                    {
-                        player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
-                        return;
-                    }
-                    if (amount > shopItem.StackSize && shopItem.StackSize > 0)
-                    {
-                        player.SendErrorMessage("While waiting, the stock changed.");
-                        return;
-                    }
+				player.AddResponse("yes", args2 =>
+				{
+				player.AwaitingResponse.Remove("no");
+				var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+				if( account == null || account.Balance < purchaseCost + salesTax )
+				{
+					player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
+					return;
+				}
+				if( amount > shopItem.StackSize && shopItem.StackSize > 0 )
+				{
+					player.SendErrorMessage("While waiting, the stock changed.");
+					return;
+				}
+				if( !player.HasSufficientMaterials(shopItem, amount) )
+				{
+					player.SendErrorMessage($"You do not have sufficient materials to purchase {itemText}.");
+					return;
+				}
 
-                    var item = new Item();
-                    item.SetDefaults(shopItem.ItemId);
-                    account.TransferTo(
-                        SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
-                        "", $"Purchased {item.Name} x{amount}");
-                    account.TransferTo(
-                        SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-                        "", $"Sales tax for {item.Name} x{amount}");
+				var item = new Item();
+				item.SetDefaults(shopItem.ItemId);
+				account.TransferTo(
+					SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
+					"", $"Purchased {item.Name} x{amount}");
+				account.TransferTo(
+					SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
+					"", $"Sales tax for {item.Name} x{amount}");
 
-                    if (shopItem.StackSize > 0)
-                    {
-                        shopItem.StackSize -= amount;
-                    }
+				//deduct materials from player
+				player.TransferMaterials(shopItem, amount);
+								
+				if( shopItem.StackSize > 0 )
+					shopItem.StackSize -= amount;
+				
+				player.GiveItem( shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
+				player.SendSuccessMessage($"Purchased {itemText} for { getPostPurchaseRenderString(shop,shopItem,purchaseCost+salesTax,amount) }.");
 
-                    player.GiveItem(
-                        shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
-                    player.SendSuccessMessage(
-                        $"Purchased {itemText} for [c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
-                });
+				});
                 player.AddResponse("no", args2 =>
                 {
                     player.AwaitingResponse.Remove("yes");
@@ -241,11 +257,21 @@ namespace NpcShops
 
                 var purchaseCost = (Money)(amount * shopCommand.UnitPrice);
                 var salesTax = (Money)Math.Round(purchaseCost * shop.SalesTaxRate);
-                var commandText = $"{shopCommand.Name} x{amount}";
-                player.SendInfoMessage(
-                    $"Purchasing {commandText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
-                    $"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
-                player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
+                var commandText = $"{shopCommand.Name} x[c/{Color.OrangeRed.Hex3()}:{amount}]";
+                
+				if( purchaseCost > 0 )
+				{
+					player.SendInfoMessage($"Purchasing {commandText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
+											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+				}
+
+				if( shopCommand.RequiredItems.Count > 0 )
+				{
+					player.SendInfoMessage(purchaseCost > 0 ? $"{commandText} will also require materials: " : $"{commandText} requires materials: ");
+					player.SendInfoMessage(shop.GetMaterialsCostRenderString(shopCommand, amount));
+				}
+				
+				player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                 player.AddResponse("yes", args2 =>
                 {
                     player.AwaitingResponse.Remove("no");
@@ -260,25 +286,34 @@ namespace NpcShops
                         player.SendErrorMessage("While waiting, the stock changed.");
                         return;
                     }
+					if( !player.HasSufficientMaterials(shopCommand, amount) )
+					{
+						player.SendErrorMessage($"You do not have sufficient materials to purchase {commandText}.");
+						return;
+					}
 
-                    account.TransferTo(
+					account.TransferTo(
                         SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
                         "", $"Purchased {commandText}");
                     account.TransferTo(
                         SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
                         "", $"Sales tax for {commandText}");
-                    for (var i = 0; i < amount; ++i)
+
+					//deduct materials from player
+					player.TransferMaterials(shopCommand, amount);
+
+					if( shopCommand.StackSize > 0 )
+						shopCommand.StackSize -= amount;
+
+					//run purchased commands
+					for (var i = 0; i < amount; ++i)
                     {
                         Console.WriteLine(shopCommand.Command.Replace("$name", player.GetEscapedName()));
 						shopCommand.ForceHandleCommand(player);
                     }
-                    if (shopCommand.StackSize > 0)
-                    {
-                        shopCommand.StackSize -= amount;
-                    }
-                    player.SendSuccessMessage(
-                        $"Purchased {commandText} for [c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
-                });
+                    
+					player.SendSuccessMessage($"Purchased {commandText} for { getPostPurchaseRenderString(shop, shopCommand, purchaseCost + salesTax, amount) }.");
+				});
                 player.AddResponse("no", args2 =>
                 {
                     player.AwaitingResponse.Remove("yes");
@@ -287,6 +322,22 @@ namespace NpcShops
             }
         }
 
+		private string getPostPurchaseRenderString( NpcShop shop, ShopProduct product, Money totalCost, int quantity )
+		{
+			var sb = new StringBuilder();
+			
+			if( totalCost > 0 )
+				sb.Append($"[c/{ Color.OrangeRed.Hex3()}:{totalCost}]");
+			
+			if( product.RequiredItems.Count > 0 )
+			{
+				var fragment = shop.GetMaterialsCostRenderString(product, quantity); ;
+				sb.Append(totalCost > 0 ? $" and {fragment}" : fragment);
+			}
+
+			return sb.ToString();
+		}
+		
         private void OnGamePostInitialize(EventArgs args)
         {
 			tryLoadShops();

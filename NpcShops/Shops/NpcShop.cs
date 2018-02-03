@@ -157,11 +157,11 @@ namespace NpcShops.Shops
             player.SendInfoMessage(
                 $"Use {Commands.Specifier}npcbuy <index> [amount] to buy items or commands.");
         }
-
-        /// <summary>
-        ///     Tries restocking the shop.
-        /// </summary>
-        public void TryRestock()
+				
+		/// <summary>
+		///     Tries restocking the shop.
+		/// </summary>
+		public void TryRestock()
         {
             if (DateTime.UtcNow - _lastRestock < RestockTime)
             {
@@ -194,7 +194,22 @@ namespace NpcShops.Shops
 
 		public string GetItemRenderString(int itemId, int itemPrefixId, int quantity)
 		{
-			return $"[i/p{itemPrefixId}:{itemId}]x{GetQuantityRenderString(quantity)}]";
+			return $"[i/p{itemPrefixId}:{itemId}]x{GetQuantityRenderString(quantity)}";
+		}
+
+		public string GetMaterialsCostRenderString(ShopProduct product, int quantity)
+		{
+			var result = "";
+
+			foreach(var reqItem in product.RequiredItems)
+			{
+				if(reqItem.StackSize>0)
+				{
+					result += GetItemRenderString(reqItem.ItemId, reqItem.PrefixId, reqItem.StackSize * quantity) + " ";
+				}
+			}
+
+			return result;
 		}
     }
 }

@@ -66,10 +66,14 @@
     <Compile Include="Shops\NpcShop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shops\NpcShopDefinition.cs" />
+    <Compile Include="Shops\RequiredItem.cs" />
+    <Compile Include="Shops\RequiredItemDefinition.cs" />
     <Compile Include="Shops\ShopCommand.cs" />
     <Compile Include="Shops\ShopCommandDefinition.cs" />
     <Compile Include="Shops\ShopItem.cs" />
     <Compile Include="Shops\ShopItemDefinition.cs" />
+    <None Include="Shops\PurchaseOrder.cs" />
+    <Compile Include="Shops\ShopProduct.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using TShockAPI;
 using Wolfje.Plugins.SEconomy;
 
@@ -8,7 +10,7 @@ namespace NpcShops.Shops
     /// <summary>
     ///     Represents a shop command.
     /// </summary>
-    public sealed class ShopCommand
+    public sealed class ShopCommand : ShopProduct
     {
         private readonly ShopCommandDefinition _definition;
 
@@ -22,7 +24,14 @@ namespace NpcShops.Shops
 
             _definition = definition;
             StackSize = definition.StackSize;
-        }
+
+			RequiredItems = new List<RequiredItem>();
+
+			var distinct = definition.RequiredItems.Distinct();
+			var items = distinct.Select(d => new RequiredItem(d));
+
+			RequiredItems.AddRange(items);
+		}
 
         /// <summary>
         ///     Gets the command.
@@ -33,26 +42,16 @@ namespace NpcShops.Shops
         ///     Gets the name.
         /// </summary>
         public string Name => _definition.Name;
-
-        /// <summary>
-        ///     Gets the permission required.
-        /// </summary>
-        //public string PermissionRequired => _definition.PermissionRequired;
-
-        /// <summary>
-        ///     Gets or sets the stack size. A value of -1 indicates unlimited.
-        /// </summary>
-        public int StackSize { get; set; }
-
+		
         /// <summary>
         ///     Gets the unit price.
         /// </summary>
-        public Money UnitPrice => _definition.UnitPrice;
-
-        /// <summary>
-        ///     Restocks the shop command.
-        /// </summary>
-        public void Restock()
+        public override Money UnitPrice => _definition.UnitPrice;
+		
+		/// <summary>
+		///     Restocks the shop command.
+		/// </summary>
+		public override void Restock()
         {
             StackSize = _definition.StackSize;
         }

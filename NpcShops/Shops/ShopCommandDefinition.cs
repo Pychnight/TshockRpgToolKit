@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace NpcShops.Shops
 {
@@ -18,13 +19,7 @@ namespace NpcShops.Shops
         /// </summary>
         [JsonProperty(Order = 0)]
         public string Name { get; private set; }
-
-        /// <summary>
-        ///     Gets the permission required.
-        /// </summary>
-        //[JsonProperty(Order = 4)]
-        //public string PermissionRequired { get; private set; }
-
+		
         /// <summary>
         ///     Gets the stack size. A value of -1 indicates unlimited.
         /// </summary>
@@ -36,5 +31,17 @@ namespace NpcShops.Shops
         /// </summary>
         [JsonProperty(Order = 3)]
         public long UnitPrice { get; private set; }
-    }
+
+		/// <summary>
+		///     Gets the permission required.
+		/// </summary>
+		//[JsonProperty(Order = 4)]
+		//public string PermissionRequired { get; private set; }
+
+		/// <summary>
+		///		Gets the required items for purchase.
+		/// </summary>
+		[JsonProperty(Order = 5)]
+		public List<RequiredItemDefinition> RequiredItems { get; private set; } = new List<RequiredItemDefinition>();
+	}
 }
