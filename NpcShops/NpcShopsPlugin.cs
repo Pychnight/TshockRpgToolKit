@@ -195,41 +195,44 @@ namespace NpcShops
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
 				player.AddResponse("yes", args2 =>
 				{
-				player.AwaitingResponse.Remove("no");
-				var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-				if( account == null || account.Balance < purchaseCost + salesTax )
-				{
-					player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
-					return;
-				}
-				if( amount > shopItem.StackSize && shopItem.StackSize > 0 )
-				{
-					player.SendErrorMessage("While waiting, the stock changed.");
-					return;
-				}
-				if( !player.HasSufficientMaterials(shopItem, amount) )
-				{
-					player.SendErrorMessage($"You do not have sufficient materials to purchase {itemText}.");
-					return;
-				}
+					player.AwaitingResponse.Remove("no");
+					var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					if( account == null || account.Balance < purchaseCost + salesTax )
+					{
+						player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
+						return;
+					}
+					if( amount > shopItem.StackSize && shopItem.StackSize > 0 )
+					{
+						player.SendErrorMessage("While waiting, the stock changed.");
+						return;
+					}
+					if( !player.HasSufficientMaterials(shopItem, amount) )
+					{
+						player.SendErrorMessage($"You do not have sufficient materials to purchase {itemText}.");
+						return;
+					}
 
-				var item = new Item();
-				item.SetDefaults(shopItem.ItemId);
-				account.TransferTo(
-					SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
-					"", $"Purchased {item.Name} x{amount}");
-				account.TransferTo(
-					SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-					"", $"Sales tax for {item.Name} x{amount}");
+					var item = new Item();
+					item.SetDefaults(shopItem.ItemId);
+					account.TransferTo(
+						SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
+						"", $"Purchased {item.Name} x{amount}");
+					account.TransferTo(
+						SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
+						"", $"Sales tax for {item.Name} x{amount}");
 
-				//deduct materials from player
-				player.TransferMaterials(shopItem, amount);
+					//deduct materials from player
+					player.TransferMaterials(shopItem, amount);
 								
-				if( shopItem.StackSize > 0 )
-					shopItem.StackSize -= amount;
+					if( shopItem.StackSize > 0 )
+						shopItem.StackSize -= amount;
 				
-				player.GiveItem( shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
-				player.SendSuccessMessage($"Purchased {itemText} for { getPostPurchaseRenderString(shop,shopItem,purchaseCost+salesTax,amount) }.");
+					player.GiveItem( shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
+					player.SendSuccessMessage($"Purchased {itemText} for { getPostPurchaseRenderString(shop,shopItem,purchaseCost+salesTax,amount) }.");
+
+					//refresh the shop dispay for player, after some time so they can the transaction messages.
+					shop.ShowTo(player, 2000);
 
 				});
                 player.AddResponse("no", args2 =>
@@ -313,6 +316,10 @@ namespace NpcShops
                     }
                     
 					player.SendSuccessMessage($"Purchased {commandText} for { getPostPurchaseRenderString(shop, shopCommand, purchaseCost + salesTax, amount) }.");
+
+					//refresh the shop dispay for player, after some time so they can the transaction messages.
+					shop.ShowTo(player, 2000);
+
 				});
                 player.AddResponse("no", args2 =>
                 {

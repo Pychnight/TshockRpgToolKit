@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Terraria;
 using TShockAPI;
@@ -157,7 +158,23 @@ namespace NpcShops.Shops
             player.SendInfoMessage(
                 $"Use {Commands.Specifier}npcbuy <index> [amount] to buy items or commands.");
         }
-				
+
+		/// <summary>
+		/// Shows the shop to the specified player, after a specified amount of time.
+		/// </summary>
+		/// <param name="player">TSPlayer instance.</param>
+		/// <param name="delay">Delay in milliseconds.</param>
+		public void ShowTo(TSPlayer player, int delay)
+		{
+			if( delay == -1 )
+				delay = 1;//never wait indefinitely
+
+			Task.Delay(delay).ContinueWith(t =>
+			{
+				ShowTo(player);
+			});
+		}
+
 		/// <summary>
 		///     Tries restocking the shop.
 		/// </summary>
