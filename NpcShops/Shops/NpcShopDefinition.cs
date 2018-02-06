@@ -35,6 +35,12 @@ namespace NpcShops.Shops
         [JsonProperty(Order = 0)]
         public string RegionName { get; private set; }
 
+		/// <summary>
+		///		Gets the town npc types that this shop overrides.
+		/// </summary>
+		[JsonProperty(Order = 8)]
+		public List<int> OverrideNpcTypes { get; private set; } = new List<int>();
+
         /// <summary>
         ///     Gets the restock time.
         /// </summary>

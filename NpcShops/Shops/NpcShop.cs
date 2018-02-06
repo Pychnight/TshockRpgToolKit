@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace NpcShops.Shops
                 ["midnight"] = 0.0
             };
 
+		public static ConcurrentDictionary<int, NpcShop> NpcToShopMap { get; private set; } = new ConcurrentDictionary<int, NpcShop>();
+
         private readonly NpcShopDefinition _definition;
 
         private DateTime _lastRestock = DateTime.UtcNow;
@@ -42,6 +45,12 @@ namespace NpcShops.Shops
 				throw new Exception($"Could not find region named {definition.RegionName}.");
 
 			Rectangle = region.Area;
+
+			if( definition.OverrideNpcTypes!=null)
+			{
+				foreach( var npcType in definition.OverrideNpcTypes )
+					NpcToShopMap[npcType] = this;
+			}
 
 			ShopCommands = definition.ShopCommands.Select(sc => new ShopCommand(sc)).ToList();
 			ShopItems = definition.ShopItems.Select(si => new ShopItem(si)).ToList();

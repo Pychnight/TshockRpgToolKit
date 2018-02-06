@@ -26,7 +26,8 @@ namespace NpcShops
 
 		internal static NpcShopsPlugin Instance { get; private set; }
 
-        private List<NpcShop> _npcShops = new List<NpcShop>();
+        internal List<NpcShop> npcShops = new List<NpcShop>();
+		//private List<CustomShop> customShops;
 
         public NpcShopsPlugin(Main game) : base(game)
         {
@@ -50,10 +51,16 @@ namespace NpcShops
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize, int.MinValue);
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 
-            Commands.ChatCommands.Add(new Command("npcshops.npcbuy", NpcBuy, "npcbuy"));
-        }
+			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
+			//ServerApi.Hooks.NetSendData.Register(this, OnNetSendData);
 
-        protected override void Dispose(bool disposing)
+			//OTAPI.Hooks.Item.
+
+
+			Commands.ChatCommands.Add(new Command("npcshops.npcbuy", NpcBuy, "npcbuy"));
+        }
+		
+		protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
@@ -62,7 +69,10 @@ namespace NpcShops
                 GeneralHooks.ReloadEvent -= OnReload;
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-            }
+
+				ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+				//ServerApi.Hooks.NetSendData.Deregister(this, OnNetSendData);
+			}
             base.Dispose(disposing);
         }
 
@@ -123,7 +133,7 @@ namespace NpcShops
 				}
 			}
 
-			_npcShops = shops;
+			npcShops = shops;
 		}
 
         private void NpcBuy(CommandArgs args)
@@ -348,38 +358,58 @@ namespace NpcShops
         private void OnGamePostInitialize(EventArgs args)
         {
 			tryLoadShops();
-        }
+	    }
+		
+		private void OnNetGetData(GetDataEventArgs args)
+		{
+			var msgId = args.MsgID;
 
-        private void OnGameUpdate(EventArgs args)
+			if(msgId == PacketTypes.NpcTalk)
+			{
+				//Debug.Print("NpcShopTalk!!!"); // This happens when we right click the merchant
+
+				//following is based off of https://github.com/MarioE/NoCheat/blob/master/NoCheat/ItemSpawning/Module.cs
+				var player = TShock.Players[args.Msg.whoAmI];
+				
+				// Ignore packets sent when the client is syncing.
+				if( player.State < 10 )
+					return;
+					
+				using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+				{
+					reader.ReadByte();
+					var npcIndex = reader.ReadInt16();
+					var npcType = npcIndex < 0 ? 0 : Main.npc[npcIndex].type;
+							
+					if(NpcShop.NpcToShopMap.ContainsKey(npcType))
+					{
+						player.SendData(PacketTypes.NpcTalk, "", player.Index, -1);
+						//player.SendData(PacketTypes.NpcUpdate, "", npcIndex);
+
+						var session = GetOrCreateSession(player);
+						session.CurrentShopkeeperNpcIndex = npcIndex;
+						//session.CurrentShop = npcShop;
+												
+						args.Handled = true;
+						//Debug.Print($"Shop mapped to npc index {npcIndex}.");
+					}
+				}
+			}
+		}
+
+		private void OnGameUpdate(EventArgs args)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
                 var session = GetOrCreateSession(player);
-                var shop = _npcShops.FirstOrDefault(ns => ns.Rectangle.Contains(player.TileX, player.TileY));
-                if (shop != null && session.CurrentShop != shop)
-                {
-                    Debug.WriteLine($"DEBUG: {player.Name} entered shop");
-                    if (shop.IsOpen)
-                    {
-                        if (shop.Message != null)
-                        {
-                            player.SendInfoMessage(shop.Message);
-                        }
-                        shop.ShowTo(player);
-                    }
-                    else
-                    {
-                        player.SendErrorMessage($"This shop is closed. Come back at {shop.OpeningTime}.");
-                    }
-                }
-                session.CurrentShop = shop;
-            }
+				session.Update();
+			}
 
-            foreach (var shop in _npcShops)
+            foreach (var shop in npcShops)
             {
                 shop.TryRestock();
             }
-        }
+		}
 
         private void OnReload(ReloadEventArgs args)
         {
