@@ -23,10 +23,16 @@ namespace NpcShops.Shops
         [JsonProperty(Order = 3)]
         public string Message { get; private set; }
 
-        /// <summary>
-        ///     Gets the opening time.
-        /// </summary>
-        [JsonProperty(Order = 1)]
+		/// <summary>
+		///     Gets the closed message.
+		/// </summary>
+		[JsonProperty(Order = 9)]
+		public string ClosedMessage { get; private set; }
+
+		/// <summary>
+		///     Gets the opening time.
+		/// </summary>
+		[JsonProperty(Order = 1)]
         public string OpeningTime { get; private set; }
 
         /// <summary>

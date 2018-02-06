@@ -99,7 +99,9 @@ namespace NpcShops
 
 		internal void SendClosedMessage(NpcShop shop)
 		{
-			player.SendErrorMessage($"This shop is closed. Come back at {shop.OpeningTime}.");
+			var msg = !string.IsNullOrWhiteSpace(shop.ClosedMessage) ? shop.ClosedMessage :
+																		$"This shop is closed. Come back at {shop.OpeningTime}.";
+			player.SendErrorMessage(msg);
 		}
 
 		private NpcShop getCurrentShop()

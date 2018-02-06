@@ -94,10 +94,15 @@ namespace NpcShops.Shops
         /// </summary>
         public string Message => _definition.Message;
 
-        /// <summary>
-        ///     Gets the opening time.
-        /// </summary>
-        public string OpeningTime => _definition.OpeningTime;
+		/// <summary>
+		///     Gets the closed message.
+		/// </summary>
+		public string ClosedMessage => _definition.ClosedMessage;
+
+		/// <summary>
+		///     Gets the opening time.
+		/// </summary>
+		public string OpeningTime => _definition.OpeningTime;
 
         /// <summary>
         ///     Gets the rectangle.
