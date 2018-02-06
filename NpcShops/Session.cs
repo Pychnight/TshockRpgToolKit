@@ -72,7 +72,7 @@ namespace NpcShops
 
 			return false;
 		}
-				
+
 		//public bool InShop()
 		//{
 		//	var result = false;
@@ -87,74 +87,102 @@ namespace NpcShops
 
 		//	return result;
 		//}
+		
+		bool? lastShopState = null;
+		internal bool shopKeeperClickedHack = false;
+				
+		private void sendOpenMessage(NpcShop shop)
+		{
+			if( shop.Message != null )
+				player.SendInfoMessage(shop.Message);
+		}
+
+		internal void SendClosedMessage(NpcShop shop)
+		{
+			player.SendErrorMessage($"This shop is closed. Come back at {shop.OpeningTime}.");
+		}
+
+		private NpcShop getCurrentShop()
+		{
+			NpcShop newShop = null;
+
+			if( HasShopkeeper && IsShopkeeperInRange() )
+			{
+				//npc shop
+				var shopKeeper = GetShopkeeper();
+				NpcShop.NpcToShopMap.TryGetValue(shopKeeper.type, out newShop);
+			}
+
+			if(newShop==null)
+			{ 
+				//region shop
+				newShop = NpcShopsPlugin.Instance.npcShops.FirstOrDefault(ns => ns.Rectangle.Contains(player.TileX, player.TileY));
+			}
+
+			return newShop;
+		}
 
 		public void Update()
 		{
-			if(CurrentShop==null)
+			NpcShop newShop = getCurrentShop();
+			
+			if( newShop != CurrentShop )
 			{
-				NpcShop shop = null;
+				//we've changed shops somehow, someway
+				CurrentShop = newShop;
+				
+				lastShopState = null;// CurrentShop?.IsOpen;
 
-				//shopkeeper will be assigned by OnNetGetaData when talking to an npc thats mapped to a shop.
-				if(HasShopkeeper)
-				{
-					var shopKeeper = GetShopkeeper();
-					NpcShop.NpcToShopMap.TryGetValue(shopKeeper.type, out shop);
-				}
-				else
-					shop = NpcShopsPlugin.Instance.npcShops.FirstOrDefault(ns => ns.Rectangle.Contains(player.TileX, player.TileY));
-
-				if(shop!=null)
-					EnterShop(shop);
+				Debug.Print("Changed shop.");
 			}
 			else
 			{
-				if(!CurrentShop.IsOpen)
+				//HACK - to ensure shopkeeper tells you hes closed on each click/talk/interaction
+				if( HasShopkeeper && shopKeeperClickedHack )
 				{
-					LeaveShop();
+					if( CurrentShop?.IsOpen == false )
+					{
+						SendClosedMessage(CurrentShop);
+					}
+					else
+					{
+						CurrentShop?.ShowTo(player);
+					}
+					
+					shopKeeperClickedHack = false;
+					lastShopState =  CurrentShop?.IsOpen;
+
+					return;
 				}
-				else 
+				
+				if( CurrentShop == null )
 				{
-					if( HasShopkeeper )
+					//reset the npc shop if we're out of range
+					if( HasShopkeeper )// && CurrentShop == null )
 					{
-						if( !IsShopkeeperInRange() )
-							LeaveShop();
+						CurrentShopkeeperNpcIndex = InvalidNpcIndex;
 					}
-					else if( !CurrentShop.Rectangle.Contains(player.TileX, player.TileY) )
+
+					lastShopState = null;
+					return;
+				}
+
+				//still in same old shop
+				if( CurrentShop.IsOpen != lastShopState )
+				{
+					if( CurrentShop.IsOpen )
 					{
-						LeaveShop();
+						sendOpenMessage(CurrentShop);
+						CurrentShop.ShowTo(player);
 					}
+					else
+					{
+						SendClosedMessage(CurrentShop);
+					}
+					
+					lastShopState = CurrentShop.IsOpen;
 				}
 			}
-		}
-
-		public void EnterShop(NpcShop shop) //, int shopkeeperNpcIndex = InvalidNpcIndex)
-		{
-			if(shop!=null)
-			{
-				Debug.Print("Player entered shop.");
-				if( shop.IsOpen )
-				{
-					if( shop.Message != null )
-					{
-						player.SendInfoMessage(shop.Message);
-					}
-					shop.ShowTo(player);
-				}
-				else
-				{
-					player.SendErrorMessage($"This shop is closed. Come back at {shop.OpeningTime}.");
-				}
-			}
-
-			CurrentShop = shop;
-			//CurrentShopkeeperNpcIndex = shopkeeperNpcIndex;
-		}
-		
-		private void LeaveShop()
-		{
-			Debug.Print("Player left shop.");
-			CurrentShop = null;
-			CurrentShopkeeperNpcIndex = InvalidNpcIndex;
 		}
     }
 }

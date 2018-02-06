@@ -154,7 +154,13 @@ namespace NpcShops
                 return;
             }
 
-            var inputIndex = parameters[0];
+			if( !shop.IsOpen )
+			{
+				session.SendClosedMessage(shop);
+				return;
+			}
+
+			var inputIndex = parameters[0];
             if (!int.TryParse(inputIndex, out var index) || index < 1 ||
                 index > shop.ShopItems.Count + shop.ShopCommands.Count)
             {
@@ -389,6 +395,7 @@ namespace NpcShops
 						var session = GetOrCreateSession(player);
 						session.CurrentShopkeeperNpcIndex = npcIndex;
 						//session.CurrentShop = npcShop;
+						session.shopKeeperClickedHack = true;
 												
 						args.Handled = true;
 						//Debug.Print($"Shop mapped to npc index {npcIndex}.");
