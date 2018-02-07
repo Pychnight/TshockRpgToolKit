@@ -27,8 +27,7 @@ namespace NpcShops
 		internal static NpcShopsPlugin Instance { get; private set; }
 
         internal List<NpcShop> npcShops = new List<NpcShop>();
-		//private List<CustomShop> customShops;
-
+		
         public NpcShopsPlugin(Main game) : base(game)
         {
 			Instance = this;
@@ -44,19 +43,13 @@ namespace NpcShops
 #if DEBUG
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
-
 			tryLoadConfig();
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize, int.MinValue);
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
-
 			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
-			//ServerApi.Hooks.NetSendData.Register(this, OnNetSendData);
-
-			//OTAPI.Hooks.Item.
-
-
+			
 			Commands.ChatCommands.Add(new Command("npcshops.npcbuy", NpcBuy, "npcbuy"));
         }
 		
@@ -71,7 +64,6 @@ namespace NpcShops
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
 
 				ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
-				//ServerApi.Hooks.NetSendData.Deregister(this, OnNetSendData);
 			}
             base.Dispose(disposing);
         }

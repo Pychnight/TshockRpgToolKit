@@ -12,5 +12,8 @@ namespace NpcShops
         ///     Gets the configuration instance.
         /// </summary>
         public static Config Instance { get; internal set; } = new Config();
+
+		[JsonProperty(Order = 0)]
+		public int MaxNpcTileRange { get; set; } = 32;
     }
 }

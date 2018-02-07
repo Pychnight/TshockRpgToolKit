@@ -13,7 +13,7 @@ namespace NpcShops
     public sealed class Session
     {
 		public const int InvalidNpcIndex = -1;
-		public const int MaxShopkeeperTileRange = 32;
+		//public const int MaxNpcTileRange = 32;
 
         private readonly TSPlayer player;
 
@@ -62,12 +62,13 @@ namespace NpcShops
 		/// <returns>True if the shopkeeper is in range.</returns>
 		public bool IsShopkeeperInRange()
 		{
+			var maxTileRange = Config.Instance.MaxNpcTileRange;
 			var npc = GetShopkeeper();
 
 			if( npc!=null)
 			{
 				var dist = Vector2.DistanceSquared(player.TPlayer.Center, npc.Center);
-				return dist <= ( MaxShopkeeperTileRange * 16 ) * ( MaxShopkeeperTileRange * 16 );
+				return dist <= ( maxTileRange * 16 ) * ( maxTileRange * 16 );
 			}
 
 			return false;
