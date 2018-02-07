@@ -39,12 +39,20 @@ namespace NpcShops.Shops
         {
 			_definition = definition ?? throw new ArgumentNullException("NpcShopDefinition cannot be null.");
 
-			var region = TShock.Regions.GetRegionByName(definition.RegionName);
-				
-			if( region == null )
-				throw new Exception($"Could not find region named {definition.RegionName}.");
+			if(!string.IsNullOrWhiteSpace(definition.RegionName))
+			{
+				var region = TShock.Regions.GetRegionByName(definition.RegionName);
 
-			Rectangle = region.Area;
+				if( region == null )
+					throw new Exception($"Could not find region named {definition.RegionName}.");
+
+				Rectangle = region.Area;
+			}
+			else
+			{
+				//ensure against nre's... create a dummy rectangle that will never be hit
+				Rectangle = new Rectangle(-1, -1, 0, 0);
+			}
 
 			if( definition.OverrideNpcTypes!=null)
 			{
