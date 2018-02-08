@@ -1205,8 +1205,8 @@ namespace Housing
             }
 
             var player = TShock.Players[args.Who];
-			var config = Config.Instance.GetGroupConfig(player.Group.Name);
-			if (player != null && config.AllowOfflineShops)//!Config.Instance.AllowOfflineShops)
+			var config = Config.Instance.GetGroupConfig(player!=null ? player.Group.Name : ">");//force default if no group.. we can never have a group named ">" ...right?
+			if (player != null && config?.AllowOfflineShops==false)//!Config.Instance.AllowOfflineShops)
             {
                 foreach (var shop in _database.GetShops().Where(s => s.OwnerName == player.User?.Name))
                 {
