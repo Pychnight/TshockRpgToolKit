@@ -105,7 +105,9 @@ namespace Housing
         {
             var parameters = args.Parameters;
             var player = args.Player;
-            var subcommand = parameters.Count > 0 ? parameters[0] : "";
+			var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
+
+			var subcommand = parameters.Count > 0 ? parameters[0] : "";
             if (subcommand.Equals("1", StringComparison.OrdinalIgnoreCase))
             {
                 player.AwaitingTempPoint = 1;
@@ -199,9 +201,9 @@ namespace Housing
                     player.SendErrorMessage("You cannot purchase this house.");
                     return;
                 }
-
-                var purchaseCost = house.Price;
-                var salesTax = (Money)Math.Round(Config.Instance.TaxRate * purchaseCost);
+								
+				var purchaseCost = house.Price;
+                var salesTax = (Money)Math.Round(playerGroupConfig.TaxRate * purchaseCost);
                 player.SendInfoMessage(
                     $"Purchasing {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] will cost " +
                     $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
@@ -298,14 +300,16 @@ namespace Housing
                     player.SendErrorMessage("You aren't currently in a house.");
                     return;
                 }
-
-                var house = session.CurrentHouse;
+				
+				var house = session.CurrentHouse;
                 player.SendInfoMessage($"Owner: {house.OwnerName}, Name: {house.Name}");
                 if (player.User?.Name == house.OwnerName || player.HasPermission("housing.house.admin"))
                 {
+					var ownerConfig = house.GetGroupConfig();//because a player other than the owner maybe running this command.
+
                     player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
                     var isStore = _database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
-                    var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
+                    var taxRate = isStore ? ownerConfig.StoreTaxRate : ownerConfig.TaxRate;
                     var taxCost = (Money)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage(
                         $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost}], Last taxed: {house.LastTaxed}");
@@ -384,8 +388,7 @@ namespace Housing
                     player.SendErrorMessage("Not all points have been set.");
                     return;
                 }
-
-				var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
+								
                 var point1 = player.TempPoints[0];
                 var point2 = player.TempPoints[1];
                 var inputHouseName = parameters[1];
@@ -425,10 +428,10 @@ namespace Housing
 
                 player.TempPoints[0] = Point.Zero;
                 player.TempPoints[1] = Point.Zero;
-                var purchaseCost = (Money)Math.Round(rectangle.Width * rectangle.Height * Config.Instance.PurchaseRate);
+                var purchaseCost = (Money)Math.Round(rectangle.Width * rectangle.Height * playerGroupConfig.PurchaseRate);
                 if (purchaseCost > 0)
                 {
-                    var taxCost = (Money)Math.Round(rectangle.Width * rectangle.Height * Config.Instance.TaxRate);
+                    var taxCost = (Money)Math.Round(rectangle.Width * rectangle.Height * playerGroupConfig.TaxRate);
                     player.SendInfoMessage(
                         $"Purchasing this house will require [c/{Color.OrangeRed.Hex3()}:{purchaseCost}].");
                     player.SendInfoMessage(
@@ -518,7 +521,8 @@ namespace Housing
         {
             var parameters = args.Parameters;
             var player = args.Player;
-            var subcommand = parameters.Count > 0 ? parameters[0] : "";
+			var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
+			var subcommand = parameters.Count > 0 ? parameters[0] : "";
             if (subcommand.Equals("1", StringComparison.OrdinalIgnoreCase))
             {
                 player.AwaitingTempPoint = 1;
@@ -570,7 +574,7 @@ namespace Housing
                 var itemId = shopItem.ItemId;
                 item.SetDefaults(itemId);
                 var purchaseCost = (Money)(amount * shop.UnitPrices.Get(itemId, item.value / 5));
-                var salesTax = (Money)Math.Round(purchaseCost * Config.Instance.SalesTaxRate);
+                var salesTax = (Money)Math.Round(purchaseCost * playerGroupConfig.SalesTaxRate);
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
                 player.SendInfoMessage(
                     $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
@@ -664,8 +668,10 @@ namespace Housing
                     $"Prices: {string.Join(", ", prices)}. All other items are default sell prices.");
                 if (shop.OwnerName == player.User?.Name)
                 {
+					//var ownerConfig = shop.GetGroupConfig();
+
                     var house = session.CurrentHouse;
-                    var taxRate = Config.Instance.StoreTaxRate - Config.Instance.TaxRate;
+                    var taxRate = playerGroupConfig.StoreTaxRate - playerGroupConfig.TaxRate;
                     var taxCost = (Money)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage($"Extra tax on house: [c/{Color.OrangeRed.Hex3()}:{taxCost}]");
                 }
@@ -753,7 +759,7 @@ namespace Housing
                     return;
                 }
 
-				var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
+				//var playerGroupConfig = Config.Instance.GetGroupConfig(player.Group.Name);
 				var point1 = player.TempPoints[0];
                 var point2 = player.TempPoints[1];
                 var inputShopName = parameters[1];
@@ -927,16 +933,21 @@ namespace Housing
             var shops = _database.GetShops();
             foreach (var house in _database.GetHouses())
             {
-                if (DateTime.UtcNow - house.LastTaxed > Config.Instance.TaxPeriod)
+				var houseConfig = house.GetGroupConfig();
+
+				if (DateTime.UtcNow - house.LastTaxed > houseConfig.TaxPeriod)
                 {
                     var account = SEconomyPlugin.Instance?.RunningJournal.GetBankAccountByName(house.OwnerName);
                     if (account == null)
                     {
                         continue;
                     }
+					
+                    //var isStore = shops.Any(s => house.Rectangle.Contains(s.Rectangle));
+					var store = shops.FirstOrDefault(s => house.Rectangle.Contains(s.Rectangle));
+					var storeConfig = store != null ? store.GetGroupConfig() : houseConfig;
 
-                    var isStore = shops.Any(s => house.Rectangle.Contains(s.Rectangle));
-                    var taxRate = isStore ? Config.Instance.StoreTaxRate : Config.Instance.TaxRate;
+					var taxRate = store!=null ? storeConfig.StoreTaxRate : houseConfig.TaxRate;
                     var taxCost = (long)Math.Round(house.Area * taxRate) + house.Debt;
                     var payment = (Money)Math.Min(account.Balance, taxCost);
 					//account.TransferTo(
@@ -953,7 +964,7 @@ namespace Housing
                     house.Debt = taxCost - payment;
                     if (payment < taxCost)
                     {
-                        if (house.Debt > Config.Instance.MaxDebtAllowed)
+                        if (house.Debt > houseConfig.MaxDebtAllowed)
                         {
 							_database.Remove(house);
 
@@ -1194,7 +1205,8 @@ namespace Housing
             }
 
             var player = TShock.Players[args.Who];
-            if (player != null && !Config.Instance.AllowOfflineShops)
+			var config = Config.Instance.GetGroupConfig(player.Group.Name);
+			if (player != null && config.AllowOfflineShops)//!Config.Instance.AllowOfflineShops)
             {
                 foreach (var shop in _database.GetShops().Where(s => s.OwnerName == player.User?.Name))
                 {

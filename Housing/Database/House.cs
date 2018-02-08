@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using TShockAPI;
 using Wolfje.Plugins.SEconomy;
 
 namespace Housing.Database
@@ -78,5 +79,34 @@ namespace Housing.Database
         public Rectangle Rectangle { get; set; }
 
         public override string ToString() => Name;
-    }
+
+		/// <summary>
+		/// Trys to get a group config for the owner of the House.
+		/// </summary>
+		/// <returns>GroupConfig</returns>
+		public GroupConfig GetGroupConfig()
+		{
+			var groupName = "";
+
+			if( string.IsNullOrWhiteSpace(OwnerName) )
+			{
+				//send invalid string to force the default config
+				groupName = ">";
+			}
+			else
+			{
+				try
+				{
+					var user = TShock.Users.GetUserByName(OwnerName);
+					groupName = user.Group;
+				}
+				catch(Exception ex)
+				{
+					Debug.Print($"House.GetGroupConfig() failed while trying to get owner group for house {OwnerName}.");
+				}
+			}
+
+			return Config.Instance.GetGroupConfig(groupName);
+		}
+	}
 }

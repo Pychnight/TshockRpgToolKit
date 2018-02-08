@@ -130,48 +130,4 @@ namespace Housing
 		}
 
 	}
-
-	[JsonObject(MemberSerialization.OptIn)]
-	public class GroupConfig
-	{
-		/// <summary>
-		/// Gets the minimum house size.
-		/// </summary>
-		[JsonProperty(Order = 0)]
-		public int MinHouseSize { get; private set; } = 1000;
-
-		/// <summary>
-		/// Gets the maximum house size.
-		/// </summary>
-		[JsonProperty(Order = 1)]
-		public int MaxHouseSize { get; private set; } = 10000;
-
-		/// <summary>
-		/// Gets the maximum number of houses.
-		/// </summary>
-		[JsonProperty(Order = 2)]
-		public int MaxHouses { get; private set; } = 10;
-
-		/// <summary>
-		/// Gets the minimum shop size.
-		/// </summary>
-		[JsonProperty(Order = 3)]
-		public int MinShopSize { get; private set; } = 1000;
-
-		/// <summary>
-		/// Gets the maximum shop size.
-		/// </summary>
-		[JsonProperty(Order = 4)]
-		public int MaxShopSize { get; private set; } = 10000;
-
-		internal void CopyDefaults(Config config)
-		{
-			 //update default cfg.
-			 MinHouseSize = config.MinHouseSize;
-			 MaxHouseSize = config.MaxHouseSize;
-			 MaxHouses = config.MaxHouses;
-			 MinShopSize = config.MinShopSize;
-			 MaxShopSize = config.MaxShopSize;
-		}
-	}
 }
