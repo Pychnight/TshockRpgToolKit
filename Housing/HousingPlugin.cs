@@ -70,7 +70,8 @@ namespace Housing
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 
             Commands.ChatCommands.Add(new Command("housing.house", HouseCmd, "house"));
-            Commands.ChatCommands.Add(new Command("housing.itemshop", ItemShop, "itemshop"));
+			Commands.ChatCommands.Add(new Command("housing.house", GoHomeCommand, "gohome"));
+			Commands.ChatCommands.Add(new Command("housing.itemshop", ItemShop, "itemshop"));
 			Commands.ChatCommands.Add(new Command("housing.tax", taxService.TaxCmd, "tax"));
 		}
 
@@ -475,7 +476,45 @@ namespace Housing
             }
         }
 
-        private void ItemShop(CommandArgs args)
+		//teleports player home
+		private void GoHomeCommand(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			var houseName = parameters.Count == 1 ? parameters[0] : "";
+			//var ownerName = player.User?.Name; // which name to use?!?!
+			var ownerName = player.Name;
+			House house = null;
+
+			if( parameters.Count> 1)
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}gohome <house-name>");
+				return;
+			}
+			
+			if(!string.IsNullOrWhiteSpace(houseName))
+				house = _database.GetHouse(player.Name, houseName);
+			else
+				house = _database.GetHouses(player.Name).FirstOrDefault();
+			
+			if(house==null)
+			{
+				player.SendErrorMessage($"Sorry, I couldn't find your house.");
+				return;
+			}
+			else
+			{
+				var rect = house.Rectangle;
+
+				var cx = ( rect.X * 16 ) + ( rect.Width / 2 ) * 16;
+				var cy = ( rect.Y * 16 ) + ( rect.Height / 2 ) * 16;
+				
+				player.Teleport(cx, cy);
+				player.SendErrorMessage($"Teleporting you to your house.");
+			}
+		}
+
+		private void ItemShop(CommandArgs args)
         {
             var parameters = args.Parameters;
             var player = args.Player;

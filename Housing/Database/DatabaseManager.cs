@@ -172,6 +172,23 @@ namespace Housing.Database
             }
         }
 
+		/// <summary>
+		///		Attempts to find a House by the given owner and house name.
+		/// </summary>
+		/// <param name="ownerName"></param>
+		/// <param name="houseName"></param>
+		/// <returns></returns>
+		public House GetHouse(string ownerName, string houseName)
+		{
+			lock(_lock)
+			{
+				var house = _houses.Where(h => h.OwnerName == ownerName).
+									FirstOrDefault(h => h.Name == houseName);
+
+				return house;
+			}
+		}
+
         /// <summary>
         ///     Gets the houses.
         /// </summary>
@@ -183,6 +200,19 @@ namespace Housing.Database
                 return _houses.ToList();
             }
         }
+
+		/// <summary>
+		///		Finds all houses with the given owner.
+		/// </summary>
+		/// <param name="ownerName"></param>
+		/// <returns></returns>
+		public IList<House> GetHouses(string ownerName)
+		{
+			lock(_lock)
+			{
+				return _houses.Where(h => h.OwnerName == ownerName).ToList();
+			}
+		}
 
         /// <summary>
         ///     Gets the shop containing the specified coordinates, or <c>null</c> if there is none.
