@@ -7,44 +7,25 @@ using System.Threading.Tasks;
 using TShockAPI;
 using Wolfje.Plugins.SEconomy;
 using Wolfje.Plugins.SEconomy.Journal;
+using Housing.Extensions;
 
 namespace Housing
 {
 	public class TaxService
 	{
-		HousingPlugin housingPlugin;
+		HousingPlugin plugin;
 
-		//public static Taxman Instance { get; private set; }
 		/// <summary>
 		/// Gets or sets whether tax collectors will recieve tax payments.
 		/// </summary>
 		public bool IsEnabled { get; set; }
-
-		/// <summary>
-		/// Gets the list of tax collector player names.
-		/// </summary>
-		public HashSet<string> TaxCollectorPlayerNames { get; private set; }
-
+		
 		public TaxService(HousingPlugin plugin)
 		{
-			housingPlugin = plugin;
-			TaxCollectorPlayerNames = new HashSet<string>();
-
-			//Instance = this;
-
-			Debug.Print("Created TaxService.");
+			this.plugin = plugin;
+			//Debug.Print("Created TaxService.");
 		}
-
-		/// <summary>
-		/// Helper to set player names in one go.
-		/// </summary>
-		/// <param name="config"></param>
-		public void SetPlayerNames(IEnumerable<string> newNames)
-		{
-			TaxCollectorPlayerNames.Clear();
-			newNames?.ForEach(n => TaxCollectorPlayerNames.Add(n));
-		}
-
+		
 		public void PayTax(string sourceAccountName, Money payment, BankAccountTransferOptions options = BankAccountTransferOptions.None, string transactionMessage = "", string journalMessage = "")
 		{
 			PayTax(SEconomyPlugin.Instance?.RunningJournal.GetBankAccountByName(sourceAccountName),
@@ -60,16 +41,17 @@ namespace Housing
 
 			if(IsEnabled)
 			{
-				var cut = (double)payment / ( TaxCollectorPlayerNames.Count > 0 ? (double)TaxCollectorPlayerNames.Count : 1d );
+				var taxCollectors = plugin.database.GetTaxCollectors();
+				var cut = (double)payment / ( taxCollectors.Count > 0 ? (double)taxCollectors.Count : 1d );
 
 				Debug.Print($"Tax payment is {remainder}");
-				Debug.Print($"{TaxCollectorPlayerNames.Count} tax collectors get {cut} each.");
+				Debug.Print($"{taxCollectors.Count} tax collectors get {cut} each.");
 
 				//split revenue between the tax collectors.
-				foreach (var playerName in TaxCollectorPlayerNames)
+				foreach (var tc in taxCollectors)
 				{
 					//var playerAccount = SEconomyPlugin.Instance.WorldAccount;
-					var playerAccount = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(playerName);
+					var playerAccount = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(tc.PlayerName);
 					
 					if (playerAccount!=null)
 					{
@@ -77,13 +59,13 @@ namespace Housing
 						if(sourceAccount==playerAccount)
 						{
 							remainder -= cut;//still take cut so it doesn't go to world account.
-							Debug.Print($"Skipping transfer, account belongs to tax collector {playerName}");
+							Debug.Print($"Skipping transfer, account belongs to tax collector {tc.PlayerName}");
 						}
 						else
 						{
 							sourceAccount.TransferTo(playerAccount, (Money)cut, options, transactionMessage, journalMessage);
 							remainder -= cut;
-							Debug.Print($"Paid {cut} tax to player {playerName}");
+							Debug.Print($"Paid {cut} tax to player {tc.PlayerName}");
 						}
 					}
 				}
@@ -99,14 +81,15 @@ namespace Housing
 			var parameters = args.Parameters;
 			var player = args.Player;
 			var subcommand = parameters.Count > 0 ? parameters[0] : "";
-			
+			var taxCollectors = plugin.database.GetTaxCollectors();
+						
 			if (subcommand.Equals("list", StringComparison.OrdinalIgnoreCase))
 			{
-				player.SendInfoMessage($"There are {TaxCollectorPlayerNames.Count} registered tax collectors.");
+				player.SendInfoMessage($"There are {taxCollectors.Count} registered tax collectors.");
 
-				foreach (var name in TaxCollectorPlayerNames)
+				foreach (var tc in taxCollectors)
 				{
-					player.SendInfoMessage(name);
+					player.SendInfoMessage(tc.PlayerName);
 				}
 
 				return;
@@ -130,14 +113,18 @@ namespace Housing
 
 				if (subcommand.Equals("add", StringComparison.OrdinalIgnoreCase))
 				{
-					//TaxCollectorPlayerNames.Add(name);
-					housingPlugin._database.AddTaxCollector(name);
+					var tc = plugin.database.AddTaxCollector(name);
+					if( tc == null )
+						player.SendErrorMessage($"Unable to add TaxCollector {name}.");
+
 					return;
 				}
 				else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
 				{
-					//TaxCollectorPlayerNames.Remove(name);
-					housingPlugin._database.RemoveTaxCollector(name);
+					var tc = plugin.database.GetTaxCollector(name);
+					if(tc!=null)
+						plugin.database.Remove(tc);
+
 					return;
 				}
 			}

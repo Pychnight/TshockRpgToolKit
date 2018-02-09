@@ -13,22 +13,22 @@ using Wolfje.Plugins.SEconomy;
 namespace Housing.Database
 {
     /// <summary>
-    ///     Represents a database manager for the plots and houses.
+    ///     Represents a Sqlite database for the plots and houses.
     /// </summary>
-    public sealed class DatabaseManager
+    public sealed class SqliteDatabase : IDatabase
     {
-        private readonly IDbConnection _connection;
+		private readonly object _lock = new object();
+		private readonly IDbConnection _connection;
         private readonly List<House> _houses = new List<House>();
-        private readonly object _lock = new object();
         private readonly List<Shop> _shops = new List<Shop>();
-		//private readonly HashSet<string> taxCollectorPlayerNames = new HashSet<string>();
-		public TaxService TaxService { get; set; }
-
+		private readonly List<TaxCollector> taxCollectors = new List<TaxCollector>();
+		private readonly HashSet<string> taxCollectorNames = new HashSet<string>();
+	
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DatabaseManager" /> class with the specified connection.
+        ///     Initializes a new instance of the <see cref="SqliteDatabase" /> class with the specified connection.
         /// </summary>
         /// <param name="connection">The connection, which must not be <c>null</c>.</param>
-        public DatabaseManager(IDbConnection connection)
+        public SqliteDatabase(IDbConnection connection)
         {
             Debug.Assert(connection != null, "Connection must not be null.");
 
@@ -159,87 +159,57 @@ namespace Housing.Database
             }
         }
 
-        /// <summary>
-        ///     Gets the house containing the specified coordinates, or <c>null</c> if there is none.
-        /// </summary>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <returns>The house, or <c>null</c> if there is none.</returns>
-        public House GetHouse(int x, int y)
-        {
-            lock (_lock)
-            {
-                return _houses.FirstOrDefault(h => h.Rectangle.Contains(x, y));
-            }
-        }
-
 		/// <summary>
-		///		Attempts to find a House by the given owner and house name.
+		/// Adds a player name to the tax collector list.
 		/// </summary>
-		/// <param name="ownerName"></param>
-		/// <param name="houseName"></param>
-		/// <returns></returns>
-		public House GetHouse(string ownerName, string houseName)
+		/// <param name="playerName"></param>
+		public TaxCollector AddTaxCollector(string playerName)
 		{
-			lock(_lock)
-			{
-				var house = _houses.Where(h => h.OwnerName == ownerName).
-									FirstOrDefault(h => h.Name == houseName);
+			Debug.Assert(playerName != null, "playerName must not be null.");
 
-				return house;
+			lock( _lock )
+			{
+				if( taxCollectorNames.Contains(playerName) )
+					return null;
+
+				_connection.Query(
+					"INSERT INTO TaxCollectors (WorldId, PlayerName)" +
+					"VALUES (@0, @1)",
+					Main.worldID, playerName);
+
+				var tc = new TaxCollector(playerName);
+				taxCollectors.Add(tc);
+				taxCollectorNames.Add(playerName);
+				return tc;
 			}
 		}
 
-        /// <summary>
-        ///     Gets the houses.
-        /// </summary>
-        /// <returns>The houses.</returns>
-        public IList<House> GetHouses()
-        {
-            lock (_lock)
-            {
-                return _houses.ToList();
-            }
-        }
-
 		/// <summary>
-		///		Finds all houses with the given owner.
+		///     Gets the houses.
 		/// </summary>
-		/// <param name="ownerName"></param>
-		/// <returns></returns>
-		public IList<House> GetHouses(string ownerName)
-		{
-			lock(_lock)
-			{
-				return _houses.Where(h => h.OwnerName == ownerName).ToList();
-			}
-		}
-
-        /// <summary>
-        ///     Gets the shop containing the specified coordinates, or <c>null</c> if there is none.
-        /// </summary>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <returns>The shop, or <c>null</c> if there is none.</returns>
-        public Shop GetShop(int x, int y)
+		/// <returns>The houses.</returns>
+		public IList<House> GetHouses()
         {
-            lock (_lock)
-            {
-                return _shops.FirstOrDefault(h => h.Rectangle.Contains(x, y));
-            }
+			return _houses.ToList();
         }
-
+		
         /// <summary>
         ///     Gets the shops.
         /// </summary>
         /// <returns>The shops.</returns>
         public IList<Shop> GetShops()
         {
-            lock (_lock)
-            {
-                return _shops.ToList();
-            }
+			return _shops.ToList();
         }
+
+		/// <summary>
+		///  Gets the TaxCollectors.
+		/// </summary>
+		/// <returns>TaxCollectors.</returns>
+		public IList<TaxCollector> GetTaxCollectors()
+		{
+			return taxCollectors.ToList();
+		}
 
         /// <summary>
         ///     Loads the houses and shops.
@@ -335,14 +305,17 @@ namespace Housing.Database
                     }
                 }
 
-				//load in tax collector names.
-				TaxService.TaxCollectorPlayerNames.Clear();
+				//load in tax collectors.
+				taxCollectors.Clear();
+				taxCollectorNames.Clear();
 				using (var reader = _connection.QueryReader("SELECT * FROM TaxCollectors WHERE WorldID = @0", Main.worldID))
 				{
 					while (reader.Read())
 					{
 						var playerName = reader.Get<string>("PlayerName");
-						TaxService.TaxCollectorPlayerNames.Add(playerName);
+						var tc = new TaxCollector(playerName);
+						taxCollectors.Add(tc);
+						taxCollectorNames.Add(playerName);
 					}
 				}
             }
@@ -385,45 +358,21 @@ namespace Housing.Database
                 _shops.Remove(shop);
             }
         }
-
-		/// <summary>
-		/// Adds a player name to the tax collector list.
-		/// </summary>
-		/// <param name="playerName"></param>
-		public void AddTaxCollector(string playerName)
+		
+		public void Remove(TaxCollector taxCollector)
 		{
-			Debug.Assert(playerName != null, "playerName must not be null.");
-
-			if(TaxService.TaxCollectorPlayerNames.Contains(playerName))
-				return;
-
-			lock (_lock)
+			Debug.Assert(taxCollector != null, "playerName must not be null.");
+			
+			lock( _lock )
 			{
-				_connection.Query(
-					"INSERT INTO TaxCollectors (WorldId, PlayerName)" +
-					"VALUES (@0, @1)",
-					Main.worldID, playerName);
+				var indexOf = taxCollectors.IndexOf(taxCollector);
 
-				TaxService.TaxCollectorPlayerNames.Add(playerName);
-			}
-		}
+				if( indexOf == -1 )
+					return;
 
-		/// <summary>
-		///		Removes a tax collector ( name ).
-		/// </summary>
-		/// <param name="playerName"></param>
-		public void RemoveTaxCollector(string playerName)
-		{
-			Debug.Assert(playerName != null, "playerName must not be null.");
-
-			if(!TaxService.TaxCollectorPlayerNames.Contains(playerName))
-				return;
-
-			lock (_lock)
-			{
 				_connection.Query("DELETE FROM TaxCollectors WHERE WorldId = @0 AND PlayerName = @1",
-								  Main.worldID, playerName);
-				TaxService.TaxCollectorPlayerNames.Remove(playerName);
+								  Main.worldID, taxCollector.PlayerName);
+				taxCollectors.RemoveAt(indexOf);
 			}
 		}
 

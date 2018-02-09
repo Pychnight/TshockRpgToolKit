@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Housing.Database;
 using Housing.Models;
+using Housing.Extensions;
 using Microsoft.Xna.Framework;
 using Mono.Data.Sqlite;
 using Newtonsoft.Json;
@@ -25,14 +26,12 @@ namespace Housing
     public sealed class HousingPlugin : TerrariaPlugin
     {
         private const string SessionKey = "Housing_Session";
-
 		private const int MessageRefreshDelay = 2000;//2 seconds( in ms ), used by calls that refresh the players display 
-
-        private static readonly string ConfigPath = Path.Combine("housing", "config.json");
+		private static readonly string ConfigPath = Path.Combine("housing", "config.json");
         private static readonly string SqlitePath = Path.Combine("housing", "db.sqlite");
-
-        private DbConnection _connection;
-        internal DatabaseManager _database;
+		
+        private DbConnection databaseConnection;
+		internal IDatabase database;
 		private TaxService taxService;
 
         public HousingPlugin(Main game) : base(game)
@@ -62,10 +61,9 @@ namespace Housing
 				taxService.IsEnabled = Config.Instance.EnableTaxService;
 			}
 
-			_connection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
-            _database = new DatabaseManager(_connection);
-			_database.TaxService = taxService;//for db integration, we do this.
-			
+			databaseConnection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
+            database = new SqliteDatabase(databaseConnection);
+						
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
@@ -166,7 +164,7 @@ namespace Housing
                 }
 
                 house.AllowedUsernames.Add(otherPlayer.User.Name);
-                _database.Update(house);
+                database.Update(house);
                 player.SendSuccessMessage(
                     $"Allowed {otherPlayer.Name} to modify " +
                     $"{(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
@@ -245,8 +243,8 @@ namespace Housing
 						taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
                     }
 
-                    _database.Remove(house);
-                    _database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
+                    database.Remove(house);
+                    database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
                                        house.Rectangle.Right - 1, house.Rectangle.Bottom - 1);
                     player.SendInfoMessage(
                         $"Purchased {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
@@ -289,7 +287,7 @@ namespace Housing
 
                 var inputUsername = parameters[1];
                 house.AllowedUsernames.Remove(inputUsername);
-                _database.Update(house);
+                database.Update(house);
                 player.SendSuccessMessage(
                     $"Disallowed {inputUsername} from modifying " +
                     $"{(house.OwnerName == player.User?.Name ? "your house" : house.OwnerName + "'s house")} " +
@@ -311,7 +309,7 @@ namespace Housing
 					var ownerConfig = house.GetGroupConfig();//because a player other than the owner maybe running this command.
 
                     player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
-                    var isStore = _database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
+                    var isStore = database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? ownerConfig.StoreTaxRate : ownerConfig.TaxRate;
                     var taxCost = (Money)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage(
@@ -336,7 +334,7 @@ namespace Housing
                     return;
                 }
 
-                _database.Remove(house);
+                database.Remove(house);
                 player.SendSuccessMessage(
                     $"Removed {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
                     $"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
@@ -373,7 +371,7 @@ namespace Housing
 
                 house.ForSale = true;
                 house.Price = price;
-                _database.Update(house);
+                database.Update(house);
                 player.SendSuccessMessage(
                     $"Selling {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
                     $"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{price}].");
@@ -399,7 +397,7 @@ namespace Housing
                 var y = Math.Min(point1.Y, point2.Y);
                 var x2 = Math.Max(point1.X, point2.X);
                 var y2 = Math.Max(point1.Y, point2.Y);
-                if (_database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= playerGroupConfig.MaxHouses)
+                if (database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= playerGroupConfig.MaxHouses)
                 {
                     player.SendErrorMessage($"You have too many houses. Maximum allowed is {playerGroupConfig.MaxHouses}.");
                     return;
@@ -418,7 +416,7 @@ namespace Housing
                 }
 
                 var rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
-                if (_database.GetHouses().Any(h => h.Rectangle.Intersects(rectangle)))
+                if (database.GetHouses().Any(h => h.Rectangle.Intersects(rectangle)))
                 {
                     player.SendErrorMessage("Your house must not intersect any other houses.");
                     return;
@@ -453,7 +451,7 @@ namespace Housing
                         account.TransferTo(
                             SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
                             "", $"Purchased the {inputHouseName} house");
-                        var house = _database.AddHouse(player, inputHouseName, x, y, x2, y2);
+                        var house = database.AddHouse(player, inputHouseName, x, y, x2, y2);
                         player.SendSuccessMessage($"Purchased house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
                                                   $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}].");
                     });
@@ -465,7 +463,7 @@ namespace Housing
                 }
                 else
                 {
-                    var house = _database.AddHouse(player, inputHouseName, x, y, x2, y2);
+                    var house = database.AddHouse(player, inputHouseName, x, y, x2, y2);
                     player.SendSuccessMessage($"Added house [c/{Color.MediumPurple.Hex3()}:{house}].");
                 }
             }
@@ -499,9 +497,9 @@ namespace Housing
 			}
 			
 			if(!string.IsNullOrWhiteSpace(houseName))
-				house = _database.GetHouse(player.Name, houseName);
+				house = database.GetHouse(player.Name, houseName);
 			else
-				house = _database.GetHouses(player.Name).FirstOrDefault();
+				house = database.GetHouses(player.Name).FirstOrDefault();
 			
 			if(house==null)
 			{
@@ -615,7 +613,7 @@ namespace Housing
                     }
 
                     shopItem.StackSize -= amount;
-                    _database.Update(shop);
+                    database.Update(shop);
 
                     player.GiveItem(
                         itemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
@@ -653,7 +651,7 @@ namespace Housing
                 }
 
                 shop.IsOpen = false;
-                _database.Update(shop);
+                database.Update(shop);
                 player.SendSuccessMessage(
                     $"Closed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
                     $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
@@ -701,7 +699,7 @@ namespace Housing
                 }
 
                 shop.IsOpen = true;
-                _database.Update(shop);
+                database.Update(shop);
                 player.SendSuccessMessage(
                     $"Opened {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
                     $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
@@ -740,7 +738,7 @@ namespace Housing
                     Main.chest[chestId] = chest;
                 }
 
-                _database.Remove(shop);
+                database.Remove(shop);
                 player.SendSuccessMessage(
                     $"Removed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
                     $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
@@ -826,7 +824,7 @@ namespace Housing
 
                 var message = string.Join(" ", parameters.Skip(1));
                 shop.Message = message;
-                _database.Update(shop);
+                database.Update(shop);
                 player.SendSuccessMessage(
                     $"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
                     $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop message.");
@@ -876,7 +874,7 @@ namespace Housing
                 }
 
                 shop.UnitPrices[items[0].type] = price;
-                _database.Update(shop);
+                database.Update(shop);
                 player.SendSuccessMessage(
                     $"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
                     $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop prices.");
@@ -897,7 +895,7 @@ namespace Housing
 
         private void OnGamePostInitialize(EventArgs args)
         {
-            _database.Load();
+            database.Load();
         }
 
         private void OnGameUpdate(EventArgs args)
@@ -905,7 +903,7 @@ namespace Housing
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
                 var session = GetOrCreateSession(player);
-                var house = _database.GetHouse(player.TileX, player.TileY);
+                var house = database.GetHouse(player.TileX, player.TileY);
                 if (house != null && session.CurrentHouse != house)
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} entered {house.OwnerName}'s {house} house");
@@ -928,7 +926,7 @@ namespace Housing
                 }
                 session.CurrentHouse = house;
 
-                var shop = _database.GetShop(player.TileX, player.TileY);
+                var shop = database.GetShop(player.TileX, player.TileY);
                 if (shop != null && session.CurrentShop != shop && shop.Message != null)
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} entered {shop.OwnerName}'s {shop} shop");
@@ -937,8 +935,8 @@ namespace Housing
                 session.CurrentShop = shop;
             }
 
-            var shops = _database.GetShops();
-            foreach (var house in _database.GetHouses())
+            var shops = database.GetShops();
+            foreach (var house in database.GetHouses())
             {
 				var houseConfig = house.GetGroupConfig();
 
@@ -973,7 +971,7 @@ namespace Housing
                     {
                         if (house.Debt > houseConfig.MaxDebtAllowed)
                         {
-							_database.Remove(house);
+							database.Remove(house);
 
 							if (player != null)
 							{
@@ -985,7 +983,7 @@ namespace Housing
                     }
 
                     house.LastTaxed = DateTime.UtcNow;
-                    _database.Update(house);
+                    database.Update(house);
                 }
             }
         }
@@ -1006,7 +1004,7 @@ namespace Housing
                     var x = reader.ReadInt16();
                     var y = reader.ReadInt16();
 
-                    var shop = _database.GetShops().FirstOrDefault(s => s.ChestX == x && s.ChestY == y);
+                    var shop = database.GetShops().FirstOrDefault(s => s.ChestX == x && s.ChestY == y);
                     session.CurrentlyViewedShop = shop;
                     if (shop == null)
                     {
@@ -1069,7 +1067,7 @@ namespace Housing
                         shopItem.StackSize = stackSize;
                         shopItem.PrefixId = prefixId;
                     }
-                    _database.Update(shop);
+                    database.Update(shop);
                     args.Handled = true;
                 }
             }
@@ -1110,7 +1108,7 @@ namespace Housing
                                 return;
                             }
                             
-                            var shop = _database.AddShop(player, session.NextShopName, session.NextShopX,
+                            var shop = database.AddShop(player, session.NextShopName, session.NextShopX,
                                                          session.NextShopY, session.NextShopX2, session.NextShopY2, x,
                                                          y);
                             player.SendSuccessMessage($"Added the shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
@@ -1146,7 +1144,7 @@ namespace Housing
                         --x;
                     }
 
-                    if (_database.GetShops().Any(s => s.ChestX == x && s.ChestY == y))
+                    if (database.GetShops().Any(s => s.ChestX == x && s.ChestY == y))
                     {
                         player.SendErrorMessage("You can't remove shop chests.");
                         args.Handled = true;
@@ -1168,7 +1166,7 @@ namespace Housing
 				taxService.IsEnabled = Config.Instance.EnableTaxService;
 			}
 
-			_database.Load();
+			database.Load();
             args.Player.SendSuccessMessage("[Housing] Reloaded config!");
         }
 
@@ -1183,7 +1181,7 @@ namespace Housing
 			var config = Config.Instance.GetGroupConfig(player!=null ? player.Group.Name : ">");//force default if no group.. we can never have a group named ">" ...right?
 			if (player != null && config?.AllowOfflineShops==false)//!Config.Instance.AllowOfflineShops)
             {
-                foreach (var shop in _database.GetShops().Where(s => s.OwnerName == player.User?.Name))
+                foreach (var shop in database.GetShops().Where(s => s.OwnerName == player.User?.Name))
                 {
                     shop.IsOpen = false;
                 }
