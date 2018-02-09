@@ -72,11 +72,12 @@
     <Compile Include="Database\House.cs" />
     <Compile Include="Database\Shop.cs" />
     <Compile Include="Database\ShopItem.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="GroupConfig.cs" />
     <Compile Include="HousingPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />
+    <Compile Include="Extensions\ShopExtensions.cs" />
     <Compile Include="Taxation\TaxService.cs" />
   </ItemGroup>
   <ItemGroup>

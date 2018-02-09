@@ -25,6 +25,8 @@ namespace Housing
     {
         private const string SessionKey = "Housing_Session";
 
+		private const int MessageRefreshDelay = 2000;//2 seconds( in ms ), used by calls that refresh the players display 
+
         private static readonly string ConfigPath = Path.Combine("housing", "config.json");
         private static readonly string SqlitePath = Path.Combine("housing", "db.sqlite");
 
@@ -587,11 +589,13 @@ namespace Housing
                     if (account == null || account.Balance < purchaseCost + salesTax)
                     {
                         player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
+						shop.TryShowStock(player, MessageRefreshDelay);
                         return;
                     }
                     if (shopItem.StackSize < amount || shopItem.ItemId != itemId || shop.IsBeingChanged)
                     {
                         player.SendErrorMessage("While waiting, the shop changed.");
+						//shop.TryShowStock(player, MessageRefreshDelay * 2);//if the shop is changing, lets not spam anyones display while it is
                         return;
                     }
 
@@ -621,6 +625,8 @@ namespace Housing
                         .FirstOrDefault(p => p.User?.Name == shop.OwnerName);
                     player2?.SendInfoMessage($"{player.Name} purchased {itemText} for " +
                                              $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+
+					shop.TryShowStock(player, MessageRefreshDelay);
                 });
                 player.AddResponse("no", args2 =>
                 {
@@ -1027,40 +1033,8 @@ namespace Housing
                     }
                     else if (shop.OwnerName != player.User?.Name)
                     {
-                        if (!shop.IsOpen)
-                        {
-                            Debug.WriteLine(
-                                $"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
-                            player.SendErrorMessage("This shop is closed.");
-                            return;
-                        }
-                        if (shop.IsBeingChanged)
-                        {
-                            Debug.WriteLine(
-                                $"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
-                            player.SendErrorMessage("This shop is being changed right now.");
-                            return;
-                        }
-
-                        Debug.WriteLine($"DEBUG: {player.Name} viewed shop at {shop.ChestX}, {shop.ChestY}");
-                        player.SendInfoMessage("Current stock:");
-                        var sb = new StringBuilder();
-                        for (var i = 0; i < Chest.maxItems; ++i)
-                        {
-                            var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
-                            if (shopItem?.StackSize > 0)
-                            {
-                                sb.Append(
-                                    $"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
-                            }
-                            if ((i + 1) % 10 == 0 && sb.Length > 0)
-                            {
-                                player.SendInfoMessage(sb.ToString());
-                                sb.Clear();
-                            }
-                        }
-                        player.SendInfoMessage(
-                            $"Use {Commands.Specifier}itemshop buy <item-index> [amount] to buy items.");
+						Debug.WriteLine($"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
+						shop.TryShowStock(player);
                     }
                 }
             }

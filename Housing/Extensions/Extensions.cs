@@ -3,10 +3,10 @@ using System.Diagnostics;
 
 namespace Housing
 {
-    /// <summary>
-    ///     Provides extension methods.
-    /// </summary>
-    public static class Extensions
+	/// <summary>
+	///     Provides extension methods.
+	/// </summary>
+	public static class Extensions
     {
         /// <summary>
         ///     Gets a value from the specified dictionary, returning a default value if the specified key is not present.
