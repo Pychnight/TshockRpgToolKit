@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Housing.Database;
+using Housing.Models;
 using TShockAPI;
 
 namespace Housing

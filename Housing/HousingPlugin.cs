@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Housing.Database;
+using Housing.Models;
 using Microsoft.Xna.Framework;
 using Mono.Data.Sqlite;
 using Newtonsoft.Json;

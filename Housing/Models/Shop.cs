@@ -5,15 +5,15 @@ using Microsoft.Xna.Framework;
 using TShockAPI;
 using Wolfje.Plugins.SEconomy;
 
-namespace Housing.Database
+namespace Housing.Models
 {
     /// <summary>
-    ///     Represents a house.
+    ///     Represents a shop.
     /// </summary>
-    public sealed class House
+    public sealed class Shop
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="House" /> class with the specified owner name, name, and coordinates.
+        ///     Initializes a new instance of the <see cref="Shop" /> class with the specified owner name, name, and coordinates.
         /// </summary>
         /// <param name="ownerName">The owner name.</param>
         /// <param name="name">The name, which must not be <c>null</c>.</param>
@@ -21,7 +21,9 @@ namespace Housing.Database
         /// <param name="y">The first Y coordinate.</param>
         /// <param name="x2">The second X coordinate, which must be at least the first.</param>
         /// <param name="y2">The second Y coordinate, which must be at least the second.</param>
-        public House(string ownerName, string name, int x, int y, int x2, int y2)
+        /// <param name="chestX">The chest X coordinate.</param>
+        /// <param name="chestY">The chest Y coordinate.</param>
+        public Shop(string ownerName, string name, int x, int y, int x2, int y2, int chestX, int chestY)
         {
             Debug.Assert(ownerName != null, "Owner name must not be null.");
             Debug.Assert(name != null, "Name must not be null.");
@@ -31,32 +33,39 @@ namespace Housing.Database
             OwnerName = ownerName;
             Name = name;
             Rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
+            ChestX = chestX;
+            ChestY = chestY;
         }
 
         /// <summary>
-        ///     Gets the set of allowed user names.
+        ///     Gets or sets the chest X coordinate.
         /// </summary>
-        public ISet<string> AllowedUsernames { get; } = new HashSet<string>();
+        public int ChestX { get; set; }
 
         /// <summary>
-        ///     Gets the area.
+        ///     Gets or sets the chest Y coordinate.
         /// </summary>
-        public int Area => Rectangle.Width * Rectangle.Height;
+        public int ChestY { get; set; }
 
         /// <summary>
-        ///     Gets or sets the debt.
+        ///     Gets or sets a value indicating whether the shop is being changed.
         /// </summary>
-        public Money Debt { get; set; }
+        public bool IsBeingChanged { get; set; }
 
         /// <summary>
-        ///     Gets or sets whether the house is for sale.
+        ///     Gets or sets a value indicating whether the shop is open.
         /// </summary>
-        public bool ForSale { get; set; }
+        public bool IsOpen { get; set; }
 
         /// <summary>
-        ///     Gets or sets the last time the house was taxed.
+        ///     Gets the items.
         /// </summary>
-        public DateTime LastTaxed { get; set; } = DateTime.UtcNow;
+        public IList<ShopItem> Items { get; } = new List<ShopItem>();
+
+        /// <summary>
+        ///     Gets or sets the message.
+        /// </summary>
+        public string Message { get; set; }
 
         /// <summary>
         ///     Gets the name.
@@ -69,14 +78,14 @@ namespace Housing.Database
         public string OwnerName { get; }
 
         /// <summary>
-        ///     Gets or sets the price.
-        /// </summary>
-        public Money Price { get; set; }
-
-        /// <summary>
         ///     Gets or sets the rectangle.
         /// </summary>
         public Rectangle Rectangle { get; set; }
+
+        /// <summary>
+        ///     Gets the unit prices.
+        /// </summary>
+        public IDictionary<int, Money> UnitPrices { get; } = new Dictionary<int, Money>();
 
         public override string ToString() => Name;
 
@@ -100,9 +109,9 @@ namespace Housing.Database
 					var user = TShock.Users.GetUserByName(OwnerName);
 					groupName = user.Group;
 				}
-				catch(Exception ex)
+				catch( Exception ex )
 				{
-					Debug.Print($"House.GetGroupConfig() failed while trying to get owner group for house {OwnerName}.");
+					Debug.Print($"Shop.GetGroupConfig() failed while trying to get owner group for shop {OwnerName}.");
 				}
 			}
 

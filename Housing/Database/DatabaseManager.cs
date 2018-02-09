@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Housing.Models;
 using Mono.Data.Sqlite;
 using Terraria;
 using TShockAPI;

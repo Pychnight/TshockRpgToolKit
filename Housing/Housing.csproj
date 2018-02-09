@@ -69,9 +69,9 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Database\DatabaseManager.cs" />
-    <Compile Include="Database\House.cs" />
-    <Compile Include="Database\Shop.cs" />
-    <Compile Include="Database\ShopItem.cs" />
+    <Compile Include="Models\House.cs" />
+    <Compile Include="Models\Shop.cs" />
+    <Compile Include="Models\ShopItem.cs" />
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="GroupConfig.cs" />
     <Compile Include="HousingPlugin.cs" />

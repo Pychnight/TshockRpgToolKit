@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Wolfje.Plugins.SEconomy;
 
-namespace Housing.Database
+namespace Housing.Models
 {
     /// <summary>
     ///     Represents a shop item.
