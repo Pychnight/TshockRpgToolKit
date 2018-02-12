@@ -53,7 +53,7 @@ namespace Housing
             if (File.Exists(ConfigPath))
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
+			}
 			
 			taxService = new TaxService(this);
 			if (Config.Instance != null)
@@ -61,8 +61,7 @@ namespace Housing
 				taxService.IsEnabled = Config.Instance.EnableTaxService;
 			}
 
-			databaseConnection = new SqliteConnection($"uri=file://{SqlitePath},Version=3");
-            database = new SqliteDatabase(databaseConnection);
+			database = DatabaseFactory.LoadOrCreateDatabase(Config.Instance);
 						
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
@@ -86,7 +85,7 @@ namespace Housing
                 ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-                ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
+				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
             }
             base.Dispose(disposing);
         }

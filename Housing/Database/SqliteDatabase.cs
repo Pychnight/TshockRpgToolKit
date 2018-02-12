@@ -15,25 +15,21 @@ namespace Housing.Database
     /// <summary>
     ///     Represents a Sqlite database for the plots and houses.
     /// </summary>
-    public sealed class SqliteDatabase : IDatabase
+    public sealed class SqliteDatabase : DatabaseBase
     {
 		private readonly object _lock = new object();
-		private readonly IDbConnection _connection;
-        private readonly List<House> _houses = new List<House>();
-        private readonly List<Shop> _shops = new List<Shop>();
-		private readonly List<TaxCollector> taxCollectors = new List<TaxCollector>();
-		private readonly HashSet<string> taxCollectorNames = new HashSet<string>();
-	
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SqliteDatabase" /> class with the specified connection.
-        /// </summary>
-        /// <param name="connection">The connection, which must not be <c>null</c>.</param>
-        public SqliteDatabase(IDbConnection connection)
+		private IDbConnection Connection { get; set; }
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="SqliteDatabase" /> class with the specified connection.
+		/// </summary>
+		/// <param name="connection">The connection, which must not be <c>null</c>.</param>
+		public SqliteDatabase(IDbConnection connection)
         {
             Debug.Assert(connection != null, "Connection must not be null.");
 
-            _connection = connection;
-            _connection.Query("CREATE TABLE IF NOT EXISTS Houses (" +
+            Connection = connection;
+            Connection.Query("CREATE TABLE IF NOT EXISTS Houses (" +
                               "  OwnerName TEXT," +
                               "  Name      TEXT," +
                               "  WorldId INTEGER," +
@@ -46,7 +42,7 @@ namespace Housing.Database
                               "  ForSale   INTEGER DEFAULT 0," +
                               "  PRICE     INTEGER DEFAULT 0," +
                               "  PRIMARY KEY(OwnerName, Name, WorldId))");
-            _connection.Query("CREATE TABLE IF NOT EXISTS Shops (" +
+            Connection.Query("CREATE TABLE IF NOT EXISTS Shops (" +
                               "  OwnerName  TEXT," +
                               "  Name       TEXT," +
                               "  WorldId    INTEGER," +
@@ -60,7 +56,7 @@ namespace Housing.Database
                               "  Message    TEXT," +
                               "  PRIMARY KEY(OwnerName, Name, WorldId))");
 
-            _connection.Query("CREATE TABLE IF NOT EXISTS HouseHasUser (" +
+            Connection.Query("CREATE TABLE IF NOT EXISTS HouseHasUser (" +
                               "  OwnerName TEXT," +
                               "  HouseName TEXT," +
                               "  WorldId   INTEGER," +
@@ -68,7 +64,7 @@ namespace Housing.Database
                               "  FOREIGN KEY(OwnerName, HouseName, WorldId)" +
                               "    REFERENCES Houses(OwnerName, Name, WorldId) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, HouseName, WorldId, Username) ON CONFLICT IGNORE)");
-            _connection.Query("CREATE TABLE IF NOT EXISTS ShopHasItem (" +
+            Connection.Query("CREATE TABLE IF NOT EXISTS ShopHasItem (" +
                               "  OwnerName          TEXT," +
                               "  ShopName           TEXT," +
                               "  WorldId            INTEGER," +
@@ -79,7 +75,7 @@ namespace Housing.Database
                               "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
                               "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemIndex) ON CONFLICT REPLACE)");
-            _connection.Query("CREATE TABLE IF NOT EXISTS ShopHasPrice (" +
+            Connection.Query("CREATE TABLE IF NOT EXISTS ShopHasPrice (" +
                               "  OwnerName          TEXT," +
                               "  ShopName           TEXT," +
                               "  WorldId            INTEGER," +
@@ -88,7 +84,7 @@ namespace Housing.Database
                               "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
                               "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemId) ON CONFLICT REPLACE)");
-			_connection.Query("CREATE TABLE IF NOT EXISTS TaxCollectors (" +
+			Connection.Query("CREATE TABLE IF NOT EXISTS TaxCollectors (" +
 							  "  WorldId            INTEGER NOT NULL," +
 							  "  PlayerName         TEXT NOT NULL," +
 							  "  PRIMARY KEY (WorldId, PlayerName) )" );
@@ -104,7 +100,7 @@ namespace Housing.Database
         /// <param name="x2">The second X coordinate, which must be at least the first.</param>
         /// <param name="y2">The second Y coordinate, which must be at least the second.</param>
         /// <returns>The resulting house.</returns>
-        public House AddHouse(TSPlayer owner, string name, int x, int y, int x2, int y2)
+        public override House AddHouse(TSPlayer owner, string name, int x, int y, int x2, int y2)
         {
             Debug.Assert(name != null, "Name must not be null.");
             Debug.Assert(owner != null, "Owner must not be null.");
@@ -117,12 +113,12 @@ namespace Housing.Database
                 TShock.Regions.AddRegion(
                     x, y, x2 - x + 1, y2 - y + 1, $"__House<>{owner.User.Name}<>{name}", owner.User.Name,
                     Main.worldID.ToString(), 100);
-                _connection.Query(
+                Connection.Query(
                     "INSERT INTO Houses (OwnerName, Name, WorldId, X, Y, X2, Y2, LastTaxed)" +
                     "VALUES (@0, @1, @2, @3, @4, @5, @6, @7)",
                     owner.User.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
                 var house = new House(owner.User.Name, name, x, y, x2, y2);
-                _houses.Add(house);
+                Houses.Add(house);
                 return house;
             }
         }
@@ -139,7 +135,7 @@ namespace Housing.Database
         /// <param name="chestX">The chest X coordinate.</param>
         /// <param name="chestY">The chest Y coordinate.</param>
         /// <returns>The resulting shop.</returns>
-        public Shop AddShop(TSPlayer owner, string name, int x, int y, int x2, int y2, int chestX, int chestY)
+        public override Shop AddShop(TSPlayer owner, string name, int x, int y, int x2, int y2, int chestX, int chestY)
         {
             Debug.Assert(name != null, "Name must not be null.");
             Debug.Assert(owner != null, "Owner must not be null.");
@@ -149,12 +145,12 @@ namespace Housing.Database
 
             lock (_lock)
             {
-                _connection.Query(
+                Connection.Query(
                     "INSERT INTO Shops (OwnerName, Name, WorldId, X, Y, X2, Y2, ChestX, ChestY, IsOpen)" +
                     "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9)",
                     owner.User.Name, name, Main.worldID, x, y, x2, y2, chestX, chestY, 0);
                 var shop = new Shop(owner.User.Name, name, x, y, x2, y2, chestX, chestY);
-                _shops.Add(shop);
+                Shops.Add(shop);
                 return shop;
             }
         }
@@ -163,63 +159,36 @@ namespace Housing.Database
 		/// Adds a player name to the tax collector list.
 		/// </summary>
 		/// <param name="playerName"></param>
-		public TaxCollector AddTaxCollector(string playerName)
+		public override TaxCollector AddTaxCollector(string playerName)
 		{
 			Debug.Assert(playerName != null, "playerName must not be null.");
 
 			lock( _lock )
 			{
-				if( taxCollectorNames.Contains(playerName) )
+				if( TaxCollectorNames.Contains(playerName) )
 					return null;
 
-				_connection.Query(
+				Connection.Query(
 					"INSERT INTO TaxCollectors (WorldId, PlayerName)" +
 					"VALUES (@0, @1)",
 					Main.worldID, playerName);
 
 				var tc = new TaxCollector(playerName);
-				taxCollectors.Add(tc);
-				taxCollectorNames.Add(playerName);
+				TaxCollectors.Add(tc);
+				TaxCollectorNames.Add(playerName);
 				return tc;
 			}
 		}
-
-		/// <summary>
-		///     Gets the houses.
-		/// </summary>
-		/// <returns>The houses.</returns>
-		public IList<House> GetHouses()
-        {
-			return _houses.ToList();
-        }
 		
-        /// <summary>
-        ///     Gets the shops.
-        /// </summary>
-        /// <returns>The shops.</returns>
-        public IList<Shop> GetShops()
-        {
-			return _shops.ToList();
-        }
-
-		/// <summary>
-		///  Gets the TaxCollectors.
-		/// </summary>
-		/// <returns>TaxCollectors.</returns>
-		public IList<TaxCollector> GetTaxCollectors()
-		{
-			return taxCollectors.ToList();
-		}
-
         /// <summary>
         ///     Loads the houses and shops.
         /// </summary>
-        public void Load()
+        public override void Load()
         {
             lock (_lock)
             {
-                _houses.Clear();
-                using (var reader = _connection.QueryReader("SELECT * FROM Houses WHERE WorldId = @0", Main.worldID))
+                Houses.Clear();
+                using (var reader = Connection.QueryReader("SELECT * FROM Houses WHERE WorldId = @0", Main.worldID))
                 {
                     while (reader.Read())
                     {
@@ -241,7 +210,7 @@ namespace Housing.Database
                             ForSale = forSale,
                             Price = price
                         };
-                        using (var reader2 = _connection.QueryReader(
+                        using (var reader2 = Connection.QueryReader(
                             "SELECT Username FROM HouseHasUser " +
                             "WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
                             ownerName, name, Main.worldID))
@@ -252,12 +221,12 @@ namespace Housing.Database
                                 house.AllowedUsernames.Add(username);
                             }
                         }
-                        _houses.Add(house);
+                        Houses.Add(house);
                     }
                 }
 
-                _shops.Clear();
-                using (var reader = _connection.QueryReader("SELECT * FROM Shops WHERE WorldID = @0", Main.worldID))
+                Shops.Clear();
+                using (var reader = Connection.QueryReader("SELECT * FROM Shops WHERE WorldID = @0", Main.worldID))
                 {
                     while (reader.Read())
                     {
@@ -277,7 +246,7 @@ namespace Housing.Database
                             IsOpen = isOpen,
                             Message = message
                         };
-                        using (var reader2 = _connection.QueryReader(
+                        using (var reader2 = Connection.QueryReader(
                             "SELECT * FROM ShopHasItem WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
                             ownerName, name, Main.worldID))
                         {
@@ -290,7 +259,7 @@ namespace Housing.Database
                                 shop.Items.Add(new ShopItem(index, itemId, stackSize, prefixId));
                             }
                         }
-                        using (var reader2 = _connection.QueryReader(
+                        using (var reader2 = Connection.QueryReader(
                             "SELECT * FROM ShopHasPrice WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
                             ownerName, name, Main.worldID))
                         {
@@ -301,21 +270,21 @@ namespace Housing.Database
                                 shop.UnitPrices[itemId] = unitPrice;
                             }
                         }
-                        _shops.Add(shop);
+                        Shops.Add(shop);
                     }
                 }
 
 				//load in tax collectors.
-				taxCollectors.Clear();
-				taxCollectorNames.Clear();
-				using (var reader = _connection.QueryReader("SELECT * FROM TaxCollectors WHERE WorldID = @0", Main.worldID))
+				TaxCollectors.Clear();
+				TaxCollectorNames.Clear();
+				using (var reader = Connection.QueryReader("SELECT * FROM TaxCollectors WHERE WorldID = @0", Main.worldID))
 				{
 					while (reader.Read())
 					{
 						var playerName = reader.Get<string>("PlayerName");
 						var tc = new TaxCollector(playerName);
-						taxCollectors.Add(tc);
-						taxCollectorNames.Add(playerName);
+						TaxCollectors.Add(tc);
+						TaxCollectorNames.Add(playerName);
 					}
 				}
             }
@@ -325,18 +294,18 @@ namespace Housing.Database
         ///     Removes the specified house.
         /// </summary>
         /// <param name="house">The shop, which must not be <c>null</c>.</param>
-        public void Remove(House house)
+        public override void Remove(House house)
         {
             Debug.Assert(house != null, "House must not be null.");
 
             lock (_lock)
             {
                 TShock.Regions.DeleteRegion($"__House<>{house.OwnerName}<>{house.Name}");
-                _connection.Query("DELETE FROM Houses WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
+                Connection.Query("DELETE FROM Houses WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
                                   house.OwnerName, house.Name, Main.worldID);
-                _houses.Remove(house);
+                Houses.Remove(house);
 
-                foreach (var shop in _shops.Where(s => house.Rectangle.Contains(s.Rectangle)))
+                foreach (var shop in Shops.Where(s => house.Rectangle.Contains(s.Rectangle)))
                 {
                     Remove(shop);
                 }
@@ -347,32 +316,32 @@ namespace Housing.Database
         ///     Removes the specified shop.
         /// </summary>
         /// <param name="shop">The shop, which must not be <c>null</c>.</param>
-        public void Remove(Shop shop)
+        public override void Remove(Shop shop)
         {
             Debug.Assert(shop != null, "House must not be null.");
 
             lock (_lock)
             {
-                _connection.Query("DELETE FROM Shops WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
+                Connection.Query("DELETE FROM Shops WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
                                   shop.OwnerName, shop.Name, Main.worldID);
-                _shops.Remove(shop);
+                Shops.Remove(shop);
             }
         }
 		
-		public void Remove(TaxCollector taxCollector)
+		public override void Remove(TaxCollector taxCollector)
 		{
 			Debug.Assert(taxCollector != null, "playerName must not be null.");
 			
 			lock( _lock )
 			{
-				var indexOf = taxCollectors.IndexOf(taxCollector);
+				var indexOf = TaxCollectors.IndexOf(taxCollector);
 
 				if( indexOf == -1 )
 					return;
 
-				_connection.Query("DELETE FROM TaxCollectors WHERE WorldId = @0 AND PlayerName = @1",
+				Connection.Query("DELETE FROM TaxCollectors WHERE WorldId = @0 AND PlayerName = @1",
 								  Main.worldID, taxCollector.PlayerName);
-				taxCollectors.RemoveAt(indexOf);
+				TaxCollectors.RemoveAt(indexOf);
 			}
 		}
 
@@ -380,7 +349,7 @@ namespace Housing.Database
 		///     Updates the specified house.
 		/// </summary>
 		/// <param name="house">The shop, which must not be <c>null</c>.</param>
-		public void Update(House house)
+		public override void Update(House house)
         {
             Debug.Assert(house != null, "House must not be null.");
 
@@ -389,17 +358,17 @@ namespace Housing.Database
                 var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
                 region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.Users.GetUserID(au))));
 
-                _connection.Query(
+                Connection.Query(
                     "UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +
                     "  Price = @7 WHERE OwnerName = @8 AND Name = @9 AND WorldId = @10",
                     house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right - 1, house.Rectangle.Bottom - 1,
                     (long)house.Debt, house.LastTaxed.ToString("s"), house.ForSale ? 1 : 0, (long)house.Price,
                     house.OwnerName, house.Name, Main.worldID);
-                _connection.Query("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
+                Connection.Query("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
                                   house.OwnerName, house.Name, Main.worldID);
                 foreach (var username in house.AllowedUsernames)
                 {
-                    _connection.Query(
+                    Connection.Query(
                         "INSERT INTO HouseHasUser (OwnerName, HouseName, WorldId, Username) VALUES (@0, @1, @2, @3)",
                         house.OwnerName, house.Name, Main.worldID, username);
                 }
@@ -410,18 +379,18 @@ namespace Housing.Database
         ///     Updates the specified shop.
         /// </summary>
         /// <param name="shop">The shop, which must not be <c>null</c>.</param>
-        public void Update(Shop shop)
+        public override void Update(Shop shop)
         {
             Debug.Assert(shop != null, "Shop must not be null.");
 
             lock (_lock)
             {
-                _connection.Query("UPDATE Shops SET X = @0, Y = @1, X2 = @2, Y2 = @3, IsOpen = @4, Message = @5 " +
+                Connection.Query("UPDATE Shops SET X = @0, Y = @1, X2 = @2, Y2 = @3, IsOpen = @4, Message = @5 " +
                                   "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
                                   shop.Rectangle.X, shop.Rectangle.Y, shop.Rectangle.Right - 1,
                                   shop.Rectangle.Bottom - 1, shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName,
                                   shop.Name, Main.worldID);
-                using (var db = _connection.CloneEx())
+                using (var db = Connection.CloneEx())
                 {
                     db.Open();
                     using (var transaction = db.BeginTransaction())
