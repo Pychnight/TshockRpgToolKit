@@ -630,7 +630,9 @@ namespace Housing
                 {
                     player.AwaitingResponse.Remove("yes");
                     player.SendInfoMessage("Canceled purchase.");
-                });
+
+					shop.TryShowStock(player, MessageRefreshDelay);
+				});
             }
             else if (subcommand.Equals("close", StringComparison.OrdinalIgnoreCase))
             {
