@@ -56,6 +56,7 @@ namespace Banking
 			//}
 
 			NpcStrikeTracker = new NpcStrikeTracker();
+			NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 			
 			GeneralHooks.ReloadEvent += OnReload;
 			//PlayerHooks.PlayerChat += OnPlayerChat;
@@ -96,6 +97,11 @@ namespace Banking
 		private void OnReload(ReloadEventArgs e)
 		{
 			Debug.Print("OnReload...we should do something here!");
+		}
+
+		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
+		{
+			Debug.Print("OnStruckNpcKilled!");
 		}
 
 		protected override void Dispose(bool disposing)

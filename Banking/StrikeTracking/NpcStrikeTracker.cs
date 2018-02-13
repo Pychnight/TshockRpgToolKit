@@ -15,6 +15,8 @@ namespace Banking
 	{
 		Dictionary<int, PlayerStrikeInfo> npcStrikes;
 
+		public event EventHandler<StruckNpcKilledEventArgs> StruckNpcKilled;
+
 		public NpcStrikeTracker()
 		{
 			npcStrikes = new Dictionary<int, PlayerStrikeInfo>();
@@ -43,8 +45,11 @@ namespace Banking
 			if( npcStrikes.TryGetValue(npcIndex, out var strikes) )
 			{
 				npcStrikes.Remove(npcIndex);
-				//var count = strikes.Count;
-				//var playersResponsible = strikes.Distinct()
+				if(StruckNpcKilled!=null)
+				{
+					var args = new StruckNpcKilledEventArgs(npc,strikes);
+					StruckNpcKilled(this, args);
+				}
 			}
 		}
 		
