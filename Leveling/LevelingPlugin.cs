@@ -37,7 +37,7 @@ namespace Leveling
             new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
 
         private List<ClassDefinition> _classDefinitions;
-        private List<Class> _classes;
+        internal List<Class> _classes;
 
         public LevelingPlugin(Main game) : base(game)
         {
@@ -151,7 +151,12 @@ namespace Leveling
                 HelpText = $"Syntax: {Commands.Specifier}levelup <player-name>\n" +
                            "Levels up the specified player."
             });
-            Commands.ChatCommands.Add(new Command("leveling.multiplier", Multiplier, "multiplier")
+			Commands.ChatCommands.Add(new Command("leveling.levelreset", LevelReset, "levelreset")
+			{
+				HelpText = $"Syntax: {Commands.Specifier}levelreset <player-name>\n" +
+						  "Resets the player's level to default."
+			});
+			Commands.ChatCommands.Add(new Command("leveling.multiplier", Multiplier, "multiplier")
             {
                 HelpText = $"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>\n" +
                            "Sets multipliers."
@@ -429,13 +434,7 @@ namespace Leveling
 			if (session == null)
             {
 				var username = player.User?.Name ?? player.Name;
-				//var sessionPath = Path.Combine("leveling", $"{username}.session");
-
-				//if (File.Exists(sessionPath))
-				//{
-				//    definition = JsonConvert.DeserializeObject<SessionDefinition>(File.ReadAllText(sessionPath));
-				//}
-
+				
 				//first try the database
 				SessionDefinition definition = SessionRepository.Load(username);
 
@@ -443,12 +442,7 @@ namespace Leveling
 				if(definition==null)
 				{
                     definition = new SessionDefinition();
-                    var defaultClassName = Config.Instance.DefaultClassName;
-                    definition.ClassNameToExp[defaultClassName] = 0;
-                    definition.ClassNameToLevelName[defaultClassName] =
-                        _classes.First(c => c.Name == defaultClassName).Levels[0].Name;
-                    definition.CurrentClassName = defaultClassName;
-                    definition.UnlockedClassNames.Add(defaultClassName);
+					definition.initialize();
                 }
 
                 session = new Session(player, definition);
@@ -457,8 +451,8 @@ namespace Leveling
             }
             return session;
         }
-
-        private void GiveExp(CommandArgs args)
+		
+		private void GiveExp(CommandArgs args)
         {
             var parameters = args.Parameters;
             var player = args.Player;
@@ -686,7 +680,39 @@ namespace Leveling
             }
         }
 
-        private void Multiplier(CommandArgs args)
+		private void LevelReset(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			if( parameters.Count != 1 )
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}levelreset <player-name>");
+				return;
+			}
+
+			var inputPlayerName = parameters[0];
+			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			if( players.Count == 0 )
+			{
+				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
+				return;
+			}
+			if( players.Count > 1 )
+			{
+				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+				TShock.Utils.SendMultipleMatchError(player, players);
+				return;
+			}
+
+			var otherPlayer = players[0];
+			var session = GetOrCreateSession(otherPlayer);
+			
+			session.LevelReset();
+			player.SendSuccessMessage($"Reset level for {otherPlayer.Name}.");
+			otherPlayer.SendInfoMessage("Your level has been reset.");
+		}
+
+		private void Multiplier(CommandArgs args)
         {
             var parameters = args.Parameters;
             var player = args.Player;

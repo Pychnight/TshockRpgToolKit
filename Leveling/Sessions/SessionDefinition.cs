@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Leveling.Sessions
@@ -50,5 +51,14 @@ namespace Leveling.Sessions
         /// </summary>
         [JsonProperty("UnlockedClasses")]
         public ISet<string> UnlockedClassNames { get; private set; } = new HashSet<string>();
-    }
+
+		internal void initialize()
+		{
+			var defaultClassName = Config.Instance.DefaultClassName;
+			this.ClassNameToExp[defaultClassName] = 0;
+			this.ClassNameToLevelName[defaultClassName] = LevelingPlugin.Instance._classes.First(c => c.Name == defaultClassName).Levels[0].Name;
+			this.CurrentClassName = defaultClassName;
+			this.UnlockedClassNames.Add(defaultClassName);
+		}
+	}
 }

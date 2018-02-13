@@ -236,6 +236,17 @@ namespace Leveling.Sessions
                    @class.PrerequisitePermissions.All(p => _player.HasPermission(p));
         }
 
+		public void LevelReset()
+		{
+			Debug.Print("LevelReset!");
+
+			var def = _definition;
+
+			def.initialize();
+			Resolve(LevelingPlugin.Instance._classes);
+			Save();
+		}
+
         /// <summary>
         ///     Levels down the player.
         /// </summary>
