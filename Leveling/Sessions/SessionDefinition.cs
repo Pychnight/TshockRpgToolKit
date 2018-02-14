@@ -52,6 +52,25 @@ namespace Leveling.Sessions
         [JsonProperty("UnlockedClasses")]
         public ISet<string> UnlockedClassNames { get; private set; } = new HashSet<string>();
 
+		public SessionDefinition()
+		{
+		}
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="source">Source SessionDefinition from which to copy from.</param>
+		public SessionDefinition(SessionDefinition source)
+		{
+			ClassNameToExp = source.ClassNameToExp == null ? null : new Dictionary<string, long>(source.ClassNameToExp);
+			ClassNameToLevelName = source.ClassNameToLevelName == null ? null : new Dictionary<string, string>(source.ClassNameToLevelName);
+			CurrentClassName = source.CurrentClassName;
+			ItemIdsGiven = source.ItemIdsGiven == null ? null : new HashSet<int>(source.ItemIdsGiven);
+			LevelNamesObtained = source.LevelNamesObtained == null ? null : new HashSet<string>(source.LevelNamesObtained);
+			MasteredClassNames = source.MasteredClassNames == null ? null : new HashSet<string>(source.MasteredClassNames);
+			UnlockedClassNames = source.UnlockedClassNames == null ? null : new HashSet<string>(source.UnlockedClassNames);
+		}
+
 		internal void initialize()
 		{
 			var defaultClassName = Config.Instance.DefaultClassName;

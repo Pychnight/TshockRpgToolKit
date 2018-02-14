@@ -79,22 +79,35 @@ namespace Leveling.Sessions
 
 		public void Save(string userName, SessionDefinition sessionDefinition)
 		{
-			ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"SqliteSessionRepository.Save({userName})", TraceLevel.Info);
+			//Debug.Print($"SqliteSessionRepository.Save({userName})");
 
 			if(connection!=null)
 			{
-				var json = JsonConvert.SerializeObject(sessionDefinition, Formatting.Indented);
-				
-				using (var cmd = connection.CreateCommand())
+				//var json = JsonConvert.SerializeObject(sessionDefinition, Formatting.Indented);
+
+				//we now try to copy the session definition, in hopes of minimizing "rare" exceptions from definition collections being touched during serialization.
+				//we also catch the exception, and just log the error. Hopefully next call to save will work.
+				try
 				{
-					cmd.CommandText = "INSERT OR REPLACE INTO sessions ( player, data ) " +
-										"VALUES ( @player, @data );";
+					var defCopy = new SessionDefinition(sessionDefinition);
+					var json = JsonConvert.SerializeObject(defCopy, Formatting.Indented);
 
-					cmd.Parameters.AddWithValue("@player", userName);
-					cmd.Parameters.AddWithValue("@data", json);
+					using( var cmd = connection.CreateCommand() )
+					{
+						cmd.CommandText = "INSERT OR REPLACE INTO sessions ( player, data ) " +
+											"VALUES ( @player, @data );";
 
-					//Console.WriteLine($"CommandText: {cmd.CommandText}");
-					cmd.ExecuteNonQuery();
+						cmd.Parameters.AddWithValue("@player", userName);
+						cmd.Parameters.AddWithValue("@data", json);
+
+						//Console.WriteLine($"CommandText: {cmd.CommandText}");
+						cmd.ExecuteNonQuery();
+					}
+				}
+				catch(Exception ex)
+				{
+					ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
+					ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Session data not saved.", TraceLevel.Error);
 				}
 			}
 		}
