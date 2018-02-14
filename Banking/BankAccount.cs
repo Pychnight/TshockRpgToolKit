@@ -10,17 +10,20 @@ namespace Banking
 	{
 		object locker = new object();
 
-		public string Owner { get; private set; }
+		public string OwnerName { get; private set; }
 		public decimal Balance { get; private set; }
 
-		public BankAccount(string owner, decimal startingFunds)
+		public BankAccount(string ownerName, decimal startingFunds)
 		{
-			Owner = owner;
+			OwnerName = ownerName;
 			Balance = startingFunds;
 		}
 
 		public void Deposit(decimal amount)
 		{
+			if( amount < 0 )
+				return;
+
 			lock(locker)
 			{
 				Balance += amount;
@@ -29,6 +32,9 @@ namespace Banking
 
 		public bool TryWithdraw(decimal amount)
 		{
+			if( amount < 0 )
+				return false;
+
 			lock(locker)
 			{
 				if( Balance - amount < 0 )
@@ -44,6 +50,9 @@ namespace Banking
 
 		public bool TryTransferTo(BankAccount other, decimal amount)
 		{
+			if( other == null )
+				return false;
+
 			if(TryWithdraw(amount))
 			{
 				other.Deposit(amount);

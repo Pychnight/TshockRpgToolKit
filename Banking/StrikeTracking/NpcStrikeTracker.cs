@@ -22,6 +22,11 @@ namespace Banking
 			npcStrikes = new Dictionary<int, PlayerStrikeInfo>();
 		}
 
+		public void Clear()
+		{
+			npcStrikes.Clear();
+		}
+
 		public void OnNpcStrike(Player player, NPC npc)
 		{
 			var playerIndex = player.whoAmI;

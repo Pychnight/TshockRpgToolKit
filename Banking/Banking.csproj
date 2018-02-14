@@ -58,6 +58,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BankAccount.cs" />
+    <Compile Include="BankAccountManager.cs" />
+    <Compile Include="BankCommands.cs" />
     <Compile Include="BankingPlugin.cs" />
     <Compile Include="StrikeTracking\NpcStrikeTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,6 +69,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Database\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
