@@ -13,10 +13,19 @@ namespace Banking
 		public string OwnerName { get; private set; }
 		public decimal Balance { get; private set; }
 
-		public BankAccount(string ownerName, decimal startingFunds)
+		internal BankAccount(string ownerName, decimal startingFunds)
 		{
 			OwnerName = ownerName;
 			Balance = startingFunds;
+		}
+
+		public void Set(decimal amount)
+		{
+			lock( locker )
+			{
+				Balance = amount;
+				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+			}
 		}
 
 		public void Deposit(decimal amount)
@@ -27,6 +36,7 @@ namespace Banking
 			lock(locker)
 			{
 				Balance += amount;
+				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 			}
 		}
 
@@ -43,6 +53,7 @@ namespace Banking
 				}
 
 				Balance -= amount;
+				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 
 				return true;
 			}

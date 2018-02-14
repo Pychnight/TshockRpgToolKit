@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Banking.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,7 +23,9 @@ namespace Banking
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
 		public static BankingPlugin Instance { get; private set; }
-		private static readonly string ConfigPath = Path.Combine("banking", "config.json");
+
+		private static string DataDirectory { get; set; } = "banking";
+		private static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
 		internal BankAccountManager BankAccountManager;
 		internal NpcStrikeTracker NpcStrikeTracker;
@@ -41,11 +44,8 @@ namespace Banking
 		{
 			//try
 			//{
-			//	Directory.CreateDirectory("leveling");
-			//	if( File.Exists(ConfigPath) )
-			//	{
-			//		Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-			//	}
+			//	Directory.CreateDirectory(DataDirectory);
+			//	Config.LoadOrCreate(ConfigPath);
 
 			//	//SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
 
@@ -59,7 +59,7 @@ namespace Banking
 			//	return;
 			//}
 
-			//Debug.Print("INITIALIZE!!");
+			Config.LoadOrCreate(ConfigPath);
 
 			BankAccountManager = new BankAccountManager();
 			NpcStrikeTracker = new NpcStrikeTracker();
@@ -107,9 +107,21 @@ namespace Banking
 				ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				//ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
+				//ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
+
+				Config.Save(ConfigPath);
+				BankAccountManager.Save();
 			}
 
 			base.Dispose(disposing);
+		}
+		
+		private void onLoad()
+		{
+			Config.LoadOrCreate(ConfigPath);
+
+			NpcStrikeTracker.Clear();
+			BankAccountManager.Load();
 		}
 
 		private void OnPostInitialize(EventArgs args)
@@ -119,6 +131,8 @@ namespace Banking
 
 		private void OnReload(ReloadEventArgs e)
 		{
+			BankAccountManager.Save();
+
 			onLoad();
 		}
 
@@ -132,6 +146,11 @@ namespace Banking
 		//{
 		//	var player = new TSPlayer(args.Who);
 		//	Debug.Print($"Player {player.Name} has left the game.");
+		//}
+
+		//private void OnWorldSave(WorldSaveEventArgs args)
+		//{
+		//	BankAccountManager.Save();
 		//}
 
 		private void OnGameUpdate(EventArgs args)
@@ -157,12 +176,6 @@ namespace Banking
 			Debug.Print("OnStruckNpcKilled!");
 		}
 		
-		private void onLoad()
-		{
-			NpcStrikeTracker.Clear();
-			//load bank accounts here.
-		}
-
 		public BankAccount GetBankAccount(TSPlayer player)
 		{
 			return BankAccountManager.GetBankAccount(player);

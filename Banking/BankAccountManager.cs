@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Banking.Configuration;
+using Banking.Database;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,6 +12,7 @@ namespace Banking
 {
 	public class BankAccountManager
 	{
+		internal IDatabase Database;
 		private Dictionary<string, BankAccount> bankAccounts;
 
 		public BankAccount WorldAccount { get; private set; }
@@ -17,19 +20,32 @@ namespace Banking
 		public BankAccountManager()
 		{
 			bankAccounts = new Dictionary<string, BankAccount>();
-
-			WorldAccount = GetOrCreateBankAccount(TSPlayer.Server.Name);
-			bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
+			//WorldAccount = GetOrCreateBankAccount(TSPlayer.Server.Name);
+			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 		}
 
 		public void Load()
 		{
-			Debug.Print("FakeLoad");
+			//Debug.Print("BankAccountManager.Load!");
+			bankAccounts.Clear();
+
+			Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
+
+			var accounts = Database.Load();
+
+			foreach(var acc in accounts)
+			{
+				bankAccounts.Add(acc.OwnerName, acc);
+			}
+			
+			WorldAccount = GetOrCreateBankAccount(TSPlayer.Server.Name);
+			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 		}
 
 		public void Save()
 		{
-			Debug.Print("FakeSave");
+			//Debug.Print("BankAccountManager.Save!");
+			Database.Save(bankAccounts.Values.ToArray());
 		}
 
 		public BankAccount GetOrCreateBankAccount(string name)
@@ -40,6 +56,9 @@ namespace Banking
 			{
 				Debug.Print($"Creating BankAccount for {name}.");
 				account = new BankAccount(name, 100);
+
+				Database.Create(account);
+
 				bankAccounts.Add(name, account);
 			}
 

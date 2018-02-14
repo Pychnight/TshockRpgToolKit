@@ -56,6 +56,32 @@ namespace Banking
 
 		public static void BankAdmin(CommandArgs args)
 		{
+			var player = args.Player;
+			var parameters = args.Parameters;
+
+			if( parameters.Count > 0 )
+			{
+				var subcommand = parameters[0];
+				var amount = 0m;
+
+				switch(subcommand)
+				{
+					case "set":
+						if(parameters.Count == 3)
+						{
+							if( !decimal.TryParse(parameters[2], out amount) )
+							{
+								player.SendErrorMessage($"Invalid amount, '{parameters[2]}'");
+								return;
+							}
+
+							setPlayerBalance(player, parameters[1], amount);
+							return;
+						}
+						break;
+				}
+			}
+			
 			viewBankAdminHelp(args.Player);
 		}
 
@@ -115,6 +141,20 @@ namespace Banking
 			{
 				client.SendErrorMessage("Unable to transfer, insufficient funds.");
 			}
+		}
+
+		private static void setPlayerBalance(TSPlayer client, string targetName, decimal newBalance)
+		{
+			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName);
+
+			if( targetAccount == null )
+			{
+				client.SendErrorMessage($"Unable to find account for {targetName}.");
+				return;
+			}
+
+			targetAccount.Set(newBalance);
+			client.SendInfoMessage($"Set {targetAccount.OwnerName}'s account to {newBalance}.");
 		}
 	}
 }
