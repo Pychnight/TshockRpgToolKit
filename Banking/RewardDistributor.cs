@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace Banking
 {
@@ -32,6 +33,7 @@ namespace Banking
 			for( var i = 0; i < count; i++ )
 			{
 				rewards.TryDequeue(out var reward);
+				reward.Give();
 				reward.Notify();
 			}
 		}
@@ -79,6 +81,33 @@ namespace Banking
 		public virtual void Notify()
 		{
 			Debug.Print("This is a basic reward notification.");
+		}
+	}
+
+	public class CurrencyReward : Reward
+	{
+		public string Currency { get; set; }
+
+		public override void Give()
+		{
+			var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(PlayerName, Currency);
+
+			Debug.Assert(account != null, $"Couldn't find {Currency} account.");
+
+			account?.Deposit((decimal)Value);
+		}
+
+		public override void Notify()
+		{
+			if(!string.IsNullOrWhiteSpace(CombatText))
+			{
+				var player = TShock.Utils.FindPlayer(PlayerName).FirstOrDefault();
+
+				if(player!=null)
+				{
+					player.SendInfoMessage(CombatText);
+				}
+			}
 		}
 	}
 }

@@ -144,7 +144,6 @@ namespace Banking
 		private void OnServerJoin(JoinEventArgs args)
 		{
 			var player = new TSPlayer(args.Who);
-			//BankAccountManager.GetOrCreateBankAccount(player.Name);
 			BankAccountManager.EnsureBankAccountsExist(player.Name);
 		}
 
@@ -180,15 +179,35 @@ namespace Banking
 		
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
-			Debug.Print("OnStruckNpcKilled!");
+			//Debug.Print("OnStruckNpcKilled!");
 
 			foreach(var kvp in args.PlayerStrikeInfo)
 			{
-				var reward = new Reward()
+				if( args.NpcValue < 1f )
+					continue;
+
+				var val = args.NpcValue * 0.5f;
+								
+				var reward = new CurrencyReward()
 				{
-					PlayerName = kvp.Key
+					Currency = "Exp",
+					PlayerName = kvp.Key,
+					Value = val,
+					CombatText = $"+{val} Exp!"
 				};
-				
+
+				RewardDistributor.AddReward(reward);
+
+				val = args.NpcValue * 1f;
+
+				reward = new CurrencyReward()
+				{
+					Currency = "Dust",
+					PlayerName = kvp.Key,
+					Value = val,
+					CombatText = $"Earned {val} Dust!"
+				};
+
 				RewardDistributor.AddReward(reward);
 			}
 		}
