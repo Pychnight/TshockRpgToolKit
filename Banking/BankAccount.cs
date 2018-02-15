@@ -11,11 +11,13 @@ namespace Banking
 		object locker = new object();
 
 		public string OwnerName { get; private set; }
+		public string CurrencyType { get; private set; }
 		public decimal Balance { get; private set; }
 
-		internal BankAccount(string ownerName, decimal startingFunds)
+		internal BankAccount(string ownerName, string currencyType, decimal startingFunds)
 		{
 			OwnerName = ownerName;
+			CurrencyType = currencyType;
 			Balance = startingFunds;
 		}
 
@@ -24,7 +26,7 @@ namespace Banking
 			lock( locker )
 			{
 				Balance = amount;
-				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				//BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 			}
 		}
 
@@ -36,7 +38,7 @@ namespace Banking
 			lock(locker)
 			{
 				Balance += amount;
-				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				//BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 			}
 		}
 
@@ -53,7 +55,7 @@ namespace Banking
 				}
 
 				Balance -= amount;
-				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				//BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 
 				return true;
 			}

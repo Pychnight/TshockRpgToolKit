@@ -32,7 +32,7 @@ namespace Banking
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal RewardDistributor RewardDistributor;
 		
-		public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
+		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
 		
 		public BankingPlugin(Main game) : base(game)
 		{
@@ -144,7 +144,8 @@ namespace Banking
 		private void OnServerJoin(JoinEventArgs args)
 		{
 			var player = new TSPlayer(args.Who);
-			BankAccountManager.GetOrCreateBankAccount(player.Name);
+			//BankAccountManager.GetOrCreateBankAccount(player.Name);
+			BankAccountManager.EnsureBankAccountsExist(player.Name);
 		}
 
 		//private void OnServerLeave(LeaveEventArgs args)
@@ -192,14 +193,14 @@ namespace Banking
 			}
 		}
 		
-		public BankAccount GetBankAccount(TSPlayer player)
+		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
-			return BankAccountManager.GetBankAccount(player);
+			return BankAccountManager.GetBankAccount(player.Name,accountType);
 		}
 
-		public BankAccount GetBankAccount(string name)
+		public BankAccount GetBankAccount(string name, string accountType)
 		{
-			return BankAccountManager.GetBankAccount(name);
+			return BankAccountManager.GetBankAccount(name,accountType);
 		}
 	}
 }

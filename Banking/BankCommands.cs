@@ -28,19 +28,17 @@ namespace Banking
 				switch(subcommand)
 				{
 					case "bal":
-						viewBalance(player, parameters.Count == 2 ? parameters[1] : null);
+						viewBalance(player, parameters.Count == 2 ? parameters[1] : "");
 						break;
 
 					case "pay":
-						if( parameters.Count == 3 )
+						if( parameters.Count == 4 )
 						{
-							if( !decimal.TryParse(parameters[2], out amount) )
-							{
-								player.SendErrorMessage($"Invalid amount, '{parameters[2]}'");
-								return;
-							}
+							var currency = parameters[1];
+							var target = parameters[2];
+							decimal.TryParse(parameters[3], out amount);
 
-							payPlayer(player, parameters[1], amount);
+							payPlayer(player, currency, target, amount);
 							return;
 						}
 						
@@ -67,15 +65,13 @@ namespace Banking
 				switch(subcommand)
 				{
 					case "set":
-						if(parameters.Count == 3)
+						if(parameters.Count == 4)
 						{
-							if( !decimal.TryParse(parameters[2], out amount) )
-							{
-								player.SendErrorMessage($"Invalid amount, '{parameters[2]}'");
-								return;
-							}
+							var currency = parameters[1];
+							var targetName = parameters[2];
+							decimal.TryParse(parameters[3], out amount);
 
-							setPlayerBalance(player, parameters[1], amount);
+							setPlayerBalance(player, currency, targetName, amount);
 							return;
 						}
 						break;
@@ -87,44 +83,47 @@ namespace Banking
 
 		private static void viewBankAdminHelp(TSPlayer player)
 		{
-			player.SendErrorMessage($"Usage is: (These commands are proposed only, not working)");
-			player.SendErrorMessage($"{Commands.Specifier}bankadmin create <player>");
-			player.SendErrorMessage($"{Commands.Specifier}bankadmin delete <player>");
-			player.SendErrorMessage($"{Commands.Specifier}bankadmin give|take|set <player> <amount>");
-			player.SendErrorMessage($"{Commands.Specifier}bankadmin lock <player>");
-			player.SendErrorMessage($"{Commands.Specifier}bankadmin unlock <player>");
+			player.SendErrorMessage($"Usage is: (Some commands are proposed only, not working)");
+			//player.SendErrorMessage($"{Commands.Specifier}bankadmin create <player>");
+			//player.SendErrorMessage($"{Commands.Specifier}bankadmin delete <player>");
+			player.SendErrorMessage($"{Commands.Specifier}bankadmin give|take|set <currency> <player> <amount>");
+			//player.SendErrorMessage($"{Commands.Specifier}bankadmin lock <player>");
+			//player.SendErrorMessage($"{Commands.Specifier}bankadmin unlock <player>");
 		}
 
 		private static void viewBankHelp(TSPlayer player)
 		{
 			player.SendErrorMessage($"Usage is:");
-			player.SendErrorMessage($"{Commands.Specifier}bank bal <player>");
-			player.SendErrorMessage($"{Commands.Specifier}bank pay <player> <amount>");
+			player.SendErrorMessage($"{Commands.Specifier}bank bal <currency>");
+			player.SendErrorMessage($"{Commands.Specifier}bank pay <currency> <player> <amount>");
 		}
 
-		private static void viewBalance(TSPlayer client, string targetName)
+		private static void viewBalance(TSPlayer client, string currency)
 		{
-			if( string.IsNullOrWhiteSpace(targetName) )
-				targetName = client.Name;
+			//if( string.IsNullOrWhiteSpace(currency) )
+			//	currency = client.Name;
 
-			var account = BankingPlugin.Instance.GetBankAccount(targetName);
+			var account = BankingPlugin.Instance.GetBankAccount(client.Name, currency);
 
 			if( account == null )
 			{
-				client.SendErrorMessage($"Unable to find account for {targetName}");
+				client.SendErrorMessage($"Unable to find account for currency '{currency}'.");
 				return;
 			}
 
-			if( client.Name == targetName )
-				client.SendInfoMessage($"Current Balance: {account.Balance}");
-			else
-				client.SendInfoMessage($"{targetName}'s Current Balance: {account.Balance}");
+			client.SendInfoMessage($"Current Balance: {account.Balance}");
 		}
 
-		private static void payPlayer(TSPlayer client, string targetName, decimal amount)
+		private static void payPlayer(TSPlayer client, string currency, string targetName, decimal amount)
 		{
-			var clientAccount = BankingPlugin.Instance.GetBankAccount(client);
-			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName);
+			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currency);
+			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currency);
+
+			if( clientAccount == null )
+			{
+				client.SendErrorMessage($"Unable to find account for currency '{currency}'.");
+				return;
+			}
 
 			if(targetAccount==null)
 			{
@@ -135,7 +134,7 @@ namespace Banking
 			var result = clientAccount.TryTransferTo(targetAccount, amount);
 			if(result)
 			{
-				client.SendInfoMessage($"Transferred {amount} to {targetAccount.OwnerName}'s account.");
+				client.SendInfoMessage($"Transferred {amount} to {targetName}'s '{currency}' account.");
 			}
 			else
 			{
@@ -143,13 +142,13 @@ namespace Banking
 			}
 		}
 
-		private static void setPlayerBalance(TSPlayer client, string targetName, decimal newBalance)
+		private static void setPlayerBalance(TSPlayer client, string currency, string targetName, decimal newBalance)
 		{
-			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName);
+			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName,currency);
 
 			if( targetAccount == null )
 			{
-				client.SendErrorMessage($"Unable to find account for {targetName}.");
+				client.SendErrorMessage($"Unable to find '{currency}' account for {targetName}.");
 				return;
 			}
 

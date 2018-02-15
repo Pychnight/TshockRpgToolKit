@@ -103,9 +103,11 @@ namespace Banking.Database
 							{
 								var ownerName = reader.GetString(1);
 								var balance = reader.GetDecimal(2);
-								var account = new BankAccount(ownerName,balance);
 
-								results.Add(account);
+								throw new NotImplementedException();
+
+								//var account = new BankAccount(ownerName,balance);
+								//results.Add(account);
 							}
 						}
 					}
