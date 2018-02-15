@@ -16,6 +16,9 @@ namespace Banking.Configuration
 		
 		[JsonProperty(Order = 0)]
 		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
+
+		[JsonProperty(Order = 1)]
+		public List<CurrencyDefinition> Currency { get; private set; } = new List<CurrencyDefinition>();
 		
 		public static void LoadOrCreate(string configPath)
 		{
@@ -32,8 +35,9 @@ namespace Banking.Configuration
 					return;
 				}
 			}
-			catch(Exception)
+			catch(Exception ex)
 			{
+				Debug.Print($"Error: {ex.Message}");
 				Debug.Print($"Error while loading config at '{configPath}'; Using default config.");
 			}
 
@@ -51,7 +55,7 @@ namespace Banking.Configuration
 				var json = JsonConvert.SerializeObject(Config.Instance,Formatting.Indented);
 				File.WriteAllText(configPath,json);
 			}
-			catch( Exception )
+			catch( Exception ex )
 			{
 				Debug.Print($"Error while saving config at '{configPath}'.");
 			}
