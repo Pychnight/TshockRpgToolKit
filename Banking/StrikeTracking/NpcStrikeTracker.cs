@@ -29,7 +29,7 @@ namespace Banking
 
 		public void OnNpcStrike(Player player, NPC npc)
 		{
-			var playerIndex = player.whoAmI;
+			//var playerIndex = player.whoAmI;
 			var npcIndex = npc.whoAmI;
 			PlayerStrikeInfo playerStrikes = null;
 
@@ -40,7 +40,7 @@ namespace Banking
 				npcStrikes.Add(npcIndex, playerStrikes);
 			}
 
-			playerStrikes.AddStrike(playerIndex);
+			playerStrikes.AddStrike(player.name);
 		}
 
 		public void OnNpcKilled(NPC npc)
@@ -71,8 +71,9 @@ namespace Banking
 			foreach( var kvp in kvps )
 			{
 				var npcIndex = kvp.Key;
+				var npc = Main.npc[npcIndex];
 
-				if( Main.npc[npcIndex]?.active != true )
+				if( npc?.active != true )
 				{
 					Debug.Print($"Npc #{npcIndex} despawned. Removing from strike tracking.");
 					npcStrikes.Remove(npcIndex);

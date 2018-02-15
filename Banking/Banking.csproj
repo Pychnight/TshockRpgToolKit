@@ -72,6 +72,7 @@
     <Compile Include="CurrencyQuadrantDefinition.cs" />
     <Compile Include="Database\SqliteDatabase.cs" />
     <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="RewardDistributor.cs" />
     <Compile Include="StrikeTracking\NpcStrikeTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StrikeTracking\PlayerStrikeInfo.cs" />

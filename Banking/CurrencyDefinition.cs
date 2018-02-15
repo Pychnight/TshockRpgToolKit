@@ -29,7 +29,7 @@ namespace Banking
 		public bool SendStatus { get; set; }
 
 		[JsonProperty(Order = 6)]
-		public float Multiplier { get; set; }
+		public float Multiplier { get; set; } = 1.0f;
 
 		[JsonProperty(Order = 7)]
 		public float DeathPenaltyMultiplier { get; set; }

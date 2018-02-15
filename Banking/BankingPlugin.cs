@@ -1,4 +1,5 @@
 ﻿using Banking.Configuration;
+using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,6 +30,7 @@ namespace Banking
 
 		internal BankAccountManager BankAccountManager;
 		internal NpcStrikeTracker NpcStrikeTracker;
+		internal RewardDistributor RewardDistributor;
 		
 		public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
 		
@@ -64,7 +66,8 @@ namespace Banking
 			BankAccountManager = new BankAccountManager();
 			NpcStrikeTracker = new NpcStrikeTracker();
 			NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
-
+			RewardDistributor = new RewardDistributor();
+			
 			GeneralHooks.ReloadEvent += OnReload;
 			//PlayerHooks.PlayerChat += OnPlayerChat;
 			//PlayerHooks.PlayerPermission += OnPlayerPermission;
@@ -76,6 +79,7 @@ namespace Banking
 			ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			//ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
+						
 
 			//bank bal - View your balance
 			//bank bal <player> View other peoples balance
@@ -93,7 +97,7 @@ namespace Banking
 									$"{Commands.Specifier}bank pay <player-name> <amount>\n"
 			});
 		}
-
+		
 		protected override void Dispose(bool disposing)
 		{
 			if( disposing )
@@ -121,6 +125,7 @@ namespace Banking
 			Config.LoadOrCreate(ConfigPath);
 
 			NpcStrikeTracker.Clear();
+			RewardDistributor.Clear();
 			BankAccountManager.Load();
 		}
 
@@ -156,6 +161,7 @@ namespace Banking
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
+			RewardDistributor.OnGameUpdate();
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
@@ -166,7 +172,7 @@ namespace Banking
 
 		private void OnNpcKilled(NpcKilledEventArgs args)
 		{
-			Debug.Print("NpcKilled!");
+			Debug.Print($"NpcKilled! #{args.npc.whoAmI}");
 			Debug.Print($"Value: {args.npc.value}");
 			NpcStrikeTracker.OnNpcKilled(args.npc);
 		}
@@ -174,6 +180,16 @@ namespace Banking
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
 			Debug.Print("OnStruckNpcKilled!");
+
+			foreach(var kvp in args.PlayerStrikeInfo)
+			{
+				var reward = new Reward()
+				{
+					PlayerName = kvp.Key
+				};
+				
+				RewardDistributor.AddReward(reward);
+			}
 		}
 		
 		public BankAccount GetBankAccount(TSPlayer player)
