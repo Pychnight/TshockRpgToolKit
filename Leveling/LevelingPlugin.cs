@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Leveling.Classes;
+using Leveling.Database;
 using Leveling.Levels;
 using Leveling.Sessions;
 using Microsoft.Xna.Framework;
@@ -31,7 +32,7 @@ namespace Leveling
 
         private static readonly string ConfigPath = Path.Combine("leveling", "config.json");
 
-		internal SqliteSessionRepository SessionRepository;
+		internal ISessionDatabase SessionRepository;
 
         private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages =
             new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
@@ -63,8 +64,15 @@ namespace Leveling
 					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
 				}
 
-				SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
+				//var connectionString = $"URI=file:{Path.Combine("leveling", "sessions.db")}";
+				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("sqlite", connectionString);
 
+				//var connectionString = $"Server=localhost;Database=db_leveling;Uid=root;Pwd=root;";
+				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("mysql", connectionString);
+
+				var dbConfig = Config.Instance.DatabaseConfig;
+				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+				
 				_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
 					.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
 				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
@@ -188,8 +196,6 @@ namespace Leveling
                 {
                     session.Save();
                 }
-
-				SessionRepository.Dispose();
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 PlayerHooks.PlayerChat -= OnPlayerChat;
