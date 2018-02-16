@@ -16,25 +16,28 @@ namespace Leveling.Sessions
 										player text PRIMARY KEY NOT NULL,
 										data text )";
 
-		SqliteConnection connection;
+		//SqliteConnection connection;
+		public string ConnectionString { get; private set; }
 		public string DatabasePath { get; private set; }
 
 		public SqliteSessionRepository(string databasePath)
 		{
 			try
 			{
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, "Opening leveling sessions database...", TraceLevel.Info);
+				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, "Opening leveling sessions database...", TraceLevel.Info);
 
-				var connectionString = $"URI=file:{databasePath}";
-				connection = new SqliteConnection(connectionString);
-				connection.Open();
-
-				using (var cmd = connection.CreateCommand())
+				ConnectionString = $"URI=file:{databasePath}";
+				
+				using( var connection = new SqliteConnection(ConnectionString) )
 				{
-					cmd.CommandText = createTableSql;
-					var results = cmd.ExecuteNonQuery();
-				}
+					using( var cmd = connection.CreateCommand() )
+					{
+						cmd.CommandText = createTableSql;
 
+						connection.Open();
+						var results = cmd.ExecuteNonQuery();
+					}
+				}
 			}
 			catch(Exception ex)
 			{
@@ -46,16 +49,17 @@ namespace Leveling.Sessions
 
 		public SessionDefinition Load(string userName)
 		{
-			ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"SqliteSessionRepository.Load({userName})", TraceLevel.Info);
+			Debug.Print($"SqliteSessionRepository.Load({userName})");
 			SessionDefinition result = null;
 			
-			if(connection!=null)
+			using(var connection = new SqliteConnection(ConnectionString))
 			{
 				using(var cmd = connection.CreateCommand())
 				{
 					cmd.CommandText = "SELECT data FROM sessions " +
 										$"WHERE player='{userName}';";
 
+					connection.Open();
 					var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
 
 					if(reader.HasRows)
@@ -81,10 +85,8 @@ namespace Leveling.Sessions
 		{
 			//Debug.Print($"SqliteSessionRepository.Save({userName})");
 
-			if(connection!=null)
+			using(var connection = new SqliteConnection(ConnectionString))
 			{
-				//var json = JsonConvert.SerializeObject(sessionDefinition, Formatting.Indented);
-
 				//we now try to copy the session definition, in hopes of minimizing "rare" exceptions from definition collections being touched during serialization.
 				//we also catch the exception, and just log the error. Hopefully next call to save will work.
 				try
@@ -99,6 +101,8 @@ namespace Leveling.Sessions
 
 						cmd.Parameters.AddWithValue("@player", userName);
 						cmd.Parameters.AddWithValue("@data", json);
+
+						connection.Open();
 
 						//Console.WriteLine($"CommandText: {cmd.CommandText}");
 						cmd.ExecuteNonQuery();
@@ -126,20 +130,6 @@ namespace Leveling.Sessions
 
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
 				// TODO: set large fields to null.
-
-				try
-				{
-					if(connection != null)
-					{
-						connection.Close();
-						connection = null;
-					}
-				}
-				catch(Exception ex)
-				{
-					ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error closing database: ({ex.Message})", TraceLevel.Error);
-				}
-
 				isDisposed = true;
 			}
 		}
