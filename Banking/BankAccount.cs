@@ -26,7 +26,7 @@ namespace Banking
 			lock( locker )
 			{
 				Balance = amount;
-				//BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace Banking
 			lock(locker)
 			{
 				Balance += amount;
-				//BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 			}
 		}
 
@@ -55,7 +55,7 @@ namespace Banking
 				}
 
 				Balance -= amount;
-				//BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
 
 				return true;
 			}

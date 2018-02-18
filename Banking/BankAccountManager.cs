@@ -23,7 +23,7 @@ namespace Banking
 		{
 			CurrencyManager = new CurrencyManager(Config.Instance.Currency);
 			bankAccounts = new Dictionary<string, BankAccountTypeMap>();
-			EnsureBankAccountsExist(TSPlayer.Server.Name);
+			//EnsureBankAccountsExist(TSPlayer.Server.Name);
 			//WorldAccount.Get
 			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 		}
@@ -32,27 +32,41 @@ namespace Banking
 		{
 			Debug.Print("BankAccountManager.Load!");
 			CurrencyManager = new CurrencyManager(Config.Instance.Currency);
-
-			//disabled
-
-			//bankAccounts.Clear();
-
-			//Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
-
-			//var accounts = Database.Load();
-
-			//foreach(var acc in accounts)
-			//{
-			//	bankAccounts.Add(acc.OwnerName, acc);
-			//}
 			
+			bankAccounts.Clear();
+
+			Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
+
+			var accounts = Database.Load();
+
+			foreach( var acc in accounts )
+			{
+				BankAccountTypeMap accountTypes = null;
+
+				//bankAccounts.Add(acc.OwnerName, acc);
+				if(!bankAccounts.TryGetValue(acc.OwnerName,out accountTypes))
+				{
+					accountTypes = new BankAccountTypeMap(acc.OwnerName);
+					bankAccounts.Add(acc.OwnerName, accountTypes);
+				}
+
+				accountTypes.Add(acc.CurrencyType, acc);
+			}
+
+			EnsureBankAccountsExist(TSPlayer.Server.Name);
+
 			//WorldAccount = GetOrCreateBankAccount(TSPlayer.Server.Name);
 			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 		}
 
+		private void insert(BankAccount account)
+		{
+
+		}
+
 		public void Save()
 		{
-			Debug.Print("BankAccountManager.Save!");
+			//Debug.Print("BankAccountManager.Save!");
 			//Database.Save(bankAccounts.Values.ToArray());
 		}
 

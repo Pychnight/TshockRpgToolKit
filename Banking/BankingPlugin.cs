@@ -28,10 +28,11 @@ namespace Banking
 		private static string DataDirectory { get; set; } = "banking";
 		private static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
+		internal CombatTextDistributor CombatTextDistributor;
 		internal BankAccountManager BankAccountManager;
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal RewardDistributor RewardDistributor;
-		
+				
 		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
 		
 		public BankingPlugin(Main game) : base(game)
@@ -63,11 +64,12 @@ namespace Banking
 
 			Config.LoadOrCreate(ConfigPath);
 
+			CombatTextDistributor = new CombatTextDistributor();
 			BankAccountManager = new BankAccountManager();
 			NpcStrikeTracker = new NpcStrikeTracker();
 			NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 			RewardDistributor = new RewardDistributor();
-			
+						
 			GeneralHooks.ReloadEvent += OnReload;
 			//PlayerHooks.PlayerChat += OnPlayerChat;
 			//PlayerHooks.PlayerPermission += OnPlayerPermission;
@@ -162,6 +164,7 @@ namespace Banking
 		{
 			NpcStrikeTracker.OnGameUpdate();
 			RewardDistributor.OnGameUpdate();
+			CombatTextDistributor.Send(400);
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
@@ -183,32 +186,9 @@ namespace Banking
 
 			foreach(var kvp in args.PlayerStrikeInfo)
 			{
-				if( args.NpcValue < 1f )
-					continue;
+				var player = kvp.Key;
 
-				var val = args.NpcValue * 0.5f;
-								
-				var reward = new CurrencyReward()
-				{
-					Currency = "Exp",
-					PlayerName = kvp.Key,
-					Value = val,
-					CombatText = $"+{val} Exp!"
-				};
-
-				RewardDistributor.AddReward(reward);
-
-				val = args.NpcValue * 1f;
-
-				reward = new CurrencyReward()
-				{
-					Currency = "Dust",
-					PlayerName = kvp.Key,
-					Value = val,
-					CombatText = $"Earned {val} Dust!"
-				};
-
-				RewardDistributor.AddReward(reward);
+				RewardDistributor.AddNpcKill(player,1,args.NpcValue);//1 is just a placeholder
 			}
 		}
 		

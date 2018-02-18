@@ -10,13 +10,19 @@ namespace Banking
 	{
 		internal string OwnerName { get; set; }
 
+		internal BankAccountTypeMap(string ownerName)
+		{
+			OwnerName = ownerName;
+		}
+
 		internal BankAccountTypeMap(string ownerName, IEnumerable<CurrencyDefinition> definitions)
 		{
 			OwnerName = ownerName;
-
+			
 			foreach(var def in definitions)
 			{
 				var account = new BankAccount(ownerName, def.InternalName, 0m);
+				BankingPlugin.Instance.BankAccountManager.Database.Create(account);
 				Add(def.InternalName, account);
 			}
 		}
@@ -29,6 +35,7 @@ namespace Banking
 			if(!TryGetValue(accountType, out var account))
 			{
 				account = new BankAccount(ownerName, accountType, amount);
+				BankingPlugin.Instance.BankAccountManager.Database.Create(account);
 				Add(accountType, account);
 			}
 
@@ -42,6 +49,7 @@ namespace Banking
 				if(!TryGetValue(def.InternalName,out var bankAccount))
 				{
 					bankAccount = new BankAccount(OwnerName, def.InternalName, 0);
+					BankingPlugin.Instance.BankAccountManager.Database.Create(bankAccount);
 					Add(def.InternalName, bankAccount);
 				}
 			}

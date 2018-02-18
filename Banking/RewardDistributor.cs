@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -43,10 +44,35 @@ namespace Banking
 			rewards.Enqueue(reward);
 		}
 
-		//public void AddNpcKill(string playerName, float damage, float npcValue)
-		//{
+		public void AddNpcKill(string playerName, float damage, float npcValue)
+		{
+			if( npcValue < 1f )
+				return;
 
-		//}
+			var val = npcValue * 0.5f;
+
+			var reward = new CurrencyReward()
+			{
+				Currency = "Exp",
+				PlayerName = playerName,
+				Value = val,
+				CombatText = $"+{val} Exp!"
+			};
+
+			AddReward(reward);
+
+			val = npcValue * 1f;
+
+			reward = new CurrencyReward()
+			{
+				Currency = "Dust",
+				PlayerName = playerName,
+				Value = val,
+				CombatText = $"Earned {val} Dust!"
+			};
+
+			AddReward(reward);
+		}
 
 		//public void AddBlockMined(string playerName, float blockValue)
 		//{
@@ -99,13 +125,15 @@ namespace Banking
 
 		public override void Notify()
 		{
+			//this should use the currency's config to determine if we even send anything...
 			if(!string.IsNullOrWhiteSpace(CombatText))
 			{
-				var player = TShock.Utils.FindPlayer(PlayerName).FirstOrDefault();
+				var player = TShockAPI.Utils.Instance.FindPlayer(PlayerName).FirstOrDefault();
 
-				if(player!=null)
+				if( player != null )
 				{
-					player.SendInfoMessage(CombatText);
+					var color = Currency == "Exp" ? Color.OrangeRed : Color.Gold;//this should use the currency's config for colors.
+					BankingPlugin.Instance.CombatTextDistributor.AddCombatText(CombatText, player, color);
 				}
 			}
 		}

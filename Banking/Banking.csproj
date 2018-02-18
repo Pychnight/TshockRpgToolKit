@@ -67,6 +67,7 @@
     <Compile Include="BankAccountTypeMap.cs" />
     <Compile Include="BankCommands.cs" />
     <Compile Include="BankingPlugin.cs" />
+    <Compile Include="CombatTextDistributor.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\DatabaseConfig.cs" />
     <Compile Include="CurrencyDefinition.cs" />
