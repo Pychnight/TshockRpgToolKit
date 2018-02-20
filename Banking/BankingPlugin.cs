@@ -163,13 +163,12 @@ namespace Banking
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
-			//RewardDistributor.OnGameUpdate();
 			CombatTextDistributor.Send(400);
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
 		{
-			Debug.Print("OnNpcStrike!");
+			//Debug.Print("OnNpcStrike!");
 			NpcStrikeTracker.OnNpcStrike(args.Player, args.Npc);
 		}
 

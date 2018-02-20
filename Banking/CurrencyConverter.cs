@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Banking
 			}
 
 			regexString = sb.ToString();
-			Debug.Print($"{Currency} regex = {regexString}");
+			Debug.Print($"Created {Currency} regex = {regexString}");
 					
 			parseRegex = new Regex(regexString,RegexOptions.Compiled);
 		}
@@ -94,47 +95,58 @@ namespace Banking
 
 		public string ToString(decimal value)
 		{
+			Color color = Color.White;
+			return ToStringAndColor(value,ref color);
+		}
+
+		public string ToStringAndColor(decimal value, ref Color color)
+		{
 			string result = null;
+			var choseColor = false;
 			var sb = new StringBuilder();
 			var sign = Math.Sign(value);
 			value = Math.Abs(value);
-			
-			if(sign<0)
+
+			if( sign < 0 )
 			{
 				sb.Append('-');
 			}
-			
-			foreach(var quad in sortedQuadrants)
+
+			foreach( var quad in sortedQuadrants )
 			{
 				var quadValue = (long)value / quad.BaseUnitMultiplier;
-				
-				if(quadValue!=0)
+
+				if( quadValue != 0 )
 				{
 					sb.Append(quadValue);
-					sb.Append(quad.Abbreviation);
+					sb.Append(quad.CombatText ?? quad.Abbreviation);
 
 					value = value - ( quadValue * quad.BaseUnitMultiplier );
+
+					if(!choseColor)
+					{
+						color = quad.CombatTextColor;
+						choseColor = true;
+					}
 				}
 			}
 
-			if(sb.Length<1)
+			if( sb.Length < 1 )
 			{
 				//ensure we output at least a 0 value.
 				var quad = sortedQuadrants.Last();
 
 				sb.Append((long)value);
-				sb.Append(quad.Abbreviation);
+				sb.Append(quad.CombatText ?? quad.Abbreviation);
+
+				color = quad.CombatTextColor;
 			}
-			
+
 			result = sb.ToString();
-			Debug.Print($"{Currency} - {result}");
+			//Debug.Print($"{Currency} - {result}");
+			//Debug.Print("Color:{0:x8}", color.PackedValue);
 
 			return result;
-		}
-
-		public string ToColoredString(decimal value)
-		{
-			return value.ToString();
 		}
 	}
 }

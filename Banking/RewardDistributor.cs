@@ -13,11 +13,6 @@ namespace Banking
 	public class RewardDistributor
 	{
 		ConcurrentQueue<IReward> rewards;
-
-		//CurrencyManager currencyManager; 
-
-		CurrencyDefinition expCurrency;
-		CurrencyDefinition dustCurrency;
 		
 		public RewardDistributor()
 		{
@@ -30,14 +25,6 @@ namespace Banking
 
 			for( var i = 0; i < count; i++ )
 				rewards.TryDequeue(out var unused);
-		}
-
-		public void OnLoad(CurrencyManager currencies)
-		{
-			//currencyManager = currencies;
-
-			expCurrency = currencies["Exp"];
-			dustCurrency = currencies["Dust"];
 		}
 		
 		public void OnGameUpdate()
@@ -59,7 +46,7 @@ namespace Banking
 			rewards.Enqueue(reward);
 		}
 
-		public void TryAddReward(string playerName, string gainedBy, float value, string combatTextFormatString="{0}")
+		public void TryAddReward(string playerName, string gainedBy, float value)
 		{
 			if( value < 1f )
 				return;
@@ -89,11 +76,10 @@ namespace Banking
 
 						if( player != null )
 						{
-							var money = currency.GetCurrencyConverter().ToString((decimal)value);
-							var combatText = string.Format(combatTextFormatString, money);
-							//var color = currency.;
-							var color = Color.Green;
-
+							var color = Color.White;
+							var money = currency.GetCurrencyConverter().ToStringAndColor((decimal)value,ref color);
+							var combatText = $"{money}";
+							
 							BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
 						}
 					}
@@ -101,33 +87,33 @@ namespace Banking
 			}
 		}
 
-		public void AddNpcKill(string playerName, float damage, float npcValue)
-		{
-			if( npcValue < 1f )
-				return;
+		//public void AddNpcKill(string playerName, float damage, float npcValue)
+		//{
+		//	if( npcValue < 1f )
+		//		return;
 
-			if( dustCurrency != null )
-			{
-				var value = npcValue;
-				var currencyType = "Dust";
-				var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(playerName, currencyType);
-				Debug.Assert(account != null, $"Couldn't find {currencyType} account for {playerName}.");
+		//	if( dustCurrency != null )
+		//	{
+		//		var value = npcValue;
+		//		var currencyType = "Dust";
+		//		var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(playerName, currencyType);
+		//		Debug.Assert(account != null, $"Couldn't find {currencyType} account for {playerName}.");
 
-				account?.Deposit((decimal)value);
+		//		account?.Deposit((decimal)value);
 				
-				if(dustCurrency.SendCombatText)
-				{
-					var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
+		//		if(dustCurrency.SendCombatText)
+		//		{
+		//			var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
 
-					if(player!=null)
-					{
-						var txt = $"+{value}";
+		//			if(player!=null)
+		//			{
+		//				var txt = $"+{value}";
 
-						//BankingPlugin.Instance.CombatTextDistributor.AddCombatText(txt, player, color);
-					}
-				}
-			}
-		}
+		//				//BankingPlugin.Instance.CombatTextDistributor.AddCombatText(txt, player, color);
+		//			}
+		//		}
+		//	}
+		//}
 
 		//public void AddBlockMined(string playerName, float blockValue)
 		//{

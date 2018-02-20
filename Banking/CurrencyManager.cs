@@ -10,8 +10,6 @@ namespace Banking
 {
 	public class CurrencyManager : IEnumerable<CurrencyDefinition>
 	{
-		//public static CurrencyManager Instance { get; private set; }
-
 		internal Dictionary<string, CurrencyDefinition> Definitions;
 
 		public CurrencyDefinition this[string name]
@@ -23,7 +21,7 @@ namespace Banking
 			}
 		}
 
-		public CurrencyManager(IEnumerable<CurrencyDefinition> currencies)
+		internal CurrencyManager(IEnumerable<CurrencyDefinition> currencies)
 		{
 			Definitions = new Dictionary<string, CurrencyDefinition>();
 

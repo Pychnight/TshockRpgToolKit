@@ -42,7 +42,6 @@ namespace Banking
 						{
 							var currency = parameters[1];
 							var target = parameters[2];
-							//decimal.TryParse(parameters[3], out amount);
 							var money = parameters[3];
 
 							payPlayer(player, currency, target, money);
@@ -106,6 +105,17 @@ namespace Banking
 						}
 						break;
 
+					case "reset":
+						if( parameters.Count == 3 )
+						{
+							var currency = parameters[1];
+							var targetName = parameters[2];
+							
+							resetPlayerBalance(player, currency, targetName);
+							return;
+						}
+						break;
+
 					case "bal":
 						if( parameters.Count == 3 )
 						{
@@ -127,10 +137,11 @@ namespace Banking
 			player.SendErrorMessage($"Usage is:");
 			//player.SendErrorMessage($"{Commands.Specifier}bankadmin create <player>");
 			//player.SendErrorMessage($"{Commands.Specifier}bankadmin delete <player>");
+			player.SendErrorMessage($"{Commands.Specifier}bankadmin bal <currency> <player>");
 			player.SendErrorMessage($"{Commands.Specifier}bankadmin set <currency> <player> <amount>");
 			player.SendErrorMessage($"{Commands.Specifier}bankadmin give <currency> <player> <amount>");
 			player.SendErrorMessage($"{Commands.Specifier}bankadmin take <currency> <player> <amount>");
-			player.SendErrorMessage($"{Commands.Specifier}bankadmin bal <currency> <player>");
+			player.SendErrorMessage($"{Commands.Specifier}bankadmin reset <currency> <player>");
 			//player.SendErrorMessage($"{Commands.Specifier}bankadmin lock <player>");
 			//player.SendErrorMessage($"{Commands.Specifier}bankadmin unlock <player>");
 		}
@@ -267,6 +278,34 @@ namespace Banking
 				client.SendErrorMessage($"Currency format for '{currencyType}' is invalid.");
 				return;
 			}
+		}
+
+		private static void resetPlayerBalance(TSPlayer client, string currencyType, string targetName)
+		{
+			var currency = BankingPlugin.Instance.BankAccountManager.CurrencyManager[currencyType];
+			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
+			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
+
+			if( currency == null )
+			{
+				client.SendErrorMessage($"Unable to find currency type '{currencyType}'.");
+				return;
+			}
+
+			if( clientAccount == null )
+			{
+				client.SendErrorMessage($"Unable to find account for currency '{currencyType}'.");
+				return;
+			}
+
+			if( targetAccount == null )
+			{
+				client.SendErrorMessage($"Unable to reset balance, account for {targetName} could not be found.");
+				return;
+			}
+
+			targetAccount.Set(0);
+			client.SendInfoMessage($"Reset {targetAccount.OwnerName}'s '{currencyType}' account.");
 		}
 
 		private enum SetBalanceMode

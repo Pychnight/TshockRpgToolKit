@@ -43,7 +43,6 @@ namespace Banking
 			{
 				BankAccountTypeMap accountTypes = null;
 
-				//bankAccounts.Add(acc.OwnerName, acc);
 				if(!bankAccounts.TryGetValue(acc.OwnerName,out accountTypes))
 				{
 					accountTypes = new BankAccountTypeMap(acc.OwnerName);
@@ -58,12 +57,7 @@ namespace Banking
 			//WorldAccount = GetOrCreateBankAccount(TSPlayer.Server.Name);
 			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 		}
-
-		private void insert(BankAccount account)
-		{
-
-		}
-
+		
 		public void Save()
 		{
 			//Debug.Print("BankAccountManager.Save!");
