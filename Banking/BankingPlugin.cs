@@ -183,14 +183,11 @@ namespace Banking
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
 			//Debug.Print("OnStruckNpcKilled!");
-
 			foreach(var kvp in args.PlayerStrikeInfo)
 			{
 				var player = kvp.Key;
 
-				//RewardDistributor.AddNpcKill(player,1,args.NpcValue);//1 is just a placeholder
-				RewardDistributor.AddReward(kvp.Key, "Exp", args.NpcValue,"+{0}");
-				RewardDistributor.AddReward(kvp.Key, "Dust", args.NpcValue, "Earned {0}");
+				RewardDistributor.TryAddReward(player, "Killing", args.NpcValue);
 			}
 		}
 		

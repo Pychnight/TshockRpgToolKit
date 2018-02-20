@@ -14,6 +14,8 @@ namespace Banking
 	{
 		ConcurrentQueue<IReward> rewards;
 
+		//CurrencyManager currencyManager; 
+
 		CurrencyDefinition expCurrency;
 		CurrencyDefinition dustCurrency;
 		
@@ -32,6 +34,8 @@ namespace Banking
 
 		public void OnLoad(CurrencyManager currencies)
 		{
+			//currencyManager = currencies;
+
 			expCurrency = currencies["Exp"];
 			dustCurrency = currencies["Dust"];
 		}
@@ -55,33 +59,43 @@ namespace Banking
 			rewards.Enqueue(reward);
 		}
 
-		public void AddReward(string playerName, string currencyType, float value, string combatTextFormatString="{0}")
+		public void TryAddReward(string playerName, string gainedBy, float value, string combatTextFormatString="{0}")
 		{
 			if( value < 1f )
 				return;
 
-			var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(playerName, currencyType);
-			Debug.Assert(account != null, $"Couldn't find {currencyType} account for {playerName}.");
+			var bankMgr = BankingPlugin.Instance.BankAccountManager;
 
-			if(account!=null)
+			foreach(var currency in bankMgr.CurrencyManager)
 			{
-				account.Deposit((decimal)value);
-
-				var currency = BankingPlugin.Instance.BankAccountManager.CurrencyManager[currencyType];
-				Debug.Assert(account != null, $"Couldn't find currency type {currencyType} for {playerName}.");
-
-				if( currency != null && currency.SendCombatText )
+				if(currency==null)
 				{
-					var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
-					
-					if( player != null )
-					{
-						var money = currency.GetCurrencyConverter().ToString((decimal)value);
-						var combatText = string.Format(combatTextFormatString, money);
-						//var color = currency.;
-						var color = Color.Green;
+					Debug.Assert(currency!=null,"Currency should never be null!");
+					continue;
+				}
 
-						BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
+				if( currency.GainBy == gainedBy )
+				{
+					value *= currency.Multiplier;
+
+					var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
+					Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
+					
+					account.Deposit((decimal)value);
+
+					if( currency.SendCombatText )
+					{
+						var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
+
+						if( player != null )
+						{
+							var money = currency.GetCurrencyConverter().ToString((decimal)value);
+							var combatText = string.Format(combatTextFormatString, money);
+							//var color = currency.;
+							var color = Color.Green;
+
+							BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
+						}
 					}
 				}
 			}
@@ -94,16 +108,6 @@ namespace Banking
 
 			if( dustCurrency != null )
 			{
-				//var reward = new CurrencyReward()
-				//{
-				//	CurrencyType = "Exp",
-				//	PlayerName = playerName,
-				//	Value = val,
-				//	CombatText = $"+{val}!"
-				//};
-
-				//AddReward(reward);
-
 				var value = npcValue;
 				var currencyType = "Dust";
 				var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(playerName, currencyType);
@@ -123,18 +127,6 @@ namespace Banking
 					}
 				}
 			}
-			
-			//val = npcValue * 1f;
-
-			//reward = new CurrencyReward()
-			//{
-			//	CurrencyType = "Dust",
-			//	PlayerName = playerName,
-			//	Value = val,
-			//	CombatText = $"+{val}!"
-			//};
-
-			//AddReward(reward);
 		}
 
 		//public void AddBlockMined(string playerName, float blockValue)
