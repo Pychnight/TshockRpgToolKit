@@ -42,14 +42,14 @@ namespace Banking
 			}
 		}
 
-		public bool TryWithdraw(decimal amount)
+		public bool TryWithdraw(decimal amount, bool allowOverdraw = false)
 		{
 			if( amount < 0 )
 				return false;
 
 			lock(locker)
 			{
-				if( Balance - amount < 0 )
+				if( Balance - amount < 0 && !allowOverdraw )
 				{
 					return false;
 				}

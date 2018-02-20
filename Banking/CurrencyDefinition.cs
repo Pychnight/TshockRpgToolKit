@@ -23,7 +23,7 @@ namespace Banking
 		public string GainBy { get; set; }
 
 		[JsonProperty(Order = 4)]
-		public bool SendCombatTXT { get; set; }
+		public bool SendCombatText { get; set; }
 
 		[JsonProperty(Order = 5)]
 		public bool SendStatus { get; set; }
@@ -43,6 +43,12 @@ namespace Banking
 		public override string ToString()
 		{
 			return InternalName;
+		}
+
+		private CurrencyConverter currencyConverter;
+		public CurrencyConverter GetCurrencyConverter()
+		{
+			return currencyConverter ?? ( currencyConverter = new CurrencyConverter(this) );
 		}
 	}
 }

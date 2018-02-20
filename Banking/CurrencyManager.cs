@@ -13,6 +13,15 @@ namespace Banking
 
 		internal Dictionary<string, CurrencyDefinition> Definitions;
 
+		public CurrencyDefinition this[string name]
+		{
+			get
+			{
+				Definitions.TryGetValue(name, out var result);
+				return result;
+			}
+		}
+
 		public CurrencyManager(IEnumerable<CurrencyDefinition> currencies)
 		{
 			Definitions = new Dictionary<string, CurrencyDefinition>();

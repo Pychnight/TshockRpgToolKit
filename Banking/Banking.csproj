@@ -70,6 +70,7 @@
     <Compile Include="CombatTextDistributor.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\DatabaseConfig.cs" />
+    <Compile Include="CurrencyConverter.cs" />
     <Compile Include="CurrencyDefinition.cs" />
     <Compile Include="CurrencyManager.cs" />
     <Compile Include="CurrencyQuadrantDefinition.cs" />

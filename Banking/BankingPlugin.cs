@@ -88,7 +88,7 @@ namespace Banking
 			//bank pay <player> <amount>
 			//spawn/delete money with /bank give|take <player> <amount>
 						
-			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "xbank")
+			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "bank")
 			{
 				HelpText = $"Syntax: {Commands.Specifier}bank bal <player-name>\n" +
 									$"{Commands.Specifier}bank pay <player-name> <amount>\n"
@@ -163,7 +163,7 @@ namespace Banking
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
-			RewardDistributor.OnGameUpdate();
+			//RewardDistributor.OnGameUpdate();
 			CombatTextDistributor.Send(400);
 		}
 
@@ -188,7 +188,9 @@ namespace Banking
 			{
 				var player = kvp.Key;
 
-				RewardDistributor.AddNpcKill(player,1,args.NpcValue);//1 is just a placeholder
+				//RewardDistributor.AddNpcKill(player,1,args.NpcValue);//1 is just a placeholder
+				RewardDistributor.AddReward(kvp.Key, "Exp", args.NpcValue,"+{0}");
+				RewardDistributor.AddReward(kvp.Key, "Dust", args.NpcValue, "Earned {0}");
 			}
 		}
 		
