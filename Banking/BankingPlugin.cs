@@ -76,13 +76,12 @@ namespace Banking
 
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
-			//ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, int.MinValue);
+			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
 			ServerApi.Hooks.NpcStrike.Register(this, OnNpcStrike);
 			ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			//ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-						
-
+			
 			//bank bal - View your balance
 			//bank bal <player> View other peoples balance
 			//bank pay <player> <amount>
@@ -108,7 +107,7 @@ namespace Banking
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
 				//	PlayerHooks.PlayerPermission -= OnPlayerPermission;
 				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-				//	ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+				ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
 				ServerApi.Hooks.NpcStrike.Deregister(this, OnNpcStrike);
 				ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
@@ -155,6 +154,40 @@ namespace Banking
 		//	Debug.Print($"Player {player.Name} has left the game.");
 		//}
 
+		private void OnNetGetData(GetDataEventArgs args)
+		{
+			switch(args.MsgID)
+			{
+				case PacketTypes.Tile:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var action = reader.ReadByte();
+
+						if(action==0)
+						{
+							var tileX = reader.ReadInt16();
+							var tileY = reader.ReadInt16();
+							var var1 = reader.ReadInt16();//kill tile status
+							//var var2 = reader.ReadInt16();//place tile
+
+							//Debug.Print($"action: {action}");
+							//Debug.Print($"tileX: {tileX}");
+							//Debug.Print($"tileY: {tileY}");
+							//Debug.Print($"var1: {var1}");
+							//Debug.Print($"var2: {var2}");
+
+							if( var1 == 0 )//tile has been killed
+							{
+								var tile = Main.tile[tileX, tileY];
+								OnBlockMined(new BlockMinedEventArgs(new TSPlayer(args.Msg.whoAmI), tileX, tileY, tile));
+							}
+						}
+					}
+
+					break;
+			}
+		}
+
 		//private void OnWorldSave(WorldSaveEventArgs args)
 		//{
 		//	BankAccountManager.Save();
@@ -188,6 +221,14 @@ namespace Banking
 
 				RewardDistributor.TryAddReward(player, "Killing", args.NpcValue);
 			}
+		}
+
+		private void OnBlockMined(BlockMinedEventArgs args)
+		{
+			//Debug.Print("OnBlockMined!");
+
+			if(args.Player!=null)
+				RewardDistributor.TryAddReward(args.Player.Name, "Mining", 2);
 		}
 		
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
