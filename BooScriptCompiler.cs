@@ -16,24 +16,20 @@ namespace BooTS
 {
 	public class BooScriptCompiler
 	{
-		static BooScriptCompiler Instance = new BooScriptCompiler();
-
-		CompilerParameters parameters;
 		BooCompiler compiler;
 		InjectImportsStep injectImportsStep;
 		EnsureMethodSignaturesStep ensureMethodSignaturesStep;
 
-		private BooScriptCompiler()
+		public BooScriptCompiler()
 		{
-			compiler = new BooCompiler();
-
-			parameters = compiler.Parameters;
+			compiler = BooHelpers.CreateBooCompiler();
+			var parameters = compiler.Parameters;
 
 			parameters.GenerateInMemory = true;
 			parameters.Ducky = true;
 			parameters.WhiteSpaceAgnostic = false;
-			//parameters.References.Clear();
-			//parameters.LoadDefaultReferences();
+			parameters.References.Clear();
+			//parameters.LoadDefaultReferences();//do not use! This will cause failures on future calls, within the context of a TShockPlugin(unknown reason).
 			//parameters.StdLib = false;
 
 			parameters.DisabledWarnings.Add("BCW0016");//dont warn about unused namespaces...
@@ -53,13 +49,14 @@ namespace BooTS
 
 			parameters.Pipeline = pipeline;
 		}
-
+		
 		public static CompilerContext Compile(string assemblyName, List<string> fileNames, IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
 		{
-			var ps = Instance.parameters;
+			var cc = new BooScriptCompiler();
+			var ps = cc.compiler.Parameters;
 
 			ps.OutputAssembly = assemblyName;
-			
+
 			//add inputs
 			ps.Input.Clear();
 
@@ -71,29 +68,29 @@ namespace BooTS
 				foreach( var fname in distinctFileNames )
 					ps.Input.Add(new FileInput(fname));
 			}
-			
+
 			//add references
 			ps.References.Clear();
 
-			if( references!=null)
+			if( references != null )
 			{
 				foreach( var r in references )
 					ps.References.Add(r);
 			}
-							
+
 			//add default imports
-			Instance.injectImportsStep.Namespaces.Clear();
-			
-			if(imports!=null)
+			cc.injectImportsStep.Namespaces.Clear();
+
+			if( imports != null )
 			{
 				if( imports != null )
-					Instance.injectImportsStep.SetDefaultImports(imports);
+					cc.injectImportsStep.SetDefaultImports(imports);
 			}
 
 			//add ensure method sigs
-			Instance.ensureMethodSignaturesStep.SetEnsuredMethodSignatures(ensuredMethodSignatures);
-			
-			var context = Instance.compiler.Run();
+			cc.ensureMethodSignaturesStep.SetEnsuredMethodSignatures(ensuredMethodSignatures);
+
+			var context = cc.compiler.Run();
 			return context;
 		}
 	}
