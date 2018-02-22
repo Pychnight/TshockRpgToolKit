@@ -163,12 +163,12 @@ namespace Banking
 					{
 						var action = reader.ReadByte();
 
-						if(action==0)
+						if(action==0 || action==1)//0 kill, 1 place
 						{
 							var tileX = reader.ReadInt16();
 							var tileY = reader.ReadInt16();
 							var var1 = reader.ReadInt16();//kill tile status
-							//var var2 = reader.ReadInt16();//place tile
+							var var2 = reader.ReadInt16();//place tile
 
 							//Debug.Print($"action: {action}");
 							//Debug.Print($"tileX: {tileX}");
@@ -176,10 +176,15 @@ namespace Banking
 							//Debug.Print($"var1: {var1}");
 							//Debug.Print($"var2: {var2}");
 
-							if( var1 == 0 )//tile has been killed
+							if( action==0 && var1 == 0 )//tile has been killed
 							{
 								var tile = Main.tile[tileX, tileY];
-								OnBlockMined(new BlockMinedEventArgs(new TSPlayer(args.Msg.whoAmI), tileX, tileY, tile));
+								OnTileKilled(new TileChangedEventArgs(new TSPlayer(args.Msg.whoAmI), tileX, tileY, tile));
+							}
+							else if(action==1 && var1 == 1)
+							{
+								var tile = Main.tile[tileX, tileY];
+								OnTilePlaced(new TileChangedEventArgs(new TSPlayer(args.Msg.whoAmI), tileX, tileY, tile));
 							}
 						}
 					}
@@ -223,14 +228,23 @@ namespace Banking
 			}
 		}
 
-		private void OnBlockMined(BlockMinedEventArgs args)
+		private void OnTileKilled(TileChangedEventArgs args)
 		{
-			//Debug.Print("OnBlockMined!");
+			//Debug.Print("OnTileKilled!");
 
 			if(args.Player!=null)
 				RewardDistributor.TryAddReward(args.Player.Name, "Mining", 2);
 		}
-		
+
+		private void OnTilePlaced(TileChangedEventArgs args)
+		{
+			//Debug.Print("OnTilePlaced!");
+
+			if( args.Player != null )
+				RewardDistributor.TryAddReward(args.Player.Name, "Placing", 2);
+		}
+
+
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
 			return BankAccountManager.GetBankAccount(player.Name,accountType);
