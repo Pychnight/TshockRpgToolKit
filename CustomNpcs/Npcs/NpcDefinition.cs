@@ -9,6 +9,7 @@ using CustomNpcs.Projectiles;
 using System.Reflection;
 using TShockAPI;
 using System.Diagnostics;
+using BooTS;
 
 namespace CustomNpcs.Npcs
 {

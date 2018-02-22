@@ -1,4 +1,5 @@
-﻿using Corruption;
+﻿using BooTS;
+using Corruption;
 using CustomNpcs.Npcs;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -72,32 +73,7 @@ namespace CustomNpcs.Projectiles
 			OTAPI.Hooks.Projectile.PreAI = null;
 			OTAPI.Hooks.Projectile.PreKill = null;
 		}
-
-		private IEnumerable<string> getDefaultImports()
-		{
-			var imports = new List<string>()
-			{
-				"System",
-				"System.Collections.Generic",
-				"Microsoft.Xna.Framework",
-				"TShockAPI",
-				"Corruption.AreaFunctions",
-				"Corruption.EmoteFunctions",
-				"Corruption.TimeFunctions",
-				"Corruption.TileFunctions",
-				"Corruption.PlayerFunctions",
-				"Corruption.PlayerCommandFunctions",
-				"CustomNpcs",
-				"CustomNpcs.Invasions",
-				"CustomNpcs.Npcs",
-				"CustomNpcs.Projectiles",
-				"CustomNpcs.NpcFunctions",
-				"CustomNpcs.ProjectileFunctions"
-			};
-
-			return imports;
-		}
-
+		
 		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
 		{
 			var sigs = new List<EnsuredMethodSignature>()
@@ -139,7 +115,18 @@ namespace CustomNpcs.Projectiles
 			{
 				//Debug.Print($"Compiling boo invasion scripts.");
 				CustomNpcsPlugin.Instance.LogPrint($"Compiling projectile scripts.", TraceLevel.Info);
-				projectileScriptsAssembly = BooScriptCompiler.Compile("ScriptedProjectiles.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
+				var context = BooScriptCompiler.Compile("ScriptedProjectiles.dll",
+															booScripts,
+															ScriptHelpers.GetReferences(),
+															ScriptHelpers.GetDefaultImports(),
+															getEnsuredMethodSignatures());
+
+				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
+
+				if( context.Errors.Count < 1 )
+					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
+
+				projectileScriptsAssembly = context.GeneratedAssembly;
 
 				if( projectileScriptsAssembly != null )
 				{

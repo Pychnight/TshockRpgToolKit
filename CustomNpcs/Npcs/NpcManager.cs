@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Corruption;
+using BooTS;
 
 namespace CustomNpcs.Npcs
 {
@@ -188,31 +189,6 @@ namespace CustomNpcs.Npcs
             return customNpc;
         }
 
-		private IEnumerable<string> getDefaultImports()
-		{
-			var imports = new List<string>()
-			{
-				"System",
-				"System.Collections.Generic",
-				"Microsoft.Xna.Framework",
-				"TShockAPI",
-				"Corruption.AreaFunctions",
-				"Corruption.EmoteFunctions",
-				"Corruption.TimeFunctions",
-				"Corruption.TileFunctions",
-				"Corruption.PlayerFunctions",
-				"Corruption.PlayerCommandFunctions",
-				"CustomNpcs",
-				"CustomNpcs.Invasions",
-				"CustomNpcs.Npcs",
-				"CustomNpcs.Projectiles",
-				"CustomNpcs.NpcFunctions",
-				"CustomNpcs.ProjectileFunctions"
-			};
-
-			return imports;
-		}
-
 		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
 		{
 			var sigs = new List<EnsuredMethodSignature>()
@@ -269,11 +245,21 @@ namespace CustomNpcs.Npcs
 			{
 				//Debug.Print($"Compiling boo invasion scripts.");
 				CustomNpcsPlugin.Instance.LogPrint($"Compiling npc scripts.", TraceLevel.Info);
-				npcScriptsAssembly = BooScriptCompiler.Compile("ScriptedNpcs.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
+				var context =  BooScriptCompiler.Compile("ScriptedNpcs.dll",
+															booScripts,
+															ScriptHelpers.GetReferences(),
+															ScriptHelpers.GetDefaultImports(),
+															getEnsuredMethodSignatures());
+
+				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
+
+				if( context.Errors.Count < 1 )
+					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
+
+				npcScriptsAssembly = context.GeneratedAssembly;
 
 				if( npcScriptsAssembly != null )
 				{
-					//Debug.Print($"Compilation succeeded.");
 					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
 
 					foreach( var d in _definitions )
@@ -281,7 +267,6 @@ namespace CustomNpcs.Npcs
 				}
 				else
 				{
-					//Debug.Print($"Compilation failed.");
 					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
 				}
 			}

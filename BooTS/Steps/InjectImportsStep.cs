@@ -7,7 +7,7 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps;
 
-namespace CustomNpcs
+namespace BooTS
 {
 	public class InjectImportsStep : AbstractTransformerCompilerStep
 	{

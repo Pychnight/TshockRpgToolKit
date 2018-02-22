@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Diagnostics;
 
-namespace CustomNpcs
+namespace BooTS
 {
 	/// <summary>
 	/// Provides a simple, efficient means for finding and linking to Boo module methods in a compiled Assembly. 

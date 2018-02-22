@@ -12,6 +12,7 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using System.Reflection;
+using BooTS;
 
 namespace CustomNpcs.Invasions
 {
@@ -143,32 +144,7 @@ namespace CustomNpcs.Invasions
 				CurrentInvasion = null;
 			}
 		}
-
-		private IEnumerable<string> getDefaultImports()
-		{
-			var imports = new List<string>()
-			{
-				"System",
-				"System.Collections.Generic",
-				"Microsoft.Xna.Framework",
-				"TShockAPI",
-				"Corruption.AreaFunctions",
-				"Corruption.EmoteFunctions",
-				"Corruption.TimeFunctions",
-				"Corruption.TileFunctions",
-				"Corruption.PlayerFunctions",
-				"Corruption.PlayerCommandFunctions",
-				"CustomNpcs",
-				"CustomNpcs.Invasions",
-				"CustomNpcs.Npcs",
-				"CustomNpcs.Projectiles",
-				"CustomNpcs.NpcFunctions",
-				"CustomNpcs.ProjectileFunctions"
-			};
-
-			return imports;
-		}
-
+		
 		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
 		{
 			var sigs = new List<EnsuredMethodSignature>()
@@ -203,7 +179,18 @@ namespace CustomNpcs.Invasions
 			{
 				//Debug.Print($"Compiling boo invasion scripts.");
 				CustomNpcsPlugin.Instance.LogPrint($"Compiling invasion scripts.", TraceLevel.Info);
-				invasionScriptsAssembly = BooScriptCompiler.Compile("ScriptedInvasions.dll", booScripts, getDefaultImports(), getEnsuredMethodSignatures());
+				var context = BooScriptCompiler.Compile("ScriptedInvasions.dll",
+															booScripts,
+															ScriptHelpers.GetReferences(),
+															ScriptHelpers.GetDefaultImports(),
+															getEnsuredMethodSignatures());
+
+				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
+
+				if(context.Errors.Count<1)
+					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
+
+				invasionScriptsAssembly = context.GeneratedAssembly;
 
 				if( invasionScriptsAssembly != null )
 				{

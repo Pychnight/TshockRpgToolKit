@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcs
+namespace BooTS
 {
 	public static class BooHelpers
 	{

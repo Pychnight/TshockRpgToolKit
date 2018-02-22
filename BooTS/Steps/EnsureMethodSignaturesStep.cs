@@ -1,14 +1,13 @@
 ﻿using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps;
-using CustomNpcs.Npcs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcs
+namespace BooTS
 {
 	public class EnsuredParameter
 	{
