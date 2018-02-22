@@ -1,4 +1,5 @@
 ﻿using Banking.Configuration;
+using Microsoft.Xna.Framework;
 using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
@@ -178,13 +179,36 @@ namespace Banking
 
 							if( action==0 && var1 == 0 )//tile has been killed
 							{
-								var tile = Main.tile[tileX, tileY];
-								OnTileKilled(new TileChangedEventArgs(new TSPlayer(args.Msg.whoAmI), tileX, tileY, tile));
+								var player = TShock.Players[args.Msg.whoAmI];
+								var key = new Vector2(tileX, tileY);
+
+								if(!player.TilesDestroyed.TryGetValue(key,out var dummy))
+								{
+									var tile = Main.tile[tileX, tileY];
+									player.TilesDestroyed.Add(key, tile);
+
+									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile));
+									return;
+								}
+								
+								//Debug.Print("Already destroyed.");
+
 							}
 							else if(action==1 && var1 == 1)
 							{
-								var tile = Main.tile[tileX, tileY];
-								OnTilePlaced(new TileChangedEventArgs(new TSPlayer(args.Msg.whoAmI), tileX, tileY, tile));
+								var player = TShock.Players[args.Msg.whoAmI];
+								var key = new Vector2(tileX, tileY);
+
+								if( !player.TilesCreated.TryGetValue(key, out var dummy) )
+								{
+									var tile = Main.tile[tileX, tileY];
+									player.TilesCreated.Add(key, tile);
+
+									OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile));
+									return;
+								}
+
+								//Debug.Print("Already created.");
 							}
 						}
 					}
