@@ -44,7 +44,11 @@ namespace CustomNpcs
 			
 			//var assemblies = Assembly.GetEntryAssembly().GetReferencedAssemblies();
 			var mscorAss = Assembly.GetAssembly(typeof(object));
+
+#pragma warning disable 612, 618
 			var sysAss = Assembly.LoadWithPartialName("System");
+#pragma warning restore 612, 618
+
 			var otapiAss = Assembly.GetAssembly(typeof(Vector2));
 			var tshockAss = Assembly.GetAssembly(typeof(TSPlayer));
 			var corruptionAss = Assembly.GetAssembly(typeof(AreaFunctions));

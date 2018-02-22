@@ -28,9 +28,13 @@ namespace BooTS
 		{
 			var result = new List<Assembly>();
 
+#pragma warning disable 612, 618
+
 			var booLangAss = Assembly.LoadWithPartialName("Boo.Lang");
 			var booUsefulAss = Assembly.LoadWithPartialName("Boo.Lang.Useful");
 			var booExtAss = Assembly.LoadWithPartialName("Boo.Lang.Extensions");
+
+#pragma warning restore 612, 618
 
 			result.Add(booLangAss);
 			result.Add(booUsefulAss);
