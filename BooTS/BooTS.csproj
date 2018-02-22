@@ -7,7 +7,7 @@
     <ProjectGuid>{A74D2D6C-99AB-465B-BC81-935B9139BFBA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>BooTS</RootNamespace>
-    <AssemblyName>boots</AssemblyName>
+    <AssemblyName>BooTS</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -1,4 +1,5 @@
-﻿using Corruption;
+﻿using BooTS;
+using Corruption;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -40,20 +41,23 @@ namespace CustomNpcs
 		internal static IEnumerable<Assembly> GetReferences()
 		{
 			var assemblies = new List<Assembly>();
-
-			//var otapiAss = assemblies.Where(a => a.FullName.Contains("OTAPI")).Select( a => Assembly.Load( a )).SingleOrDefault();
+			
 			//var assemblies = Assembly.GetEntryAssembly().GetReferencedAssemblies();
-			var sysAss = Assembly.GetAssembly(typeof(Random));
+			var mscorAss = Assembly.GetAssembly(typeof(object));
+			var sysAss = Assembly.LoadWithPartialName("System");
 			var otapiAss = Assembly.GetAssembly(typeof(Vector2));
 			var tshockAss = Assembly.GetAssembly(typeof(TSPlayer));
 			var corruptionAss = Assembly.GetAssembly(typeof(AreaFunctions));
 			var pluginAss = Assembly.GetExecutingAssembly();
 			
+			assemblies.Add(mscorAss);
 			assemblies.Add(sysAss);
 			assemblies.Add(otapiAss);
 			assemblies.Add(tshockAss);
 			assemblies.Add(corruptionAss);
 			assemblies.Add(pluginAss);
+
+			assemblies.AddRange(BooHelpers.GetBooLangAssemblies());
 
 			return assemblies;
 		}
