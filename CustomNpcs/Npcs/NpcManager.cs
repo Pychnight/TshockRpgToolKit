@@ -13,6 +13,7 @@ using TShockAPI.Hooks;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Xna.Framework;
+using Corruption;
 
 namespace CustomNpcs.Npcs
 {
@@ -195,17 +196,18 @@ namespace CustomNpcs.Npcs
 				"System.Collections.Generic",
 				"Microsoft.Xna.Framework",
 				"TShockAPI",
+				"Corruption.AreaFunctions",
+				"Corruption.EmoteFunctions",
+				"Corruption.TimeFunctions",
+				"Corruption.TileFunctions",
+				"Corruption.PlayerFunctions",
+				"Corruption.PlayerCommandFunctions",
 				"CustomNpcs",
 				"CustomNpcs.Invasions",
 				"CustomNpcs.Npcs",
 				"CustomNpcs.Projectiles",
 				"CustomNpcs.NpcFunctions",
-				"CustomNpcs.ProjectileFunctions",
-				"CustomNpcs.AreaFunctions",
-				"CustomNpcs.TimeFunctions",
-				"CustomNpcs.TileFunctions",
-				"CustomNpcs.PlayerFunctions",
-				"CustomNpcs.PlayerCommandFunctions"
+				"CustomNpcs.ProjectileFunctions"
 			};
 
 			return imports;

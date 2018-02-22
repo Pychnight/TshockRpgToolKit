@@ -1,6 +1,7 @@
 ﻿using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipelines;
+using Corruption;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,7 @@ namespace CustomNpcs
 			var sysAss = Assembly.GetAssembly(typeof(Random));
 			var otapiAss = Assembly.GetAssembly(typeof(Vector2));
 			var tshockAss = Assembly.GetAssembly(typeof(TSPlayer));
+			var corruptionAss = Assembly.GetAssembly(typeof(AreaFunctions));
 			var pluginAss = Assembly.GetExecutingAssembly();
 
 			parameters.DisabledWarnings.Add("BCW0016");//dont warn about unused namespaces...
@@ -48,6 +50,7 @@ namespace CustomNpcs
 			//parameters.References.Add(sysAss);
 			parameters.References.Add(otapiAss);
 			parameters.References.Add(tshockAss);
+			parameters.References.Add(corruptionAss);
 			parameters.References.Add(pluginAss);
 
 			//parameters.AddAssembly(sysAss);

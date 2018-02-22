@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TShockAPI;
 using TShockAPI.DB;
 
-namespace CustomNpcs
+namespace Corruption
 {
 	public static class AreaFunctions
 	{

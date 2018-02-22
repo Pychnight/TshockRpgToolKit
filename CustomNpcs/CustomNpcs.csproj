@@ -100,7 +100,6 @@
     <Compile Include="DefinitionBase.cs" />
     <Compile Include="DefinitionLoading\DefinitionLoader.cs" />
     <Compile Include="DefinitionLoading\DefinitionOrCategoryJsonConverter.cs" />
-    <Compile Include="Runtime\AreaFunctions.cs" />
     <Compile Include="Boo\BooHelpers.cs" />
     <Compile Include="Boo\BooScriptCompiler.cs" />
     <Compile Include="Boo\Steps\InjectImportsStep.cs" />
@@ -119,8 +118,6 @@
     <Compile Include="Npcs\LootEntryDefinition.cs" />
     <Compile Include="Invasions\WaveDefinition.cs" />
     <Compile Include="Npcs\NpcFunctions.cs" />
-    <Compile Include="Runtime\EmoteFunctions.cs" />
-    <Compile Include="Runtime\PlayerFunctions.cs" />
     <Compile Include="Projectiles\ProjectileDelegates.cs" />
     <Compile Include="Projectiles\ProjectileFunctions.cs" />
     <Compile Include="Projectiles\CustomProjectile.cs" />
@@ -128,9 +125,6 @@
     <Compile Include="Projectiles\ProjectileDefinition.cs" />
     <Compile Include="Projectiles\ProjectileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Runtime\PlayerCommandFunctions.cs" />
-    <Compile Include="Runtime\TileFunctions.cs" />
-    <Compile Include="Runtime\TimeFunctions.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +133,13 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Corruption\Corruption.csproj">
+      <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
+      <Name>Corruption</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

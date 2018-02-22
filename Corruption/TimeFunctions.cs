@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 
-namespace CustomNpcs
+namespace Corruption
 {
 	public static class TimeFunctions
 	{

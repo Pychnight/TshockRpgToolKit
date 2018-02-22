@@ -9,6 +9,7 @@ using CustomNpcs.Projectiles;
 using System.Diagnostics;
 using Terraria.GameContent.UI;
 using Terraria.Localization;
+using Corruption;
 
 namespace CustomNpcs.Npcs
 {

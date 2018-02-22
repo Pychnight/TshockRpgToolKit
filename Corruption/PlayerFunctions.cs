@@ -1,5 +1,5 @@
-﻿using CustomNpcs.Npcs;
-using CustomNpcs.Projectiles;
+﻿//using CustomNpcs.Npcs;
+//using CustomNpcs.Projectiles;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using Terraria;
 using Terraria.DataStructures;
 using TShockAPI;
 
-namespace CustomNpcs
+namespace Corruption
 {
 	public static class PlayerFunctions
 	{
@@ -26,19 +26,22 @@ namespace CustomNpcs
 
 				result.SourceCustomReason = reason;
 
-				var npc = attacker as CustomNpc;
-				if( npc != null )
-				{
-					result.SourceNPCIndex = npc.Index;
-				}
-				else
-				{
-					var projectile = attacker as CustomProjectile;
-					if( projectile != null )
-					{
-						result.SourceProjectileIndex = projectile.Index;
-					}
-				}
+				//Disabled following when we created CorruptionLib, since it has no references to CustomNpcs, and the attacker field currently goes unused.
+				//will need to reinvestigate how to handle this best.
+
+				//var npc = attacker as CustomNpc;
+				//if( npc != null )
+				//{
+				//	result.SourceNPCIndex = npc.Index;
+				//}
+				//else
+				//{
+				//	var projectile = attacker as CustomProjectile;
+				//	if( projectile != null )
+				//	{
+				//		result.SourceProjectileIndex = projectile.Index;
+				//	}
+				//}
 
 				return result;
 			}

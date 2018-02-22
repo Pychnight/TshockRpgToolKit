@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
-namespace CustomNpcs
+namespace Corruption
 {
 	public static class TileFunctions
 	{

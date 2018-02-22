@@ -7,11 +7,11 @@ using Terraria;
 using Terraria.GameContent.UI;
 using Terraria.Localization;
 
-namespace CustomNpcs
+namespace Corruption
 {
 	public static class EmoteFunctions
 	{
-		internal const int AnchorTypeNpc = 0;
+		public const int AnchorTypeNpc = 0;
 		internal const int AnchorTypePlayer = 1;
 		internal const int AnchorTypeProjectile = 2;
 
