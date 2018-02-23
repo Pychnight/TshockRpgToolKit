@@ -194,7 +194,7 @@ namespace Banking
 								//Debug.Print("Already destroyed.");
 
 							}
-							else if(action==1 && var1 == 1)
+							else if(action==1)// && var1 > 0)
 							{
 								var player = TShock.Players[args.Msg.whoAmI];
 								var key = new Vector2(tileX, tileY);
