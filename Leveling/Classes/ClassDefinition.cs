@@ -14,60 +14,65 @@ namespace Leveling.Classes
         ///     Gets a value indicating whether to allow switching the class after mastery.
         /// </summary>
         [JsonProperty(Order = 6)]
-        public bool AllowSwitching { get; private set; } = true;
+        public bool AllowSwitching { get; internal set; } = true;
 
         /// <summary>
         ///     Gets a value indicating whether to allow switching the class before mastery.
         /// </summary>
         [JsonProperty(Order = 7)]
-        public bool AllowSwitchingBeforeMastery { get; private set; }
+        public bool AllowSwitchingBeforeMastery { get; internal set; }
 
         /// <summary>
         ///     Gets the death penalty multiplier override.
         /// </summary>
         [JsonProperty(Order = 9)]
-        public double? DeathPenaltyMultiplierOverride { get; private set; }
+        public double? DeathPenaltyMultiplierOverride { get; internal set; }
 
         /// <summary>
         ///     Gets the display name.
         /// </summary>
         [JsonProperty("DisplayName", Order = 1)]
-        public string DisplayName { get; private set; }
+        public string DisplayName { get; internal set; }
 
         /// <summary>
         ///     Gets the EXP multiplier override.
         /// </summary>
         [JsonProperty(Order = 8)]
-        public double? ExpMultiplierOverride { get; private set; }
+        public double? ExpMultiplierOverride { get; internal set; }
 
 		/// <summary>
 		///     Gets the list of level definitions.
 		/// </summary>
 		[JsonProperty("Levels", Order = 2)]
-		public IList<LevelDefinition> LevelDefinitions { get; private set; } = new List<LevelDefinition>();
+		public IList<LevelDefinition> LevelDefinitions { get; internal set; } = new List<LevelDefinition>();
 
         /// <summary>
         ///     Gets the name.
         /// </summary>
         [JsonProperty("Name", Order = 0)]
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         ///     Gets the list of prerequisite levels.
         /// </summary>
         [JsonProperty("PrerequisiteLevels", Order = 3)]
-        public IList<string> PrerequisiteLevelNames { get; private set; } = new List<string>();
+        public IList<string> PrerequisiteLevelNames { get; internal set; } = new List<string>();
 
         /// <summary>
         ///     Gets the list of prerequisite permissions.
         /// </summary>
         [JsonProperty(Order = 4)]
-        public IList<string> PrerequisitePermissions { get; private set; } = new List<string>();
+        public IList<string> PrerequisitePermissions { get; internal set; } = new List<string>();
 
         /// <summary>
         ///     Gets the SEconomy cost to enter this class.
         /// </summary>
         [JsonProperty(Order = 5)]
-        public long SEconomyCost { get; private set; }
+        public long SEconomyCost { get; internal set; }
+
+
+		//--- new stuff
+		public string DisplayInfo { get; internal set; }
+
     }
 }

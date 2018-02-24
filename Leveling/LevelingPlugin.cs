@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Leveling.Classes;
 using Leveling.Database;
 using Leveling.Levels;
+using Leveling.LoaderDsl;
 using Leveling.Sessions;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -70,36 +71,10 @@ namespace Leveling
 				//var connectionString = $"Server=localhost;Database=db_leveling;Uid=root;Pwd=root;";
 				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("mysql", connectionString);
 
-				var dbConfig = Config.Instance.DatabaseConfig;
-				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
-				
-				_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-					.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+				//var dbConfig = Config.Instance.DatabaseConfig;
+				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
-				//if default class file does not exist, we're in an error state
-				if (_classDefinitions.Select(cd => cd.Name).
-					FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null)
-				{
-					throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
-				}
-
-				var levels = _classes.SelectMany(c => c.Levels).ToList();
-				foreach (var @class in _classes)
-				{
-					@class.Resolve(levels, 0);
-				}
-				foreach (var @class in _classes)
-				{
-					@class.Resolve(levels, 1);
-				}
-				foreach (var level in levels)
-				{
-					foreach (var itemName in level.ItemNamesAllowed)
-					{
-						ItemNameToLevelRequirements[itemName] = level;
-					}
-				}
+				LoadClasses();
 			}
 			catch(Exception ex)
 			{
@@ -208,6 +183,105 @@ namespace Leveling
 
             base.Dispose(disposing);
         }
+
+		private void LoadClasses()
+		{
+			Directory.CreateDirectory("leveling\\classes\\boo");
+
+			var loadJson = false;
+
+			if( loadJson )
+			{
+				_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
+				.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+				foreach( var def in _classDefinitions )
+				{
+					var boo = def.ToBooString();
+					//Debug.Print(boo);
+					File.WriteAllText($"leveling\\classes\\boo\\{def.Name}.boo", boo);
+				}
+			}
+			else
+			{
+				LoadBooClasses("leveling\\classes\\boo");
+			}
+
+			//if default class file does not exist, we're in an error state
+			if( _classDefinitions.Select(cd => cd.Name).
+				FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
+			{
+				throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
+			}
+
+			ItemNameToLevelRequirements?.Clear();
+			var levels = _classes.SelectMany(c => c.Levels).ToList();
+			foreach( var @class in _classes )
+			{
+				@class.Resolve(levels, 0);
+			}
+			foreach( var @class in _classes )
+			{
+				@class.Resolve(levels, 1);
+			}
+			foreach( var level in levels )
+			{
+				foreach( var itemName in level.ItemNamesAllowed )
+				{
+					ItemNameToLevelRequirements[itemName] = level;
+				}
+			}
+
+			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
+			//  .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+			//ItemNameToLevelRequirements.Clear();
+			//var levels = _classes.SelectMany(c => c.Levels).ToList();
+			//foreach( var @class in _classes )
+			//{
+			//	@class.Resolve(levels, 0);
+			//}
+			//foreach( var @class in _classes )
+			//{
+			//	@class.Resolve(levels, 1);
+			//}
+			//foreach( var level in levels )
+			//{
+			//	foreach( var itemName in level.ItemNamesAllowed )
+			//	{
+			//		ItemNameToLevelRequirements[itemName] = level;
+			//	}
+			//}
+		}
+
+		private void LoadBooClasses(string directoryPath)
+		{
+			var fileNames = Directory.EnumerateFiles(directoryPath, "*.boo", SearchOption.AllDirectories);
+			var classCompiler = new ClassCompiler();
+			var definitions = new List<ClassDefinition>();
+			var classes = new List<Class>();
+
+			foreach( var classFile in fileNames )
+			{
+				try
+				{
+					var def = classCompiler.LoadClassDefinition(classFile);
+					var newClass = new Class(def);
+					definitions.Add(def);
+					classes.Add(newClass);
+				}
+				catch(Exception ex)
+				{
+					Debug.Print($"Error while loading boo class '{classFile}'.");
+					Debug.Print($"{ex.Message}");
+				}
+			}
+
+			_classDefinitions = definitions;
+			_classes = classes;
+		}
 
         private void AddHp(CommandArgs args)
         {
@@ -906,27 +980,29 @@ namespace Leveling
             {
                 Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
             }
-            _classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-                .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-            _classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
+			//    .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
 
-            ItemNameToLevelRequirements.Clear();
-            var levels = _classes.SelectMany(c => c.Levels).ToList();
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(levels, 0);
-            }
-            foreach (var @class in _classes)
-            {
-                @class.Resolve(levels, 1);
-            }
-            foreach (var level in levels)
-            {
-                foreach (var itemName in level.ItemNamesAllowed)
-                {
-                    ItemNameToLevelRequirements[itemName] = level;
-                }
-            }
+			//ItemNameToLevelRequirements.Clear();
+			//var levels = _classes.SelectMany(c => c.Levels).ToList();
+			//foreach (var @class in _classes)
+			//{
+			//    @class.Resolve(levels, 0);
+			//}
+			//foreach (var @class in _classes)
+			//{
+			//    @class.Resolve(levels, 1);
+			//}
+			//foreach (var level in levels)
+			//{
+			//    foreach (var itemName in level.ItemNamesAllowed)
+			//    {
+			//        ItemNameToLevelRequirements[itemName] = level;
+			//    }
+			//}
+
+			LoadClasses();
 
             // We have to resolve sessions again.
             foreach (var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession))

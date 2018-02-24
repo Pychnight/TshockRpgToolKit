@@ -34,6 +34,33 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Boo.Lang">
+      <HintPath>..\refs\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.CodeDom">
+      <HintPath>..\refs\Boo.Lang.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>..\refs\Boo.Lang.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Extensions">
+      <HintPath>..\refs\Boo.Lang.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Interpreter">
+      <HintPath>..\refs\Boo.Lang.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\refs\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\refs\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\refs\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="BooTS">
+      <HintPath>..\refs\BooTS.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
@@ -81,7 +108,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Class.cs" />
+    <Compile Include="LoaderDsl\BooOutputter.cs" />
+    <Compile Include="LoaderDsl\ClassCompiler.cs" />
     <Compile Include="Classes\ClassDefinition.cs" />
+    <Compile Include="LoaderDsl\ClassDsl.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DatabaseConfig.cs" />
     <Compile Include="Database\ISessionDatabase.cs" />
@@ -91,6 +121,7 @@
     <Compile Include="LevelingPlugin.cs" />
     <Compile Include="Levels\Level.cs" />
     <Compile Include="Levels\LevelDefinition.cs" />
+    <Compile Include="LoaderDsl\LevelDsl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sessions\Session.cs" />
     <Compile Include="Sessions\SessionDefinition.cs" />
@@ -113,5 +144,6 @@
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
