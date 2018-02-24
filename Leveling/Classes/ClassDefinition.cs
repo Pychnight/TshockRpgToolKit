@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Leveling.Levels;
+using Leveling.Sessions;
 using Newtonsoft.Json;
 
 namespace Leveling.Classes
@@ -74,5 +76,11 @@ namespace Leveling.Classes
 		//--- new stuff
 		public string DisplayInfo { get; internal set; }
 
+		public Action<object> OnMaximumCurrency;
+		public Action<object> OnNegativeCurrency;
+		public Action<object> OnLevelUp;
+		public Action<object> OnLevelDown;
+		public Action<object> OnClassChange;
+		public Action<object> OnClassMastered;
     }
 }

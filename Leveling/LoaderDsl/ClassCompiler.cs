@@ -16,6 +16,8 @@ namespace Leveling.LoaderDsl
 {
 	class ClassCompiler
 	{
+		internal const string AssemblyPrefix = "ClassDef_";
+
 		BooCompiler compiler;
 		InjectImportsStep injectImportsStep;
 		EnsureMethodSignaturesStep ensureMethodSignaturesStep;
@@ -75,14 +77,11 @@ namespace Leveling.LoaderDsl
 		public ClassDefinition LoadClassDefinition(string fileName)
 		{
 			var ps = compiler.Parameters;
+			var input = new FileInput(fileName);
 
 			ps.Input.Clear();
-
-			var inputs = new FileInput(fileName);
-
-			ps.Input.Add(inputs);
-
-			ps.OutputAssembly = Path.GetFileNameWithoutExtension(fileName) + ".exe";
+			ps.Input.Add(input);
+			ps.OutputAssembly = $"{AssemblyPrefix}{Path.GetFileNameWithoutExtension(fileName)}.dll";
 
 			var context = compiler.Run();
 
@@ -108,16 +107,23 @@ namespace Leveling.LoaderDsl
 					var linker = new BooModuleLinker(ass, fileName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 					var main = linker["Main"];
 					
+					//build definitions...
 					main.Invoke(null, new object[1]);
 
-					//set def callbacks...
-					//...
-					//...
-				
+					//try to link to callbacks...
+					def.OnMaximumCurrency = linker["OnMaximumCurrency"]?.TryCreateDelegate<Action<object>>();
+					def.OnNegativeCurrency = linker["OnNegativeCurrency"]?.TryCreateDelegate<Action<object>>();
+					def.OnLevelUp = linker["OnLevelUp"]?.TryCreateDelegate<Action<object>>();
+					def.OnLevelDown = linker["OnLevelDown"]?.TryCreateDelegate<Action<object>>();
+					def.OnClassChange = linker["OnClassChange"]?.TryCreateDelegate<Action<object>>();
+					def.OnClassMastered = linker["OnClassMastered"]?.TryCreateDelegate<Action<object>>();
+
 					return def;
 				}
 				catch(Exception ex)
 				{
+					Debug.Print("LoadClassDefinition failed.");
+					Debug.Print(ex.Message);
 					return null;
 				}
 			}

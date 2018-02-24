@@ -71,8 +71,8 @@ namespace Leveling
 				//var connectionString = $"Server=localhost;Database=db_leveling;Uid=root;Pwd=root;";
 				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("mysql", connectionString);
 
-				//var dbConfig = Config.Instance.DatabaseConfig;
-				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+				var dbConfig = Config.Instance.DatabaseConfig;
+				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
 				LoadClasses();
 			}
@@ -196,12 +196,12 @@ namespace Leveling
 				.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
 				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
 
-				foreach( var def in _classDefinitions )
-				{
-					var boo = def.ToBooString();
-					//Debug.Print(boo);
-					File.WriteAllText($"leveling\\classes\\boo\\{def.Name}.boo", boo);
-				}
+				//foreach( var def in _classDefinitions )
+				//{
+				//	var boo = def.ToBooString();
+				//	//Debug.Print(boo);
+				//	File.WriteAllText($"leveling\\classes\\boo\\{def.Name}.boo", boo);
+				//}
 			}
 			else
 			{

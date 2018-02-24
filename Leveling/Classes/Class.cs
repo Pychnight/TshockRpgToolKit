@@ -12,6 +12,8 @@ namespace Leveling.Classes
     {
         private readonly ClassDefinition _definition;
 
+		public ClassDefinition Definition => _definition;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="Class" /> class with the specified definition.
         /// </summary>

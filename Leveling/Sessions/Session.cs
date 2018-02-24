@@ -59,9 +59,21 @@ namespace Leveling.Sessions
             {
                 Debug.Assert(value != null, "Value must not be null.");
 
+				var lastClass = _class;
+
                 _class = value;
                 _definition.CurrentClassName = value.Name;
                 UpdateItemsAndPermissions();
+
+				if(_class!=lastClass)
+				{
+					var def = _class.Definition;
+
+					if(def!=null && def.OnClassChange!=null)
+					{
+						def.OnClassChange(this);
+					}
+				}
             }
         }
 
@@ -239,10 +251,14 @@ namespace Leveling.Sessions
 		public void LevelReset()
 		{
 			Debug.Print("LevelReset!");
+			
+			MasteredClasses.Clear();
+			UnlockedClasses.Clear();
+			PermissionsGranted.Clear();
 
 			var def = _definition;
-
 			def.initialize();
+			
 			Resolve(LevelingPlugin.Instance._classes);
 			Save();
 		}
@@ -277,6 +293,14 @@ namespace Leveling.Sessions
                 Commands.HandleCommand(TSPlayer.Server, command2);
             }
             Save();
+
+			var def = Class.Definition;
+
+			if(def.OnLevelDown!=null)
+			{
+				def.OnLevelDown(this);
+			}
+			
             return true;
         }
 
@@ -292,7 +316,9 @@ namespace Leveling.Sessions
                 return false;
             }
 
-            Level = Class.Levels[levelIndex + 1];
+			var def = Class.Definition;
+
+			Level = Class.Levels[levelIndex + 1];
             Exp = 0;
 
             // Notify the player.
@@ -303,6 +329,11 @@ namespace Leveling.Sessions
                 _player.SendInfoMessage($"You have mastered the {Class} class.");
                 MasteredClasses.Add(Class);
                 _definition.MasteredClassNames.Add(Class.Name);
+
+				if(def.OnClassMastered!=null)
+				{
+					def.OnClassMastered(this);
+				}
             }
             AddCombatText("Leveled up!", Color.LimeGreen);
 
@@ -324,6 +355,12 @@ namespace Leveling.Sessions
             }
             _definition.LevelNamesObtained.Add(Level.Name);
             Save();
+			
+			if(def!=null)
+			{
+				def.OnLevelUp(this);
+			}
+			
             return true;
         }
 
