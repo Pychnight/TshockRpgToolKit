@@ -43,6 +43,23 @@ namespace BooTS
 			return result;
 		}
 
+		public static List<Assembly> GetSystemAssemblies()
+		{
+			var result = new List<Assembly>();
+
+#pragma warning disable 612, 618
+
+			var mscorAss = Assembly.LoadWithPartialName("mscorlib");
+			var sysAss = Assembly.LoadWithPartialName("System");
+			
+#pragma warning restore 612, 618
+
+			result.Add(mscorAss);
+			result.Add(sysAss);
+			
+			return result;
+		}
+
 		public static MethodInfo FindByName(this IEnumerable<MethodInfo> methods, string name)
 		{
 			var result = methods.Where(mi => mi.Name == name).FirstOrDefault();

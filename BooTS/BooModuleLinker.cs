@@ -30,7 +30,7 @@ namespace BooTS
 			}
 		}
 
-		public BooModuleLinker(Assembly assembly, string filePath )
+		public BooModuleLinker(Assembly assembly, string filePath, BindingFlags bindingFlags = BindingFlags.Static | BindingFlags.Public)
 		{
 			FilePath = filePath;
 			var moduleName = GetModuleNameForFilePath(filePath);
@@ -39,7 +39,7 @@ namespace BooTS
 
 			if(type!=null)
 			{
-				var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
+				var methods = type.GetMethods(bindingFlags);
 
 				this.methods = new Dictionary<string, MethodInfo>(methods.Length);
 
