@@ -20,6 +20,8 @@ namespace BooTS
 		InjectImportsStep injectImportsStep;
 		EnsureMethodSignaturesStep ensureMethodSignaturesStep;
 
+		public BooCompiler InternalCompiler { get { return compiler; } }
+
 		public BooScriptCompiler()
 		{
 			compiler = BooHelpers.CreateBooCompiler();
