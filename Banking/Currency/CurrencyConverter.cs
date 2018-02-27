@@ -49,7 +49,7 @@ namespace Banking
 			}
 
 			regexString = sb.ToString();
-			Debug.Print($"Created {Currency} regex = {regexString}");
+			//Debug.Print($"Created {Currency} regex = {regexString}");
 					
 			parseRegex = new Regex(regexString,RegexOptions.Compiled);
 		}

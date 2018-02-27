@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
-	internal class BankAccountTypeMap : Dictionary<string,BankAccount>
+	/// <summary>
+	/// Internal collection of a player's bank accounts, keyed by Currency type.
+	/// </summary>
+	internal class PlayerBankAccountMap : Dictionary<string,BankAccount>
 	{
 		internal string OwnerName { get; set; }
 
-		internal BankAccountTypeMap(string ownerName)
+		internal PlayerBankAccountMap(string ownerName)
 		{
 			OwnerName = ownerName;
 		}
 
-		internal BankAccountTypeMap(string ownerName, IEnumerable<CurrencyDefinition> definitions)
+		internal PlayerBankAccountMap(string ownerName, IEnumerable<CurrencyDefinition> definitions)
 		{
 			OwnerName = ownerName;
 			

@@ -15,14 +15,14 @@ namespace Banking
 		internal IDatabase Database;
 
 		internal CurrencyManager CurrencyManager { get; private set; }
-		private Dictionary<string, BankAccountTypeMap> bankAccounts;
+		private Dictionary<string, PlayerBankAccountMap> bankAccounts;
 
 		//public BankAccount WorldAccount { get; private set; }
 
 		public BankAccountManager()
 		{
 			CurrencyManager = new CurrencyManager(Config.Instance.Currency);
-			bankAccounts = new Dictionary<string, BankAccountTypeMap>();
+			bankAccounts = new Dictionary<string, PlayerBankAccountMap>();
 			//EnsureBankAccountsExist(TSPlayer.Server.Name);
 			//WorldAccount.Get
 			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
@@ -35,17 +35,21 @@ namespace Banking
 			
 			bankAccounts.Clear();
 
-			Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
+			var cfg = Config.Instance.Database;
 
+			//Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
+			//Database = DatabaseFactory.LoadOrCreateDatabase("mysql", "Server=localhost;Database=db_banking;Uid=xxx;Pwd=xxx;");
+			Database = DatabaseFactory.LoadOrCreateDatabase(cfg.DatabaseType, cfg.ConnectionString);
+			
 			var accounts = Database.Load();
 
 			foreach( var acc in accounts )
 			{
-				BankAccountTypeMap accountTypes = null;
+				PlayerBankAccountMap accountTypes = null;
 
 				if(!bankAccounts.TryGetValue(acc.OwnerName,out accountTypes))
 				{
-					accountTypes = new BankAccountTypeMap(acc.OwnerName);
+					accountTypes = new PlayerBankAccountMap(acc.OwnerName);
 					bankAccounts.Add(acc.OwnerName, accountTypes);
 				}
 
@@ -69,7 +73,7 @@ namespace Banking
 			if( !bankAccounts.TryGetValue(name, out var accountTypes) )
 			{
 				Debug.Print($"Creating bank account types for user {name}...");
-				accountTypes = new BankAccountTypeMap(name, CurrencyManager.Definitions.Values);
+				accountTypes = new PlayerBankAccountMap(name, CurrencyManager.Definitions.Values);
 
 				//Database.Create(accountTypes);
 				bankAccounts.Add(name, accountTypes);
@@ -82,13 +86,13 @@ namespace Banking
 
 		public BankAccount GetOrCreateBankAccount(string name, string accountType)
 		{
-			BankAccountTypeMap accountTypes = null;
+			PlayerBankAccountMap accountTypes = null;
 			BankAccount account = null;
 
 			if( !bankAccounts.TryGetValue(name, out accountTypes) )
 			{
 				Debug.Print($"Creating bank account types for user {name}...");
-				accountTypes = new BankAccountTypeMap(name, CurrencyManager.Definitions.Values);
+				accountTypes = new PlayerBankAccountMap(name, CurrencyManager.Definitions.Values);
 
 				//Database.Create(accountTypes);
 				bankAccounts.Add(name, accountTypes);
