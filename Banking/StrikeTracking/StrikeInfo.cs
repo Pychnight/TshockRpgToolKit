@@ -8,12 +8,12 @@ namespace Banking
 {
 	public struct StrikeInfo
 	{
-		public DateTime LastStrikeTime { get; private set; }
+		//public DateTime LastStrikeTime { get; private set; }
 		public int Strikes { get; private set; }
 
 		public void AddStrike()
 		{
-			LastStrikeTime = DateTime.Now;
+			//LastStrikeTime = DateTime.Now;
 			Strikes += 1;
 		}
 	}

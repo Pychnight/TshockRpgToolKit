@@ -7,6 +7,9 @@ using TShockAPI;
 
 namespace Banking
 {
+	/// <summary>
+	/// Records the number of times each Player has struck a given NPC.
+	/// </summary>
 	public class PlayerStrikeInfo : Dictionary<string, StrikeInfo>
 	{
 		//"hidden" member, used to help determine when npc's despawn...

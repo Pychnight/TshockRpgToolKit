@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Banking
 {
 	/// <summary>
-	/// Configures how a Currency is automatically rewarded.
+	/// Configures and supports how a Currency will reward players.
 	/// </summary>
 	[JsonObject]
 	public class CurrencyRewardDefinition

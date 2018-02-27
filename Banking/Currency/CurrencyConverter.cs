@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
+	/// <summary>
+	/// Handles string conversions for a Currency.  
+	/// </summary>
 	public class CurrencyConverter
 	{
 		public CurrencyDefinition Currency { get; private set; }

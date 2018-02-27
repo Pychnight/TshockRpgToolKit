@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
+	/// <summary>
+	/// Provides configuration and internal support for a Currency. 
+	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyDefinition
 	{
@@ -19,9 +22,6 @@ namespace Banking
 		[JsonProperty(Order =2)]
 		public List<CurrencyQuadrantDefinition> Quadrants { get; set; } = new List<CurrencyQuadrantDefinition>();
 		
-		//[JsonProperty(Order = 3)]
-		//public string GainBy { get; set; }
-
 		[JsonProperty(Order = 3)]
 		public Dictionary<string,CurrencyRewardDefinition> Rewards { get; set; } = new Dictionary<string,CurrencyRewardDefinition>();
 

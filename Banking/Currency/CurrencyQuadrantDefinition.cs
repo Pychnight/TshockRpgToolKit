@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
+	/// <summary>
+	/// Provides configuration and internal support for a quadrant of a Currency.
+	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyQuadrantDefinition
 	{

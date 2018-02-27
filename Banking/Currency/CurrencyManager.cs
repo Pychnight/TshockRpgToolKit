@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
+	/// <summary>
+	/// A central collection of loaded Currency's.
+	/// </summary>
 	public class CurrencyManager : IEnumerable<CurrencyDefinition>
 	{
 		internal Dictionary<string, CurrencyDefinition> Definitions;

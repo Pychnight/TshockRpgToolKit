@@ -10,8 +10,12 @@ using TShockAPI;
 
 namespace Banking
 {
+	/// <summary>
+	/// Distributes monetary rewards to players.
+	/// </summary>
 	public class RewardDistributor
 	{
+#if ENABLE_IREWARD_EXPERIMENT
 		ConcurrentQueue<IReward> rewards;
 		
 		public RewardDistributor()
@@ -41,10 +45,13 @@ namespace Banking
 			}
 		}
 
+		//this would go in above class...
 		public void AddReward(IReward reward)
 		{
 			rewards.Enqueue(reward);
 		}
+
+#endif
 
 		public void TryAddReward(string playerName, string gainedBy, string itemName, float defaultValue = 1.0f )
 		{
@@ -92,30 +99,6 @@ namespace Banking
 						}
 					}
 				}
-				
-				//if( currency.GainBy == gainedBy )
-				//{
-				//	value *= currency.Multiplier;
-
-				//	var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
-				//	Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
-
-				//	account.Deposit((decimal)value);
-
-				//	if( currency.SendCombatText )
-				//	{
-				//		var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
-
-				//		if( player != null )
-				//		{
-				//			var color = Color.White;
-				//			var money = currency.GetCurrencyConverter().ToStringAndColor((decimal)value,ref color);
-				//			var combatText = $"{money}";
-
-				//			BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
-				//		}
-				//	}
-				//}
 			}
 		}
 
@@ -157,6 +140,11 @@ namespace Banking
 
 		//}
 	}
+
+#if ENABLE_IREWARD_EXPERIMENT
+
+	//all experimental stuff that's been temporarily shelved. Ideally we could use this in place of string creation/comparison, but for now 
+	//this will remain as an interesting idea that needs more time.
 
 	public interface IReward
 	{
@@ -217,4 +205,6 @@ namespace Banking
 			}
 		}
 	}
+
+#endif
 }

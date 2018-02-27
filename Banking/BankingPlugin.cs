@@ -23,11 +23,11 @@ namespace Banking
 		public override string Description => "A simple, banking and currency system for TShock.";
 		public override string Name => "Banking";
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
-		public static BankingPlugin Instance { get; private set; }
-
+		
 		private static string DataDirectory { get; set; } = "banking";
 		private static string ConfigPath => Path.Combine(DataDirectory, "config.json");
+
+		public static BankingPlugin Instance { get; private set; }
 
 		internal CombatTextDistributor CombatTextDistributor;
 		internal BankAccountManager BankAccountManager;
@@ -46,23 +46,6 @@ namespace Banking
 
 		public override void Initialize()
 		{
-			//try
-			//{
-			//	Directory.CreateDirectory(DataDirectory);
-			//	Config.LoadOrCreate(ConfigPath);
-
-			//	//SessionRepository = new SqliteSessionRepository(Path.Combine("leveling", "sessions.db"));
-
-			//}
-			//catch( Exception ex )
-			//{
-			//	ServerApi.LogWriter.PluginWriteLine(BankingPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
-			//	ServerApi.LogWriter.PluginWriteLine(BankingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
-			//	ServerApi.LogWriter.PluginWriteLine(BankingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
-			//	this.Enabled = false;
-			//	return;
-			//}
-
 			Config.LoadOrCreate(ConfigPath);
 
 			CombatTextDistributor = new CombatTextDistributor();
@@ -72,9 +55,7 @@ namespace Banking
 			RewardDistributor = new RewardDistributor();
 						
 			GeneralHooks.ReloadEvent += OnReload;
-			//PlayerHooks.PlayerChat += OnPlayerChat;
-			//PlayerHooks.PlayerPermission += OnPlayerPermission;
-
+			
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
@@ -82,12 +63,7 @@ namespace Banking
 			ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			//ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-			
-			//bank bal - View your balance
-			//bank bal <player> View other peoples balance
-			//bank pay <player> <amount>
-			//spawn/delete money with /bank give|take <player> <amount>
-						
+									
 			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "bank")
 			{
 				HelpText = $"Syntax: {Commands.Specifier}bank bal <player-name>\n" +
@@ -127,7 +103,7 @@ namespace Banking
 			Config.LoadOrCreate(ConfigPath);
 
 			NpcStrikeTracker.Clear();
-			RewardDistributor.Clear();
+			//RewardDistributor.Clear();//experimental code disabled
 			BankAccountManager.Load();
 		}
 
@@ -148,12 +124,6 @@ namespace Banking
 			var player = new TSPlayer(args.Who);
 			BankAccountManager.EnsureBankAccountsExist(player.Name);
 		}
-
-		//private void OnServerLeave(LeaveEventArgs args)
-		//{
-		//	var player = new TSPlayer(args.Who);
-		//	Debug.Print($"Player {player.Name} has left the game.");
-		//}
 
 		private void OnNetGetData(GetDataEventArgs args)
 		{
