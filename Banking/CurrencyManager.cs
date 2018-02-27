@@ -26,7 +26,13 @@ namespace Banking
 			Definitions = new Dictionary<string, CurrencyDefinition>();
 
 			foreach(var cur in currencies)
+			{
+				//we do this to avoid string parsing on every look up
+				foreach(var kvp in cur.Rewards)
+					kvp.Value.PreParseValues(cur);
+								
 				Definitions.Add(cur.InternalName, cur);
+			}
 		}
 
 		public IEnumerator<CurrencyDefinition> GetEnumerator()

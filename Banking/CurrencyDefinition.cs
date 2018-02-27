@@ -19,8 +19,11 @@ namespace Banking
 		[JsonProperty(Order =2)]
 		public List<CurrencyQuadrantDefinition> Quadrants { get; set; } = new List<CurrencyQuadrantDefinition>();
 		
+		//[JsonProperty(Order = 3)]
+		//public string GainBy { get; set; }
+
 		[JsonProperty(Order = 3)]
-		public string GainBy { get; set; }
+		public Dictionary<string,CurrencyRewardDefinition> Rewards { get; set; } = new Dictionary<string,CurrencyRewardDefinition>();
 
 		[JsonProperty(Order = 4)]
 		public bool SendCombatText { get; set; }

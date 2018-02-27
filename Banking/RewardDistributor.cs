@@ -46,11 +46,8 @@ namespace Banking
 			rewards.Enqueue(reward);
 		}
 
-		public void TryAddReward(string playerName, string gainedBy, float value)
+		public void TryAddReward(string playerName, string gainedBy, string itemName, float defaultValue = 1.0f )
 		{
-			if( value < 1f )
-				return;
-
 			var bankMgr = BankingPlugin.Instance.BankAccountManager;
 
 			foreach(var currency in bankMgr.CurrencyManager)
@@ -61,14 +58,25 @@ namespace Banking
 					continue;
 				}
 
-				if( currency.GainBy == gainedBy )
+				if(currency.Rewards.TryGetValue(gainedBy,out var rewardDef))
 				{
-					value *= currency.Multiplier;
+					decimal value;
+
+					if( rewardDef.Ignore.Contains(itemName) )
+						continue;
+
+					if( !rewardDef.ParsedValues.TryGetValue(itemName, out value))
+						value = (decimal)defaultValue;
+
+					value *= (decimal)currency.Multiplier;
+
+					if( value == 0.0m )
+						continue;
 
 					var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
 					Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
-					
-					account.Deposit((decimal)value);
+
+					account.Deposit(value);
 
 					if( currency.SendCombatText )
 					{
@@ -77,13 +85,37 @@ namespace Banking
 						if( player != null )
 						{
 							var color = Color.White;
-							var money = currency.GetCurrencyConverter().ToStringAndColor((decimal)value,ref color);
+							var money = currency.GetCurrencyConverter().ToStringAndColor(value, ref color);
 							var combatText = $"{money}";
-							
+
 							BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
 						}
 					}
 				}
+				
+				//if( currency.GainBy == gainedBy )
+				//{
+				//	value *= currency.Multiplier;
+
+				//	var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
+				//	Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
+
+				//	account.Deposit((decimal)value);
+
+				//	if( currency.SendCombatText )
+				//	{
+				//		var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
+
+				//		if( player != null )
+				//		{
+				//			var color = Color.White;
+				//			var money = currency.GetCurrencyConverter().ToStringAndColor((decimal)value,ref color);
+				//			var combatText = $"{money}";
+
+				//			BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
+				//		}
+				//	}
+				//}
 			}
 		}
 

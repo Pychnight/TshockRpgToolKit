@@ -187,7 +187,7 @@ namespace Banking
 									var tile = Main.tile[tileX, tileY];
 									player.TilesDestroyed.Add(key, tile);
 
-									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile));
+									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
 									return;
 								}
 								
@@ -204,7 +204,7 @@ namespace Banking
 									var tile = Main.tile[tileX, tileY];
 									player.TilesCreated.Add(key, tile);
 
-									OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile));
+									OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile.type));
 									return;
 								}
 
@@ -236,8 +236,8 @@ namespace Banking
 
 		private void OnNpcKilled(NpcKilledEventArgs args)
 		{
-			Debug.Print($"NpcKilled! #{args.npc.whoAmI}");
-			Debug.Print($"Value: {args.npc.value}");
+			//Debug.Print($"NpcKilled! #{args.npc.whoAmI}");
+			//Debug.Print($"Value: {args.npc.value}");
 			NpcStrikeTracker.OnNpcKilled(args.npc);
 		}
 		
@@ -248,7 +248,7 @@ namespace Banking
 			{
 				var player = kvp.Key;
 
-				RewardDistributor.TryAddReward(player, "Killing", args.NpcValue);
+				RewardDistributor.TryAddReward(player, "Killing", args.NpcGivenOrTypeName, args.NpcValue);
 			}
 		}
 
@@ -257,7 +257,7 @@ namespace Banking
 			//Debug.Print("OnTileKilled!");
 
 			if(args.Player!=null)
-				RewardDistributor.TryAddReward(args.Player.Name, "Mining", 2);
+				RewardDistributor.TryAddReward(args.Player.Name, "Mining", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
 		}
 
 		private void OnTilePlaced(TileChangedEventArgs args)
@@ -265,10 +265,9 @@ namespace Banking
 			//Debug.Print("OnTilePlaced!");
 
 			if( args.Player != null )
-				RewardDistributor.TryAddReward(args.Player.Name, "Placing", 2);
+				RewardDistributor.TryAddReward(args.Player.Name, "Placing", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
 		}
-
-
+		
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
 			return BankAccountManager.GetBankAccount(player.Name,accountType);
