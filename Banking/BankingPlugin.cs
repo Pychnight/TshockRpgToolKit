@@ -247,5 +247,15 @@ namespace Banking
 		{
 			return BankAccountManager.GetBankAccount(name,accountType);
 		}
+
+		public IEnumerable<CurrencyDefinition> EnumerateCurrencies()
+		{
+			return BankAccountManager.CurrencyManager.AsEnumerable();
+		}
+
+		public bool TryGetCurrency(string currencyType, out CurrencyDefinition result)
+		{
+			return BankAccountManager.CurrencyManager.Definitions.TryGetValue(currencyType, out result);
+		}
 	}
 }
