@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using TShockAPI;
-using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy;
 
 namespace Housing.Models
 {
@@ -85,7 +85,7 @@ namespace Housing.Models
         /// <summary>
         ///     Gets the unit prices.
         /// </summary>
-        public IDictionary<int, Money> UnitPrices { get; } = new Dictionary<int, Money>();
+        public IDictionary<int, decimal> UnitPrices { get; } = new Dictionary<int, decimal>();
 
         public override string ToString() => Name;
 

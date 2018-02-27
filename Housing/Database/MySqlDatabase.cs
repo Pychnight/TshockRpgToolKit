@@ -10,7 +10,7 @@ using MySql.Data.MySqlClient;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
-using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy;
 
 namespace Housing.Database
 {
@@ -244,10 +244,10 @@ namespace Housing.Database
 						var y = reader.Get<int>("Y");
 						var x2 = reader.Get<int>("X2");
 						var y2 = reader.Get<int>("Y2");
-						var debt = (Money)reader.Get<long>("Debt");
+						var debt = (decimal)reader.Get<long>("Debt");
 						var lastTaxed = DateTime.Parse(reader.Get<string>("LastTaxed"));
 						var forSale = reader.Get<int>("ForSale") == 1;
-						var price = (Money)reader.Get<long>("Price");
+						var price = (decimal)reader.Get<long>("Price");
 
 						var house = new House(ownerName, name, x, y, x2, y2)
 						{
@@ -320,7 +320,7 @@ namespace Housing.Database
 							while( reader2.Read() )
 							{
 								var itemId = reader2.Get<int>("ItemId");
-								var unitPrice = (Money)reader2.Get<long>("UnitPrice");
+								var unitPrice = (decimal)reader2.Get<long>("UnitPrice");
 								shop.UnitPrices[itemId] = unitPrice;
 							}
 						}

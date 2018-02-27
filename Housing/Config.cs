@@ -27,88 +27,92 @@ namespace Housing
 		[JsonProperty(Order = 1)]
 		public bool RequireAdminRegions { get; private set; }
 
+
+		[JsonProperty(Order = 2)]
+		public string CurrencyType { get; private set; }
+
 		/// <summary>
 		///     Gets the purchase rate.
 		/// </summary>
-		[JsonProperty(Order = 2)]
+		[JsonProperty(Order = 3)]
 		public double PurchaseRate { get; private set; } = 100.0;
 
 		/// <summary>
 		///     Gets the tax rate.
 		/// </summary>
-		[JsonProperty(Order = 3)]
+		[JsonProperty(Order = 4)]
 		public double TaxRate { get; private set; } = 1.0;
 
 		/// <summary>
 		///     Gets the store tax rate.
 		/// </summary>
-		[JsonProperty(Order = 4)]
+		[JsonProperty(Order = 5)]
 		public double StoreTaxRate { get; private set; } = 10.0;
 
 		/// <summary>
 		///     Gets the tax period.
 		/// </summary>
-		[JsonProperty(Order = 5)]
+		[JsonProperty(Order = 6)]
 		public TimeSpan TaxPeriod { get; private set; } = TimeSpan.FromHours(1.0);
 
 		/// <summary>
 		///     Gets the maximum debt allowed on a house.
 		/// </summary>
-		[JsonProperty(Order = 6)]
+		[JsonProperty(Order = 7)]
 		public long MaxDebtAllowed { get; private set; } = 10000;
 
 		/// <summary>
 		///     Gets a value indicating whether to allow offline shops.
 		/// </summary>
-		[JsonProperty(Order = 7)]
+		[JsonProperty(Order = 8)]
         public bool AllowOfflineShops { get; private set; }
         
         /// <summary>
         ///     Gets the sales tax rate.
         /// </summary>
-        [JsonProperty(Order = 8)]
+        [JsonProperty(Order = 9)]
         public double SalesTaxRate { get; private set; } = 0.07;
         
         /// <summary>
         /// Gets the minimum house size.
         /// </summary>
-        [JsonProperty(Order = 9)]
+        [JsonProperty(Order = 10)]
         public int MinHouseSize { get; private set; } = 1000;
 
         /// <summary>
         /// Gets the maximum house size.
         /// </summary>
-        [JsonProperty(Order = 10)]
+        [JsonProperty(Order = 11)]
         public int MaxHouseSize { get; private set; } = 10000;
 
         /// <summary>
         /// Gets the maximum number of houses.
         /// </summary>
-        [JsonProperty(Order = 11)]
+        [JsonProperty(Order = 12)]
         public int MaxHouses { get; private set; } = 10;
 
         /// <summary>
         /// Gets the minimum shop size.
         /// </summary>
-        [JsonProperty(Order = 12)]
+        [JsonProperty(Order = 13)]
         public int MinShopSize { get; private set; } = 1000;
 
         /// <summary>
         /// Gets the maximum shop size.
         /// </summary>
-        [JsonProperty(Order = 13)]
+        [JsonProperty(Order = 14)]
         public int MaxShopSize { get; private set; } = 10000;
 		
 		/// <summary>
 		/// Gets whether the Taxation service is enabled.
 		/// </summary>
-		[JsonProperty(Order = 14)]
+		[JsonProperty(Order = 15)]
 		public bool EnableTaxService { get; private set; } = false;
 		
 		/// <summary>
 		/// Gets per group overrides.
 		/// </summary>
-		[JsonProperty(Order = 15)]
+		[JsonProperty(Order = 16)]
 		public Dictionary<string, GroupConfig> GroupOverrides { get; private set; } = new Dictionary<string, GroupConfig>();
 
 		/// <summary>
@@ -134,6 +138,5 @@ namespace Housing
 
 			 return cfg;
 		}
-
 	}
 }

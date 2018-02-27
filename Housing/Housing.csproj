@@ -34,6 +34,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Banking">
+      <HintPath>..\refs\Banking.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
       <Private>False</Private>
@@ -80,9 +83,6 @@
       <HintPath>..\refs\TShockAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Wolfje.Plugins.SEconomy">
-      <HintPath>..\refs\Wolfje.Plugins.SEconomy.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -92,6 +92,7 @@
     <Compile Include="Database\MySqlDatabase.cs" />
     <Compile Include="Database\SqliteDatabase.cs" />
     <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="Extensions\BankingCompatibilityExtensions.cs" />
     <Compile Include="Extensions\IDatabaseExtensions.cs" />
     <Compile Include="Models\House.cs" />
     <Compile Include="Models\Shop.cs" />

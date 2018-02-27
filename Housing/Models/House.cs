@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using TShockAPI;
-using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy;
 
 namespace Housing.Models
 {
@@ -46,7 +46,7 @@ namespace Housing.Models
         /// <summary>
         ///     Gets or sets the debt.
         /// </summary>
-        public Money Debt { get; set; }
+        public decimal Debt { get; set; }
 
         /// <summary>
         ///     Gets or sets whether the house is for sale.
@@ -71,7 +71,7 @@ namespace Housing.Models
         /// <summary>
         ///     Gets or sets the price.
         /// </summary>
-        public Money Price { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
         ///     Gets or sets the rectangle.

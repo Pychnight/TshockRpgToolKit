@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TShockAPI;
-using Wolfje.Plugins.SEconomy;
-using Wolfje.Plugins.SEconomy.Journal;
+//using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy.Journal;
 using Housing.Extensions;
+using Banking;
 
 namespace Housing
 {
@@ -26,54 +27,54 @@ namespace Housing
 			//Debug.Print("Created TaxService.");
 		}
 		
-		public void PayTax(string sourceAccountName, Money payment, BankAccountTransferOptions options = BankAccountTransferOptions.None, string transactionMessage = "", string journalMessage = "")
+		public void PayTax(string sourceAccountName, decimal payment)
 		{
-			PayTax(SEconomyPlugin.Instance?.RunningJournal.GetBankAccountByName(sourceAccountName),
-					payment);
+			PayTax(BankingPlugin.Instance.GetBankAccount(sourceAccountName, Config.Instance.CurrencyType),payment);
 		}
 
-		public void PayTax(IBankAccount sourceAccount, Money payment, BankAccountTransferOptions options = BankAccountTransferOptions.None, string transactionMessage = "", string journalMessage = "")
+		public void PayTax(BankAccount sourceAccount, decimal payment)
 		{
-			if(sourceAccount == null)
+			if( sourceAccount == null )
 				return;
 
-			var remainder = (double)payment;
+			var remainder = payment;
 
-			if(IsEnabled)
+			if( IsEnabled )
 			{
 				var taxCollectors = plugin.database.GetTaxCollectors();
-				var cut = (double)payment / ( taxCollectors.Count > 0 ? (double)taxCollectors.Count : 1d );
+				var cut = payment / ( taxCollectors.Count > 0 ? taxCollectors.Count : 1m );
 
 				Debug.Print($"Tax payment is {remainder}");
-				Debug.Print($"{taxCollectors.Count} tax collectors get {cut} each.");
+				Debug.Print($"{taxCollectors.Count} tax collectors get {cut.ToMoneyString()} each.");
 
 				//split revenue between the tax collectors.
-				foreach (var tc in taxCollectors)
+				foreach( var tc in taxCollectors )
 				{
 					//var playerAccount = SEconomyPlugin.Instance.WorldAccount;
-					var playerAccount = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(tc.PlayerName);
-					
-					if (playerAccount!=null)
+					var playerAccount = BankingPlugin.Instance.GetBankAccount(tc.PlayerName,Config.Instance.CurrencyType);
+
+					if( playerAccount != null )
 					{
 						//skip the transfer if the source account belongs to a tax collector 
-						if(sourceAccount==playerAccount)
+						if( sourceAccount == playerAccount )
 						{
 							remainder -= cut;//still take cut so it doesn't go to world account.
 							Debug.Print($"Skipping transfer, account belongs to tax collector {tc.PlayerName}");
 						}
 						else
 						{
-							sourceAccount.TransferTo(playerAccount, (Money)cut, options, transactionMessage, journalMessage);
+							sourceAccount.TryTransferTo(playerAccount, (decimal)cut);
 							remainder -= cut;
-							Debug.Print($"Paid {cut} tax to player {tc.PlayerName}");
+							Debug.Print($"Paid {cut.ToMoneyString()} tax to player {tc.PlayerName}");
 						}
 					}
 				}
 			}
-			
+
 			//pay balance to world account
-			sourceAccount.TransferTo( SEconomyPlugin.Instance.WorldAccount, (Money)remainder, options, transactionMessage, journalMessage);
-			Debug.Print($"Paid remaining {remainder} tax to world account.");
+			//sourceAccount.TransferTo(SEconomyPlugin.Instance.WorldAccount, (Money)remainder, options, transactionMessage, journalMessage);
+			sourceAccount.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), remainder);
+			Debug.Print($"Paid remaining {remainder.ToMoneyString()} tax to world('Server') account.");
 		}
 
 		public void TaxCmd(CommandArgs args)

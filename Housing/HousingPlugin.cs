@@ -17,8 +17,9 @@ using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-using Wolfje.Plugins.SEconomy;
-using Wolfje.Plugins.SEconomy.Journal;
+//using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy.Journal;
+using Banking;
 
 namespace Housing
 {
@@ -203,15 +204,17 @@ namespace Housing
                 }
 								
 				var purchaseCost = house.Price;
-                var salesTax = (Money)Math.Round(playerGroupConfig.TaxRate * purchaseCost);
+                var salesTax = Math.Round((decimal)playerGroupConfig.TaxRate * purchaseCost);
                 player.SendInfoMessage(
                     $"Purchasing {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] will cost " +
-                    $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+                    $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                 player.AddResponse("yes", args2 =>
                 {
                     player.AwaitingResponse.Remove("no");
-                    var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					var account = BankingPlugin.Instance.GetBankAccount(player.Name, Config.Instance.CurrencyType);
+
                     if (account == null || account.Balance < purchaseCost + salesTax)
                     {
                         player.SendErrorMessage(
@@ -228,10 +231,13 @@ namespace Housing
 
                     if (purchaseCost > 0)
                     {
-                        var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(house.OwnerName);
-                        account.TransferTo(
-                            account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-                            "", $"Purchased {house.OwnerName}'s house {house.Name}");
+                        //var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(house.OwnerName);
+                        //account.TransferTo(
+                        //    account2, purchaseCost, BankAccountTransferOptions.IsPayment,
+                        //    "", $"Purchased {house.OwnerName}'s house {house.Name}");
+
+						var account2 = BankingPlugin.Instance.GetBankAccount(house.OwnerName,Config.Instance.CurrencyType);
+						account.TryTransferTo(account2, purchaseCost);
                     }
                     if (salesTax > 0)
                     {
@@ -239,21 +245,22 @@ namespace Housing
 						//    SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
 						//    "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
 
-						taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
-                    }
+						//taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
+						taxService.PayTax(account, salesTax);
+					}
 
                     database.Remove(house);
                     database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
                                        house.Rectangle.Right - 1, house.Rectangle.Bottom - 1);
                     player.SendInfoMessage(
                         $"Purchased {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
-                        $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+                        $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
 
                     var player2 = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
                     player2?.SendInfoMessage(
                         $"{player.Name} purchased your house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
-                        $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+                        $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
                 });
                 player.AddResponse("no", args2 =>
                 {
@@ -307,12 +314,12 @@ namespace Housing
                 {
 					var ownerConfig = house.GetGroupConfig();//because a player other than the owner maybe running this command.
 
-                    player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
+                    player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt.ToMoneyString()}]");
                     var isStore = database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? ownerConfig.StoreTaxRate : ownerConfig.TaxRate;
-                    var taxCost = (Money)Math.Round(house.Area * taxRate);
+                    var taxCost = (decimal)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage(
-                        $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost}], Last taxed: {house.LastTaxed}");
+                        $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost.ToMoneyString()}], Last taxed: {house.LastTaxed}");
                     player.SendInfoMessage($"Allowed users: {string.Join(", ", house.AllowedUsernames)}");
                 }
             }
@@ -362,8 +369,9 @@ namespace Housing
                 }
 
                 var inputPrice = parameters[1];
-                if (!Money.TryParse(inputPrice, out var price) || price <= 0)
-                {
+                //if (!Money.TryParse(inputPrice, out var price) || price <= 0)
+				if( !inputPrice.TryParseMoney(out var price) || price <= 0 )
+				{
                     player.SendErrorMessage($"Invalid price '{inputPrice}'.");
                     return;
                 }
@@ -373,7 +381,7 @@ namespace Housing
                 database.Update(house);
                 player.SendSuccessMessage(
                     $"Selling {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
-                    $"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{price}].");
+                    $"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{price.ToMoneyString()}].");
             }
             else if (subcommand.Equals("set", StringComparison.OrdinalIgnoreCase))
             {
@@ -428,31 +436,35 @@ namespace Housing
 
                 player.TempPoints[0] = Point.Zero;
                 player.TempPoints[1] = Point.Zero;
-                var purchaseCost = (Money)Math.Round(rectangle.Width * rectangle.Height * playerGroupConfig.PurchaseRate);
+                var purchaseCost = (decimal)Math.Round(rectangle.Width * rectangle.Height * playerGroupConfig.PurchaseRate);
                 if (purchaseCost > 0)
                 {
-                    var taxCost = (Money)Math.Round(rectangle.Width * rectangle.Height * playerGroupConfig.TaxRate);
+                    var taxCost = (decimal)Math.Round(rectangle.Width * rectangle.Height * playerGroupConfig.TaxRate);
                     player.SendInfoMessage(
-                        $"Purchasing this house will require [c/{Color.OrangeRed.Hex3()}:{purchaseCost}].");
+                        $"Purchasing this house will require [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}].");
                     player.SendInfoMessage(
-                        $"The tax for this house will be [c/{Color.OrangeRed.Hex3()}:{taxCost}].");
+                        $"The tax for this house will be [c/{Color.OrangeRed.Hex3()}:{taxCost.ToMoneyString()}].");
                     player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                     player.AddResponse("yes", args2 =>
                     {
                         player.AwaitingResponse.Remove("no");
-                        var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+						//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+						var account = BankingPlugin.Instance.GetBankAccount(player);
                         if (account == null || account.Balance < purchaseCost)
                         {
                             player.SendErrorMessage("You do not have enough of a balance to purchase the house.");
                             return;
                         }
 
-                        account.TransferTo(
-                            SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
-                            "", $"Purchased the {inputHouseName} house");
+                        //account.TransferTo(
+                        //    SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
+                        //    "", $"Purchased the {inputHouseName} house");
+						
+						account.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), purchaseCost);
+
                         var house = database.AddHouse(player, inputHouseName, x, y, x2, y2);
                         player.SendSuccessMessage($"Purchased house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
-                                                  $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost}].");
+                                                  $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}].");
                     });
                     player.AddResponse("no", args2 =>
                     {
@@ -573,17 +585,18 @@ namespace Housing
                 var item = new Item();
                 var itemId = shopItem.ItemId;
                 item.SetDefaults(itemId);
-                var purchaseCost = (Money)(amount * shop.UnitPrices.Get(itemId, item.value / 5));
-                var salesTax = (Money)Math.Round(purchaseCost * playerGroupConfig.SalesTaxRate);
+                var purchaseCost = (amount * shop.UnitPrices.Get(itemId, item.value / 5));
+                var salesTax = Math.Round(purchaseCost * (decimal)playerGroupConfig.SalesTaxRate);
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
                 player.SendInfoMessage(
-                    $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
-                    $"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+                    $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], " +
+                    $"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                 player.AddResponse("yes", args2 =>
                 {
                     player.AwaitingResponse.Remove("no");
-                    var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					var account = BankingPlugin.Instance.GetBankAccount(player.Name, Config.Instance.CurrencyType);
                     if (account == null || account.Balance < purchaseCost + salesTax)
                     {
                         player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
@@ -599,16 +612,21 @@ namespace Housing
 
                     if (purchaseCost > 0)
                     {
-                        var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(shop.OwnerName);
-                        account.TransferTo(
-                            account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-                            "", $"Purchased {item.Name} x{amount}");
+						//var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(shop.OwnerName);
+						var account2 = BankingPlugin.Instance.GetBankAccount(shop.OwnerName, Config.Instance.CurrencyType);
+						//account.TransferTo(
+						//                      account2, purchaseCost, BankAccountTransferOptions.IsPayment,
+						//                      "", $"Purchased {item.Name} x{amount}");
+
+						account.TryTransferTo(account2, purchaseCost);
                     }
                     if (salesTax > 0)
                     {
-                        account.TransferTo(
-                            SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-                            "", $"Sales tax for {item.Name} x{amount}");
+						//account.TransferTo(
+						//    SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
+						//    "", $"Sales tax for {item.Name} x{amount}");
+
+						account.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), salesTax);
                     }
 
                     shopItem.StackSize -= amount;
@@ -617,12 +635,12 @@ namespace Housing
                     player.GiveItem(
                         itemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
                     player.SendSuccessMessage($"Purchased {itemText} for " +
-                                              $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+                                              $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
 
                     var player2 = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == shop.OwnerName);
                     player2?.SendInfoMessage($"{player.Name} purchased {itemText} for " +
-                                             $"[c/{Color.OrangeRed.Hex3()}:{(Money)(purchaseCost + salesTax)}].");
+                                             $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
 
 					shop.TryShowStock(player, MessageRefreshDelay);
                 });
@@ -669,7 +687,7 @@ namespace Housing
                 var shop = session.CurrentShop;
                 player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.Name}");
                 var prices = shop.UnitPrices.Where(kvp => kvp.Value > 0)
-                    .Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value}]");
+                    .Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value.ToMoneyString()}]");
                 player.SendInfoMessage(
                     $"Prices: {string.Join(", ", prices)}. All other items are default sell prices.");
                 if (shop.OwnerName == player.User?.Name)
@@ -678,8 +696,8 @@ namespace Housing
 
                     var house = session.CurrentHouse;
                     var taxRate = playerGroupConfig.StoreTaxRate - playerGroupConfig.TaxRate;
-                    var taxCost = (Money)Math.Round(house.Area * taxRate);
-                    player.SendInfoMessage($"Extra tax on house: [c/{Color.OrangeRed.Hex3()}:{taxCost}]");
+                    var taxCost = (decimal)Math.Round(house.Area * taxRate);
+                    player.SendInfoMessage($"Extra tax on house: [c/{Color.OrangeRed.Hex3()}:{taxCost.ToMoneyString()}]");
                 }
             }
             else if (subcommand.Equals("open", StringComparison.OrdinalIgnoreCase))
@@ -868,8 +886,9 @@ namespace Housing
                 }
 
                 var inputPrice = parameters[2];
-                if (!Money.TryParse(inputPrice, out var price) || price <= 0)
-                {
+				//if (!Money.TryParse(inputPrice, out var price) || price <= 0)
+				if( !inputPrice.TryParseMoney(out var price) || price <= 0 )
+				{
                     player.SendErrorMessage($"Invalid price '{inputPrice}'.");
                     return;
                 }
@@ -914,7 +933,7 @@ namespace Housing
                     if (house.ForSale && house.OwnerName != player.User?.Name)
                     {
                         player.SendInfoMessage(
-                            $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.Price}].");
+                            $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.Price.ToMoneyString()}].");
                     }
                 }
                 else if (session.CurrentHouse != null && house != session.CurrentHouse)
@@ -943,7 +962,8 @@ namespace Housing
 
 				if (DateTime.UtcNow - house.LastTaxed > houseConfig.TaxPeriod)
                 {
-                    var account = SEconomyPlugin.Instance?.RunningJournal.GetBankAccountByName(house.OwnerName);
+					//var account = SEconomyPlugin.Instance?.RunningJournal.GetBankAccountByName(house.OwnerName);
+					var account = BankingPlugin.Instance.GetBankAccount(house.OwnerName, Config.Instance.CurrencyType);
                     if (account == null)
                     {
                         continue;
@@ -955,16 +975,17 @@ namespace Housing
 
 					var taxRate = store!=null ? storeConfig.StoreTaxRate : houseConfig.TaxRate;
                     var taxCost = (long)Math.Round(house.Area * taxRate) + house.Debt;
-                    var payment = (Money)Math.Min(account.Balance, taxCost);
+                    var payment = (decimal)Math.Min(account.Balance, taxCost);
 					//account.TransferTo(
 					//    SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
 					//    $"Taxed for the {house} house");
 
-					taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for house {house}");
+					//taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for house {house}");
+					taxService.PayTax(account, payment);
 
-                    var player = TShock.Players.Where(p => p?.Active == true)
+					var player = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
-                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your house " +
+                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment.ToMoneyString()}] for your house " +
                                             $"[c/{Color.MediumPurple.Hex3()}:{house}].");
 
                     house.Debt = taxCost - payment;

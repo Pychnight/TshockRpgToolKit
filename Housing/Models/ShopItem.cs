@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Terraria;
 using Terraria.ID;
-using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy;
 
 namespace Housing.Models
 {
