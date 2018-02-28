@@ -64,13 +64,7 @@ namespace Leveling
 				{
 					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
 				}
-
-				//var connectionString = $"URI=file:{Path.Combine("leveling", "sessions.db")}";
-				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("sqlite", connectionString);
-
-				//var connectionString = $"Server=localhost;Database=db_leveling;Uid=root;Pwd=root;";
-				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("mysql", connectionString);
-
+				
 				var dbConfig = Config.Instance.DatabaseConfig;
 				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
@@ -186,28 +180,23 @@ namespace Leveling
 
 		private void LoadClasses()
 		{
-			Directory.CreateDirectory("leveling\\classes\\boo");
+			const string classDirectory = "leveling";
 
-			var loadJson = false;
+			Directory.CreateDirectory(classDirectory);
 
-			if( loadJson )
-			{
-				_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-				.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-				_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+			var classDefs = loadClassDefinitions(classDirectory);
 
-				//foreach( var def in _classDefinitions )
-				//{
-				//	var boo = def.ToBooString();
-				//	//Debug.Print(boo);
-				//	File.WriteAllText($"leveling\\classes\\boo\\{def.Name}.boo", boo);
-				//}
-			}
-			else
-			{
-				LoadBooClasses("leveling\\classes\\boo");
-			}
-
+			//filter out duplicate names
+			var classNames = new HashSet<string>(classDefs.Select(cd => cd.Name));
+			var booDefs = loadBooClassDefinitions(classDirectory)
+							.Where(cd => !classNames.Contains(cd.Name))
+							.Select(cd => cd);
+										
+			classDefs.AddRange(booDefs);
+			
+			_classDefinitions = classDefs;
+			_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+						
 			//if default class file does not exist, we're in an error state
 			if( _classDefinitions.Select(cd => cd.Name).
 				FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
@@ -256,13 +245,21 @@ namespace Leveling
 			//}
 		}
 
-		private void LoadBooClasses(string directoryPath)
+		private List<ClassDefinition> loadClassDefinitions(string directoryPath)
 		{
-			var fileNames = Directory.EnumerateFiles(directoryPath, "*.boo", SearchOption.AllDirectories);
+			//Debug.Print("Loading json classes...");
+			var files = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
+
+			return files.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+		}
+
+		private List<ClassDefinition> loadBooClassDefinitions(string directoryPath)
+		{
+			//Debug.Print("Loading boo classes...");
+			var fileNames = Directory.EnumerateFiles(directoryPath, "*.bclass", SearchOption.AllDirectories);
 			var classCompiler = new ClassCompiler();
 			var definitions = new List<ClassDefinition>();
-			var classes = new List<Class>();
-
+			
 			foreach( var classFile in fileNames )
 			{
 				try
@@ -270,7 +267,6 @@ namespace Leveling
 					var def = classCompiler.LoadClassDefinition(classFile);
 					var newClass = new Class(def);
 					definitions.Add(def);
-					classes.Add(newClass);
 				}
 				catch(Exception ex)
 				{
@@ -278,9 +274,8 @@ namespace Leveling
 					Debug.Print($"{ex.Message}");
 				}
 			}
-
-			_classDefinitions = definitions;
-			_classes = classes;
+			
+			return definitions;
 		}
 
         private void AddHp(CommandArgs args)

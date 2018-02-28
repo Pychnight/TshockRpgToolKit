@@ -82,5 +82,10 @@ namespace Leveling.Classes
 		public Action<object> OnLevelDown;
 		public Action<object> OnClassChange;
 		public Action<object> OnClassMastered;
-    }
+
+		public override string ToString()
+		{
+			return $"[ClassDefinition '{Name}']";
+		}
+	}
 }
