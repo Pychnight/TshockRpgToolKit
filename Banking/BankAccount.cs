@@ -23,27 +23,44 @@ namespace Banking
 
 		public void Set(decimal amount)
 		{
+			var plugin = BankingPlugin.Instance;
+			decimal newBalance, previousBalance;
+
 			lock( locker )
 			{
+				previousBalance = Balance;
 				Balance = amount;
-				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				newBalance = Balance;
+				plugin.BankAccountManager.Database.Update(this);
 			}
+
+			plugin.InvokeBalanceChanged(this, newBalance, previousBalance);
 		}
 
 		public void Deposit(decimal amount)
 		{
+			var plugin = BankingPlugin.Instance;
+			decimal newBalance, previousBalance;
+
 			if( amount < 0 )
 				return;
 
 			lock(locker)
 			{
+				previousBalance = Balance;
 				Balance += amount;
-				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
+				newBalance = Balance;
+				plugin.BankAccountManager.Database.Update(this);
 			}
+
+			plugin.InvokeBalanceChanged(this, newBalance, previousBalance);
 		}
 
 		public bool TryWithdraw(decimal amount, bool allowOverdraw = false)
 		{
+			var plugin = BankingPlugin.Instance;
+			decimal newBalance, previousBalance;
+
 			if( amount < 0 )
 				return false;
 
@@ -54,11 +71,15 @@ namespace Banking
 					return false;
 				}
 
+				previousBalance = Balance;
 				Balance -= amount;
-				BankingPlugin.Instance.BankAccountManager.Database.Update(this);
-
-				return true;
+				newBalance = Balance;
+				plugin.BankAccountManager.Database.Update(this);
 			}
+
+			plugin.InvokeBalanceChanged(this, newBalance, previousBalance);
+
+			return true;
 		}
 
 		public bool TryTransferTo(BankAccount other, decimal amount)

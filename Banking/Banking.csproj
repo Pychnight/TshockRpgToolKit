@@ -75,6 +75,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BalanceChangedEventArgs.cs" />
     <Compile Include="BankAccount.cs" />
     <Compile Include="BankAccountManager.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />

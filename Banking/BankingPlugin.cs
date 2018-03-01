@@ -29,6 +29,8 @@ namespace Banking
 
 		public static BankingPlugin Instance { get; private set; }
 
+		public event EventHandler<BalanceChangedEventArgs> BankAccountBalanceChanged;
+
 		internal CombatTextDistributor CombatTextDistributor;
 		internal BankAccountManager BankAccountManager;
 		internal NpcStrikeTracker NpcStrikeTracker;
@@ -105,6 +107,15 @@ namespace Banking
 			NpcStrikeTracker.Clear();
 			//RewardDistributor.Clear();//experimental code disabled
 			BankAccountManager.Load();
+
+			//BankAccountBalanceChanged += (s, a) =>
+			//{
+			//	if(a.CurrencyType=="Exp")
+			//	{
+			//		var diff = a.NewBalance - a.PreviousBalance;
+			//		Debug.Print($"Gained {diff}!");
+			//	}
+			//};
 		}
 
 		private void OnPostInitialize(EventArgs args)
@@ -236,6 +247,15 @@ namespace Banking
 
 			if( args.Player != null )
 				RewardDistributor.TryAddReward(args.Player.Name, "Placing", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
+		}
+
+		internal void InvokeBalanceChanged(BankAccount bankAccount, decimal newBalance, decimal previousBalance)
+		{
+			if(BankAccountBalanceChanged!=null && bankAccount.OwnerName!="Server")
+			{
+				var args = new BalanceChangedEventArgs(bankAccount,newBalance,previousBalance);
+				BankAccountBalanceChanged?.Invoke(this, args);
+			}
 		}
 		
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
