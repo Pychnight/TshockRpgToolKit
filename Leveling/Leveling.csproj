@@ -102,9 +102,6 @@
       <HintPath>..\refs\TShockAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Wolfje.Plugins.SEconomy">
-      <HintPath>..\refs\Wolfje.Plugins.SEconomy.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Class.cs" />
@@ -144,6 +141,11 @@
     <Content Include="docs\MySqlParameterCollection.xml" />
     <Content Include="docs\MySqlTransaction.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Banking\Banking\Banking.csproj">
+      <Project>{89faffb0-5bfd-4548-876e-e863d2be3e82}</Project>
+      <Name>Banking</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Banking;
 using Leveling.Classes;
 using Leveling.Database;
 using Leveling.Levels;
@@ -17,8 +18,8 @@ using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-using Wolfje.Plugins.SEconomy;
-using Wolfje.Plugins.SEconomy.Journal;
+//using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy.Journal;
 
 namespace Leveling
 {
@@ -40,6 +41,8 @@ namespace Leveling
 
         private List<ClassDefinition> _classDefinitions;
         internal List<Class> _classes;
+
+		internal CurrencyDefinition ExpCurrency { get; set; } 
 
         public LevelingPlugin(Main game) : base(game)
         {
@@ -68,11 +71,11 @@ namespace Leveling
 				var dbConfig = Config.Instance.DatabaseConfig;
 				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
-				LoadClasses();
+				onLoad();
 			}
 			catch(Exception ex)
 			{
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"{ex.Message}", TraceLevel.Error);
 				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
 				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
 				this.Enabled = false;
@@ -178,9 +181,29 @@ namespace Leveling
             base.Dispose(disposing);
         }
 
-		private void LoadClasses()
+		private void initializeBanking()
+		{
+			if(BankingPlugin.Instance==null)
+			{
+				throw new Exception($"Unable to retrieve BankingPlugin.Instance");
+				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: Unable to retrieve BankingPlugin.Instance", TraceLevel.Error);
+			}
+
+			if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
+			{
+				throw new Exception($"LevelingPlugin requires BankingPlugin to have an \"Exp\" Currency.");
+				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: BankingPlugin must have an \"Exp\" Currency.", TraceLevel.Error);
+			}
+
+			ExpCurrency = currency;
+			//...cache currency converter??
+		}
+
+		private void onLoad()
 		{
 			const string classDirectory = "leveling";
+
+			initializeBanking();
 
 			Directory.CreateDirectory(classDirectory);
 
@@ -455,28 +478,43 @@ namespace Leveling
 
                 if (@class.SEconomyCost > 0)
                 {
-                    var cost = new Money(@class.SEconomyCost);
-                    player.SendInfoMessage(
-                        $"It costs [c/{Color.OrangeRed.Hex3()}:{cost}] to unlock the {@class} class.");
+					//var cost = new Money(@class.SEconomyCost);
+					var cost = @class.ExpCost;
+                    player.SendInfoMessage($"It costs [c/{Color.OrangeRed.Hex3()}:{cost}] to unlock the {@class} class.");
                     player.SendInfoMessage("Do you wish to proceed? Type /yes or /no.");
                     player.AddResponse("yes", args2 =>
                     {
                         player.AwaitingResponse.Remove("no");
-                        var bankAccount = SEconomyPlugin.Instance?.GetBankAccount(player);
-                        if (bankAccount == null || bankAccount.Balance < cost)
+						
+						if(!ExpCurrency.GetCurrencyConverter().TryParse(cost,out var moneyCost))
+						{
+							player.SendErrorMessage($"Error: Invalid currency configuration for class {@class}. Please contact the server administrator.");
+							return;
+						}
+
+						//var bankAccount = SEconomyPlugin.Instance?.GetBankAccount(player);
+						var bankAccount = BankingPlugin.Instance.GetBankAccount(player, "Exp");
+						if (bankAccount == null || bankAccount.Balance < moneyCost)
                         {
-                            player.SendErrorMessage(
-                                $"You do not have enough of a balance to unlock the {@class} class.");
+                            player.SendErrorMessage( $"You do not have enough of a balance to unlock the {@class} class.");
                             return;
                         }
 
-                        bankAccount.TransferTo(SEconomyPlugin.Instance.WorldAccount, cost,
-                                               BankAccountTransferOptions.IsPayment, $"Unlocking the {@class} class",
-                                               $"Unlocking the {@class} class.");
-                        session.UnlockClass(@class);
-                        session.Class = @class;
-                        player.SendSuccessMessage($"Changed to the {@class} class.");
-                    });
+						//bankAccount.TransferTo(SEconomyPlugin.Instance.WorldAccount, cost,
+						//                       BankAccountTransferOptions.IsPayment, $"Unlocking the {@class} class",
+						//                       $"Unlocking the {@class} class.");
+						
+						if(bankAccount.TryTransferTo(BankingPlugin.Instance.GetBankAccount("Server", "Exp"), moneyCost))
+						{
+							session.UnlockClass(@class);
+							session.Class = @class;
+							player.SendSuccessMessage($"Changed to the {@class} class.");
+						}
+						else
+						{
+							player.SendErrorMessage($"Currency transfer failed.");
+						}
+	                });
                     player.AddResponse("no", args2 =>
                     {
                         player.AwaitingResponse.Remove("yes");
@@ -996,8 +1034,8 @@ namespace Leveling
 			//        ItemNameToLevelRequirements[itemName] = level;
 			//    }
 			//}
-
-			LoadClasses();
+			
+			onLoad();
 
             // We have to resolve sessions again.
             foreach (var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession))
@@ -1007,8 +1045,8 @@ namespace Leveling
 
             args.Player.SendSuccessMessage("[Leveling] Reloaded config!");
         }
-
-        private void OnServerLeave(LeaveEventArgs args)
+		
+		private void OnServerLeave(LeaveEventArgs args)
         {
             if (args.Who < 0 || args.Who >= Main.maxPlayers)
             {

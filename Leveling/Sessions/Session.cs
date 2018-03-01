@@ -296,9 +296,9 @@ namespace Leveling.Sessions
 
 			var def = Class.Definition;
 
-			if(def.OnLevelDown!=null)
+			if(def!=null)
 			{
-				def.OnLevelDown(this);
+				def.OnLevelDown?.Invoke(this);
 			}
 			
             return true;
@@ -358,7 +358,7 @@ namespace Leveling.Sessions
 			
 			if(def!=null)
 			{
-				def.OnLevelUp(this);
+				def.OnLevelUp?.Invoke(this);
 			}
 			
             return true;

@@ -87,6 +87,13 @@ namespace Leveling.Classes
         /// </summary>
         public long SEconomyCost => _definition.SEconomyCost;
 
+		/// <summary>
+		///		Gets the Exp Currency cost to enter this class.
+		/// </summary>
+		public string ExpCost => _definition.ExpCost;
+
+		internal double InternalCost => _definition.InternalCost;
+
         /// <summary>
         ///     Resolves the class using the specified levels.
         /// </summary>

@@ -69,10 +69,25 @@ namespace Leveling.Classes
         /// <summary>
         ///     Gets the SEconomy cost to enter this class.
         /// </summary>
+		/// <remarks>This member is obsolete, and left for backwards compatibility. Use ExpCost instead.</remarks>
         [JsonProperty(Order = 5)]
-        public long SEconomyCost { get; internal set; }
-
-
+        public long SEconomyCost
+		{
+			get { return (long)InternalCost; }
+			set { InternalCost = value; }
+		}
+		
+		/// <summary>
+		///		Gets the "Exp" Currency cost to enter this class.
+		/// </summary>
+		[JsonProperty(Order = 6)]
+		public string ExpCost { get; set; }
+		
+		/// <summary>
+		///		Currency neutral "backing" cost, for ExpCost and SEconomyCost.
+		/// </summary>
+		internal double InternalCost { get; set; }
+		
 		//--- new stuff
 		public string DisplayInfo { get; internal set; }
 
