@@ -10,11 +10,13 @@ namespace Banking
 	{
 		//public DateTime LastStrikeTime { get; private set; }
 		public int Strikes { get; private set; }
+		public int Damage { get; private set; }
 
-		public void AddStrike()
+		public void AddStrike(int damage)
 		{
 			//LastStrikeTime = DateTime.Now;
 			Strikes += 1;
+			Damage += damage;
 		}
 	}
 }

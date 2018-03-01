@@ -200,8 +200,8 @@ namespace Banking
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
 		{
-			//Debug.Print("OnNpcStrike!");
-			NpcStrikeTracker.OnNpcStrike(args.Player, args.Npc);
+			//Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
+			NpcStrikeTracker.OnNpcStrike(args.Player, args.Npc, args.Damage, args.Critical);
 		}
 
 		private void OnNpcKilled(NpcKilledEventArgs args)

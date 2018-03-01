@@ -15,12 +15,12 @@ namespace Banking
 		//"hidden" member, used to help determine when npc's despawn...
 		internal int OriginalNpcType { get; set; }
 
-		public void AddStrike(string playerName)
+		public void AddStrike(string playerName, int damage)
 		{
 			if( !ContainsKey(playerName) )
 				Add(playerName, new StrikeInfo());
 
-			this[playerName].AddStrike();
+			this[playerName].AddStrike(damage);
 		}
 	}
 }
