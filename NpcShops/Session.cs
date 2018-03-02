@@ -62,7 +62,7 @@ namespace NpcShops
 		/// <returns>True if the shopkeeper is in range.</returns>
 		public bool IsShopkeeperInRange()
 		{
-			var maxTileRange = Config.Instance.MaxNpcTileRange;
+			var maxTileRange = Config.Instance.ShopNpcMaxTalkRange;
 			var npc = GetShopkeeper();
 
 			if( npc!=null)
@@ -119,7 +119,7 @@ namespace NpcShops
 			if(newShop==null)
 			{ 
 				//region shop
-				newShop = NpcShopsPlugin.Instance.npcShops.FirstOrDefault(ns => ns.Rectangle.Contains(player.TileX, player.TileY));
+				newShop = NpcShopsPlugin.Instance.NpcShops.FirstOrDefault(ns => ns.Rectangle.Contains(player.TileX, player.TileY));
 			}
 
 			return newShop;

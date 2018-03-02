@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NpcShops.Shops;
 using Terraria;
+using Terraria.Localization;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -26,7 +27,8 @@ namespace NpcShops
 
 		internal static NpcShopsPlugin Instance { get; private set; }
 
-        internal List<NpcShop> npcShops = new List<NpcShop>();
+        internal List<NpcShop> NpcShops = new List<NpcShop>();
+		internal NpcPauser NpcPauser = new NpcPauser();
 		
         public NpcShopsPlugin(Main game) : base(game)
         {
@@ -125,7 +127,7 @@ namespace NpcShops
 				}
 			}
 
-			npcShops = shops;
+			NpcShops = shops;
 		}
 
         private void NpcBuy(CommandArgs args)
@@ -368,21 +370,28 @@ namespace NpcShops
 
 				//following is based off of https://github.com/MarioE/NoCheat/blob/master/NoCheat/ItemSpawning/Module.cs
 				var player = TShock.Players[args.Msg.whoAmI];
-				
+
 				// Ignore packets sent when the client is syncing.
 				if( player.State < 10 )
 					return;
-					
+
 				using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
 				{
 					reader.ReadByte();
 					var npcIndex = reader.ReadInt16();
 					var npcType = npcIndex < 0 ? 0 : Main.npc[npcIndex].type;
-							
+					var npc = npcIndex < 0 ? null : Main.npc[npcIndex];
+					
 					if(NpcShop.NpcToShopMap.ContainsKey(npcType))
 					{
+						//player.SendData(PacketTypes.NpcTalk, "", player.Index, npcIndex);
 						player.SendData(PacketTypes.NpcTalk, "", player.Index, -1);
 						//player.SendData(PacketTypes.NpcUpdate, "", npcIndex);
+
+						if(npc!=null && npc.active)
+						{
+							NpcPauser.Pause(npc, Config.Instance.ShopNpcPauseDuration);
+						}
 
 						var session = GetOrCreateSession(player);
 						session.CurrentShopkeeperNpcIndex = npcIndex;
@@ -404,14 +413,18 @@ namespace NpcShops
 				session.Update();
 			}
 
-            foreach (var shop in npcShops)
+            foreach (var shop in NpcShops)
             {
                 shop.TryRestock();
             }
+
+			NpcPauser.OnGameUpdate();
 		}
 
         private void OnReload(ReloadEventArgs args)
         {
+			NpcPauser.UnpauseAll();
+
 			tryLoadConfig();
             tryLoadShops();
 
