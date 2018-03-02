@@ -425,6 +425,10 @@ namespace NpcShops
         {
 			NpcPauser.UnpauseAll();
 
+			//clear sessions
+			TShock.Players.Where(tp => tp?.Active == true)
+							.ForEach(tp => tp.SetData<Session>(SessionKey, null));
+
 			tryLoadConfig();
             tryLoadShops();
 
