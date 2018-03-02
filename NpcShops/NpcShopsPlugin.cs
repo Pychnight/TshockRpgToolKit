@@ -35,7 +35,7 @@ namespace NpcShops
 			Instance = this;
         }
 
-        public override string Author => "MarioE";
+        public override string Author => "MarioE, Timothy Barela";
         public override string Description => "Adds an NPC shop system.";
         public override string Name => "NpcShops";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
