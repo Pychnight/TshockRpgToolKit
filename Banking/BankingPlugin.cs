@@ -30,6 +30,7 @@ namespace Banking
 		public static BankingPlugin Instance { get; private set; }
 
 		public event EventHandler<BalanceChangedEventArgs> BankAccountBalanceChanged;
+		public event EventHandler RewardDepositing;
 
 		internal CombatTextDistributor CombatTextDistributor;
 		internal BankAccountManager BankAccountManager;

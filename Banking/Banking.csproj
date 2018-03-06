@@ -84,6 +84,7 @@
     <Compile Include="BankCommands.cs" />
     <Compile Include="BankingPlugin.cs" />
     <Compile Include="Currency\CurrencyRewardDefinition.cs" />
+    <Compile Include="RewardModifier.cs" />
     <Compile Include="TileChangedEventArgs.cs" />
     <Compile Include="CombatTextDistributor.cs" />
     <Compile Include="Configuration\Config.cs" />

@@ -53,6 +53,8 @@ namespace Banking
 
 #endif
 
+		public Dictionary<string,List<RewardModifier>> RewardModifiers { get; set; } = new Dictionary<string,List<RewardModifier>>();
+
 		public void TryAddReward(string playerName, string gainedBy, string itemName, float defaultValue = 1.0f )
 		{
 			var bankMgr = BankingPlugin.Instance.BankAccountManager;
