@@ -10,36 +10,46 @@ namespace Banking
 	{
 		object locker = new object();
 
+		public string Name { get; private set; }
 		public string OwnerName { get; private set; }
-		public string CurrencyType { get; private set; }
+		//public string CurrencyType { get; private set; }
 		public decimal Balance { get; private set; }
-
-		internal BankAccount(string ownerName, string currencyType, decimal startingFunds)
+		
+		internal BankAccount(string ownerName, string name, decimal startingFunds)
 		{
 			OwnerName = ownerName;
-			CurrencyType = currencyType;
+			//CurrencyType = currencyType;
+			Name = name;
 			Balance = startingFunds;
 		}
 
+		/// <summary>
+		/// Sets the Balance to a specified amount. Does not raise the BalanceChanged event.
+		/// </summary>
+		/// <param name="amount">New balance.</param>
 		public void Set(decimal amount)
 		{
-			var plugin = BankingPlugin.Instance;
-			decimal newBalance, previousBalance;
+			var bank = BankingPlugin.Instance.Bank;
+			//decimal newBalance, previousBalance;
 
 			lock( locker )
 			{
-				previousBalance = Balance;
+				//previousBalance = Balance;
 				Balance = amount;
-				newBalance = Balance;
-				plugin.BankAccountManager.Database.Update(this);
+				//newBalance = Balance;
+				bank.Database.Update(this);
 			}
 
-			plugin.InvokeBalanceChanged(this, newBalance, previousBalance);
+			//bank.InvokeBalanceChanged(this, newBalance, previousBalance);
 		}
 
+		/// <summary>
+		/// Deposits the specified amount into the BankAccount.
+		/// </summary>
+		/// <param name="amount">Amount to add.</param>
 		public void Deposit(decimal amount)
 		{
-			var plugin = BankingPlugin.Instance;
+			var bank = BankingPlugin.Instance.Bank;
 			decimal newBalance, previousBalance;
 
 			if( amount < 0 )
@@ -50,15 +60,21 @@ namespace Banking
 				previousBalance = Balance;
 				Balance += amount;
 				newBalance = Balance;
-				plugin.BankAccountManager.Database.Update(this);
+				bank.Database.Update(this);
 			}
 
-			plugin.InvokeBalanceChanged(this, newBalance, previousBalance);
+			bank.InvokeBalanceChanged(this, newBalance, previousBalance);
 		}
 
+		/// <summary>
+		/// Tries to withdraw a specified amount from the BankAccount's Balance.
+		/// </summary>
+		/// <param name="amount">Amount to withdraw.</param>
+		/// <param name="allowOverdraw">True if the account can go negative.</param>
+		/// <returns>True if transaction succeeded.</returns>
 		public bool TryWithdraw(decimal amount, bool allowOverdraw = false)
 		{
-			var plugin = BankingPlugin.Instance;
+			var bank = BankingPlugin.Instance.Bank;
 			decimal newBalance, previousBalance;
 
 			if( amount < 0 )
@@ -66,7 +82,7 @@ namespace Banking
 
 			lock(locker)
 			{
-				if( Balance - amount < 0 && !allowOverdraw )
+				if( !allowOverdraw && ( Balance - amount ) < 0  )
 				{
 					return false;
 				}
@@ -74,20 +90,27 @@ namespace Banking
 				previousBalance = Balance;
 				Balance -= amount;
 				newBalance = Balance;
-				plugin.BankAccountManager.Database.Update(this);
+				bank.Database.Update(this);
 			}
 
-			plugin.InvokeBalanceChanged(this, newBalance, previousBalance);
+			bank.InvokeBalanceChanged(this, newBalance, previousBalance);
 
 			return true;
 		}
 
-		public bool TryTransferTo(BankAccount other, decimal amount)
+		/// <summary>
+		/// Attempts to transfer funds from one BankAccount to another.
+		/// </summary>
+		/// <param name="other">Destination BankAccount.</param>
+		/// <param name="amount">Amount to transfer.</param>
+		/// <param name="allowOverdraw">True if the transaction can leave the source account negative.</param>
+		/// <returns>True if the transaction succeeded.</returns>
+		public bool TryTransferTo(BankAccount other, decimal amount, bool allowOverdraw=false)
 		{
 			if( other == null )
 				return false;
 
-			if(TryWithdraw(amount))
+			if(TryWithdraw(amount,allowOverdraw))
 			{
 				other.Deposit(amount);
 				return true;

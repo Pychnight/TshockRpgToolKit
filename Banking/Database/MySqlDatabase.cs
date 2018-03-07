@@ -24,9 +24,9 @@ namespace Banking.Database
 					cmd.CommandText = "CREATE TABLE IF NOT EXISTS BankAccounts (" +
 										"WorldId INTEGER," +
 										"OwnerName VARCHAR(128),"  +
-										"CurrencyType VARCHAR(128)," +
+										"Name VARCHAR(128)," +
 										"Balance REAL," +
-										"PRIMARY KEY ( WorldId, OwnerName, CurrencyType ) )";
+										"PRIMARY KEY ( WorldId, OwnerName, Name ) )";
 
 					con.Open();
 					cmd.ExecuteNonQuery();
@@ -40,12 +40,12 @@ namespace Banking.Database
 			{
 				using( var cmd = con.CreateCommand() )
 				{
-					cmd.CommandText = "INSERT INTO BankAccounts ( WorldId, OwnerName, CurrencyType, Balance ) " +
-										"VALUES ( @WORLDID, @OWNERNAME, @CURRENCYTYPE, @BALANCE )";
+					cmd.CommandText = "INSERT INTO BankAccounts ( WorldId, OwnerName, Name, Balance ) " +
+										"VALUES ( @WORLDID, @OWNERNAME, @NAME, @BALANCE )";
 
 					cmd.Parameters.AddWithValue("@WORLDID", Main.worldID);
 					cmd.Parameters.AddWithValue("@OWNERNAME", account.OwnerName);
-					cmd.Parameters.AddWithValue("@CURRENCYTYPE", account.CurrencyType);
+					cmd.Parameters.AddWithValue("@NAME", account.Name);
 					cmd.Parameters.AddWithValue("@BALANCE", account.Balance);
 
 					con.Open();
@@ -68,11 +68,11 @@ namespace Banking.Database
 				using( var cmd = con.CreateCommand() )
 				{
 					cmd.CommandText = "DELETE FROM BankAccounts " +
-										"WHERE WorldId=@WORLDID AND OwnerName=@OWNERNAME AND CurrencyType=@CURRENCYTYPE";
+										"WHERE WorldId=@WORLDID AND OwnerName=@OWNERNAME AND Name=@NAME";
 					
 					cmd.Parameters.AddWithValue("@WORLDID", Main.worldID);
 					cmd.Parameters.AddWithValue("@OWNERNAME", account.OwnerName);
-					cmd.Parameters.AddWithValue("@CURRENCYTYPE", account.CurrencyType);
+					cmd.Parameters.AddWithValue("@NAME", account.Name);
 					
 					con.Open();
 					cmd.ExecuteNonQuery();
@@ -107,10 +107,10 @@ namespace Banking.Database
 							while( reader.Read() )
 							{
 								var ownerName = reader.GetString(1);
-								var currencyType = reader.GetString(2);
+								var name = reader.GetString(2);
 								var balance = reader.GetDecimal(3);
 
-								var account = new BankAccount(ownerName, currencyType, balance);
+								var account = new BankAccount(ownerName, name, balance);
 								results.Add(account);
 							}
 						}
@@ -133,12 +133,12 @@ namespace Banking.Database
 				using( var cmd = con.CreateCommand() )
 				{
 					cmd.CommandText = "UPDATE BankAccounts SET Balance = @BALANCE " +
-										"WHERE WorldId=@WORLDID AND OwnerName=@OWNERNAME AND CurrencyType=@CURRENCYTYPE";
+										"WHERE WorldId=@WORLDID AND OwnerName=@OWNERNAME AND Name=@NAME";
 
 					cmd.Parameters.AddWithValue("@BALANCE", account.Balance);
 					cmd.Parameters.AddWithValue("@WORLDID", Main.worldID);
 					cmd.Parameters.AddWithValue("@OWNERNAME", account.OwnerName);
-					cmd.Parameters.AddWithValue("@CURRENCYTYPE", account.CurrencyType);
+					cmd.Parameters.AddWithValue("@NAME", account.Name);
 
 					con.Open();
 					cmd.ExecuteNonQuery();

@@ -7,55 +7,122 @@ using System.Threading.Tasks;
 namespace Banking
 {
 	/// <summary>
-	/// Internal collection of a player's bank accounts, keyed by Currency type.
+	/// Internal collection of a player's bank accounts, keyed by account name.
 	/// </summary>
-	internal class PlayerBankAccountMap : Dictionary<string,BankAccount>
+	public class PlayerBankAccountMap
 	{
-		internal string OwnerName { get; set; }
+		Dictionary<string, BankAccount> accountsByName;
 
-		internal PlayerBankAccountMap(string ownerName)
+		/// <summary>
+		///		Gets a Dictionary which can be used to map account names to other BankAccounts owned by the player, for rewards and penalities purposes. 
+		/// </summary>
+		internal Dictionary<string, BankAccount> AccountNameOverrideMap { get; private set; }
+
+		public string PlayerName { get; internal set; }
+
+		public BankAccount this[string name]
 		{
-			OwnerName = ownerName;
+			get { return TryGetBankAccount(name); }
+			set { accountsByName[name] = value; }
 		}
 
-		internal PlayerBankAccountMap(string ownerName, IEnumerable<CurrencyDefinition> definitions)
+		internal PlayerBankAccountMap(string playerName)
 		{
-			OwnerName = ownerName;
-			
-			foreach(var def in definitions)
-			{
-				var account = new BankAccount(ownerName, def.InternalName, 0m);
-				BankingPlugin.Instance.BankAccountManager.Database.Create(account);
-				Add(def.InternalName, account);
-			}
+			PlayerName = playerName;
+			accountsByName = new Dictionary<string, BankAccount>();
+			AccountNameOverrideMap = new Dictionary<string, BankAccount>();
 		}
 
-		internal BankAccount GetOrCreateBankAccount(string ownerName, string accountType, decimal amount)
-		{
-			if( ownerName != OwnerName )
-				throw new ArgumentException("ownerName does not match OwnerName.");//this should never happen..
+		//internal PlayerBankAccountMap(string playerName, IEnumerable<CurrencyDefinition> definitions) : this(playerName)
+		//{
+		//	foreach(var def in definitions)
+		//	{
+		//		var account = new BankAccount(playerName, def.InternalName, 0m);
+		//		BankingPlugin.Instance.Bank.Database.Create(account);
+		//		accountsByName.Add(def.InternalName, account);
 
-			if(!TryGetValue(accountType, out var account))
+		//		CurrencyRewardMap.Add(def.InternalName, account);
+		//	}
+		//}
+
+		public BankAccount GetOrCreateBankAccount(string accountName, decimal startingAmount = 0.0m)
+		{
+			var account = TryGetBankAccount(accountName);
+
+			if(account==null)
 			{
-				account = new BankAccount(ownerName, accountType, amount);
-				BankingPlugin.Instance.BankAccountManager.Database.Create(account);
-				Add(accountType, account);
+				account = new BankAccount(PlayerName, accountName, startingAmount);
+				BankingPlugin.Instance.Bank.Database.Create(account);
+				Add(accountName, account);
 			}
 
 			return account;
 		}
 
-		internal void EnsureBankAccountTypesExist(IEnumerable<CurrencyDefinition> values)
+		public BankAccount TryGetBankAccount(string accountName)
 		{
-			foreach(var def in values)
+			if(AccountNameOverrideMap.TryGetValue(accountName, out var account))
+				return account;
+
+			accountsByName.TryGetValue(accountName, out account);
+			return account;
+		}
+
+		internal void Add(string accountName, BankAccount account)
+		{
+			accountsByName.Add(accountName, account);
+		}
+
+		internal void EnsureBankAccountNamesExist(IEnumerable<string> accountNames)
+		{
+			foreach(var name in accountNames)
 			{
-				if(!TryGetValue(def.InternalName,out var bankAccount))
+				if(!accountsByName.TryGetValue(name,out var bankAccount))
 				{
-					bankAccount = new BankAccount(OwnerName, def.InternalName, 0);
-					BankingPlugin.Instance.BankAccountManager.Database.Create(bankAccount);
-					Add(def.InternalName, bankAccount);
+					bankAccount = new BankAccount(PlayerName, name, 0);
+					BankingPlugin.Instance.Bank.Database.Create(bankAccount);
+					Add(name, bankAccount);
 				}
 			}
 		}
+		
+		/// <summary>
+		/// Reroutes an account name to a specified BankAccount, if it exists for the player.
+		/// </summary>
+		/// <param name="overrideName">Overridden name.</param>
+		/// <param name="accountName">BankAccount name.</param>
+		public void SetAccountNameOverride(string overrideName, string accountName)
+		{
+			if( string.IsNullOrWhiteSpace(accountName) )
+			{
+				AccountNameOverrideMap.Remove(overrideName);
+				return;
+			}
+
+			var account = TryGetBankAccount(accountName);
+			AccountNameOverrideMap[overrideName] = account;
+		}
+
+		/// <summary>
+		/// Returns the name of the Player's BankAccount which is routed to, using the given name.
+		/// </summary>
+		/// <param name="overrideName">Overriden name.</param>
+		/// <returns>BankAccount name.</returns>
+		public string GetAccountNameOverride(string overrideName)
+		{
+			AccountNameOverrideMap.TryGetValue(overrideName, out var account);
+			return account?.Name;
+		}
+
+		public void ClearAccountNameOverrides()
+		{
+			AccountNameOverrideMap.Clear();
+		}
+
+		//public BankAccount GetAccountForCurrencyReward(string currencyType)
+		//{
+		//	AccountNameOverrideMap.TryGetValue(currencyType, out var account);
+		//	return account;
+		//}
 	}
 }

@@ -77,9 +77,10 @@
   <ItemGroup>
     <Compile Include="BalanceChangedEventArgs.cs" />
     <Compile Include="BankAccount.cs" />
-    <Compile Include="BankAccountManager.cs" />
+    <Compile Include="Bank.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
     <Compile Include="Database\MySqlDatabase.cs" />
+    <Compile Include="EnsurePlayerAccountsEventArgs.cs" />
     <Compile Include="PlayerBankAccountMap.cs" />
     <Compile Include="BankCommands.cs" />
     <Compile Include="BankingPlugin.cs" />
