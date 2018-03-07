@@ -91,7 +91,7 @@ namespace Leveling
             PlayerHooks.PlayerChat += OnPlayerChat;
             PlayerHooks.PlayerPermission += OnPlayerPermission;
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
-            ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, int.MinValue);
+            //ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, int.MinValue);
             //ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 
@@ -178,7 +178,7 @@ namespace Leveling
                 PlayerHooks.PlayerChat -= OnPlayerChat;
                 PlayerHooks.PlayerPermission -= OnPlayerPermission;
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-                ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+				//ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
 				//ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
             }
