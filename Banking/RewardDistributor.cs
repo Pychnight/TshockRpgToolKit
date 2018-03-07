@@ -53,15 +53,27 @@ namespace Banking
 
 #endif
 
+		public Dictionary<string,List<RewardModifier>> RewardModifiers { get; set; } = new Dictionary<string,List<RewardModifier>>();
+
 		public void TryAddReward(string playerName, string gainedBy, string itemName, float defaultValue = 1.0f )
 		{
-			var bankMgr = BankingPlugin.Instance.BankAccountManager;
+			var bank = BankingPlugin.Instance.Bank;
+			var playerAccountMap = bank[playerName];
 
-			foreach(var currency in bankMgr.CurrencyManager)
+			foreach(var currency in bank.CurrencyManager)
 			{
 				if(currency==null)
 				{
 					Debug.Assert(currency!=null,"Currency should never be null!");
+					continue;
+				}
+
+				//var rewardAccount = playerAccountMap.GetAccountForCurrencyReward(currency.InternalName);
+				var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
+
+				if( rewardAccount == null )
+				{
+					Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
 					continue;
 				}
 
@@ -80,10 +92,12 @@ namespace Banking
 					if( value == 0.0m )
 						continue;
 
-					var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
-					Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
+					//var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
+					//Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
 
-					account.Deposit(value);
+					//account.Deposit(value);
+
+					rewardAccount.Deposit(value);
 
 					if( currency.SendCombatText )
 					{

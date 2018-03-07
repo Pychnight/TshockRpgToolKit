@@ -19,7 +19,7 @@ namespace Banking
 	[ApiVersion(2, 1)]
 	public sealed class BankingPlugin : TerrariaPlugin
 	{
-		public override string Author => "Timothy A. Barela";
+		public override string Author => "Timothy Barela";
 		public override string Description => "A simple, banking and currency system for TShock.";
 		public override string Name => "Banking";
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
@@ -28,11 +28,11 @@ namespace Banking
 		private static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
 		public static BankingPlugin Instance { get; private set; }
-
-		public event EventHandler<BalanceChangedEventArgs> BankAccountBalanceChanged;
+				
+		public event EventHandler RewardDepositing;
 
 		internal CombatTextDistributor CombatTextDistributor;
-		internal BankAccountManager BankAccountManager;
+		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal RewardDistributor RewardDistributor;
 				
@@ -51,7 +51,7 @@ namespace Banking
 			Config.LoadOrCreate(ConfigPath);
 
 			CombatTextDistributor = new CombatTextDistributor();
-			BankAccountManager = new BankAccountManager();
+			Bank = new Bank();
 			NpcStrikeTracker = new NpcStrikeTracker();
 			NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 			RewardDistributor = new RewardDistributor();
@@ -94,7 +94,7 @@ namespace Banking
 				//ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
 
 				Config.Save(ConfigPath);
-				BankAccountManager.Save();
+				//Bank.Save();
 			}
 
 			base.Dispose(disposing);
@@ -106,7 +106,7 @@ namespace Banking
 
 			NpcStrikeTracker.Clear();
 			//RewardDistributor.Clear();//experimental code disabled
-			BankAccountManager.Load();
+			Bank.Load();
 
 			//BankAccountBalanceChanged += (s, a) =>
 			//{
@@ -125,7 +125,7 @@ namespace Banking
 
 		private void OnReload(ReloadEventArgs e)
 		{
-			BankAccountManager.Save();
+			//Bank.Save();
 
 			onLoad();
 		}
@@ -133,7 +133,7 @@ namespace Banking
 		private void OnServerJoin(JoinEventArgs args)
 		{
 			var player = new TSPlayer(args.Who);
-			BankAccountManager.EnsureBankAccountsExist(player.Name);
+			Bank.EnsureBankAccountsExist(player.Name);
 		}
 
 		private void OnNetGetData(GetDataEventArgs args)
@@ -248,34 +248,30 @@ namespace Banking
 			if( args.Player != null )
 				RewardDistributor.TryAddReward(args.Player.Name, "Placing", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
 		}
-
-		internal void InvokeBalanceChanged(BankAccount bankAccount, decimal newBalance, decimal previousBalance)
-		{
-			if(BankAccountBalanceChanged!=null && bankAccount.OwnerName!="Server")
-			{
-				var args = new BalanceChangedEventArgs(bankAccount,newBalance,previousBalance);
-				BankAccountBalanceChanged?.Invoke(this, args);
-			}
-		}
-		
+				
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
-			return BankAccountManager.GetBankAccount(player.Name,accountType);
+			return Bank.GetBankAccount(player.Name,accountType);
 		}
 
-		public BankAccount GetBankAccount(string name, string accountType)
+		public BankAccount GetBankAccount(string playerName, string accountName)
 		{
-			return BankAccountManager.GetBankAccount(name,accountType);
+			return Bank.GetBankAccount(playerName,accountName);
+		}
+
+		public PlayerBankAccountMap GetAllBankAccountsForPlayer(string playerName)
+		{
+			return Bank[playerName];
 		}
 
 		public IEnumerable<CurrencyDefinition> EnumerateCurrencies()
 		{
-			return BankAccountManager.CurrencyManager.AsEnumerable();
+			return Bank.CurrencyManager.AsEnumerable();
 		}
 
 		public bool TryGetCurrency(string currencyType, out CurrencyDefinition result)
 		{
-			return BankAccountManager.CurrencyManager.Definitions.TryGetValue(currencyType, out result);
+			return Bank.CurrencyManager.Definitions.TryGetValue(currencyType, out result);
 		}
 	}
 }

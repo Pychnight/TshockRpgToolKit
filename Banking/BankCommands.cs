@@ -155,7 +155,7 @@ namespace Banking
 
 		private static void viewBalance(TSPlayer client, string currencyType, string target=null)
 		{
-			var currency = BankingPlugin.Instance.BankAccountManager.CurrencyManager[currencyType];
+			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyType];
 			var account = BankingPlugin.Instance.GetBankAccount(!string.IsNullOrWhiteSpace(target) ? target : client.Name, currencyType);
 
 			if( currency == null )
@@ -176,7 +176,7 @@ namespace Banking
 
 		private static void payPlayer(TSPlayer client, string currencyType, string targetName, string money)
 		{
-			var currency = BankingPlugin.Instance.BankAccountManager.CurrencyManager[currencyType];
+			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyType];
 			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
 			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
 
@@ -222,7 +222,7 @@ namespace Banking
 
 		private static void setPlayerBalance(TSPlayer client, string currencyType, string targetName, string money, SetBalanceMode mode)
 		{
-			var currency = BankingPlugin.Instance.BankAccountManager.CurrencyManager[currencyType];
+			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyType];
 			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
 			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
 
@@ -282,7 +282,7 @@ namespace Banking
 
 		private static void resetPlayerBalance(TSPlayer client, string currencyType, string targetName)
 		{
-			var currency = BankingPlugin.Instance.BankAccountManager.CurrencyManager[currencyType];
+			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyType];
 			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
 			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
 

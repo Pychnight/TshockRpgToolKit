@@ -25,9 +25,9 @@ namespace Banking.Database
 				con.Query("CREATE TABLE IF NOT EXISTS BankAccounts (" +
 							"WorldId INTEGER," +
 							"OwnerName TEXT," +
-							"CurrencyType TEXT," +
+							"Name TEXT," +
 							"Balance REAL," +
-							"PRIMARY KEY ( WorldId, OwnerName, CurrencyType ) )");
+							"PRIMARY KEY ( WorldId, OwnerName, Name ) )");
 			}
 		}
 
@@ -35,9 +35,9 @@ namespace Banking.Database
 		{
 			using( var con = new SqliteConnection(ConnectionString) )
 			{
-				con.Query("INSERT INTO BankAccounts ( WorldId, OwnerName, CurrencyType, Balance ) " +
+				con.Query("INSERT INTO BankAccounts ( WorldId, OwnerName, Name, Balance ) " +
 							"VALUES ( @0, @1, @2, @3 )",
-							Main.worldID, account.OwnerName, account.CurrencyType, account.Balance);
+							Main.worldID, account.OwnerName, account.Name, account.Balance);
 			}
 		}
 
@@ -53,8 +53,8 @@ namespace Banking.Database
 			using( var con = new SqliteConnection(ConnectionString) )
 			{
 				con.Query("DELETE FROM BankAccounts " +
-							"WHERE WorldId=@0 AND OwnerName=@1 AND CurrencyType=@2",
-							Main.worldID, account.OwnerName, account.CurrencyType);
+							"WHERE WorldId=@0 AND OwnerName=@1 AND Name=@2",
+							Main.worldID, account.OwnerName, account.Name);
 			}
 		}
 
@@ -70,8 +70,8 @@ namespace Banking.Database
 			using( var con = new SqliteConnection(ConnectionString) )
 			{
 				con.Query("UPDATE BankAccounts SET Balance = @0 " +
-							"WHERE WorldId=@1 AND OwnerName=@2 AND CurrencyType=@3",
-							account.Balance, Main.worldID, account.OwnerName, account.CurrencyType);
+							"WHERE WorldId=@1 AND OwnerName=@2 AND Name=@3",
+							account.Balance, Main.worldID, account.OwnerName, account.Name);
 			}
 		}
 
@@ -103,12 +103,10 @@ namespace Banking.Database
 							while(reader.Read())
 							{
 								var ownerName = reader.GetString(1);
-								var currencyType = reader.GetString(2);
+								var name = reader.GetString(2);
 								var balance = reader.GetDecimal(3);
 
-								//throw new NotImplementedException();
-
-								var account = new BankAccount(ownerName, currencyType, balance);
+								var account = new BankAccount(ownerName, name, balance);
 								results.Add(account);
 							}
 						}
