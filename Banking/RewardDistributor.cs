@@ -77,14 +77,14 @@ namespace Banking
 					continue;
 				}
 
-				if(currency.Rewards.TryGetValue(gainedBy,out var rewardDef))
+				if( currency.Rewards.TryGetValue(gainedBy, out var rewardDef) )
 				{
 					decimal value;
 
 					if( rewardDef.Ignore.Contains(itemName) )
 						continue;
 
-					if( !rewardDef.ParsedValues.TryGetValue(itemName, out value))
+					if( !rewardDef.ParsedValues.TryGetValue(itemName, out value) )
 						value = (decimal)defaultValue;
 
 					value *= (decimal)currency.Multiplier;
@@ -92,27 +92,77 @@ namespace Banking
 					if( value == 0.0m )
 						continue;
 
-					//var account = bankMgr.GetBankAccount(playerName, currency.InternalName);
-					//Debug.Assert(account != null, $"Couldn't find {currency.InternalName} account for {playerName}.");
+					if( value > 0.0m )
+						rewardAccount.Deposit(value);
+					else
+						rewardAccount.TryWithdraw(value);
 
-					//account.Deposit(value);
+					trySendCombatText(playerName, currency, ref value);
+				}
+				else if( gainedBy == "DeathPvP" )
+				{
+					decimal loss = Math.Round(Math.Max(	(decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum));
 
-					rewardAccount.Deposit(value);
+					if( loss == 0.0m )
+						continue;
 
-					if( currency.SendCombatText )
+					if(string.IsNullOrWhiteSpace(itemName))//itemName will hold other players name, if available.
 					{
-						var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
+						if( rewardAccount.TryWithdraw(loss, false) )
+							trySendCombatText(playerName, currency, ref loss);
+					}
+					else
+					{
+						var other = bank.GetBankAccount(itemName, currency.InternalName);
 
-						if( player != null )
+						if(other==null)
 						{
-							var color = Color.White;
-							var money = currency.GetCurrencyConverter().ToStringAndColor(value, ref color);
-							var combatText = $"{money}";
+							Debug.Print($"Unable to find player {itemName}'s BankAccount for DeathPvP.");
+							continue;
+						}
 
-							BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
+						if( rewardAccount.TryTransferTo(other,loss, false))
+						{
+							loss = -loss;//make negative
+							trySendCombatText(playerName, currency, ref loss);
+
+							loss = -loss;//make positive
+							trySendCombatText(itemName, currency, ref loss);
 						}
 					}
 				}
+				else if( gainedBy == "Death" )
+				{
+					var factor = 1.0m; // ( session.Class.DeathPenaltyMultiplierOverride ?? 1.0 );
+
+					decimal loss = Math.Round(Math.Max( (decimal)currency.DeathPenaltyMultiplier * factor * rewardAccount.Balance,
+																(decimal)currency.DeathPenaltyMinimum));
+					if( loss == 0.0m )
+						continue;
+
+					if( rewardAccount.TryWithdraw(loss, false) )
+					{
+						loss = -loss;//make negative
+						trySendCombatText(playerName, currency, ref loss);
+					}
+				}
+			}
+		}
+
+		private void trySendCombatText(string playerName, CurrencyDefinition currency, ref decimal value)
+		{
+			if( !currency.SendCombatText )
+				return;
+
+			var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
+
+			if( player != null )
+			{
+				var color = Color.White;
+				var money = currency.GetCurrencyConverter().ToStringAndColor(value, ref color);
+				var combatText = $"{money}";
+
+				BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
 			}
 		}
 

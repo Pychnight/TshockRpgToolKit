@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -126,7 +127,6 @@ namespace Banking
 		private void OnReload(ReloadEventArgs e)
 		{
 			//Bank.Save();
-
 			onLoad();
 		}
 
@@ -138,6 +138,9 @@ namespace Banking
 
 		private void OnNetGetData(GetDataEventArgs args)
 		{
+			if( args.Handled )
+				return;
+
 			switch(args.MsgID)
 			{
 				case PacketTypes.Tile:
@@ -195,6 +198,40 @@ namespace Banking
 					}
 
 					break;
+
+				case PacketTypes.PlayerDeathV2:
+					//based off of MarioE's original code from the Leveling plugin...
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var player = TShock.Players[args.Msg.whoAmI];
+
+						reader.ReadByte();
+						var deathReason = PlayerDeathReason.FromReader(reader);
+						reader.ReadInt16();
+						reader.ReadByte();
+						var wasPvP = ( (BitsByte)reader.ReadByte() )[0];
+						if( wasPvP )
+						{
+							var otherPlayer = deathReason.SourcePlayerIndex >= 0
+								? TShock.Players[deathReason.SourcePlayerIndex]
+								: null;
+							if( otherPlayer == player )
+							{
+								return;
+							}
+
+							if( otherPlayer != null )
+								RewardDistributor.TryAddReward(otherPlayer.Name, "DeathPvP", otherPlayer.Name);
+							else
+								RewardDistributor.TryAddReward(player.Name, "DeathPvP", "");
+						}
+						else
+						{
+							RewardDistributor.TryAddReward(player.Name, "Death", "");
+						}
+					}
+
+					break;
 			}
 		}
 
@@ -212,6 +249,12 @@ namespace Banking
 		private void OnNpcStrike(NpcStrikeEventArgs args)
 		{
 			//Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
+
+			if( args.Npc.value <= 0.0 || args.Npc.SpawnedFromStatue )
+			{
+				return;
+			}
+			
 			NpcStrikeTracker.OnNpcStrike(args.Player, args.Npc, args.Damage, args.Critical);
 		}
 
@@ -248,7 +291,7 @@ namespace Banking
 			if( args.Player != null )
 				RewardDistributor.TryAddReward(args.Player.Name, "Placing", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
 		}
-				
+						
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
 			return Bank.GetBankAccount(player.Name,accountType);

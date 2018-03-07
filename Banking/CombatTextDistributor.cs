@@ -37,7 +37,7 @@ namespace Banking
 				queue.TryDequeue(out var result);
 		}
 
-		public void Send(int delayMS = 250)
+		public void Send(int delayMS = 400)
 		{
 			var delaySpan = new TimeSpan(0, 0, 0, 0, delayMS);
 			while( queue.Count > 0 )
