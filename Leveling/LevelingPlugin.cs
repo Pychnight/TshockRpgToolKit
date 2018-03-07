@@ -26,7 +26,12 @@ namespace Leveling
     [ApiVersion(2, 1)]
     public sealed class LevelingPlugin : TerrariaPlugin
     {
-        private const string SessionKey = "Leveling_Session";
+		/// <summary>
+		/// The prefix used for BankAccounts created by this plugin.
+		/// </summary>
+		public const string BankAccountNamePrefix = "Exp_";
+
+        internal const string SessionKey = "Leveling_Session";
 
 		public static LevelingPlugin Instance { get; private set; }
 
@@ -46,14 +51,14 @@ namespace Leveling
 
         public LevelingPlugin(Main game) : base(game)
         {
-#if DEBUG
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-#endif
+//#if DEBUG
+//            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+//#endif
 
 			Instance = this;
         }
 
-        public override string Author => "MarioE";
+        public override string Author => "MarioE, Timothy Barela";
         public override string Description => "Provides RPG-styled leveling and classes.";
         public override string Name => "Leveling";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
@@ -87,7 +92,7 @@ namespace Leveling
             PlayerHooks.PlayerPermission += OnPlayerPermission;
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, int.MinValue);
-            ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
+            //ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 
             Commands.ChatCommands.Add(new Command("leveling.addhp", AddHp, "addhp")
@@ -174,7 +179,7 @@ namespace Leveling
                 PlayerHooks.PlayerPermission -= OnPlayerPermission;
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
                 ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
-                ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
+				//ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
             }
 
@@ -197,6 +202,15 @@ namespace Leveling
 
 			ExpCurrency = currency;
 			//...cache currency converter??
+
+			var bank = BankingPlugin.Instance.Bank;
+
+			//bank.BankAccountBalanceChanged += (s, a) =>
+			//{
+			//	Debug.Print($"BankAccountBalanceChanged! {a.Name}");
+			//};
+
+			bank.BankAccountBalanceChanged += Session.OnBankAccountBalanceChanged;
 		}
 
 		private void onLoad()
@@ -541,7 +555,7 @@ namespace Leveling
             }
         }
 
-        private Session GetOrCreateSession(TSPlayer player)
+        internal Session GetOrCreateSession(TSPlayer player)
         {
             var session = player.GetData<Session>(SessionKey);
 			if (session == null)
@@ -714,8 +728,10 @@ namespace Leveling
                 var expAmount = (long)Math.Round((double)kvp.Value / total *
                                                  config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
                                                  (session.Class.ExpMultiplierOverride ?? 1.0) * config.ExpMultiplier);
-                session.AddExpToReport(expAmount);
-                session.GiveExp(expAmount);
+
+				//DISABLED DURING CONVERSION!!
+                //session.AddExpToReport(expAmount);
+                //session.GiveExp(expAmount);
             }
         }
 
@@ -880,55 +896,58 @@ namespace Leveling
                 return;
             }
 
-            if (args.MsgID == PacketTypes.NpcItemStrike || args.MsgID == PacketTypes.NpcStrike)
-            {
-                var player = TShock.Players[args.Msg.whoAmI];
-                using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
-                {
-                    var npcIndex = reader.ReadInt16();
+      //      if (args.MsgID == PacketTypes.NpcItemStrike || args.MsgID == PacketTypes.NpcStrike)
+      //      {
+      //          var player = TShock.Players[args.Msg.whoAmI];
+      //          using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
+      //          {
+      //              var npcIndex = reader.ReadInt16();
 
-                    void DoStrike(double damage, bool isCritical)
-                    {
-                        if (damage < 1.0)
-                        {
-                            return;
-                        }
+      //              void DoStrike(double damage, bool isCritical)
+      //              {
+      //                  if (damage < 1.0)
+      //                  {
+      //                      return;
+      //                  }
 
-                        var npc = Main.npc[npcIndex];
-                        var defense = npc.defense;
-                        defense -= npc.ichor ? 20 : 0;
-                        defense -= npc.betsysCurse ? 40 : 0;
-                        defense = Math.Max(0, defense);
+      //                  var npc = Main.npc[npcIndex];
+      //                  var defense = npc.defense;
+      //                  defense -= npc.ichor ? 20 : 0;
+      //                  defense -= npc.betsysCurse ? 40 : 0;
+      //                  defense = Math.Max(0, defense);
 
-                        damage = Main.CalculateDamage((int)damage, defense);
-                        damage *= isCritical ? 2.0 : 1.0;
-                        damage *= Math.Max(1.0, npc.takenDamageMultiplier);
+      //                  damage = Main.CalculateDamage((int)damage, defense);
+      //                  damage *= isCritical ? 2.0 : 1.0;
+      //                  damage *= Math.Max(1.0, npc.takenDamageMultiplier);
 
-                        var damages = _npcDamages.GetOrCreateValue(npc);
-                        damages[player] = damages.Get(player) + (int)damage;
+      //                  var damages = _npcDamages.GetOrCreateValue(npc);
+      //                  damages[player] = damages.Get(player) + (int)damage;
 
-                        if (npc.life <= damage)
-                        {
-                            KillNpc(npc);
-                        }
-                    }
+						////Debug.Print($"Leveling - DoStrike! Damage: {damage}, Critical: {isCritical}");
 
-                    if (args.MsgID == PacketTypes.NpcItemStrike)
-                    {
-                        DoStrike(player.SelectedItem.damage, false);
-                    }
-                    else
-                    {
-                        var damage = reader.ReadInt16();
-                        reader.ReadSingle();
-                        reader.ReadByte();
-                        var isCritical = reader.ReadByte() == 1;
-                        DoStrike(damage, isCritical);
-                    }
-                }
-            }
-            else if (args.MsgID == PacketTypes.PlayerDeathV2)
-            {
+						//if (npc.life <= damage)
+      //                  {
+      //                      KillNpc(npc);
+      //                  }
+      //              }
+
+      //              if (args.MsgID == PacketTypes.NpcItemStrike)
+      //              {
+      //                  DoStrike(player.SelectedItem.damage, false);
+      //              }
+      //              else
+      //              {
+      //                  var damage = reader.ReadInt16();
+      //                  reader.ReadSingle();
+      //                  reader.ReadByte();
+      //                  var isCritical = reader.ReadByte() == 1;
+      //                  DoStrike(damage, isCritical);
+      //              }
+      //          }
+      //      }
+            //else if (args.MsgID == PacketTypes.PlayerDeathV2)
+			if( args.MsgID == PacketTypes.PlayerDeathV2 )
+			{
                 var player = TShock.Players[args.Msg.whoAmI];
                 var session = GetOrCreateSession(player);
                 using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
@@ -975,10 +994,10 @@ namespace Leveling
             }
         }
 
-        private void OnNpcKilled(NpcKilledEventArgs args)
-        {
-            KillNpc(args.npc);
-        }
+        //private void OnNpcKilled(NpcKilledEventArgs args)
+        //{
+        //    KillNpc(args.npc);
+        //}
 
         private void OnPlayerChat(PlayerChatEventArgs args)
         {

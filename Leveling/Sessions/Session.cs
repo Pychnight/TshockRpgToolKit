@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
 using TShockAPI;
+using Banking;
 
 namespace Leveling.Sessions
 {
@@ -47,12 +48,12 @@ namespace Leveling.Sessions
 
             _player = player;
             _definition = definition;
-        }
+		}
 
-        /// <summary>
-        ///     Gets or sets the class, which must not be <c>null</c>.
-        /// </summary>
-        public Class Class
+		/// <summary>
+		///     Gets or sets the class, which must not be <c>null</c>.
+		/// </summary>
+		public Class Class
         {
             get => _class;
             set
@@ -64,6 +65,8 @@ namespace Leveling.Sessions
                 _class = value;
                 _definition.CurrentClassName = value.Name;
                 UpdateItemsAndPermissions();
+
+				setBankAccountForClass(_class);
 
 				if(_class!=lastClass)
 				{
@@ -82,9 +85,24 @@ namespace Leveling.Sessions
         /// </summary>
         public long Exp
         {
-            get => _definition.ClassNameToExp[_class.Name];
-            set => _definition.ClassNameToExp[_class.Name] = value;
-        }
+            get
+			{
+				var account = BankingPlugin.Instance.GetBankAccount(this._player.Name, "Exp");
+				//Debug.Print($"Get Exp account: {account.Balance}");
+
+				//return _definition.ClassNameToExp[_class.Name];
+				return (long)account.Balance;
+			}
+            set
+			{
+				var account = BankingPlugin.Instance.GetBankAccount(this._player.Name, "Exp");
+				//account.Deposit(value);
+				Debug.Print($"Set Exp account: {account.Balance}");
+
+				//_definition.ClassNameToExp[_class.Name] = value;
+				account.Set(value);
+			}
+		}
 
         /// <summary>
         ///     Gets the set of item IDs given.
@@ -141,13 +159,80 @@ namespace Leveling.Sessions
 			}
         }
 
+		internal static void OnBankAccountBalanceChanged(object sender, BalanceChangedEventArgs args)
+		{
+			//Debug.Print($"BankAccountBalanceChanged! {args.Name}");
+
+			if(args.Name.StartsWith(LevelingPlugin.BankAccountNamePrefix))
+			{
+				var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
+				var session = LevelingPlugin.Instance.GetOrCreateSession(player);
+
+				session.ExpUpdated(args);
+			}
+		}
+
+		/// <summary>
+		/// Updates all experience related members, by looking at the latest Exp balance change.
+		/// </summary>
+		internal void ExpUpdated(BalanceChangedEventArgs args)
+		{
+			//Debug.Print($"ExpUpdated!");
+
+			var levelIndex = Class.Levels.IndexOf(Level);
+
+			if( Exp<0 )
+			{
+				if(levelIndex > 0 && Class.Levels[levelIndex - 1].ExpRequired > 0 )
+				{
+					//we leveled down
+					var delta = Exp;
+
+					LevelDown();
+
+					//set previous level's new exp
+					Exp = Level.ExpRequired;
+					GiveExp(delta);
+				}
+				else
+				{
+					Exp = 0;
+				}
+			}
+			else
+			{
+				// Don't allow up-leveling if this is the last level of the class or if the current level has a special
+				// requirement for leveling up.
+				if( levelIndex == Class.Levels.Count - 1 || Level.ExpRequired < 0 )
+				{
+					//clip overage
+					if( Level.ExpRequired>0 && Exp > Level.ExpRequired )
+						Exp = Level.ExpRequired;
+
+					return;
+				}
+
+				//Debug.WriteLine($"DEBUG: Giving {exp} EXP to {_player.Name}");
+
+				//var newExp = Exp + exp;
+				if( Exp >= Level.ExpRequired )
+				{
+					var surplus = Exp - Level.ExpRequired;
+					LevelUp();
+					GiveExp(surplus);
+				}
+			}
+		}
+
         /// <summary>
         ///     Adds the specified amount of EXP to report.
         /// </summary>
         /// <param name="exp">The amount of EXP.</param>
         public void AddExpToReport(long exp)
         {
-			lock(expLock)
+			//Debug.Print($"AddExpToReport would be {exp} ( currently disabled. )");
+
+			lock( expLock )
 			{
 				_expToReport += exp;
 			}
@@ -167,56 +252,26 @@ namespace Leveling.Sessions
             Save();
         }
 
-        /// <summary>
-        ///     Gives the specified amount of EXP.
-        /// </summary>
-        /// <param name="exp">The amount of EXP.</param>
-        public void GiveExp(long exp)
-        {
-            var levelIndex = Class.Levels.IndexOf(Level);
-            if (exp < 0)
-            {
-                Debug.WriteLine($"DEBUG: Taking {-exp} EXP from {_player.Name}");
+		/// <summary>
+		///     Gives the specified amount of EXP.
+		/// </summary>
+		/// <param name="exp">The amount of EXP.</param>
+		public void GiveExp(long exp)
+		{
+			var account = BankingPlugin.Instance.GetBankAccount(_player, "Exp" );
 
-                var newExp = Exp + exp;
-                // Don't allow down-leveling if this is the first level of the class or if the previous level had a
-                // special requirement for leveling up.
-                if (newExp < 0 && levelIndex != 0 && Class.Levels[levelIndex - 1].ExpRequired > 0)
-                {
-                    LevelDown();
-                    Exp = Level.ExpRequired;
-                    GiveExp(newExp);
-                }
-                else
-                {
-                    Exp = Math.Max(0, newExp);
-                }
-            }
-            else if (exp > 0)
-            {
-                // Don't allow up-leveling if this is the last level of the class or if the current level has a special
-                // requirement for leveling up.
-                if (levelIndex == Class.Levels.Count - 1 || Level.ExpRequired < 0)
-                {
-                    return;
-                }
+			Debug.Assert(account != null, "Tried to GiveExp, but Exp BankAccount is null.");
+			
+			if(exp<0)
+			{
+				var result = account.TryWithdraw(Math.Abs(exp), allowOverdraw: true);
 
-                Debug.WriteLine($"DEBUG: Giving {exp} EXP to {_player.Name}");
-
-                var newExp = Exp + exp;
-                if (newExp >= Level.ExpRequired)
-                {
-                    var surplus = newExp - Level.ExpRequired;
-                    LevelUp();
-                    GiveExp(surplus);
-                }
-                else
-                {
-                    Exp = newExp;
-                }
-            }
-        }
-
+				Debug.Assert(result, "Tried to take Exp, but BankAccount withdraw operation failed.");
+			}
+			else if(exp>0)
+				account.Deposit(exp);
+		}
+		
         /// <summary>
         ///     Determines if the player has the specified level.
         /// </summary>
@@ -250,11 +305,14 @@ namespace Leveling.Sessions
 
 		public void LevelReset()
 		{
-			Debug.Print("LevelReset!");
+			//Debug.Print("LevelReset!");
 			
 			MasteredClasses.Clear();
 			UnlockedClasses.Clear();
 			PermissionsGranted.Clear();
+			_definition.ItemIdsGiven?.Clear();
+			
+			Exp = 0;
 
 			var def = _definition;
 			def.initialize();
@@ -385,7 +443,45 @@ namespace Leveling.Sessions
                 _definition.MasteredClassNames.Select(mcn => classes.First(c => c.Name == mcn)));
             UnlockedClasses = new HashSet<Class>(
                 _definition.UnlockedClassNames.Select(ucn => classes.First(c => c.Name == ucn)));
-        }
+
+			//ensure bank accounts..
+			EnsureBankAccounts(classes);
+			setBankAccountForClass(Class);
+		}
+
+		private void EnsureBankAccounts(IList<Class> classes)
+		{
+			var bank = BankingPlugin.Instance?.Bank;
+
+			if( bank != null )
+			{
+				var accountMap = bank[this._player.Name];
+
+				foreach(var cl in classes)
+				{
+					var account = accountMap.GetOrCreateBankAccount(getBankAccountNameForClass(cl));
+				}
+			}
+		}
+
+		private void setBankAccountForClass(Class klass)
+		{
+			var bank = BankingPlugin.Instance?.Bank;
+
+			if( bank != null )
+			{
+				var accountMap = bank[this._player.Name];
+				var currentClassAccountName = getBankAccountNameForClass(klass);
+
+				//Debug.Print($"Overriding Exp to route to: {currentClassAccountName}");
+				accountMap.SetAccountNameOverride("Exp", currentClassAccountName);
+			}
+		}
+		
+		private string getBankAccountNameForClass(Class klass)
+		{
+			return $"Exp_{klass.Name}";
+		}
 
         /// <summary>
         ///     Saves the session.
