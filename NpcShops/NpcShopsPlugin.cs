@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Banking;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NpcShops.Shops;
@@ -13,8 +14,8 @@ using Terraria.Localization;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-using Wolfje.Plugins.SEconomy;
-using Wolfje.Plugins.SEconomy.Journal;
+//using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy.Journal;
 
 namespace NpcShops
 {
@@ -29,6 +30,8 @@ namespace NpcShops
 
         internal List<NpcShop> NpcShops = new List<NpcShop>();
 		internal NpcPauser NpcPauser = new NpcPauser();
+
+		internal CurrencyDefinition Currency { get; private set; }
 		
         public NpcShopsPlugin(Main game) : base(game)
         {
@@ -103,8 +106,29 @@ namespace NpcShops
 			}
 		}
 
-		private void tryLoadShops()
+		private void tryLoad()
 		{
+			if( BankingPlugin.Instance == null )
+			{
+				throw new Exception("BankingPlugin not detected. BankingPlugin is required for NpcShopsPlugin.");
+			}
+			else
+			{
+				var currencyType = Config.Instance?.CurrencyType;
+
+				if( string.IsNullOrWhiteSpace(currencyType) )
+				{
+					throw new Exception($"Invalid CurrencyType configured. NpcShopsPlugin requires a configured Currency type to operate.");
+				}
+
+				if( !BankingPlugin.Instance.TryGetCurrency(currencyType, out var currency ) )
+				{
+					throw new Exception($"Unable to find CurrencyType '{Config.Instance.CurrencyType}'. NpcShopsPlugin requires a configured Currency type to operate.");
+				}
+
+				Currency = currency;
+			}
+
 			var shops = new List<NpcShop>();
 			var files = Directory.EnumerateFiles("npcshops", "*.shop", SearchOption.AllDirectories);
 			
@@ -186,14 +210,14 @@ namespace NpcShops
                     return;
                 }
 
-                var purchaseCost = (Money)(amount * shopItem.UnitPrice);
-                var salesTax = (Money)Math.Round(purchaseCost * shop.SalesTaxRate);
+                var purchaseCost = (decimal)(amount * shopItem.UnitPrice);
+                var salesTax = (decimal)Math.Round(purchaseCost * (decimal)shop.SalesTaxRate);
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
 
 				if(purchaseCost > 0 )
 				{
-					player.SendInfoMessage(	$"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
-											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+					player.SendInfoMessage(	$"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], " +
+											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
 				}
 
 				if(shopItem.RequiredItems.Count>0)
@@ -206,8 +230,11 @@ namespace NpcShops
 				player.AddResponse("yes", args2 =>
 				{
 					player.AwaitingResponse.Remove("no");
-					var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-					if( account == null || account.Balance < purchaseCost + salesTax )
+					//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					var account = BankingPlugin.Instance.GetBankAccount(player,Currency.InternalName);
+					var totalCost = purchaseCost + salesTax;
+
+					if( account == null || account.Balance < totalCost )
 					{
 						player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
 						return;
@@ -225,22 +252,24 @@ namespace NpcShops
 
 					var item = new Item();
 					item.SetDefaults(shopItem.ItemId);
-					account.TransferTo(
-						SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
-						"", $"Purchased {item.Name} x{amount}");
-					account.TransferTo(
-						SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-						"", $"Sales tax for {item.Name} x{amount}");
+										
+					var worldAccount = BankingPlugin.Instance.GetBankAccount("Server", Currency.InternalName);
+					if( account.TryTransferTo(worldAccount,totalCost))
+					{
+						//deduct materials from player
+						player.TransferMaterials(shopItem, amount);
 
-					//deduct materials from player
-					player.TransferMaterials(shopItem, amount);
-								
-					if( shopItem.StackSize > 0 )
-						shopItem.StackSize -= amount;
-				
-					player.GiveItem( shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
-					player.SendSuccessMessage($"Purchased {itemText} for { getPostPurchaseRenderString(shop,shopItem,purchaseCost+salesTax,amount) }.");
+						if( shopItem.StackSize > 0 )
+							shopItem.StackSize -= amount;
 
+						player.GiveItem(shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
+						player.SendSuccessMessage($"Purchased {itemText} for { getPostPurchaseRenderString(shop, shopItem, totalCost, amount) }.");
+					}
+					else
+					{
+						player.SendErrorMessage($"Transfer of funds failed for {itemText}.");
+					}
+										
 					//refresh the shop dispay for player, after some time so they can the transaction messages.
 					shop.ShowTo(player, 2000);
 
@@ -268,14 +297,14 @@ namespace NpcShops
                     return;
                 }
 
-                var purchaseCost = (Money)(amount * shopCommand.UnitPrice);
-                var salesTax = (Money)Math.Round(purchaseCost * shop.SalesTaxRate);
+                var purchaseCost = (decimal)(amount * shopCommand.UnitPrice);
+                var salesTax = (decimal)Math.Round(purchaseCost * (decimal)shop.SalesTaxRate);
                 var commandText = $"{shopCommand.Name} x[c/{Color.OrangeRed.Hex3()}:{amount}]";
                 
 				if( purchaseCost > 0 )
 				{
-					player.SendInfoMessage($"Purchasing {commandText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost}], " +
-											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax}].");
+					player.SendInfoMessage($"Purchasing {commandText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], " +
+											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
 				}
 
 				if( shopCommand.RequiredItems.Count > 0 )
@@ -288,8 +317,11 @@ namespace NpcShops
                 player.AddResponse("yes", args2 =>
                 {
                     player.AwaitingResponse.Remove("no");
-                    var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-                    if (account == null || account.Balance < purchaseCost + salesTax)
+                   // var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+					var account = BankingPlugin.Instance.GetBankAccount(player, Currency.InternalName);
+					var totalCost = purchaseCost + salesTax;
+
+					if (account == null || account.Balance < totalCost)
                     {
                         player.SendErrorMessage($"You do not have enough of a balance to purchase {commandText}.");
                         return;
@@ -304,28 +336,30 @@ namespace NpcShops
 						player.SendErrorMessage($"You do not have sufficient materials to purchase {commandText}.");
 						return;
 					}
+					
+					var worldAccount = BankingPlugin.Instance.GetBankAccount("Server", Currency.InternalName);
+					if( account.TryTransferTo(worldAccount, totalCost) )
+					{
+						//deduct materials from player
+						player.TransferMaterials(shopCommand, amount);
 
-					account.TransferTo(
-                        SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
-                        "", $"Purchased {commandText}");
-                    account.TransferTo(
-                        SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-                        "", $"Sales tax for {commandText}");
+						if( shopCommand.StackSize > 0 )
+							shopCommand.StackSize -= amount;
 
-					//deduct materials from player
-					player.TransferMaterials(shopCommand, amount);
+						//run purchased commands
+						for( var i = 0; i < amount; ++i )
+						{
+							Console.WriteLine(shopCommand.Command.Replace("$name", player.GetEscapedName()));
+							shopCommand.ForceHandleCommand(player);
+						}
 
-					if( shopCommand.StackSize > 0 )
-						shopCommand.StackSize -= amount;
+						player.SendSuccessMessage($"Purchased {commandText} for { getPostPurchaseRenderString(shop, shopCommand, totalCost, amount) }.");
 
-					//run purchased commands
-					for (var i = 0; i < amount; ++i)
-                    {
-                        Console.WriteLine(shopCommand.Command.Replace("$name", player.GetEscapedName()));
-						shopCommand.ForceHandleCommand(player);
-                    }
-                    
-					player.SendSuccessMessage($"Purchased {commandText} for { getPostPurchaseRenderString(shop, shopCommand, purchaseCost + salesTax, amount) }.");
+					}
+					else
+					{
+						player.SendErrorMessage($"Transfer of funds failed for {commandText}.");
+					}
 
 					//refresh the shop dispay for player, after some time so they can the transaction messages.
 					shop.ShowTo(player, 2000);
@@ -339,12 +373,12 @@ namespace NpcShops
             }
         }
 
-		private string getPostPurchaseRenderString( NpcShop shop, ShopProduct product, Money totalCost, int quantity )
+		private string getPostPurchaseRenderString( NpcShop shop, ShopProduct product, decimal totalCost, int quantity )
 		{
 			var sb = new StringBuilder();
 			
 			if( totalCost > 0 )
-				sb.Append($"[c/{ Color.OrangeRed.Hex3()}:{totalCost}]");
+				sb.Append($"[c/{ Color.OrangeRed.Hex3()}:{totalCost.ToMoneyString()}]");
 			
 			if( product.RequiredItems.Count > 0 )
 			{
@@ -357,7 +391,7 @@ namespace NpcShops
 		
         private void OnGamePostInitialize(EventArgs args)
         {
-			tryLoadShops();
+			tryLoad();
 	    }
 		
 		private void OnNetGetData(GetDataEventArgs args)
@@ -430,7 +464,7 @@ namespace NpcShops
 							.ForEach(tp => tp.SetData<Session>(SessionKey, null));
 
 			tryLoadConfig();
-            tryLoadShops();
+            tryLoad();
 
             args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
         }

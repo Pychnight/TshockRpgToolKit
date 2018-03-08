@@ -54,9 +54,6 @@
       <HintPath>..\refs\TShockAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Wolfje.Plugins.SEconomy">
-      <HintPath>..\refs\Wolfje.Plugins.SEconomy.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -73,11 +70,20 @@
     <Compile Include="Shops\ShopCommandDefinition.cs" />
     <Compile Include="Shops\ShopItem.cs" />
     <Compile Include="Shops\ShopItemDefinition.cs" />
+    <None Include="NpcShops.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Shops\PurchaseOrder.cs" />
     <Compile Include="Shops\ShopProduct.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Banking\Banking\Banking.csproj">
+      <Project>{89faffb0-5bfd-4548-876e-e863d2be3e82}</Project>
+      <Name>Banking</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using TShockAPI;
-using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy;
 
 namespace NpcShops.Shops
 {
@@ -57,7 +57,7 @@ namespace NpcShops.Shops
 		/// <summary>
 		///     Gets the unit price.
 		/// </summary>
-		public override Money UnitPrice => _definition.UnitPrice;
+		public override decimal UnitPrice => _definition.UnitPrice;
 
 		/// <summary>
 		///     Restocks the shop item.

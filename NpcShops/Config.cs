@@ -14,15 +14,21 @@ namespace NpcShops
         public static Config Instance { get; internal set; } = new Config();
 
 		/// <summary>
-		///		Gets the maximum distance in tiles, in which a player may talk to a Shopkeeper NPC.
+		/// Gets the default Currency type for shops. 
 		/// </summary>
 		[JsonProperty(Order = 0)]
+		public string CurrencyType { get; internal set; }
+
+		/// <summary>
+		///		Gets the maximum distance in tiles, in which a player may talk to a Shopkeeper NPC.
+		/// </summary>
+		[JsonProperty(Order = 1)]
 		public int ShopNpcMaxTalkRange { get; internal set; } = 32;
 
 		/// <summary>
 		///		Gets the duration a Shopkeeper NPC will stand still, in millseconds. -1 = indefinite.
 		/// </summary>
-		[JsonProperty(Order = 1)]
+		[JsonProperty(Order = 2)]
 		public int ShopNpcPauseDuration { get; internal set; } = 8000;
     }
 }

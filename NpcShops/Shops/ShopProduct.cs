@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Wolfje.Plugins.SEconomy;
+//using Wolfje.Plugins.SEconomy;
 
 namespace NpcShops.Shops
 {
@@ -20,7 +20,7 @@ namespace NpcShops.Shops
 		/// <summary>
 		///     Gets the unit price.
 		/// </summary>
-		public virtual Money UnitPrice { get; set; }
+		public virtual decimal UnitPrice { get; set; }
 
 		/// <summary>
 		///		Gets the items required for purchase.
