@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace NpcShops.Shops
 {
@@ -26,11 +27,35 @@ namespace NpcShops.Shops
         [JsonProperty(Order = 2)]
         public int StackSize { get; private set; }
 
-        /// <summary>
-        ///     Gets the unit price.
-        /// </summary>
-        [JsonProperty(Order = 3)]
-        public long UnitPrice { get; private set; }
+		string unitPrice;
+
+		/// <summary>
+		///     Gets the unit price.
+		/// </summary>
+		[JsonProperty(Order = 3)]
+		public string UnitPrice
+		{
+			get => unitPrice;
+			private set
+			{
+				unitPrice = value;
+
+				if( !NpcShopsPlugin.Instance.Currency.GetCurrencyConverter().TryParse(value, out var result) )
+				{
+					Debug.Print($"Failed to parse UnitPrice for NpcShop Command '{Name}.' Setting to 1.");
+					UnitPriceMoney = 1;
+				}
+				else
+				{
+					UnitPriceMoney = result;
+				}
+			}
+		}
+
+		/// <summary>
+		///		Gets the numeric value of the UnitPrice string.
+		/// </summary>
+		internal decimal UnitPriceMoney { get; private set; }
 
 		/// <summary>
 		///     Gets the permission required.

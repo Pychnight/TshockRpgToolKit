@@ -57,7 +57,7 @@ namespace NpcShops.Shops
 		/// <summary>
 		///     Gets the unit price.
 		/// </summary>
-		public override decimal UnitPrice => _definition.UnitPrice;
+		public override decimal UnitPrice => _definition.UnitPriceMoney;
 
 		/// <summary>
 		///     Restocks the shop item.
