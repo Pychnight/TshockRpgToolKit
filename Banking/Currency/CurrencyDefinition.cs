@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Banking.Rewards;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +23,13 @@ namespace Banking
 		
 		[JsonProperty(Order =2)]
 		public List<CurrencyQuadrantDefinition> Quadrants { get; set; } = new List<CurrencyQuadrantDefinition>();
-		
-		[JsonProperty(Order = 3)]
-		public Dictionary<string,CurrencyRewardDefinition> Rewards { get; set; } = new Dictionary<string,CurrencyRewardDefinition>();
 
+		//[JsonProperty(Order = 3)]
+		//public Dictionary<string,CurrencyRewardDefinition> Rewards { get; set; } = new Dictionary<string,CurrencyRewardDefinition>();
+
+		[JsonProperty(Order = 3, ItemConverterType = typeof(StringEnumConverter))]
+		public List<RewardReason> GainBy { get; set; } = new List<RewardReason>();
+		
 		[JsonProperty(Order = 4)]
 		public bool SendCombatText { get; set; }
 

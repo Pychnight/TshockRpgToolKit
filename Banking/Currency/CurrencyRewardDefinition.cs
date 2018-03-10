@@ -19,8 +19,8 @@ namespace Banking
 		[JsonProperty(Order = 1)]
 		public Dictionary<string, string> Values { get; set; } = new Dictionary<string, string>();
 				
-		[JsonProperty(Order=2)]
-		public HashSet<string> Ignore { get; set; } = new HashSet<string>();
+		//[JsonProperty(Order=2)]
+		//public HashSet<string> Ignore { get; set; } = new HashSet<string>();
 
 		//internal use only, keeps us from having to parse the values on each lookup
 		internal Dictionary<string, decimal> ParsedValues = new Dictionary<string, decimal>();

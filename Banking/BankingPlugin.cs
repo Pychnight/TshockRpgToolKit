@@ -1,4 +1,5 @@
 ﻿using Banking.Configuration;
+using Banking.Rewards;
 using Microsoft.Xna.Framework;
 using OTAPI.Tile;
 using System;
@@ -30,12 +31,12 @@ namespace Banking
 
 		public static BankingPlugin Instance { get; private set; }
 				
-		public event EventHandler RewardDepositing;
+		//public event EventHandler RewardDepositing;
 
 		internal CombatTextDistributor CombatTextDistributor;
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
-		internal RewardDistributor RewardDistributor;
+		public RewardDistributor RewardDistributor { get; private set; }
 				
 		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
 		
@@ -174,14 +175,16 @@ namespace Banking
 								if(!player.TilesDestroyed.TryGetValue(key,out var dummy))
 								{
 									var tile = Main.tile[tileX, tileY];
-									player.TilesDestroyed.Add(key, tile);
 
-									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
-									return;
+									//ignore walls and grass
+									if(tile.collisionType>0)
+									{
+										player.TilesDestroyed.Add(key, tile);
+
+										OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
+										return;
+									}
 								}
-								
-								//Debug.Print("Already destroyed.");
-
 							}
 							else if(action==1)// && var1 > 0)
 							{
@@ -196,8 +199,6 @@ namespace Banking
 									OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile.type));
 									return;
 								}
-
-								//Debug.Print("Already created.");
 							}
 						}
 					}
@@ -226,13 +227,13 @@ namespace Banking
 							}
 
 							if( otherPlayer != null )
-								RewardDistributor.TryAddReward(otherPlayer.Name, "DeathPvP", otherPlayer.Name);
+								RewardDistributor.TryAddReward(otherPlayer.Name, RewardReason.DeathPvP, otherPlayer.Name);
 							else
-								RewardDistributor.TryAddReward(player.Name, "DeathPvP", "");
+								RewardDistributor.TryAddReward(player.Name, RewardReason.DeathPvP, "");
 						}
 						else
 						{
-							RewardDistributor.TryAddReward(player.Name, "Death", "");
+							RewardDistributor.TryAddReward(player.Name, RewardReason.Death, "");
 						}
 					}
 
@@ -277,24 +278,22 @@ namespace Banking
 			{
 				var player = kvp.Key;
 
-				RewardDistributor.TryAddReward(player, "Killing", args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
+				RewardDistributor.TryAddReward(player, RewardReason.Killing, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
 			}
 		}
 
 		private void OnTileKilled(TileChangedEventArgs args)
 		{
 			//Debug.Print("OnTileKilled!");
-
 			if(args.Player!=null)
-				RewardDistributor.TryAddReward(args.Player.Name, "Mining", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
+				RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Mining, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
 		}
 
 		private void OnTilePlaced(TileChangedEventArgs args)
 		{
 			//Debug.Print("OnTilePlaced!");
-
 			if( args.Player != null )
-				RewardDistributor.TryAddReward(args.Player.Name, "Placing", args.Type.ToString(), 0);//ideally we wont create strings, but for now...
+				RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Placing, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
 		}
 						
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)

@@ -31,8 +31,8 @@ namespace Banking
 			foreach(var cur in currencies)
 			{
 				//we do this to avoid string parsing on every look up
-				foreach(var kvp in cur.Rewards)
-					kvp.Value.PreParseValues(cur);
+				//foreach(var kvp in cur.Rewards)
+				//	kvp.Value.PreParseValues(cur);
 								
 				Definitions.Add(cur.InternalName, cur);
 			}
