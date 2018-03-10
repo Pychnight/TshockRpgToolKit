@@ -52,6 +52,12 @@ namespace Leveling.Sessions
         [JsonProperty("UnlockedClasses")]
         public ISet<string> UnlockedClassNames { get; private set; } = new HashSet<string>();
 
+		/// <summary>
+		///		Gets the set of names for classes already used.
+		/// </summary>
+		[JsonProperty("UsedClasses")]
+		public ISet<string> UsedClassNames { get; private set; } = new HashSet<string>();
+		
 		public SessionDefinition()
 		{
 		}
@@ -69,6 +75,7 @@ namespace Leveling.Sessions
 			LevelNamesObtained = source.LevelNamesObtained == null ? null : new HashSet<string>(source.LevelNamesObtained);
 			MasteredClassNames = source.MasteredClassNames == null ? null : new HashSet<string>(source.MasteredClassNames);
 			UnlockedClassNames = source.UnlockedClassNames == null ? null : new HashSet<string>(source.UnlockedClassNames);
+			UsedClassNames = source.UsedClassNames == null ? null : new HashSet<string>(source.UsedClassNames);
 		}
 
 		internal void initialize()
@@ -78,6 +85,7 @@ namespace Leveling.Sessions
 			this.ClassNameToLevelName[defaultClassName] = LevelingPlugin.Instance._classes.First(c => c.Name == defaultClassName).Levels[0].Name;
 			this.CurrentClassName = defaultClassName;
 			this.UnlockedClassNames.Add(defaultClassName);
+			this.UsedClassNames.Add(this.CurrentClassName);
 		}
 	}
 }

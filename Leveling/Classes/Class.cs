@@ -92,6 +92,11 @@ namespace Leveling.Classes
 		/// </summary>
 		public string ExpCost => _definition.ExpCost;
 
+		/// <summary>
+		///		Gets the list of Commands to run on first change to the class.
+		/// </summary>
+		public IList<string> CommandsOnClassChangeOnce => _definition.CommandsOnClassChangeOnce;
+
 		internal double InternalCost => _definition.InternalCost;
 
         /// <summary>

@@ -64,10 +64,20 @@ namespace Leveling.Sessions
 
                 _class = value;
                 _definition.CurrentClassName = value.Name;
-                UpdateItemsAndPermissions();
-
+				UpdateItemsAndPermissions();
 				setBankAccountForClass(_class);
 
+				if( !_definition.UsedClassNames.Contains(value.Name))
+				{
+					foreach( var command in _class.CommandsOnClassChangeOnce )
+					{
+						var command2 = command.Replace("$name", _player.GetEscapedName());
+						Debug.WriteLine($"DEBUG: Executing {command2}");
+						Commands.HandleCommand(TSPlayer.Server, command2);
+					}
+					_definition.UsedClassNames.Add(value.Name);
+				}
+								
 				if(_class!=lastClass)
 				{
 					var def = _class.Definition;
