@@ -77,6 +77,11 @@ namespace Banking
 				HelpText = $"Syntax: {Commands.Specifier}bank bal <player-name>\n" +
 									$"{Commands.Specifier}bank pay <player-name> <amount>\n"
 			});
+			Commands.ChatCommands.Add(new Command("banking.multiplier", BankCommands.Multiplier, "multiplier")
+			{
+				HelpText = $"Syntax: {Commands.Specifier}multiplier <currency> <gain|death|deathpvp> <value>\n" +
+						   "Sets multipliers for gains and penalties, per Currency."
+			});
 		}
 		
 		protected override void Dispose(bool disposing)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Banking.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -313,6 +314,58 @@ namespace Banking
 			Take = -1,
 			Set = 0,
 			Give = 1
+		}
+
+		//based off leveling plugin's original Multiplier command.
+		public static void Multiplier(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			if( parameters.Count != 3 )
+			{
+				//player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>");
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <currency> <gain|death|deathpvp> <value>");
+				return;
+			}
+
+			var currencyValue = parameters[0];
+			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyValue];
+			if(currency==null)
+			{
+				player.SendErrorMessage($"Invalid currency '{currencyValue}'.");
+				return;
+			}
+			
+			var inputValue = parameters[2];
+			if( !float.TryParse(inputValue, out var value) || value < 0.0 )
+			{
+				player.SendErrorMessage($"Invalid value '{inputValue}'.");
+				return;
+			}
+
+			var multiplier = parameters[1];
+			if( multiplier.Equals("death", StringComparison.OrdinalIgnoreCase) )
+			{
+				//Config.Instance.DeathPenaltyMultiplier = value;
+				currency.DeathPenaltyMultiplier = value;
+				player.SendSuccessMessage($"Set death penalty multiplier for {currency}.");
+			}
+			else if( multiplier.Equals("deathpvp", StringComparison.OrdinalIgnoreCase) )
+			{
+				//Config.Instance.DeathPenaltyPvPMultiplier = value;
+				currency.DeathPenaltyPvPMultiplier = value;
+				player.SendSuccessMessage($"Set death PVP penalty multiplier for {currency}.");
+			}
+			else if( multiplier.Equals("gain", StringComparison.OrdinalIgnoreCase) )
+			{
+				//Config.Instance.ExpMultiplier = value;
+				currency.Multiplier = value;
+				player.SendSuccessMessage($"Set gain multiplier for {currency}.");
+			}
+			else
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <currency> <gain|death|deathpvp> <value>");
+			}
 		}
 	}
 }
