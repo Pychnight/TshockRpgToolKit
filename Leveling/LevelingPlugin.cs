@@ -141,11 +141,6 @@ namespace Leveling
 				HelpText = $"Syntax: {Commands.Specifier}levelreset <player-name>\n" +
 						  "Resets the player's level to default."
 			});
-			Commands.ChatCommands.Add(new Command("leveling.multiplier", Multiplier, "multiplier")
-            {
-                HelpText = $"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>\n" +
-                           "Sets multipliers."
-            });
             Commands.ChatCommands.Add(new Command("leveling.sendto", SendTo, "sendto")
             {
                 HelpText = $"Syntax: {Commands.Specifier}sendto <player-name> <rrr,ggg,bbb> <text>\n" +
@@ -840,46 +835,7 @@ namespace Leveling
 			player.SendSuccessMessage($"Reset level for {otherPlayer.Name}.");
 			otherPlayer.SendInfoMessage("Your level has been reset.");
 		}
-
-		private void Multiplier(CommandArgs args)
-        {
-            var parameters = args.Parameters;
-            var player = args.Player;
-            if (parameters.Count != 2)
-            {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>");
-                return;
-            }
-
-            var inputValue = parameters[1];
-            if (!double.TryParse(inputValue, out var value) || value < 0.0)
-            {
-                player.SendErrorMessage($"Invalid value '{inputValue}'.");
-                return;
-            }
-
-            var multiplier = parameters[0];
-            if (multiplier.Equals("death", StringComparison.OrdinalIgnoreCase))
-            {
-                Config.Instance.DeathPenaltyMultiplier = value;
-                player.SendSuccessMessage("Set death penalty multiplier.");
-            }
-            else if (multiplier.Equals("deathpvp", StringComparison.OrdinalIgnoreCase))
-            {
-                Config.Instance.DeathPenaltyPvPMultiplier = value;
-                player.SendSuccessMessage("Set death PVP penalty multiplier.");
-            }
-            else if (multiplier.Equals("exp", StringComparison.OrdinalIgnoreCase))
-            {
-                Config.Instance.ExpMultiplier = value;
-                player.SendSuccessMessage("Set EXP multiplier.");
-            }
-            else
-            {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <death|exp> <value>");
-            }
-        }
-
+		
         private void OnGameUpdate(EventArgs args)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
