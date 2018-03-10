@@ -255,10 +255,10 @@ namespace Banking
 		{
 			//Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
 
-			if( args.Npc.value <= 0.0 || args.Npc.SpawnedFromStatue )
-			{
-				return;
-			}
+			//if( args.Npc.value <= 0.0 || args.Npc.SpawnedFromStatue )
+			//{
+			//	return;
+			//}
 			
 			NpcStrikeTracker.OnNpcStrike(args.Player, args.Npc, args.Damage, args.Critical);
 		}
@@ -277,7 +277,7 @@ namespace Banking
 			{
 				var player = kvp.Key;
 
-				RewardDistributor.TryAddReward(player, "Killing", args.NpcGivenOrTypeName, args.NpcValue);
+				RewardDistributor.TryAddReward(player, "Killing", args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
 			}
 		}
 

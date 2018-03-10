@@ -55,7 +55,7 @@ namespace Banking
 
 		public Dictionary<string,List<RewardModifier>> RewardModifiers { get; set; } = new Dictionary<string,List<RewardModifier>>();
 
-		public void TryAddReward(string playerName, string gainedBy, string itemName, float defaultValue = 1.0f )
+		public void TryAddReward(string playerName, string gainedBy, string itemName, float defaultValue = 1.0f, bool npcSpawnedFromStatue = false )
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			var playerAccountMap = bank[playerName];
@@ -65,6 +65,11 @@ namespace Banking
 				if(currency==null)
 				{
 					Debug.Assert(currency!=null,"Currency should never be null!");
+					continue;
+				}
+
+				if(npcSpawnedFromStatue&&!currency.EnableStatueNpcRewards)
+				{
 					continue;
 				}
 

@@ -43,6 +43,9 @@ namespace Banking
 		[JsonProperty(Order = 9)]
 		public float DeathPenaltyPvPMultiplier { get; set; }
 
+		[JsonProperty(Order = 10)]
+		public bool EnableStatueNpcRewards { get; set; } = false;
+
 		public override string ToString()
 		{
 			return InternalName;
