@@ -102,5 +102,11 @@ namespace Leveling.LoaderDsl
 		{
 			ClassDefinition.ExpCost = expCost;
 		}
+
+		public static void CommandsOnClassChangeOnce(params string[] commands)
+		{
+			foreach( var cmd in commands )
+				ClassDefinition.CommandsOnClassChangeOnce.Add(cmd);
+		}
 	}
 }
