@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Banking;
 using Leveling.Levels;
 using Leveling.Sessions;
 using Newtonsoft.Json;
@@ -90,6 +92,17 @@ namespace Leveling.Classes
 		public IList<LevelDefinition> LevelDefinitions { get; internal set; } = new List<LevelDefinition>();
 
 		/// <summary>
+		///     Gets the mapping of NPC names to EXP rewards.
+		/// </summary>
+		[JsonProperty("NpcToExpReward", Order = 12)]
+		public Dictionary<string, string> NpcNameToExpReward = new Dictionary<string, string>();
+
+		/// <summary>
+		///		Gets a mapping of NPC names to preparsed EXP values.
+		/// </summary>
+		internal Dictionary<string, decimal> ParsedNpcNameToExpValues { get; set; } = new Dictionary<string, decimal>();
+		
+		/// <summary>
 		///		Currency neutral "backing" cost, for ExpCost and SEconomyCost.
 		/// </summary>
 		internal double InternalCost { get; set; }
@@ -107,6 +120,29 @@ namespace Leveling.Classes
 		public override string ToString()
 		{
 			return $"[ClassDefinition '{Name}']";
+		}
+
+		/// <summary>
+		///		Preparse Reward strings to numeric values.
+		/// </summary>
+		/// <param name="currency">Banking.Currency used for Experience.</param>
+		internal void PreParseRewardValues(CurrencyDefinition currency)
+		{
+			ParsedNpcNameToExpValues.Clear();
+
+			foreach( var kvp in NpcNameToExpReward )
+			{
+				decimal unitValue;
+
+				if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
+				{
+					ParsedNpcNameToExpValues.Add(kvp.Key, unitValue);
+				}
+				else
+				{
+					Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
+				}
+			}
 		}
 	}
 }

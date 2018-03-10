@@ -108,5 +108,16 @@ namespace Leveling.LoaderDsl
 			foreach( var cmd in commands )
 				ClassDefinition.CommandsOnClassChangeOnce.Add(cmd);
 		}
+
+		public static void NpcToExpReward() { }
+
+		public static void NpcToExpReward(Hash hash)
+		{
+			foreach(var k in hash.Keys)
+			{
+				var key = (string)k;
+				ClassDefinition.NpcNameToExpReward[key] = (string)hash[key];
+			}
+		}
 	}
 }

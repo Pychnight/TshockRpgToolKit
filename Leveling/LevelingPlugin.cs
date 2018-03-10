@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Banking;
+using Banking.Rewards;
 using Leveling.Classes;
 using Leveling.Database;
 using Leveling.Levels;
@@ -236,6 +237,11 @@ namespace Leveling
 				throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
 			}
 
+			foreach(var def in classDefs)
+			{
+				def.PreParseRewardValues(ExpCurrency);
+			}
+			
 			ItemNameToLevelRequirements?.Clear();
 			var levels = _classes.SelectMany(c => c.Levels).ToList();
 			foreach( var @class in _classes )
@@ -253,6 +259,8 @@ namespace Leveling
 					ItemNameToLevelRequirements[itemName] = level;
 				}
 			}
+
+			BankingPlugin.Instance.RewardDistributor.SetRewardEvaluator(ExpCurrency.InternalName, RewardReason.Killing, new ClassExpRewardEvaluator());
 
 			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
 			//  .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();

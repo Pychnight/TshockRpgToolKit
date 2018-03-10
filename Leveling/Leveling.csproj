@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Class.cs" />
+    <Compile Include="ClassExpRewardEvaluator.cs" />
     <Compile Include="LoaderDsl\BooOutputter.cs" />
     <Compile Include="LoaderDsl\ClassCompiler.cs" />
     <Compile Include="Classes\ClassDefinition.cs" />
