@@ -78,6 +78,7 @@
     <Compile Include="BalanceChangedEventArgs.cs" />
     <Compile Include="BankAccount.cs" />
     <Compile Include="Bank.cs" />
+    <None Include="Currency\Money.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
     <Compile Include="Database\MySqlDatabase.cs" />
     <Compile Include="EnsurePlayerAccountsEventArgs.cs" />
