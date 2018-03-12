@@ -80,6 +80,7 @@ namespace Banking
 
 			//Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
 			//Database = DatabaseFactory.LoadOrCreateDatabase("mysql", "Server=localhost;Database=db_banking;Uid=xxx;Pwd=xxx;");
+			//Database = DatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379");
 			Database = DatabaseFactory.LoadOrCreateDatabase(cfg.DatabaseType, cfg.ConnectionString);
 			
 			var accounts = Database.Load();

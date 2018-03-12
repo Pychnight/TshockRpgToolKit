@@ -114,15 +114,6 @@ namespace Banking
 			NpcStrikeTracker.Clear();
 			//RewardDistributor.Clear();//experimental code disabled
 			Bank.Load();
-
-			//BankAccountBalanceChanged += (s, a) =>
-			//{
-			//	if(a.CurrencyType=="Exp")
-			//	{
-			//		var diff = a.NewBalance - a.PreviousBalance;
-			//		Debug.Print($"Gained {diff}!");
-			//	}
-			//};
 		}
 
 		private void OnPostInitialize(EventArgs args)

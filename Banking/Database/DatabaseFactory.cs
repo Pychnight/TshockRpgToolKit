@@ -14,6 +14,10 @@ namespace Banking.Database
 
 			switch( databaseType )
 			{
+				case "redis":
+					db = new RedisDatabase(connectionString);
+					break;
+
 				case "mysql":
 					db = new MySqlDatabase(connectionString);
 					break;

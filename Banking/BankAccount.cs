@@ -13,7 +13,7 @@ namespace Banking
 		public string Name { get; private set; }
 		public string OwnerName { get; private set; }
 		//public string CurrencyType { get; private set; }
-		public decimal Balance { get; private set; }
+		public decimal Balance { get; internal set; }
 		
 		internal BankAccount(string ownerName, string name, decimal startingFunds)
 		{

@@ -48,6 +48,9 @@
       <HintPath>..\refs\OTAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.2.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\AllPlugins\packages\StackExchange.Redis.1.2.6\lib\net45\StackExchange.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -56,6 +59,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Transactions" />
@@ -81,6 +85,7 @@
     <None Include="Currency\Money.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
     <Compile Include="Database\MySqlDatabase.cs" />
+    <Compile Include="Database\RedisDatabase.cs" />
     <Compile Include="EnsurePlayerAccountsEventArgs.cs" />
     <Compile Include="PlayerBankAccountMap.cs" />
     <Compile Include="BankCommands.cs" />
