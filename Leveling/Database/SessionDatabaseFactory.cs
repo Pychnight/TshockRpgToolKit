@@ -14,6 +14,10 @@ namespace Leveling.Database
 
 			switch(databaseType)
 			{
+				case "redis":
+					db = new RedisSessionDatabase(connectionString);
+					break;
+
 				case "mysql":
 					db = new MySqlSessionDatabase(connectionString);
 					break;

@@ -73,10 +73,11 @@ namespace Leveling
 				{
 					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
 				}
-				
-				var dbConfig = Config.Instance.DatabaseConfig;
-				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
+				var dbConfig = Config.Instance.DatabaseConfig;
+				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
+				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+				
 				onLoad();
 			}
 			catch(Exception ex)
