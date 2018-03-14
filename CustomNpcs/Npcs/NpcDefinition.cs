@@ -200,6 +200,7 @@ namespace CustomNpcs.Npcs
             npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
+			npc.behindTiles = _baseOverride.BehindTiles ?? npc.behindTiles;
         }
 		
 		internal bool LinkToScript(Assembly ass)
@@ -311,6 +312,9 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty]
             public float? Value { get; private set; }
+
+			[JsonProperty]
+			public bool? BehindTiles { get; private set; }
 			
             internal void ThrowIfInvalid()
             {
