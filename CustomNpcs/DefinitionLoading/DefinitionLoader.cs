@@ -21,22 +21,29 @@ namespace CustomNpcs
 			if( File.Exists(filePath) )
 			{
 				var definitions = deserializeFromText<T>(filePath);
+				var usedNames = new HashSet<string>();
 				var failedDefinitions = new List<T>();
 
 				foreach( var definition in definitions )
 				{
 					try
 					{
+						if( usedNames.Contains(definition.Name) )
+						{
+							throw new Exception($"A definition with the name '{definition.Name}' already exists.");
+						}
+
 						definition.ThrowIfInvalid();
+						usedNames.Add(definition.Name);
 					}
 					catch( FormatException ex )
 					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while parsing {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						CustomNpcsPlugin.Instance.LogPrint($"{definition.FilePath}: An error occurred while parsing {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
 						failedDefinitions.Add(definition);
 					}
 					catch( Exception ex )
 					{
-						CustomNpcsPlugin.Instance.LogPrint($"An error occurred while trying to load {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						CustomNpcsPlugin.Instance.LogPrint($"{definition.FilePath}: An error occurred while trying to load {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
 						failedDefinitions.Add(definition);
 					}
 				}
@@ -55,7 +62,7 @@ namespace CustomNpcs
 		static List<T> deserializeFromText<T>(string filePath) where T : DefinitionBase
 		{
 			var expandedDefinitions = new List<T>();
-
+			
 			if( File.Exists(filePath) )
 			{
 				var json = File.ReadAllText(filePath);
@@ -68,6 +75,7 @@ namespace CustomNpcs
 					if( rawDef is T )
 					{
 						//this is a real definition
+						rawDef.FilePath = filePath;
 						expandedDefinitions.Add(rawDef as T);
 					}
 					else if( rawDef is CategoryPlaceholderDefinition )

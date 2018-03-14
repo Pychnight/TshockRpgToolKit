@@ -47,7 +47,7 @@ namespace CustomNpcs
 		/// <summary>
 		///     Gets the description.
 		/// </summary>
-		public override string Description => "Provides a custom NPC system.";
+		public override string Description => "System for Customized NPC's, Projectiles, and Invasions.";
 
 		/// <summary>
 		///     Gets the name.
