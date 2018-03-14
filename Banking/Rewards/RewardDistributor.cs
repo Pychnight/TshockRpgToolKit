@@ -210,6 +210,11 @@ namespace Banking.Rewards
 
 		//}
 
+		//public void TryAddVoteReward(string playerName)
+		//{
+
+		//}
+
 		private class DefaultRewardEvaluator : IRewardEvaluator
 		{
 			public decimal GetRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)

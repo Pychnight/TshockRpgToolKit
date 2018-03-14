@@ -37,6 +37,7 @@ namespace Banking
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		public RewardDistributor RewardDistributor { get; private set; }
+		internal VoteChecker VoteChecker { get; set; }
 				
 		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
 		
@@ -57,6 +58,7 @@ namespace Banking
 			NpcStrikeTracker = new NpcStrikeTracker();
 			NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 			RewardDistributor = new RewardDistributor();
+			VoteChecker = new VoteChecker();
 						
 			GeneralHooks.ReloadEvent += OnReload;
 			
@@ -82,6 +84,11 @@ namespace Banking
 			{
 				HelpText = $"Syntax: {Commands.Specifier}multiplier <currency> <gain|death|deathpvp> <value>\n" +
 						   "Sets multipliers for gains and penalties, per Currency."
+			});
+			Commands.ChatCommands.Add(new Command("banking.reward", BankCommands.Reward, "reward")
+			{
+				HelpText = $"Syntax: {Commands.Specifier}reward\n" +
+						   "Reward players for voting."
 			});
 		}
 		

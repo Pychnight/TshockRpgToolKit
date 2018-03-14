@@ -367,5 +367,25 @@ namespace Banking
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <currency> <gain|death|deathpvp> <value>");
 			}
 		}
+
+		public static void Reward(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+
+			player.SendErrorMessage("Testing server.");
+
+			var voteChecker = BankingPlugin.Instance.VoteChecker;
+
+			var checkTask = voteChecker.HasPlayerVotedAsync("TimmyOToole")
+								.ContinueWith( t =>
+								{
+									if( t.Result )
+										player.SendInfoMessage("You have voted!");
+									else
+										player.SendErrorMessage("You have not voted.");
+								});
+			
+		}
 	}
 }
