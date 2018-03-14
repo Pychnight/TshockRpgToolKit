@@ -130,13 +130,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Corruption\Corruption\Corruption.csproj">
+      <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
+      <Name>Corruption</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BooTS\BooTS.csproj">
       <Project>{a74d2d6c-99ab-465b-bc81-935b9139bfba}</Project>
       <Name>BooTS</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Corruption\Corruption.csproj">
-      <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
-      <Name>Corruption</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

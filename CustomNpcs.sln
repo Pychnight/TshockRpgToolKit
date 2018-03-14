@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomNpcs", "CustomNpcs\CustomNpcs.csproj", "{B96B0AD7-6FF5-4ECC-AD22-00CE7FDC3177}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corruption", "Corruption\Corruption.csproj", "{BE70224B-39C2-4274-BFF6-4096FA664857}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooTS", "BooTS\BooTS.csproj", "{A74D2D6C-99AB-465B-BC81-935B9139BFBA}"
 EndProject
 Global
@@ -19,10 +17,6 @@ Global
 		{B96B0AD7-6FF5-4ECC-AD22-00CE7FDC3177}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B96B0AD7-6FF5-4ECC-AD22-00CE7FDC3177}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B96B0AD7-6FF5-4ECC-AD22-00CE7FDC3177}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE70224B-39C2-4274-BFF6-4096FA664857}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE70224B-39C2-4274-BFF6-4096FA664857}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE70224B-39C2-4274-BFF6-4096FA664857}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE70224B-39C2-4274-BFF6-4096FA664857}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A74D2D6C-99AB-465B-BC81-935B9139BFBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A74D2D6C-99AB-465B-BC81-935B9139BFBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A74D2D6C-99AB-465B-BC81-935B9139BFBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
