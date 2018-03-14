@@ -42,7 +42,7 @@ namespace CustomNpcs
 		/// <summary>
 		///     Gets the author.
 		/// </summary>
-		public override string Author => "MarioE";
+		public override string Author => "MarioE, Timothy Barela";
 
 		/// <summary>
 		///     Gets the description.

@@ -34,7 +34,8 @@ namespace CustomNpcs
 				"CustomNpcs.Npcs",
 				"CustomNpcs.Projectiles",
 				"CustomNpcs.NpcFunctions",
-				"CustomNpcs.ProjectileFunctions"
+				"CustomNpcs.ProjectileFunctions",
+				"CustomNpcs.CustomIDFunctions"
 			});
 		}
 

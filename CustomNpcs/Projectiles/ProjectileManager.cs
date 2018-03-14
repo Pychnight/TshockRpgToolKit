@@ -206,6 +206,7 @@ namespace CustomNpcs.Projectiles
 			
 			try
 			{
+				CustomIDFunctions.CurrentID = definition.Name;
 				definition.OnSpawn?.Invoke(customProjectile);
 			}
 			catch(Exception ex)
@@ -259,6 +260,7 @@ namespace CustomNpcs.Projectiles
 			{
 				try
 				{
+					CustomIDFunctions.CurrentID = definition.Name;
 					var handled = onGameUpdate(customProjectile);
 					result = handled == true ? HookResult.Cancel : HookResult.Continue;
 
@@ -296,6 +298,7 @@ namespace CustomNpcs.Projectiles
 							{
 								try
 								{
+									CustomIDFunctions.CurrentID = definition.Name;
 									onCollision(customProjectile, player);
 									customProjectile.SendNetUpdate = true;
 								}
@@ -340,6 +343,7 @@ namespace CustomNpcs.Projectiles
 						
 						try
 						{
+							CustomIDFunctions.CurrentID = definition.Name;
 							definition.OnTileCollision?.Invoke(customProjectile, tileCollisions);
 							//customProjectile.SendNetUpdate = true;
 						}
@@ -385,6 +389,7 @@ namespace CustomNpcs.Projectiles
 				{
 					try
 					{
+						CustomIDFunctions.CurrentID = customProjectile.Definition.Name;
 						var handled = onAiUpdate(customProjectile);
 						result = handled == true ? HookResult.Cancel : HookResult.Continue;
 					}
@@ -410,6 +415,7 @@ namespace CustomNpcs.Projectiles
 				{
 					try
 					{
+						CustomIDFunctions.CurrentID = definition.Name;
 						onKilled(customProjectile);
 					}
 					catch(Exception ex)

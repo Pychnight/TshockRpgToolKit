@@ -173,6 +173,7 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
+				CustomIDFunctions.CurrentID = definition.Name;
 				definition.OnSpawn?.Invoke(customNpc);
 			}
 			catch(Exception ex)
@@ -297,6 +298,7 @@ namespace CustomNpcs.Npcs
 					{
 						try
 						{
+							CustomIDFunctions.CurrentID = definition.Name;
 							definition.OnTransformed(customNpc);
 						}
 						catch(Exception ex)
@@ -341,6 +343,7 @@ namespace CustomNpcs.Npcs
 							{
 								try
 								{
+									CustomIDFunctions.CurrentID = definition.Name;
 									definition.OnCollision(customNpc, player);
 								}
 								catch(Exception ex)
@@ -377,6 +380,7 @@ namespace CustomNpcs.Npcs
 						{
 							try
 							{
+								CustomIDFunctions.CurrentID = definition.Name;
 								definition.OnTileCollision(customNpc, tileCollisions);
 							}
 							catch(Exception ex)
@@ -407,6 +411,7 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
+				CustomIDFunctions.CurrentID = definition.Name;
 				var result = definition.OnAiUpdate?.Invoke(customNpc);
 				args.Handled = result==true;
 			}
@@ -446,6 +451,7 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
+				CustomIDFunctions.CurrentID = definition.Name;
 				definition.OnKilled?.Invoke(customNpc);
 			}
 			catch(Exception ex)
@@ -531,6 +537,7 @@ namespace CustomNpcs.Npcs
 
 			try
 			{
+				CustomIDFunctions.CurrentID = definition.Name;
 				var result = definition.OnStrike?.Invoke(customNpc, player, args.Damage, args.KnockBack, args.Critical);
 				args.Handled = result == true;
 			}
@@ -576,6 +583,7 @@ namespace CustomNpcs.Npcs
 				{
 					try
 					{
+						CustomIDFunctions.CurrentID = definition.Name;
 						chance = definition.OnCheckReplace(npc);
 					}
 					catch(Exception ex)
@@ -627,6 +635,7 @@ namespace CustomNpcs.Npcs
 					{
 						try
 						{
+							CustomIDFunctions.CurrentID = definition.Name;
 							weight = definition.OnCheckSpawn(player, tileX, tileY);
 						}
 						catch(Exception ex)
