@@ -88,7 +88,7 @@ namespace Banking
 			Commands.ChatCommands.Add(new Command("banking.reward", BankCommands.Reward, "reward")
 			{
 				HelpText = $"Syntax: {Commands.Specifier}reward\n" +
-						   "Reward players for voting."
+						   "Reward players if they vote for the server."
 			});
 		}
 		

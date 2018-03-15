@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Banking.Configuration;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -210,10 +211,47 @@ namespace Banking.Rewards
 
 		//}
 
-		//public void TryAddVoteReward(string playerName)
-		//{
+		public void TryAddVoteReward(string playerName)
+		{
+			var bank = BankingPlugin.Instance.Bank;
+			var playerAccountMap = bank[playerName];
+			var config = Config.Instance.Voting;
 
-		//}
+			foreach( var kvp in config.Rewards )
+			{
+				var currencyName = kvp.Key;
+				var currency = bank.CurrencyManager[currencyName];
+
+				if( currency == null )
+				{
+					Debug.Assert(currency != null, "Currency should never be null!");
+					continue;
+				}
+								
+				var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
+
+				if( rewardAccount == null )
+				{
+					Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
+					continue;
+				}
+
+				if(currency.GetCurrencyConverter().TryParse(kvp.Value, out var value))
+				{
+					value *= (decimal)currency.Multiplier;
+					
+					if( value > 0.0m )
+					{
+						rewardAccount.Deposit(value);
+						trySendCombatText(playerName, currency, ref value);
+					}
+				}
+				else
+				{
+					Debug.Print($"Transaction skipped. Couldn't parse '{value}' as a valid {currency.InternalName} value for {playerName}.");
+				}
+			}
+		}
 
 		private class DefaultRewardEvaluator : IRewardEvaluator
 		{

@@ -372,20 +372,31 @@ namespace Banking
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-
-			player.SendErrorMessage("Testing server.");
-
+			var config = Config.Instance.Voting;
 			var voteChecker = BankingPlugin.Instance.VoteChecker;
 
-			var checkTask = voteChecker.HasPlayerVotedAsync("TimmyOToole")
-								.ContinueWith( t =>
-								{
-									if( t.Result )
-										player.SendInfoMessage("You have voted!");
-									else
-										player.SendErrorMessage("You have not voted.");
-								});
-			
+			if( !config.Enabled )
+			{
+				player.SendErrorMessage("Sorry, voting rewards are currently disabled.");
+				return;
+			}
+				
+			player.SendInfoMessage("Checking external server for your vote... this may take a few moments.");
+
+			var checkTask = voteChecker.HasPlayerVotedAsync(player.Name)
+										.ContinueWith(t =>
+										{
+											if( t.Result )
+											{
+												player.SendInfoMessage(config.RewardMessage);
+												BankingPlugin.Instance.RewardDistributor.TryAddVoteReward(player.Name);
+											}
+											else
+												player.SendErrorMessage(config.NoRewardMessage);
+										});
+
+			//BankingPlugin.Instance.RewardDistributor.TryAddVoteReward(player.Name);
+				
 		}
 	}
 }

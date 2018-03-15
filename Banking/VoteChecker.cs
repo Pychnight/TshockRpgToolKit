@@ -21,7 +21,7 @@ namespace Banking
 
 		public async Task<bool> HasPlayerVotedAsync(string playerName)
 		{
-			var requestUri = $"?object=votes&element=claim&key={Config.Instance.VoteServerKey}&username={playerName}";
+			var requestUri = $"?object=votes&element=claim&key={Config.Instance.Voting.ApiKey}&username={playerName}";
 			var response = await httpClient.GetStringAsync(requestUri);
 
 			switch(response)
