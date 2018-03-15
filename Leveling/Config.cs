@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using Newtonsoft.Json;
+using TerrariaApi.Server;
 
 namespace Leveling
 {
@@ -53,5 +57,68 @@ namespace Leveling
         /// </summary>
         [JsonProperty("ExpMultiplier", Order = 3)]
         public double ExpMultiplier { get; set; } = 1.0;
-    }
+
+		//internal void Save(string configPath)
+		//{
+		//	var dir = Path.GetDirectoryName(configPath);
+
+		//	try
+		//	{
+		//		Directory.CreateDirectory(dir);
+
+		//		var json = JsonConvert.SerializeObject(this, Formatting.Indented);
+		//		File.WriteAllText(configPath, json);
+		//	}
+		//	catch( Exception ex )
+		//	{
+		//		LevelingPlugin.Instance.LogPrint($"Error: {ex.Message}", TraceLevel.Error);
+		//		LevelingPlugin.Instance.LogPrint($"Error while saving config at '{configPath}'; Using default config.", TraceLevel.Error);
+		//	}
+		//}
+
+		public static void LoadOrCreate(string configPath)
+		{
+			var plugin = LevelingPlugin.Instance;
+			var dir = Path.GetDirectoryName(configPath);
+
+			try
+			{
+				Directory.CreateDirectory(dir);
+
+				if( File.Exists(configPath) )
+				{
+					var json = File.ReadAllText(configPath);
+					Instance = JsonConvert.DeserializeObject<Config>(json);
+					return;
+				}
+			}
+			catch( Exception ex )
+			{
+				ServerApi.LogWriter.PluginWriteLine(plugin,$"Error: {ex.Message}", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(plugin,$"Error while loading config at '{configPath}'; Using default config.", TraceLevel.Error);
+			}
+
+			Instance = new Config();
+			Instance.Save(configPath);
+		}
+
+		public void Save(string configPath)
+		{
+			var plugin = LevelingPlugin.Instance;
+			var dir = Path.GetDirectoryName(configPath);
+
+			try
+			{
+				Directory.CreateDirectory(dir);
+
+				var json = JsonConvert.SerializeObject(this, Formatting.Indented);
+				File.WriteAllText(configPath, json);
+			}
+			catch( Exception ex )
+			{
+				ServerApi.LogWriter.PluginWriteLine(plugin,$"Error: {ex.Message}", TraceLevel.Error);
+				ServerApi.LogWriter.PluginWriteLine(plugin,$"Error while saving config at '{configPath}'; Using default config.", TraceLevel.Error);
+			}
+		}
+	}
 }

@@ -64,39 +64,50 @@ namespace Leveling
         public override string Name => "Leveling";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        public override void Initialize()
-        {
-			try
-			{
-				Directory.CreateDirectory("leveling");
-				if (File.Exists(ConfigPath))
-				{
-					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-				}
+		public void LogPrint(string message, TraceLevel level)
+		{
+			ServerApi.LogWriter.PluginWriteLine(this, message, level);
+		}
 
-				var dbConfig = Config.Instance.DatabaseConfig;
-				//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
-				SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+		public override void Initialize()
+        {
+			//try
+			//{
+			//	Directory.CreateDirectory("leveling");
+			//	if (File.Exists(ConfigPath))
+			//	{
+			//		Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+			//	}
+			//	else
+			//	{
+			//		Config.Instance = new Config();
+			//		Config.Instance.Save(ConfigPath);
+			//	}
+
+			//	var dbConfig = Config.Instance.DatabaseConfig;
+			//	//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
+			//	SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 				
-				onLoad();
-			}
-			catch(Exception ex)
-			{
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"{ex.Message}", TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
-				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
-				this.Enabled = false;
-				return;
-			}
+			//	onLoad();
+			//}
+			//catch(Exception ex)
+			//{
+			//	ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"{ex.Message}", TraceLevel.Error);
+			//	ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
+			//	ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
+			//	this.Enabled = false;
+			//	return;
+			//}
             
             GeneralHooks.ReloadEvent += OnReload;
             PlayerHooks.PlayerChat += OnPlayerChat;
             PlayerHooks.PlayerPermission += OnPlayerPermission;
+			ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
             //ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, int.MinValue);
             //ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-
+			
             Commands.ChatCommands.Add(new Command("leveling.addhp", AddHp, "addhp")
             {
                 HelpText = $"Syntax: {Commands.Specifier}addhp <player-name> <hp-amount>\n" +
@@ -174,7 +185,8 @@ namespace Leveling
                 GeneralHooks.ReloadEvent -= OnReload;
                 PlayerHooks.PlayerChat -= OnPlayerChat;
                 PlayerHooks.PlayerPermission -= OnPlayerPermission;
-                ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
+				ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
+				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
 				//ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
 				//ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
@@ -182,6 +194,11 @@ namespace Leveling
 
             base.Dispose(disposing);
         }
+
+		private void OnGamePostInitialize(EventArgs args)
+		{
+			onLoad();
+		}
 
 		private void initializeBanking()
 		{
@@ -214,6 +231,12 @@ namespace Leveling
 		{
 			const string classDirectory = "leveling";
 
+			Config.LoadOrCreate(ConfigPath);
+
+			var dbConfig = Config.Instance.DatabaseConfig;
+			//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
+			SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+
 			initializeBanking();
 
 			Directory.CreateDirectory(classDirectory);
@@ -235,7 +258,11 @@ namespace Leveling
 			if( _classDefinitions.Select(cd => cd.Name).
 				FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
 			{
-				throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
+				//throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
+				ServerApi.LogWriter.PluginWriteLine(this, $"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
+				//_classDefinitions.Clear();
+				//_classes.Clear();
+				//return;
 			}
 
 			foreach(var def in classDefs)
