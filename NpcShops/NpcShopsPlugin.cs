@@ -48,7 +48,7 @@ namespace NpcShops
 #if DEBUG
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
-			tryLoadConfig();
+			//tryLoadConfig();
 
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize, int.MinValue);
@@ -108,9 +108,12 @@ namespace NpcShops
 
 		private void tryLoad()
 		{
+			var shops = new List<NpcShop>();
+
 			if( BankingPlugin.Instance == null )
 			{
-				throw new Exception("BankingPlugin not detected. BankingPlugin is required for NpcShopsPlugin.");
+				LogPrint("BankingPlugin is required for NpcShopsPlugin to operate.",TraceLevel.Error);
+				return;
 			}
 			else
 			{
@@ -118,18 +121,19 @@ namespace NpcShops
 
 				if( string.IsNullOrWhiteSpace(currencyType) )
 				{
-					throw new Exception($"Invalid CurrencyType configured. NpcShopsPlugin requires a configured Currency type to operate.");
+					LogPrint($"NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
+					return;
 				}
 
 				if( !BankingPlugin.Instance.TryGetCurrency(currencyType, out var currency ) )
 				{
-					throw new Exception($"Unable to find CurrencyType '{Config.Instance.CurrencyType}'. NpcShopsPlugin requires a configured Currency type to operate.");
+					LogPrint($"Unable to find CurrencyType '{Config.Instance.CurrencyType}'. NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
+					return;
 				}
 
 				Currency = currency;
 			}
-
-			var shops = new List<NpcShop>();
+					
 			var files = Directory.EnumerateFiles("npcshops", "*.shop", SearchOption.AllDirectories);
 			
 			foreach( var file in files )
@@ -391,6 +395,7 @@ namespace NpcShops
 		
         private void OnGamePostInitialize(EventArgs args)
         {
+			Config.LoadOrCreate(ConfigPath);
 			tryLoad();
 	    }
 		
@@ -463,7 +468,8 @@ namespace NpcShops
 			TShock.Players.Where(tp => tp?.Active == true)
 							.ForEach(tp => tp.SetData<Session>(SessionKey, null));
 
-			tryLoadConfig();
+			//Config.Instance.Save(ConfigPath);
+			Config.LoadOrCreate(ConfigPath);
             tryLoad();
 
             args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
