@@ -20,6 +20,9 @@ namespace Banking.Configuration
 		[JsonProperty(Order = 1)]
 		public List<CurrencyDefinition> Currency { get; private set; } = new List<CurrencyDefinition>();
 		
+		[JsonProperty(Order = 2)]
+		public VotingConfig Voting { get; private set; } = new VotingConfig();
+
 		public static void LoadOrCreate(string configPath)
 		{
 			var dir = Path.GetDirectoryName(configPath);
