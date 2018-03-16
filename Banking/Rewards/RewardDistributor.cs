@@ -133,6 +133,12 @@ namespace Banking.Rewards
 			if( !currency.SendCombatText )
 				return;
 
+#if !DEBUG
+			//dont send text for fractional values.
+			if( Math.Abs(value) < 1.0m )
+				return;
+#endif
+
 			var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
 
 			if( player != null )
