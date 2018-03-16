@@ -45,7 +45,7 @@ namespace Banking
 			return (int)damage;
 		}
 
-		public void OnNpcStrike(Player player, NPC npc, int damage, bool isCritical )
+		public void OnNpcStrike(Player player, NPC npc, int damage, bool isCritical, string itemName )
 		{
 			//var playerIndex = player.whoAmI;
 			var npcIndex = npc.whoAmI;
@@ -62,7 +62,8 @@ namespace Banking
 
 			//Debug.Print($"Banking - realDamage: {realDamage}, Critical: {isCritical}");
 
-			playerStrikes.AddStrike(player.name,realDamage);
+			//Debug.Print($"OnNpcStrike item: {itemName}");
+			playerStrikes.AddStrike(player.name,realDamage,itemName);
 		}
 
 		public void OnNpcKilled(NPC npc)

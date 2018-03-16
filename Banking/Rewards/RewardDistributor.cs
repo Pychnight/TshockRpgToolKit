@@ -25,7 +25,7 @@ namespace Banking.Rewards
 			CurrencyRewardEvaluators = new Dictionary<string, RewardEvaluatorMap>();
 		}
 		
-		public void TryAddReward(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, bool npcSpawnedFromStatue = false )
+		public void TryAddReward(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, bool npcSpawnedFromStatue = false, string weaponName = null )
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			var playerAccountMap = bank[playerName];
@@ -65,6 +65,13 @@ namespace Banking.Rewards
 						decimal value =	evaluator.GetRewardValue(gainedBy,playerName, currency.InternalName, itemName, (decimal)defaultValue);
 
 						value *= (decimal)currency.Multiplier;
+
+						//Weapons are implicitly at 1.0, unless modifier is found.
+						float weaponMultiplier = 0;
+						if(weaponName!=null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier)==true)
+						{
+							value *= (decimal)weaponMultiplier;
+						}
 
 						if( value == 0.0m )
 							continue;

@@ -49,6 +49,9 @@ namespace Banking
 		public float DeathPenaltyPvPMultiplier { get; set; }
 
 		[JsonProperty(Order = 10)]
+		public Dictionary<string, float> WeaponMultipliers { get; set; } = new Dictionary<string, float>();
+
+		[JsonProperty(Order = 11)]
 		public bool EnableStatueNpcRewards { get; set; } = false;
 
 		public override string ToString()
