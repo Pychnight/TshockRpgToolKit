@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Banking;
+using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NpcShops.Shops;
@@ -395,10 +396,24 @@ namespace NpcShops
 		
         private void OnGamePostInitialize(EventArgs args)
         {
-			Config.LoadOrCreate(ConfigPath);
+			Config.Instance = JsonConfig.LoadOrCreate<Config>(this,ConfigPath);
 			tryLoad();
 	    }
-		
+
+		private void OnReload(ReloadEventArgs args)
+		{
+			NpcPauser.UnpauseAll();
+
+			//clear sessions
+			TShock.Players.Where(tp => tp?.Active == true)
+							.ForEach(tp => tp.SetData<Session>(SessionKey, null));
+
+			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+			tryLoad();
+
+			args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
+		}
+
 		private void OnNetGetData(GetDataEventArgs args)
 		{
 			var msgId = args.MsgID;
@@ -459,20 +474,5 @@ namespace NpcShops
 
 			NpcPauser.OnGameUpdate();
 		}
-
-        private void OnReload(ReloadEventArgs args)
-        {
-			NpcPauser.UnpauseAll();
-
-			//clear sessions
-			TShock.Players.Where(tp => tp?.Active == true)
-							.ForEach(tp => tp.SetData<Session>(SessionKey, null));
-
-			//Config.Instance.Save(ConfigPath);
-			Config.LoadOrCreate(ConfigPath);
-            tryLoad();
-
-            args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
-        }
     }
 }
