@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Corruption.PluginSupport;
 
 namespace Housing
 {
@@ -8,7 +9,7 @@ namespace Housing
     ///     Represents a configuration. This class is a singleton.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class Config
+    public sealed class Config : JsonConfig
     {
 		//mirrors defaults set in the main Config.
 		private GroupConfig defaultGroupConfig;

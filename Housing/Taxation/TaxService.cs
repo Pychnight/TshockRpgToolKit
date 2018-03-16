@@ -77,11 +77,13 @@ namespace Housing
 			Debug.Print($"Paid remaining {remainder.ToMoneyString()} tax to world('Server') account.");
 		}
 
-		public void TaxCmd(CommandArgs args)
+		public static void TaxCommand(CommandArgs args)
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
 			var subcommand = parameters.Count > 0 ? parameters[0] : "";
+			var plugin = HousingPlugin.Instance;
+			var taxService = plugin.TaxService;
 			var taxCollectors = plugin.database.GetTaxCollectors();
 						
 			if (subcommand.Equals("list", StringComparison.OrdinalIgnoreCase))
@@ -98,13 +100,13 @@ namespace Housing
 			else if(subcommand.Equals("enable", StringComparison.OrdinalIgnoreCase))
 			{
 				player.SendInfoMessage($"Tax collectors will now receive taxes.");
-				IsEnabled = true;
+				taxService.IsEnabled = true;
 				return;
 			}
 			else if (subcommand.Equals("disable", StringComparison.OrdinalIgnoreCase))
 			{
 				player.SendInfoMessage($"Tax collectors will no longer receive taxes.");
-				IsEnabled = false;
+				taxService.IsEnabled = false;
 				return;
 			}
 
@@ -133,7 +135,7 @@ namespace Housing
 			ShowCommandSyntax(player);
 		}
 
-		private void ShowCommandSyntax(TSPlayer player)
+		private static void ShowCommandSyntax(TSPlayer player)
 		{
 			if (player == null)
 			{

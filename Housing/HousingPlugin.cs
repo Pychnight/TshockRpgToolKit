@@ -20,6 +20,7 @@ using TShockAPI.Hooks;
 //using Wolfje.Plugins.SEconomy;
 //using Wolfje.Plugins.SEconomy.Journal;
 using Banking;
+using Corruption.PluginSupport;
 
 namespace Housing
 {
@@ -31,15 +32,17 @@ namespace Housing
 		private static readonly string ConfigPath = Path.Combine("housing", "config.json");
         private static readonly string SqlitePath = Path.Combine("housing", "db.sqlite");
 		
+		public static HousingPlugin Instance { get; private set; }
         private DbConnection databaseConnection;
 		internal IDatabase database;
-		private TaxService taxService;
+		internal TaxService TaxService;
 
         public HousingPlugin(Main game) : base(game)
         {
+			Instance = this;
         }
 
-        public override string Author => "MarioE";
+        public override string Author => "MarioE, Timothy Barela";
         public override string Description => "Adds a housing and shop system.";
         public override string Name => "Housing";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
@@ -49,21 +52,6 @@ namespace Housing
 #if DEBUG
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
-
-            Directory.CreateDirectory("housing");
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-			}
-			
-			taxService = new TaxService(this);
-			if (Config.Instance != null)
-			{
-				taxService.IsEnabled = Config.Instance.EnableTaxService;
-			}
-
-			database = DatabaseFactory.LoadOrCreateDatabase(Config.Instance);
-						
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
@@ -73,7 +61,7 @@ namespace Housing
             Commands.ChatCommands.Add(new Command("housing.house", HouseCmd, "house"));
 			Commands.ChatCommands.Add(new Command("housing.house", GoHomeCommand, "gohome"));
 			Commands.ChatCommands.Add(new Command("housing.itemshop", ItemShop, "itemshop"));
-			Commands.ChatCommands.Add(new Command("housing.tax", taxService.TaxCmd, "tax"));
+			Commands.ChatCommands.Add(new Command("housing.tax", TaxService.TaxCommand, "tax"));
 		}
 
         protected override void Dispose(bool disposing)
@@ -246,7 +234,7 @@ namespace Housing
 						//    "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
 
 						//taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
-						taxService.PayTax(account, salesTax);
+						TaxService.PayTax(account, salesTax);
 					}
 
                     database.Remove(house);
@@ -913,12 +901,30 @@ namespace Housing
             }
         }
 
+		private void onLoad()
+		{
+			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+			
+			TaxService = TaxService ?? new TaxService(this);
+			
+			TaxService.IsEnabled = Config.Instance.EnableTaxService;
+			database = DatabaseFactory.LoadOrCreateDatabase(Config.Instance);
+			
+			database.Load();
+		}
+
         private void OnGamePostInitialize(EventArgs args)
         {
-            database.Load();
+			onLoad();
         }
 
-        private void OnGameUpdate(EventArgs args)
+		private void OnReload(ReloadEventArgs args)
+		{
+			onLoad();
+			args.Player.SendSuccessMessage("[Housing] Reloaded config!");
+		}
+
+		private void OnGameUpdate(EventArgs args)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
@@ -981,7 +987,7 @@ namespace Housing
 					//    $"Taxed for the {house} house");
 
 					//taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for house {house}");
-					taxService.PayTax(account, payment);
+					TaxService.PayTax(account, payment);
 
 					var player = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
@@ -1175,23 +1181,7 @@ namespace Housing
                 }
             }
         }
-
-        private void OnReload(ReloadEventArgs args)
-        {
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-
-			if(Config.Instance != null)
-			{
-				taxService.IsEnabled = Config.Instance.EnableTaxService;
-			}
-
-			database.Load();
-            args.Player.SendSuccessMessage("[Housing] Reloaded config!");
-        }
-
+		
         private void OnServerLeave(LeaveEventArgs args)
         {
             if (args.Who < 0 || args.Who >= Main.maxPlayers)
