@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Corruption.PluginSupport;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CustomNpcs
@@ -7,7 +8,7 @@ namespace CustomNpcs
     ///     Represents the configuration instance. This class is a singleton.
     /// </summary>
     [JsonObject]
-    internal sealed class Config
+    internal sealed class Config : JsonConfig
     {
         /// <summary>
         ///     Gets the configuration instance.

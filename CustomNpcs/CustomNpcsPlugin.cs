@@ -16,6 +16,7 @@ using CustomNpcs.Npcs;
 using CustomNpcs.Projectiles;
 using JetBrains.Annotations;
 using System.Diagnostics;
+using Corruption.PluginSupport;
 
 namespace CustomNpcs
 {
@@ -64,15 +65,6 @@ namespace CustomNpcs
 		/// </summary>
 		public override void Initialize()
 		{
-			Directory.CreateDirectory("npcs");
-			if( File.Exists(ConfigPath) )
-			{
-				Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-			}
-			InvasionManager.Instance = new InvasionManager(this);
-			NpcManager.Instance = new NpcManager(this);
-			ProjectileManager.Instance = new ProjectileManager(this);
-
 			GeneralHooks.ReloadEvent += OnReload;
 
 			Commands.ChatCommands.Add(new Command("customnpcs.cinvade", CustomInvade, "cinvade"));
@@ -112,6 +104,15 @@ namespace CustomNpcs
 			}
 
 			base.Dispose(disposing);
+		}
+
+		private void onLoad()
+		{
+			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+
+			InvasionManager.Instance = InvasionManager.Instance ?? new InvasionManager(this);
+			NpcManager.Instance = NpcManager.Instance ?? new NpcManager(this);
+			ProjectileManager.Instance = ProjectileManager.Instance ?? new ProjectileManager(this);
 		}
 
 		public void LogPrint(string message, TraceLevel level )
@@ -635,10 +636,7 @@ namespace CustomNpcs
 
 		private void OnReload(ReloadEventArgs args)
         {
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
+			onLoad();
             args.Player.SendSuccessMessage("[CustomNpcs] Reloaded config!");
         }
     }
