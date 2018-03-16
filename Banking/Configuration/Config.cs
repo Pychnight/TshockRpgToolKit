@@ -5,14 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Corruption.PluginSupport;
 using Newtonsoft.Json;
 
 namespace Banking.Configuration
 {
 	[JsonObject(MemberSerialization.OptIn)]
-	public class Config
+	public class Config : JsonConfig
 	{
-		public static Config Instance { get; private set; }
+		public static Config Instance { get; internal set; }
 		
 		[JsonProperty(Order = 0)]
 		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
@@ -23,44 +24,11 @@ namespace Banking.Configuration
 		[JsonProperty(Order = 2)]
 		public VotingConfig Voting { get; private set; } = new VotingConfig();
 
-		public static void LoadOrCreate(string configPath)
+		public override void Validate()
 		{
-			var dir = Path.GetDirectoryName(configPath);
-
-			try
+			if(Currency==null || Currency.Count<1)
 			{
-				Directory.CreateDirectory(dir);
-
-				if(File.Exists(configPath))
-				{
-					var json = File.ReadAllText(configPath);
-					Instance = JsonConvert.DeserializeObject<Config>(json);
-					return;
-				}
-			}
-			catch(Exception ex)
-			{
-				Debug.Print($"Error: {ex.Message}");
-				Debug.Print($"Error while loading config at '{configPath}'; Using default config.");
-			}
-
-			Instance = new Config();
-		}
-
-		public static void Save(string configPath)
-		{
-			var dir = Path.GetDirectoryName(configPath);
-
-			try
-			{
-				Directory.CreateDirectory(dir);
-
-				var json = JsonConvert.SerializeObject(Config.Instance,Formatting.Indented);
-				File.WriteAllText(configPath,json);
-			}
-			catch( Exception ex )
-			{
-				Debug.Print($"Error while saving config at '{configPath}'.");
+				throw new Exception("Configuration defines no Currency.");
 			}
 		}
 	}

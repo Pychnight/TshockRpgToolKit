@@ -1,5 +1,6 @@
 ﻿using Banking.Configuration;
 using Banking.Rewards;
+using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using OTAPI.Tile;
 using System;
@@ -51,15 +52,6 @@ namespace Banking
 
 		public override void Initialize()
 		{
-			Config.LoadOrCreate(ConfigPath);
-
-			CombatTextDistributor = new CombatTextDistributor();
-			Bank = new Bank();
-			NpcStrikeTracker = new NpcStrikeTracker();
-			NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
-			RewardDistributor = new RewardDistributor();
-			VoteChecker = new VoteChecker();
-						
 			GeneralHooks.ReloadEvent += OnReload;
 			
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
@@ -90,12 +82,17 @@ namespace Banking
 				HelpText = $"Syntax: {Commands.Specifier}reward\n" +
 						   "Reward players if they vote for the server."
 			});
+			
 		}
 		
 		protected override void Dispose(bool disposing)
 		{
 			if( disposing )
 			{
+				//Config.Save(ConfigPath);
+				JsonConfig.Save(this, Config.Instance, ConfigPath);
+				//Bank.Save();
+				
 				GeneralHooks.ReloadEvent -= OnReload;
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
 				//	PlayerHooks.PlayerPermission -= OnPlayerPermission;
@@ -106,9 +103,6 @@ namespace Banking
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				//ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
 				//ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
-
-				Config.Save(ConfigPath);
-				//Bank.Save();
 			}
 
 			base.Dispose(disposing);
@@ -116,10 +110,19 @@ namespace Banking
 		
 		private void onLoad()
 		{
-			Config.LoadOrCreate(ConfigPath);
+			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+
+			if(Bank==null)
+			{
+				CombatTextDistributor = new CombatTextDistributor();
+				Bank = new Bank();
+				NpcStrikeTracker = new NpcStrikeTracker();
+				NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
+				RewardDistributor = new RewardDistributor();
+				VoteChecker = new VoteChecker();
+			}
 
 			NpcStrikeTracker.Clear();
-			//RewardDistributor.Clear();//experimental code disabled
 			Bank.Load();
 		}
 
@@ -130,7 +133,6 @@ namespace Banking
 
 		private void OnReload(ReloadEventArgs e)
 		{
-			//Bank.Save();
 			onLoad();
 		}
 
