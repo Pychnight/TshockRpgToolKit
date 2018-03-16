@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Banking;
 using Banking.Rewards;
+using Corruption.PluginSupport;
 using Leveling.Classes;
 using Leveling.Database;
 using Leveling.Levels;
@@ -200,6 +201,41 @@ namespace Leveling
 			onLoad();
 		}
 
+		private void OnReload(ReloadEventArgs args)
+		{
+			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
+			//    .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
+			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+			//ItemNameToLevelRequirements.Clear();
+			//var levels = _classes.SelectMany(c => c.Levels).ToList();
+			//foreach (var @class in _classes)
+			//{
+			//    @class.Resolve(levels, 0);
+			//}
+			//foreach (var @class in _classes)
+			//{
+			//    @class.Resolve(levels, 1);
+			//}
+			//foreach (var level in levels)
+			//{
+			//    foreach (var itemName in level.ItemNamesAllowed)
+			//    {
+			//        ItemNameToLevelRequirements[itemName] = level;
+			//    }
+			//}
+
+			onLoad();
+
+			// We have to resolve sessions again.
+			foreach( var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession) )
+			{
+				session.Resolve(_classes);
+			}
+
+			args.Player.SendSuccessMessage("[Leveling] Reloaded config!");
+		}
+
 		private void initializeBanking()
 		{
 			if(BankingPlugin.Instance==null)
@@ -230,9 +266,9 @@ namespace Leveling
 		private void onLoad()
 		{
 			const string classDirectory = "leveling";
-
-			Config.LoadOrCreate(ConfigPath);
-
+			
+			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+			
 			var dbConfig = Config.Instance.DatabaseConfig;
 			//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
 			SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
@@ -1017,46 +1053,7 @@ namespace Leveling
             var session = GetOrCreateSession(args.Player);
             args.Handled |= session.PermissionsGranted.Contains(args.Permission);
         }
-
-        private void OnReload(ReloadEventArgs args)
-        {
-            if (File.Exists(ConfigPath))
-            {
-                Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-			//    .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
-
-			//ItemNameToLevelRequirements.Clear();
-			//var levels = _classes.SelectMany(c => c.Levels).ToList();
-			//foreach (var @class in _classes)
-			//{
-			//    @class.Resolve(levels, 0);
-			//}
-			//foreach (var @class in _classes)
-			//{
-			//    @class.Resolve(levels, 1);
-			//}
-			//foreach (var level in levels)
-			//{
-			//    foreach (var itemName in level.ItemNamesAllowed)
-			//    {
-			//        ItemNameToLevelRequirements[itemName] = level;
-			//    }
-			//}
-			
-			onLoad();
-
-            // We have to resolve sessions again.
-            foreach (var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession))
-            {
-                session.Resolve(_classes);
-            }
-
-            args.Player.SendSuccessMessage("[Leveling] Reloaded config!");
-        }
-		
+				
 		private void OnServerLeave(LeaveEventArgs args)
         {
             if (args.Who < 0 || args.Who >= Main.maxPlayers)
