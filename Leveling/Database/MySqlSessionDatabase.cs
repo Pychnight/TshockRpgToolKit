@@ -14,6 +14,8 @@ namespace Leveling.Database
 {
 	public class MySqlSessionDatabase : ISessionDatabase
 	{
+		const string DefaultDatabaseName = "db_leveling";
+
 		const string createTableSql = @"CREATE TABLE IF NOT EXISTS sessions (
 										player VARCHAR(80) PRIMARY KEY NOT NULL,
 										data TEXT )";
@@ -24,7 +26,7 @@ namespace Leveling.Database
 		{
 			try
 			{
-				ConnectionString = connectionString;
+				ConnectionString = ensureDatabase(connectionString);
 
 				using( var connection = new MySqlConnection(ConnectionString) )
 				{
@@ -44,7 +46,28 @@ namespace Leveling.Database
 				Console.WriteLine(ex.StackTrace);
 			}
 		}
-		
+
+		private string ensureDatabase(string connectionString)
+		{
+			var builder = new MySqlConnectionStringBuilder(connectionString);
+			var dbName = string.IsNullOrWhiteSpace(builder.Database) ? DefaultDatabaseName : builder.Database;
+
+			builder.Database = null;
+
+			//try to create db
+			using( var con = new MySqlConnection(builder.ConnectionString) )
+			using( var cmd = con.CreateCommand() )
+			{
+				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
+				con.Open();
+				cmd.ExecuteNonQuery();
+			}
+
+			builder.Database = dbName;
+
+			return builder.ConnectionString;
+		}
+
 		public SessionDefinition Load(string userName)
 		{
 			Debug.Print($"MySqlSessionRepository.Load({userName})");
@@ -81,7 +104,7 @@ namespace Leveling.Database
 
 		public void Save(string userName, SessionDefinition sessionDefinition)
 		{
-			Debug.Print($"SqliteSessionRepository.Save({userName})");
+			Debug.Print($"MySqlSessionRepository.Save({userName})");
 			using( var connection = new MySqlConnection(ConnectionString) )
 			{
 				//we now try to copy the session definition, in hopes of minimizing "rare" exceptions from definition collections being touched during serialization.
