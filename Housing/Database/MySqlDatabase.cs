@@ -16,13 +16,15 @@ namespace Housing.Database
 {
 	public class MySqlDatabase : DatabaseBase
 	{
+		internal const string DefaultDatabaseName = "db_housing";
+
 		private readonly object locker = new object();
 		
 		public MySqlDatabase(string connectionString)
 		{
 			Debug.Assert(!string.IsNullOrWhiteSpace(connectionString), "Connection string must not be null or empty.");
 
-			ConnectionString = connectionString;
+			ConnectionString = ensureDatabase(connectionString);
 			
 			NonQuery("CREATE TABLE IF NOT EXISTS Houses (" +
 								"  OwnerName VARCHAR(64)," +
@@ -87,6 +89,27 @@ namespace Housing.Database
 								"  WorldId            INTEGER NOT NULL," +
 								"  PlayerName         VARCHAR(64) NOT NULL," +
 								"  PRIMARY KEY (WorldId, PlayerName) )");
+		}
+
+		private string ensureDatabase(string connectionString)
+		{
+			var builder = new MySqlConnectionStringBuilder(connectionString);
+			var dbName = string.IsNullOrWhiteSpace(builder.Database) ? DefaultDatabaseName : builder.Database;
+
+			builder.Database = null;
+
+			//try to create db
+			using( var con = new MySqlConnection(builder.ConnectionString) )
+			using( var cmd = con.CreateCommand() )
+			{
+				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
+				con.Open();
+				cmd.ExecuteNonQuery();
+			}
+
+			builder.Database = dbName;
+
+			return builder.ConnectionString;
 		}
 
 		private int NonQuery(string query)
