@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,19 +12,21 @@ namespace Banking.Database
 {
 	internal class MySqlDatabase : IDatabase
 	{
+		internal const string DefaultDatabaseName = "db_banking";
+
 		public string ConnectionString { get; set; }
 
 		public MySqlDatabase(string connectionString)
 		{
-			ConnectionString = connectionString;
-
+			ConnectionString = ensureDatabase(connectionString);
+						
 			using( var con = new MySqlConnection(ConnectionString) )
 			{
 				using( var cmd = con.CreateCommand() )
 				{
 					cmd.CommandText = "CREATE TABLE IF NOT EXISTS BankAccounts (" +
 										"WorldId INTEGER," +
-										"OwnerName VARCHAR(128),"  +
+										"OwnerName VARCHAR(128)," +
 										"Name VARCHAR(128)," +
 										"Balance REAL," +
 										"PRIMARY KEY ( WorldId, OwnerName, Name ) )";
@@ -32,6 +35,27 @@ namespace Banking.Database
 					cmd.ExecuteNonQuery();
 				}
 			}
+		}
+
+		private string ensureDatabase(string connectionString)
+		{
+			var builder = new MySqlConnectionStringBuilder(connectionString);
+			var dbName = string.IsNullOrWhiteSpace(builder.Database) ?  DefaultDatabaseName : builder.Database;
+
+			builder.Database = null;
+			
+			//try to create db
+			using( var con = new MySqlConnection(builder.ConnectionString) )
+			using( var cmd = con.CreateCommand() )
+			{
+				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
+				con.Open();
+				cmd.ExecuteNonQuery();
+			}
+
+			builder.Database = dbName;
+
+			return builder.ConnectionString;
 		}
 
 		public void Create(BankAccount account)
