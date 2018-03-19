@@ -65,42 +65,9 @@ namespace Leveling
         public override string Name => "Leveling";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-		public void LogPrint(string message, TraceLevel level)
-		{
-			ServerApi.LogWriter.PluginWriteLine(this, message, level);
-		}
-
 		public override void Initialize()
         {
-			//try
-			//{
-			//	Directory.CreateDirectory("leveling");
-			//	if (File.Exists(ConfigPath))
-			//	{
-			//		Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-			//	}
-			//	else
-			//	{
-			//		Config.Instance = new Config();
-			//		Config.Instance.Save(ConfigPath);
-			//	}
-
-			//	var dbConfig = Config.Instance.DatabaseConfig;
-			//	//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
-			//	SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
-				
-			//	onLoad();
-			//}
-			//catch(Exception ex)
-			//{
-			//	ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"{ex.Message}", TraceLevel.Error);
-			//	ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, ex.StackTrace, TraceLevel.Error);
-			//	ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Plugin is disabled. Please correct errors and restart server.", TraceLevel.Error);
-			//	this.Enabled = false;
-			//	return;
-			//}
-            
-            GeneralHooks.ReloadEvent += OnReload;
+			GeneralHooks.ReloadEvent += OnReload;
             PlayerHooks.PlayerChat += OnPlayerChat;
             PlayerHooks.PlayerPermission += OnPlayerPermission;
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
@@ -266,7 +233,7 @@ namespace Leveling
 		private void onLoad()
 		{
 			const string classDirectory = "leveling";
-			
+						
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 			
 			var dbConfig = Config.Instance.DatabaseConfig;
@@ -286,7 +253,9 @@ namespace Leveling
 							.Select(cd => cd);
 										
 			classDefs.AddRange(booDefs);
-			
+
+			classDefs.ForEach(cd => cd.ValidateAndFix());
+						
 			_classDefinitions = classDefs;
 			_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
 						

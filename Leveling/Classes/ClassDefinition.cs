@@ -5,6 +5,7 @@ using Banking;
 using Leveling.Levels;
 using Leveling.Sessions;
 using Newtonsoft.Json;
+using TerrariaApi.Server;
 
 namespace Leveling.Classes
 {
@@ -143,6 +144,25 @@ namespace Leveling.Classes
 					Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
 				}
 			}
+		}
+
+		internal void ValidateAndFix()
+		{
+			var plugin = LevelingPlugin.Instance;
+			var levelNames = new HashSet<string>();
+			var duplicateLevelDefinitions = new List<LevelDefinition>();
+
+			foreach( var def in LevelDefinitions )
+			{
+				if(!levelNames.Add(def.Name))
+				{
+					ServerApi.LogWriter.PluginWriteLine(plugin, $"Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
+					duplicateLevelDefinitions.Add(def);
+				}
+			}
+
+			foreach(var dupDef in duplicateLevelDefinitions)
+				LevelDefinitions.Remove(dupDef);
 		}
 	}
 }
