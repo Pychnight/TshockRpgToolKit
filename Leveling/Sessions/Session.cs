@@ -313,20 +313,28 @@ namespace Leveling.Sessions
                    @class.PrerequisitePermissions.All(p => _player.HasPermission(p));
         }
 
+		/// <summary>
+		/// Resets all player leveling data, moving them back to the first level of the default class.
+		/// </summary>
 		public void LevelReset()
 		{
 			//Debug.Print("LevelReset!");
+			var def = _definition;
 			
 			MasteredClasses.Clear();
 			UnlockedClasses.Clear();
 			PermissionsGranted.Clear();
-			_definition.ItemIdsGiven?.Clear();
-			
+			def.ItemIdsGiven?.Clear();
+
+			def.LevelNamesObtained.Clear();
+			def.MasteredClassNames.Clear();
+			def.UnlockedClassNames.Clear();
+			def.UsedClassNames.Clear();
+									
+			Level = Class.Levels.FirstOrDefault();
 			Exp = 0;
 
-			var def = _definition;
 			def.initialize();
-			
 			Resolve(LevelingPlugin.Instance._classes);
 			Save();
 		}
