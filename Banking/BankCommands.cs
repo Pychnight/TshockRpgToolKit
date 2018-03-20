@@ -384,12 +384,14 @@ namespace Banking
 			player.SendInfoMessage("Checking external server for your vote... this may take a few moments.");
 
 			var checkTask = voteChecker.HasPlayerVotedAsync(player.Name)
-										.ContinueWith(t =>
+										.ContinueWith( async t =>
 										{
-											if( t.Result )
+											if( t.Result == VoteStatus.Unclaimed )
 											{
 												player.SendInfoMessage(config.RewardMessage);
 												BankingPlugin.Instance.RewardDistributor.TryAddVoteReward(player.Name);
+
+												await voteChecker.ClaimPlayerVoteAsync(player.Name);
 											}
 											else
 												player.SendErrorMessage(config.NoRewardMessage);
