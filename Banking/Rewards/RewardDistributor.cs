@@ -154,6 +154,8 @@ namespace Banking.Rewards
 				var money = currency.GetCurrencyConverter().ToStringAndColor(value, ref color);
 				var combatText = $"{money}";
 
+				Debug.Print($"{playerName} gained {value} {currency.InternalName}.");
+				
 				BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
 			}
 		}
