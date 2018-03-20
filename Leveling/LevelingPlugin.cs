@@ -49,6 +49,7 @@ namespace Leveling
         private List<ClassDefinition> _classDefinitions;
         internal List<Class> _classes;
 
+		//internal CurrencyDefinition PurchaseCurrency { get; set; }
 		internal CurrencyDefinition ExpCurrency { get; set; } 
 
         public LevelingPlugin(Main game) : base(game)
@@ -218,8 +219,15 @@ namespace Leveling
 			}
 
 			ExpCurrency = currency;
-			//...cache currency converter??
 
+			//if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
+			//{
+			//	throw new Exception($"LevelingPlugin requires BankingPlugin to have an \"Exp\" Currency.");
+			//	//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: BankingPlugin must have an \"Exp\" Currency.", TraceLevel.Error);
+			//}
+
+			//PurchaseCurrency = currency;
+			
 			var bank = BankingPlugin.Instance.Bank;
 
 			//bank.BankAccountBalanceChanged += (s, a) =>
@@ -526,27 +534,28 @@ namespace Leveling
                     return;
                 }
 
-                if (@class.SEconomyCost > 0)
+				//if (@class.SEconomyCost > 0)
+				var cost = @class.GetSwitchingCurrencyCost();
+				if(cost>0)
                 {
+					//we were going to try to remove seconomy cost at first, but now may just leave it in for compatibility purposes.
+					//some of the below code is wonky because of the change that didnt fully take place.
+
 					//var cost = new Money(@class.SEconomyCost);
-					var cost = @class.ExpCost;
-                    player.SendInfoMessage($"It costs [c/{Color.OrangeRed.Hex3()}:{cost}] to unlock the {@class} class.");
+					//var cost = @class.ExpCost;
+					//var cost = @class.SEconomyCost;
+					//var moneyCost = (decimal)cost;
+                    player.SendInfoMessage($"It costs [c/{Color.OrangeRed.Hex3()}:{@class.CurrencyCost}] to unlock the {@class} class.");
                     player.SendInfoMessage("Do you wish to proceed? Type /yes or /no.");
                     player.AddResponse("yes", args2 =>
                     {
                         player.AwaitingResponse.Remove("no");
 						
-						if(!ExpCurrency.GetCurrencyConverter().TryParse(cost,out var moneyCost))
-						{
-							player.SendErrorMessage($"Error: Invalid currency configuration for class {@class}. Please contact the server administrator.");
-							return;
-						}
-
 						//var bankAccount = SEconomyPlugin.Instance?.GetBankAccount(player);
-						var bankAccount = BankingPlugin.Instance.GetBankAccount(player, "Exp");
-						if (bankAccount == null || bankAccount.Balance < moneyCost)
+						var bankAccount = BankingPlugin.Instance.GetBankAccount(player, @class.CurrencyType);
+						if (bankAccount == null || bankAccount.Balance < cost)
                         {
-                            player.SendErrorMessage( $"You do not have enough of a balance to unlock the {@class} class.");
+                            player.SendErrorMessage( $"Insufficienet funds to unlock the {@class} class.");
                             return;
                         }
 
@@ -554,7 +563,7 @@ namespace Leveling
 						//                       BankAccountTransferOptions.IsPayment, $"Unlocking the {@class} class",
 						//                       $"Unlocking the {@class} class.");
 						
-						if(bankAccount.TryTransferTo(BankingPlugin.Instance.GetBankAccount("Server", "Exp"), moneyCost))
+						if(bankAccount.TryTransferTo(BankingPlugin.Instance.GetBankAccount("Server", @class.CurrencyType), (decimal)cost))
 						{
 							session.UnlockClass(@class);
 							session.Class = @class;

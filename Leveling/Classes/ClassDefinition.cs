@@ -49,53 +49,59 @@ namespace Leveling.Classes
 			get { return (long)InternalCost; }
 			set { InternalCost = value; }
 		}
-				
+
 		/// <summary>
-		///		Gets the "Exp" Currency cost to enter this class.
+		///		Gets the CurrencyType used for CurrencyCost.
 		/// </summary>
 		[JsonProperty(Order = 5)]
-		public string ExpCost { get; set; }
+		public string CurrencyType { get; set; } = "Exp";
+				
+		/// <summary>
+		///		Gets the Currency cost to enter this class.
+		/// </summary>
+		[JsonProperty(Order = 6)]
+		public string CurrencyCost { get; set; }
 
 		/// <summary>
 		///     Gets a value indicating whether to allow switching the class after mastery.
 		/// </summary>
-		[JsonProperty(Order = 6)]
+		[JsonProperty(Order = 7)]
 		public bool AllowSwitching { get; internal set; } = true;
 
 		/// <summary>
 		///     Gets a value indicating whether to allow switching the class before mastery.
 		/// </summary>
-		[JsonProperty(Order = 7)]
+		[JsonProperty(Order = 8)]
 		public bool AllowSwitchingBeforeMastery { get; internal set; }
 
 		/// <summary>
 		///     Gets the EXP multiplier override.
 		/// </summary>
-		[JsonProperty(Order = 8)]
+		[JsonProperty(Order = 9)]
 		public double? ExpMultiplierOverride { get; internal set; }
 
 		/// <summary>
 		///     Gets the death penalty multiplier override.
 		/// </summary>
-		[JsonProperty(Order = 9)]
+		[JsonProperty(Order = 10)]
 		public double? DeathPenaltyMultiplierOverride { get; internal set; }
 
 		/// <summary>
 		///		Gets the list of commands to execute on first change to a class.
 		/// </summary>
-		[JsonProperty("CommandsOnClassChangeOnce", Order = 10)]
+		[JsonProperty("CommandsOnClassChangeOnce", Order = 11)]
 		public IList<string> CommandsOnClassChangeOnce { get; internal set; } = new List<string>();
 		
 		/// <summary>
 		///     Gets the list of level definitions.
 		/// </summary>
-		[JsonProperty("Levels", Order = 11)]
+		[JsonProperty("Levels", Order = 12)]
 		public IList<LevelDefinition> LevelDefinitions { get; internal set; } = new List<LevelDefinition>();
 
 		/// <summary>
 		///     Gets the mapping of NPC names to EXP rewards.
 		/// </summary>
-		[JsonProperty("NpcToExpReward", Order = 12)]
+		[JsonProperty("NpcToExpReward", Order = 13)]
 		public Dictionary<string, string> NpcNameToExpReward = new Dictionary<string, string>();
 
 		/// <summary>

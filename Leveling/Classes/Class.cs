@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Banking;
 using Banking.Rewards;
 using Leveling.Levels;
 
@@ -89,23 +90,28 @@ namespace Leveling.Classes
         public long SEconomyCost => _definition.SEconomyCost;
 
 		/// <summary>
+		///		Gets the Banking CurrencyType to be used when switching to this class.
+		/// </summary>
+		public string CurrencyType => _definition.CurrencyType;
+
+		/// <summary>
 		///		Gets the Exp Currency cost to enter this class.
 		/// </summary>
-		public string ExpCost => _definition.ExpCost;
+		public string CurrencyCost => _definition.CurrencyCost;
 
 		/// <summary>
 		///		Gets the list of Commands to run on first change to the class.
 		/// </summary>
 		public IList<string> CommandsOnClassChangeOnce => _definition.CommandsOnClassChangeOnce;
+		
+		public override string ToString() => DisplayName;
 
-		internal double InternalCost => _definition.InternalCost;
-
-        /// <summary>
-        ///     Resolves the class using the specified levels.
-        /// </summary>
-        /// <param name="levels">The levels, which must not be <c>null</c> or contain <c>null</c>.</param>
-        /// <param name="stage">The resolution stage. All classes must be resolved at stage 0 before stage 1.</param>
-        public void Resolve(IList<Level> levels, int stage)
+		/// <summary>
+		///     Resolves the class using the specified levels.
+		/// </summary>
+		/// <param name="levels">The levels, which must not be <c>null</c> or contain <c>null</c>.</param>
+		/// <param name="stage">The resolution stage. All classes must be resolved at stage 0 before stage 1.</param>
+		public void Resolve(IList<Level> levels, int stage)
         {
             Debug.Assert(levels != null, "Levels must not be null.");
             Debug.Assert(!levels.Contains(null), "Levels must not contain null.");
@@ -143,6 +149,25 @@ namespace Leveling.Classes
             }
         }
 
-        public override string ToString() => DisplayName;
+		/// <summary>
+		///		Returns the monetary cost of switching to this class, if a valid CurrencyType and CurrencyCost are configured. 
+		/// </summary>
+		/// <returns>Decimal value on success, null if not.</returns>
+		public decimal? GetSwitchingCurrencyCost()
+		{
+			if( string.IsNullOrWhiteSpace(CurrencyType) )
+				return null;
+
+			if( string.IsNullOrWhiteSpace(CurrencyCost))
+				return null;
+
+			if( !BankingPlugin.Instance.TryGetCurrency(CurrencyType, out var currency) )
+				return null;
+
+			if( !currency.GetCurrencyConverter().TryParse(CurrencyCost, out var value) )
+				return null;
+
+			return value;
+		}
     }
 }

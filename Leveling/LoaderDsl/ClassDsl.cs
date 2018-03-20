@@ -89,18 +89,25 @@ namespace Leveling.LoaderDsl
 			ClassDefinition.AllowSwitchingBeforeMastery = allow;
 		}
 
-		public static void SEconomyCost() { }
+		public static void SEconomyCost() { SEconomyCost(0); }
 
 		public static void SEconomyCost(long expCost)
 		{
 			ClassDefinition.SEconomyCost = expCost;
 		}
 
-		public static void ExpCost() { }
+		public static void CurrencyType() { CurrencyType(null); }
 
-		public static void ExpCost(string expCost)
+		public static void CurrencyType(string currencyType)
 		{
-			ClassDefinition.ExpCost = expCost;
+			ClassDefinition.CurrencyType = currencyType;
+		}
+
+		public static void CurrencyCost() { CurrencyCost(null); }
+
+		public static void CurrencyCost(string expCost)
+		{
+			ClassDefinition.CurrencyCost = expCost;
 		}
 
 		public static void CommandsOnClassChangeOnce(params string[] commands)
