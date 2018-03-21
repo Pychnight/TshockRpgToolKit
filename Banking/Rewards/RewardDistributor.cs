@@ -24,6 +24,72 @@ namespace Banking.Rewards
 			defaultRewardEvaluator = new DefaultRewardEvaluator();
 			CurrencyRewardEvaluators = new Dictionary<string, RewardEvaluatorMap>();
 		}
+
+		public void TryAddKillingReward(PlayerStrikeInfo strikeInfo, string npcGivenOrTypeName, float npcValue, bool npcSpawnedFromStatue)
+		{
+			var bank = BankingPlugin.Instance.Bank;
+			float totalDamage = strikeInfo.Values.Select(si => si.Damage).Sum();
+
+			foreach( var kvp in strikeInfo )
+			{
+				var playerName = kvp.Key;
+				var weaponName = kvp.Value.ItemName;
+				var damagePercent = kvp.Value.Damage / totalDamage;
+				//var exp = damagePercent * npcValue;
+								
+				var playerAccountMap = bank[playerName];
+
+				foreach( var currency in bank.CurrencyManager )
+				{
+					if( currency == null )
+					{
+						Debug.Assert(currency != null, "Currency should never be null!");
+						continue;
+					}
+
+					if( !currency.GainBy.Contains(RewardReason.Killing) )
+						continue;
+
+					if( npcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
+					{
+						continue;
+					}
+
+					var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
+
+					if( rewardAccount == null )
+					{
+						Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
+						continue;
+					}
+
+					//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
+					var evaluator = GetRewardEvaluator(currency.InternalName, RewardReason.Killing);
+					var value = (float)evaluator.GetRewardValue(RewardReason.Killing, playerName, currency.InternalName, npcGivenOrTypeName, (decimal)npcValue);
+
+					value *= damagePercent;
+					value *= currency.Multiplier;
+
+					//Weapons are implicitly at 1.0, unless modifier is found.
+					float weaponMultiplier = 0;
+					if( weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true )
+					{
+						value *= weaponMultiplier;
+					}
+
+					if( value == 0.0f )
+						continue;
+
+					if( value > 0.0f )
+						rewardAccount.Deposit((decimal)value);
+					else
+						rewardAccount.TryWithdraw((decimal)value);
+
+					var decimalValue = (decimal)value;
+					trySendCombatText(playerName, currency, ref decimalValue);
+				}
+			}
+		}
 		
 		public void TryAddReward(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, bool npcSpawnedFromStatue = false, string weaponName = null )
 		{
@@ -60,6 +126,7 @@ namespace Banking.Rewards
 				switch(gainedBy)
 				{
 					case RewardReason.Killing:
+						throw new NotImplementedException("Killing is no longer supported in this method. Use TryAddKillingReward() instead.");
 					case RewardReason.Mining:
 					case RewardReason.Placing:
 						decimal value =	evaluator.GetRewardValue(gainedBy,playerName, currency.InternalName, itemName, (decimal)defaultValue);

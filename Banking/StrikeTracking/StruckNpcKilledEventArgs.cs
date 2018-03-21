@@ -14,6 +14,7 @@ namespace Banking
 
 		internal StruckNpcKilledEventArgs(NPC npc, PlayerStrikeInfo playerStrikeInfo)
 		{
+			//Npc = npc;
 			NpcValue = npc.value;
 			NpcType = npc.type;
 			NpcGivenOrTypeName = npc.GivenOrTypeName;

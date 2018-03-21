@@ -271,17 +271,7 @@ namespace Banking
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
 			//Debug.Print("OnStruckNpcKilled!");
-			float totalDamage = args.PlayerStrikeInfo.Values.Select(si => si.Damage).Sum();
-			
-			foreach(var kvp in args.PlayerStrikeInfo)
-			{
-				var player = kvp.Key;
-
-				var damagePercent = kvp.Value.Damage / totalDamage;
-				var exp = damagePercent * args.NpcValue;
-
-				RewardDistributor.TryAddReward(player, RewardReason.Killing, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue, kvp.Value.ItemName);
-			}
+			RewardDistributor.TryAddKillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
 		}
 
 		private void OnTileKilled(TileChangedEventArgs args)
