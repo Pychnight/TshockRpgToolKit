@@ -13,7 +13,7 @@ namespace Leveling
 	{
 		public decimal GetRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
 		{
-			if( reason != RewardReason.Killing )
+			if( reason != RewardReason.Killing || currencyType != "Exp" )
 				return rewardValue;
 
 			var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
@@ -23,14 +23,18 @@ namespace Leveling
 
 			var session = LevelingPlugin.Instance.GetOrCreateSession(player);
 			var expValues = session.Class.Definition.ParsedNpcNameToExpValues;
-
-			if( expValues.TryGetValue(itemName, out var result) == true )
+			var result = rewardValue;
+			
+			if( expValues.TryGetValue(itemName, out var newResult) == true )
 			{
-				Debug.Print($"ClassExpReward adjusted to {result}(was {rewardValue}).");
-				return result;
+				Debug.Print($"ClassExpReward adjusted to {newResult}(was {rewardValue}).");
+				result = newResult;
 			}
-			else
-				return rewardValue;
+						
+			var classExpMultiplier = (decimal)( session.Class.Definition.ExpMultiplierOverride ?? 1.0f );
+			result *= classExpMultiplier;
+			
+			return result;
 		}
 	}
 }
