@@ -29,14 +29,15 @@ namespace Banking.Rewards
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			float totalDamage = strikeInfo.Values.Select(si => si.Damage).Sum();
+			float totalDamageDefended = strikeInfo.Values.Select(si => si.DamageDefended).Sum();
 
 			foreach( var kvp in strikeInfo )
 			{
 				var playerName = kvp.Key;
-				var weaponName = kvp.Value.ItemName;
+				var weaponName = kvp.Value.WeaponName;
 				var damagePercent = kvp.Value.Damage / totalDamage;
-				//var exp = damagePercent * npcValue;
-								
+				var damageDefendedPercent = totalDamageDefended > 0 ? kvp.Value.DamageDefended / totalDamageDefended : 0;//avoid divide by 0
+				
 				var playerAccountMap = bank[playerName];
 
 				foreach( var currency in bank.CurrencyManager )
@@ -67,15 +68,22 @@ namespace Banking.Rewards
 					var evaluator = GetRewardEvaluator(currency.InternalName, RewardReason.Killing);
 					var value = (float)evaluator.GetRewardValue(RewardReason.Killing, playerName, currency.InternalName, npcGivenOrTypeName, (decimal)npcValue);
 
-					value *= damagePercent;
-					value *= currency.Multiplier;
+					var defenseBonus = value * damageDefendedPercent * currency.DefenseBonusMultiplier;
 
+					Debug.Print($"DefenseBonus: {defenseBonus}");
+
+					value *= damagePercent;
+					
 					//Weapons are implicitly at 1.0, unless modifier is found.
 					float weaponMultiplier = 0;
 					if( weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true )
 					{
 						value *= weaponMultiplier;
 					}
+					
+					value += defenseBonus;
+
+					value *= currency.Multiplier;
 
 					if( value == 0.0f )
 						continue;

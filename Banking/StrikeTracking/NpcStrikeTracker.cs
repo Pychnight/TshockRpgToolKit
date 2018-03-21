@@ -27,22 +27,30 @@ namespace Banking
 			npcStrikes.Clear();
 		}
 
-		public static int CalculateNpcDamage(Player player, NPC npc, double damage, bool isCritical)
+		public static int CalculateNpcDamage(NPC npc, double damage, bool isCritical)
 		{
 			//pulled from MarioE's damage calc in LevelingPlugin.OnNetGetData()...
 			if( damage < 1.0d )
 				return 0;
-						
-			var defense = npc.defense;
-			defense -= npc.ichor ? 20 : 0;
-			defense -= npc.betsysCurse ? 40 : 0;
-			defense = Math.Max(0, defense);
+
+			var defense = CalculateNpcDefense(npc);
 
 			damage = Main.CalculateDamage((int)damage, defense);
 			damage *= isCritical ? 2.0 : 1.0;
 			damage *= Math.Max(1.0, npc.takenDamageMultiplier);
 
 			return (int)damage;
+		}
+
+		public static int CalculateNpcDefense(NPC npc)
+		{
+			var defense = npc.defense;
+
+			defense -= npc.ichor ? 20 : 0;
+			defense -= npc.betsysCurse ? 40 : 0;
+			defense = Math.Max(0, defense);
+
+			return defense;
 		}
 
 		public void OnNpcStrike(Player player, NPC npc, int damage, bool isCritical, string itemName )
@@ -58,12 +66,13 @@ namespace Banking
 				npcStrikes.Add(npcIndex, playerStrikes);
 			}
 
-			var realDamage = CalculateNpcDamage(player, npc, damage, isCritical);
-
+			var realDamage = CalculateNpcDamage(npc, damage, isCritical);
+			var damageDefended = (int)(CalculateNpcDefense(npc) * ( Main.expertMode ? 0.75f : 0.50f ));
+			
 			//Debug.Print($"Banking - realDamage: {realDamage}, Critical: {isCritical}");
 
 			//Debug.Print($"OnNpcStrike item: {itemName}");
-			playerStrikes.AddStrike(player.name,realDamage,itemName);
+			playerStrikes.AddStrike(player.name, realDamage, damageDefended, itemName);
 		}
 
 		public void OnNpcKilled(NPC npc)
