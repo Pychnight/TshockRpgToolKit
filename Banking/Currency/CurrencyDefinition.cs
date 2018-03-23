@@ -1,4 +1,5 @@
 ﻿using Banking.Rewards;
+using Corruption.PluginSupport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -66,6 +67,49 @@ namespace Banking
 		public CurrencyConverter GetCurrencyConverter()
 		{
 			return currencyConverter ?? ( currencyConverter = new CurrencyConverter(this) );
+		}
+
+		internal static CurrencyDefinition CreateDefaultCurrency()
+		{
+			var result = new CurrencyDefinition();
+
+			result.InternalName = "TerrariaCoin";
+			result.GainBy.Add(RewardReason.Killing);
+			result.SendCombatText = true;
+
+			var q = new CurrencyQuadrantDefinition();
+			q.BaseUnitMultiplier = 1;
+			q.FullName = "Copper Coin";
+			q.ShortName = "Copper";
+			q.Abbreviation = "c";
+
+			result.Quadrants.Add(q);
+
+			q = new CurrencyQuadrantDefinition();
+			q.BaseUnitMultiplier = 100;
+			q.FullName = "Silver Coin";
+			q.ShortName = "Silver";
+			q.Abbreviation = "s";
+
+			result.Quadrants.Add(q);
+
+			q = new CurrencyQuadrantDefinition();
+			q.BaseUnitMultiplier = 10_000;
+			q.FullName = "Gold Coin";
+			q.ShortName = "Gold";
+			q.Abbreviation = "g";
+
+			result.Quadrants.Add(q);
+
+			q = new CurrencyQuadrantDefinition();
+			q.BaseUnitMultiplier = 1_000_000;
+			q.FullName = "Platinum Coin";
+			q.ShortName = "Platinum";
+			q.Abbreviation = "p";
+
+			result.Quadrants.Add(q);
+
+			return result;
 		}
 	}
 }

@@ -28,7 +28,13 @@ namespace Banking.Configuration
 		{
 			if(Currency==null || Currency.Count<1)
 			{
-				throw new Exception("Configuration defines no Currency.");
+				Currency = Currency ?? new List<CurrencyDefinition>();
+			}
+
+			if(Currency.Count<1)
+			{
+				//throw new Exception("Configuration defines no Currency.");
+				Currency.Add(CurrencyDefinition.CreateDefaultCurrency());
 			}
 		}
 	}
