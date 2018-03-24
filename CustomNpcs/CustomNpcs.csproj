@@ -40,6 +40,18 @@
     <DocumentationFile>bin\Release\CustomNpcs.xml</DocumentationFile>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Deploy\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<PlatformTarget>x86</PlatformTarget>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<!--<DocumentationFile>bin\Deploy\CustomNpcs.xml</DocumentationFile>-->
+		<RunCodeAnalysis>true</RunCodeAnalysis>
+	</PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>

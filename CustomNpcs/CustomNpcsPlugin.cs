@@ -30,7 +30,7 @@ namespace CustomNpcs
 		private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
 
 		internal static CustomNpcsPlugin Instance = null;
-
+		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
 		/// </summary>
@@ -66,6 +66,7 @@ namespace CustomNpcs
 		public override void Initialize()
 		{
 			GeneralHooks.ReloadEvent += OnReload;
+			//ServerApi.Hooks.GamePostInitialize.Register(this,onGamePostInitialize);
 
 			Commands.ChatCommands.Add(new Command("customnpcs.cinvade", CustomInvade, "cinvade"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cmaxspawns", CustomMaxSpawns, "cmaxspawns"));
@@ -81,8 +82,10 @@ namespace CustomNpcs
 #if DEBUG
 			Commands.ChatCommands.Add(new Command("customnpcs.debug", TileSnake, "tilesnake"));
 #endif
-		}
 
+			onLoad();
+		}
+		
 		/// <summary>
 		///     Disposes the plugin.
 		/// </summary>
@@ -105,6 +108,11 @@ namespace CustomNpcs
 
 			base.Dispose(disposing);
 		}
+		
+		//private void onGamePostInitialize(EventArgs args)
+		//{
+		//	onLoad();
+		//}
 
 		private void onLoad()
 		{

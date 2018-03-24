@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Corruption.PluginSupport;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -28,18 +29,36 @@ namespace CustomNpcs
 				{
 					try
 					{
+						ValidationResult validationResult = null;
+
 						if( usedNames.Contains(definition.Name) )
 						{
-							throw new Exception($"A definition with the name '{definition.Name}' already exists.");
+							//throw new Exception($"A definition with the name '{definition.Name}' already exists.");
+							validationResult = new ValidationResult();
+							validationResult.AddError($"A definition with the name '{definition.Name}' already exists.", definition.FilePath, definition.LineNumber, definition.LinePosition);
+						}
+						else
+						{
+							//definition.ThrowIfInvalid();
+							validationResult = definition.Validate();
 						}
 
-						definition.ThrowIfInvalid();
+						if(validationResult.HasErrors)
+						{
+							foreach(var err in validationResult.Errors)
+								CustomNpcsPlugin.Instance.LogPrint(err.ToString(), TraceLevel.Error);
+
+							failedDefinitions.Add(definition);
+
+							continue;
+						}
+						else if( validationResult.HasWarnings )
+						{
+							foreach( var war in validationResult.Warnings )
+								CustomNpcsPlugin.Instance.LogPrint(war.ToString(), TraceLevel.Warning);
+						}
+
 						usedNames.Add(definition.Name);
-					}
-					catch( FormatException ex )
-					{
-						CustomNpcsPlugin.Instance.LogPrint($"{definition.FilePath}: An error occurred while parsing {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
-						failedDefinitions.Add(definition);
 					}
 					catch( Exception ex )
 					{

@@ -1,4 +1,5 @@
 ﻿using BooTS;
+using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using System;
@@ -150,19 +151,55 @@ namespace CustomNpcs.Projectiles
 			return true;
 		}
 
-		protected internal override void ThrowIfInvalid()
+		//protected internal override void ThrowIfInvalid()
+		//{
+		//	if (Name == null)
+		//	{
+		//		throw new FormatException($"{nameof(Name)} is null.");
+		//	}
+		//	if( int.TryParse(Name, out _) )
+		//	{
+		//		throw new FormatException($"{nameof(Name)} cannot be a number.");
+		//	}
+		//	if( string.IsNullOrWhiteSpace(Name) )
+		//	{
+		//		throw new FormatException($"{nameof(Name)} is whitespace.");
+		//	}
+		//	//if (BaseType < -65)
+		//	//{
+		//	//	throw new FormatException($"{nameof(BaseType)} is too small.");
+		//	//}
+		//	if( BaseType >= Main.maxProjectileTypes )
+		//	{
+		//		throw new FormatException($"{nameof(BaseType)} is too large.");
+		//	}
+		//	if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
+		//	{
+		//		throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
+		//	}
+		//	if( BaseOverride == null )
+		//	{
+		//		throw new FormatException("BaseOverride is null.");
+		//	}
+		//	//_baseOverride.ThrowIfInvalid();
+		//}
+
+		protected override void OnValidate(ValidationResult result)
 		{
-			if (Name == null)
+			if( Name == null )
 			{
-				throw new FormatException($"{nameof(Name)} is null.");
+				//throw new FormatException($"{nameof(Name)} is null.");
+				result.AddError($"{nameof(Name)} is null.");
 			}
 			if( int.TryParse(Name, out _) )
 			{
-				throw new FormatException($"{nameof(Name)} cannot be a number.");
+				//throw new FormatException($"{nameof(Name)} cannot be a number.");
+				result.AddError($"{nameof(Name)} cannot be a number.");
 			}
 			if( string.IsNullOrWhiteSpace(Name) )
 			{
-				throw new FormatException($"{nameof(Name)} is whitespace.");
+				//throw new FormatException($"{nameof(Name)} is whitespace.");
+				result.AddError($"{nameof(Name)} is whitespace.");
 			}
 			//if (BaseType < -65)
 			//{
@@ -170,21 +207,26 @@ namespace CustomNpcs.Projectiles
 			//}
 			if( BaseType >= Main.maxProjectileTypes )
 			{
-				throw new FormatException($"{nameof(BaseType)} is too large.");
+				//throw new FormatException($"{nameof(BaseType)} is too large.");
+				result.AddError($"{nameof(BaseType)} is too large.");
 			}
 			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
 			{
-				throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
+				//throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
+				result.AddError($"{nameof(ScriptPath)} points to an invalid script file.");
 			}
 			if( BaseOverride == null )
 			{
-				throw new FormatException("BaseOverride is null.");
+				//throw new FormatException("BaseOverride is null.");
+				result.AddError("BaseOverride is null.");
 			}
 			//_baseOverride.ThrowIfInvalid();
+			//var baseResult = BaseOverride.Validate();
+			//result.AddValidationResult(baseResult);
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
-		internal sealed class BaseOverrideDefinition
+		internal sealed class BaseOverrideDefinition //: IValidator
 		{
 			[JsonProperty]
 			public int? AiStyle { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Corruption.PluginSupport;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -10,7 +11,7 @@ namespace CustomNpcs.Invasions
     ///     Represents a wave definition.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class WaveDefinition
+    public sealed class WaveDefinition : IValidator
     {
 		/// <summary>
 		///     Gets the NPC weights.
@@ -51,36 +52,80 @@ namespace CustomNpcs.Invasions
         [JsonProperty(Order = 5)]
         public string Miniboss { get; private set; }
        
-        internal void ThrowIfInvalid()
-        {
-            if (NpcWeights == null)
-            {
-                throw new FormatException($"{nameof(NpcWeights)} is null.");
-            }
-            if (NpcWeights.Count == 0)
-            {
-                throw new FormatException($"{nameof(NpcWeights)} must not be empty.");
-            }
-            if (NpcWeights.Any(kvp => kvp.Value <= 0))
-            {
-                throw new FormatException($"{nameof(NpcWeights)} must contain positive weights.");
-            }
-            if (PointsRequired <= 0)
-            {
-                throw new FormatException($"{nameof(PointsRequired)} must be positive.");
-            }
-            if (MaxSpawns <= 0)
-            {
-                throw new FormatException($"{nameof(MaxSpawns)} must be positive.");
-            }
-            if (SpawnRate <= 0)
-            {
-                throw new FormatException($"{nameof(SpawnRate)} must be positive.");
-            }
-            if (StartMessage == null)
-            {
-                throw new FormatException($"{nameof(StartMessage)} is null.");
-            }
-        }
-    }
+		//[Obsolete]
+  //      internal void ThrowIfInvalid()
+  //      {
+  //          if (NpcWeights == null)
+  //          {
+  //              throw new FormatException($"{nameof(NpcWeights)} is null.");
+  //          }
+  //          if (NpcWeights.Count == 0)
+  //          {
+  //              throw new FormatException($"{nameof(NpcWeights)} must not be empty.");
+  //          }
+  //          if (NpcWeights.Any(kvp => kvp.Value <= 0))
+  //          {
+  //              throw new FormatException($"{nameof(NpcWeights)} must contain positive weights.");
+  //          }
+  //          if (PointsRequired <= 0)
+  //          {
+  //              throw new FormatException($"{nameof(PointsRequired)} must be positive.");
+  //          }
+  //          if (MaxSpawns <= 0)
+  //          {
+  //              throw new FormatException($"{nameof(MaxSpawns)} must be positive.");
+  //          }
+  //          if (SpawnRate <= 0)
+  //          {
+  //              throw new FormatException($"{nameof(SpawnRate)} must be positive.");
+  //          }
+  //          if (StartMessage == null)
+  //          {
+  //              throw new FormatException($"{nameof(StartMessage)} is null.");
+  //          }
+  //      }
+
+		public ValidationResult Validate()
+		{
+			var result = new ValidationResult();
+
+			if( NpcWeights == null )
+			{
+				//throw new FormatException($"{nameof(NpcWeights)} is null.");
+				result.AddError($"{nameof(NpcWeights)} is null.");
+			}
+			if( NpcWeights.Count == 0 )
+			{
+				//throw new FormatException($"{nameof(NpcWeights)} must not be empty.");
+				result.AddError($"{nameof(NpcWeights)} must not be empty.");
+			}
+			if( NpcWeights.Any(kvp => kvp.Value <= 0) )
+			{
+				//throw new FormatException($"{nameof(NpcWeights)} must contain positive weights.");
+				result.AddError($"{nameof(NpcWeights)} must contain positive weights.");
+			}
+			if( PointsRequired <= 0 )
+			{
+				//throw new FormatException($"{nameof(PointsRequired)} must be positive.");
+				result.AddError($"{nameof(PointsRequired)} must be positive.");
+			}
+			if( MaxSpawns <= 0 )
+			{
+				//throw new FormatException($"{nameof(MaxSpawns)} must be positive.");
+				result.AddError($"{nameof(MaxSpawns)} must be positive.");
+			}
+			if( SpawnRate <= 0 )
+			{
+				//throw new FormatException($"{nameof(SpawnRate)} must be positive.");
+				result.AddError($"{nameof(SpawnRate)} must be positive.");
+			}
+			if( StartMessage == null )
+			{
+				//throw new FormatException($"{nameof(StartMessage)} is null.");
+				result.AddError($"{nameof(StartMessage)} is null.");
+			}
+
+			return result;
+		}
+	}
 }

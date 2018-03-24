@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Corruption.PluginSupport;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,18 +20,18 @@ namespace CustomNpcs
 
 		[JsonIgnore]
 		public override string ScriptPath { get => throw new NotImplementedException(); protected internal set => throw new NotImplementedException(); }
-
-		protected internal override void ThrowIfInvalid()
-		{
-			throw new NotImplementedException();
-		}
-
+			
 		[JsonProperty(Order = 0)]
 		public string Category { get; set; }
 
 		[JsonProperty(Order = 1)]
 		public List<string> Includes { get; set; }
 
+		//protected internal override void ThrowIfInvalid()
+		//{
+		//	throw new NotImplementedException();
+		//}
+		
 		internal List<T> TryLoadIncludes<T>(string parentFilePath) where T : DefinitionBase
 		{
 			var result = new List<T>();
