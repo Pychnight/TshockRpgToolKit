@@ -254,7 +254,7 @@ namespace Banking
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
 		{
-			//Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
+			Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
 
 			var item = args.Player.HeldItem;
 			//Debug.Print($"Strike NPC with {item.Name}!");
@@ -263,8 +263,8 @@ namespace Banking
 
 		private void OnNpcKilled(NpcKilledEventArgs args)
 		{
-			//Debug.Print($"NpcKilled! #{args.npc.whoAmI}");
-			//Debug.Print($"Value: {args.npc.value}");
+			Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
+			Debug.Print($"Value: {args.npc.value}");
 			NpcStrikeTracker.OnNpcKilled(args.npc);
 		}
 		
