@@ -113,7 +113,7 @@ namespace CustomNpcs.Invasions
 				}
 				catch(Exception ex)
 				{
-					Utils.ScriptRuntimeError(ex.Message);
+					Utils.LogScriptRuntimeError(ex);
 					invasion.OnInvasionStart = null;
 				}
 				
@@ -135,7 +135,7 @@ namespace CustomNpcs.Invasions
 				}
 				catch( Exception ex )
 				{
-					Utils.ScriptRuntimeError(ex.Message);
+					Utils.LogScriptRuntimeError(ex);
 					CurrentInvasion.OnInvasionEnd = null;
 				}
 				
@@ -269,7 +269,7 @@ namespace CustomNpcs.Invasions
 			}
 			catch( Exception ex )
 			{
-				Utils.ScriptRuntimeError(ex.Message);
+				Utils.LogScriptRuntimeError(ex);
 				CurrentInvasion.OnUpdate = null;
 			}
 		}
@@ -292,7 +292,7 @@ namespace CustomNpcs.Invasions
 				}
 				catch(Exception ex)
 				{
-					Utils.ScriptRuntimeError(ex.Message);
+					Utils.LogScriptRuntimeError(ex);
 					CurrentInvasion.OnBossDefeated = null;
 					_currentMiniboss = null;
 				}
@@ -314,7 +314,7 @@ namespace CustomNpcs.Invasions
 						}
 						catch( Exception ex )
 						{
-							Utils.ScriptRuntimeError(ex.Message);
+							Utils.LogScriptRuntimeError(ex);
 							CurrentInvasion.OnWaveUpdate = null;
 						}
 					}
@@ -361,7 +361,7 @@ namespace CustomNpcs.Invasions
 				}
 				catch( Exception ex )
 				{
-					Utils.ScriptRuntimeError(ex.Message);
+					Utils.LogScriptRuntimeError(ex);
 					CurrentInvasion.OnWaveStart = null;
 				}
 			}
@@ -381,7 +381,7 @@ namespace CustomNpcs.Invasions
 				}
 				catch( Exception ex )
 				{
-					Utils.ScriptRuntimeError(ex.Message);
+					Utils.LogScriptRuntimeError(ex);
 					CurrentInvasion.OnWaveEnd = null;
 				}
 			}

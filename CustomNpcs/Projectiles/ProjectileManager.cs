@@ -211,7 +211,7 @@ namespace CustomNpcs.Projectiles
 			}
 			catch(Exception ex)
 			{
-				Utils.ScriptRuntimeError(ex.Message);
+				Utils.LogScriptRuntimeError(ex);
 				definition.OnSpawn = null;
 			}
 			
@@ -274,7 +274,7 @@ namespace CustomNpcs.Projectiles
 				}
 				catch( Exception ex )
 				{
-					Utils.ScriptRuntimeError(ex.Message);
+					Utils.LogScriptRuntimeError(ex);
 					definition.OnGameUpdate = null;
 				}
 			}
@@ -304,7 +304,7 @@ namespace CustomNpcs.Projectiles
 								}
 								catch( Exception ex )
 								{
-									Utils.ScriptRuntimeError(ex.Message);
+									Utils.LogScriptRuntimeError(ex);
 									definition.OnCollision = null;
 								}
 							}
@@ -349,7 +349,7 @@ namespace CustomNpcs.Projectiles
 						}
 						catch( Exception ex )
 						{
-							Utils.ScriptRuntimeError(ex.Message);
+							Utils.LogScriptRuntimeError(ex);
 							definition.OnTileCollision = null;
 						}
 
@@ -395,7 +395,7 @@ namespace CustomNpcs.Projectiles
 					}
 					catch(Exception ex)
 					{
-						Utils.ScriptRuntimeError(ex.Message);
+						Utils.LogScriptRuntimeError(ex);
 						customProjectile.Definition.OnAiUpdate = null;
 					}
 				}
@@ -420,7 +420,7 @@ namespace CustomNpcs.Projectiles
 					}
 					catch(Exception ex)
 					{
-						Utils.ScriptRuntimeError(ex.Message);
+						Utils.LogScriptRuntimeError(ex);
 						definition.OnKilled = null;
 					}
 					

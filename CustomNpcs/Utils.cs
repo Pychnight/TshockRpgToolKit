@@ -19,19 +19,26 @@ namespace CustomNpcs
     {
         private static readonly Random Random = new Random();
 
-		public static void ScriptRuntimeError(string message)
+		public static void LogScriptRuntimeError(Exception ex)
+		{
+			CustomNpcsPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
+			CustomNpcsPlugin.Instance.LogPrint(ex.StackTrace, TraceLevel.Error);
+			CustomNpcsPlugin.Instance.LogPrint("Disabling event callback.", TraceLevel.Error);
+		}
+
+		public static void LogScriptRuntimeError(string message)
 		{
 			CustomNpcsPlugin.Instance.LogPrint(message, TraceLevel.Error);
 			CustomNpcsPlugin.Instance.LogPrint("Disabling event callback.", TraceLevel.Error);
 		}
 
-        /// <summary>
-        ///     Calculates spawn data for the specified player based on the global spawn data.
-        /// </summary>
-        /// <param name="player">The player, which must not be <c>null</c>.</param>
-        /// <param name="maxSpawns">The number of maximum spawns.</param>
-        /// <param name="spawnRate">The spawn rate.</param>
-        public static void GetSpawnData([NotNull] TSPlayer player, out double maxSpawns, out double spawnRate)
+		/// <summary>
+		///     Calculates spawn data for the specified player based on the global spawn data.
+		/// </summary>
+		/// <param name="player">The player, which must not be <c>null</c>.</param>
+		/// <param name="maxSpawns">The number of maximum spawns.</param>
+		/// <param name="spawnRate">The spawn rate.</param>
+		public static void GetSpawnData([NotNull] TSPlayer player, out double maxSpawns, out double spawnRate)
         {
             maxSpawns = Config.Instance.MaxSpawns;
             spawnRate = Config.Instance.SpawnRate;

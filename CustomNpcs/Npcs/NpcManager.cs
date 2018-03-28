@@ -178,7 +178,7 @@ namespace CustomNpcs.Npcs
 			}
 			catch(Exception ex)
 			{
-				Utils.ScriptRuntimeError(ex.Message);
+				Utils.LogScriptRuntimeError(ex);
 				definition.OnSpawn = null;
 			}
 			
@@ -303,7 +303,7 @@ namespace CustomNpcs.Npcs
 						}
 						catch(Exception ex)
 						{
-							Utils.ScriptRuntimeError(ex.Message);
+							Utils.LogScriptRuntimeError(ex);
 							definition.OnTransformed = null;
 						}
 						
@@ -348,7 +348,7 @@ namespace CustomNpcs.Npcs
 								}
 								catch(Exception ex)
 								{
-									Utils.ScriptRuntimeError(ex.Message);
+									Utils.LogScriptRuntimeError(ex);
 									definition.OnCollision = null;
 								}
 																
@@ -385,7 +385,7 @@ namespace CustomNpcs.Npcs
 							}
 							catch(Exception ex)
 							{
-								Utils.ScriptRuntimeError(ex.Message);
+								Utils.LogScriptRuntimeError(ex);
 								definition.OnTileCollision = null;
 							}
 						}
@@ -417,7 +417,7 @@ namespace CustomNpcs.Npcs
 			}
 			catch(Exception ex)
 			{
-				Utils.ScriptRuntimeError(ex.Message);
+				Utils.LogScriptRuntimeError(ex);
 				definition.OnAiUpdate = null;
 			}
 			
@@ -456,7 +456,7 @@ namespace CustomNpcs.Npcs
 			}
 			catch(Exception ex)
 			{
-				Utils.ScriptRuntimeError(ex.Message);
+				Utils.LogScriptRuntimeError(ex);
 				definition.OnKilled = null;
 			}
 
@@ -543,7 +543,7 @@ namespace CustomNpcs.Npcs
 			}
 			catch(Exception ex)
 			{
-				Utils.ScriptRuntimeError(ex.Message);
+				Utils.LogScriptRuntimeError(ex);
 				definition.OnStrike = null;
 			}
 		}
@@ -588,7 +588,7 @@ namespace CustomNpcs.Npcs
 					}
 					catch(Exception ex)
 					{
-						Utils.ScriptRuntimeError(ex.Message);
+						Utils.LogScriptRuntimeError(ex);
 						definition.OnCheckReplace = null;
 					}
 				}
@@ -640,7 +640,7 @@ namespace CustomNpcs.Npcs
 						}
 						catch(Exception ex)
 						{
-							Utils.ScriptRuntimeError(ex.Message);
+							Utils.LogScriptRuntimeError(ex);
 							definition.OnCheckSpawn = null;
 						}
 					}
