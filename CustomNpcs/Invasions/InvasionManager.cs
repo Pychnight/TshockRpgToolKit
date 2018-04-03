@@ -37,6 +37,7 @@ namespace CustomNpcs.Invasions
 
 			BasePath = "npcs";
 			ConfigPath = Path.Combine(BasePath, "invasions.json");
+			AssemblyNamePrefix = "Invasion_";
 
 			LoadDefinitions();
 			

@@ -46,10 +46,7 @@ namespace CustomNpcs.Npcs
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
-		
-        //internal List<NpcDefinition> Definitions = new List<NpcDefinition>();
-		Assembly npcScriptsAssembly;
-			
+					
 		internal NoTargetOperation NoTarget { get; set; }
 		
         internal NpcManager(CustomNpcsPlugin plugin)
@@ -58,7 +55,8 @@ namespace CustomNpcs.Npcs
 
 			BasePath = "npcs";
 			ConfigPath = Path.Combine(BasePath, "npcs.json");
-						
+			AssemblyNamePrefix = "Npc_";
+
 			NoTarget = new NoTargetOperation();
 			
 			LoadDefinitions();

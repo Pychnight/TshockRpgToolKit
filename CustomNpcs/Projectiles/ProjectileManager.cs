@@ -38,6 +38,7 @@ namespace CustomNpcs.Projectiles
 
 			BasePath = "npcs";
 			ConfigPath = Path.Combine(BasePath, "projectiles.json");
+			AssemblyNamePrefix = "Projectile_";
 			
 			customProjectiles = new ConditionalWeakTable<Projectile, CustomProjectile>();
 

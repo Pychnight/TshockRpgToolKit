@@ -21,15 +21,6 @@ namespace CustomNpcs
 		private IEnumerable<string> defaultImports;
 		private IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures;
 
-		public Assembly this[string fileName]
-		{
-			get
-			{
-				modules.TryGetValue(fileName, out var mi);
-				return mi.Assembly;
-			}
-		}
-
 		/// <summary>
 		/// Gets or sets a prefix to apply to the modules built by this manager. 
 		/// </summary>
@@ -40,6 +31,15 @@ namespace CustomNpcs
 		/// </summary>
 		public bool Compiled { get; private set; }
 
+		public Assembly this[string fileName]
+		{
+			get
+			{
+				modules.TryGetValue(fileName, out var mi);
+				return mi.Assembly;
+			}
+		}
+		
 		public ModuleManager( IEnumerable<Assembly> references, IEnumerable<string> defaultImports, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures )
 		{
 			modules = new Dictionary<string, ModuleInfo>();

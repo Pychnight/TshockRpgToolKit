@@ -19,8 +19,18 @@ namespace CustomNpcs
 	{
 		public string BasePath { get; protected set; }
 		public string ConfigPath { get; protected set; }
+
+		/// <summary>
+		/// Gets the IList of custom definitions managed by this instance.
+		/// </summary>
 		public IList<TCustomType> Definitions { get; protected set; }
-		
+
+		/// <summary>
+		/// Gets or sets the Assembly name prefix to be applied during the next compile.
+		/// </summary>
+		/// <remarks> This is cached and applied to each ModuleManager right before compilation.</remarks>
+		public string AssemblyNamePrefix { get; protected set; } = "";
+
 		protected ModuleManager ModuleManager { get; set; }
 
 		/// <summary>
@@ -44,6 +54,8 @@ namespace CustomNpcs
 			var newModuleManager = new ModuleManager(ScriptHelpers.GetReferences(),
 													ScriptHelpers.GetDefaultImports(),
 													GetEnsuredMethodSignatures());
+
+			newModuleManager.AssemblyNamePrefix = AssemblyNamePrefix;
 
 			foreach( var f in booScripts )
 				newModuleManager.Add(f);
