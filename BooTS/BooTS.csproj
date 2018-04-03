@@ -87,6 +87,8 @@
   <ItemGroup>
     <Compile Include="BooHelpers.cs" />
     <Compile Include="BooModuleLinker.cs" />
+    <Compile Include="BooScriptAssembly.cs" />
+    <Compile Include="BooScriptAssemblyConfig.cs" />
     <Compile Include="BooScriptCompiler.cs" />
     <Compile Include="TerrariaPluginExtensions.cs" />
     <None Include="packages.config" />
@@ -106,5 +108,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-	<Import Project="..\..\TShock.targets" />
+  <Import Project="..\..\TShock.targets" />
 </Project>

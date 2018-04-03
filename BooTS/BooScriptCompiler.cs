@@ -1,9 +1,11 @@
 ﻿using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipelines;
+using Boo.Lang.Environments;
 //using Corruption;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +28,8 @@ namespace BooTS
 		{
 			compiler = BooHelpers.CreateBooCompiler();
 			var parameters = compiler.Parameters;
+
+			//parameters.Environment = 
 
 			parameters.GenerateInMemory = true;
 			parameters.Ducky = true;
@@ -51,11 +55,36 @@ namespace BooTS
 
 			parameters.Pipeline = pipeline;
 		}
-		
-		public static CompilerContext Compile(string assemblyName, List<string> fileNames, IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
+
+		public void Configure(IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
 		{
-			var cc = new BooScriptCompiler();
-			var ps = cc.compiler.Parameters;
+			var ps = compiler.Parameters;
+			
+			//add references
+			ps.References.Clear();
+
+			if( references != null )
+			{
+				foreach( var r in references )
+					ps.References.Add(r);
+			}
+
+			//add default imports
+			injectImportsStep.Namespaces.Clear();
+
+			if( imports != null )
+			{
+				if( imports != null )
+					injectImportsStep.SetDefaultImports(imports);
+			}
+
+			//add ensure method sigs
+			ensureMethodSignaturesStep.SetEnsuredMethodSignatures(ensuredMethodSignatures);
+		}
+
+		public CompilerContext Compile(string assemblyName, IEnumerable<string> fileNames)
+		{
+			var ps = compiler.Parameters;
 
 			ps.OutputAssembly = assemblyName;
 
@@ -71,29 +100,156 @@ namespace BooTS
 					ps.Input.Add(new FileInput(fname));
 			}
 
-			//add references
-			ps.References.Clear();
-
-			if( references != null )
-			{
-				foreach( var r in references )
-					ps.References.Add(r);
-			}
-
-			//add default imports
-			cc.injectImportsStep.Namespaces.Clear();
-
-			if( imports != null )
-			{
-				if( imports != null )
-					cc.injectImportsStep.SetDefaultImports(imports);
-			}
-
-			//add ensure method sigs
-			cc.ensureMethodSignaturesStep.SetEnsuredMethodSignatures(ensuredMethodSignatures);
-
-			var context = cc.compiler.Run();
-			return context;
+			return compiler.Run();
 		}
+		
+		public static CompilerContext Compile(string assemblyName, IEnumerable<string> fileNames, IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
+		{
+			var cc = new BooScriptCompiler();
+			var ps = cc.compiler.Parameters;
+
+			cc.Configure(references, imports, ensuredMethodSignatures);
+
+			ps.OutputAssembly = assemblyName;
+
+			//add inputs
+			ps.Input.Clear();
+
+			if( fileNames != null )
+			{
+				//multiple npc types may use the same script
+				var distinctFileNames = fileNames.Distinct();
+
+				foreach( var fname in distinctFileNames )
+					ps.Input.Add(new FileInput(fname));
+			}
+		
+			return cc.compiler.Run();
+		}
+
+#if EXPERIMENT_PARALLEL
+
+		public static Dictionary<string,BooScriptAssembly> ParallelCompile(IEnumerable<BooScriptAssemblyConfig> scriptConfigs, IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
+		{
+			var assemblies = new ConcurrentDictionary<string, BooScriptAssembly>();
+			var configs = new Dictionary<string, BooScriptAssemblyConfig>();
+			var bc = new BlockingCollection<CompilerContext>();
+			
+			foreach(var cfg in scriptConfigs)
+			{
+				if(!configs.ContainsKey(cfg.AssemblyName))
+				{
+					configs.Add(cfg.AssemblyName, cfg);
+				}
+				else
+				{
+					//duplicate found
+					Console.WriteLine($"Skipping build of duplicate Assembly, '{cfg.AssemblyName}'");
+				}
+			}
+			
+			//compiles scripts into assemblies, using n tasks/threads.
+			var compileTask = Task.Factory.StartNew(() =>
+			{
+				var result = Parallel.ForEach(configs.Values, cfg =>
+				{
+					var buildTime = DateTime.Now;
+					var context = Compile(cfg.AssemblyName, cfg.FileNames, references, imports, ensuredMethodSignatures);
+					var scriptAssembly = new BooScriptAssembly(buildTime, context);
+					
+					assemblies.TryAdd(cfg.AssemblyName, scriptAssembly);
+
+					bc.Add(context);
+				});
+
+				bc.CompleteAdding();
+			});
+
+			//consumes contexts, and writes out errors or warnings..
+			var reportTask = Task.Factory.StartNew(() =>
+			{
+				try
+				{
+					Debug.WriteLine($"Starting reporting...");
+
+					while( true )
+					{
+						var context = bc.Take();
+
+						if( context.Errors.Count > 0 )
+						{
+							foreach( var err in context.Errors )
+								Console.WriteLine($"Error: {err.LexicalInfo.FullPath} {err.LexicalInfo.Line},{err.LexicalInfo.Column} {err.Message}");
+						}
+						else if( context.Warnings.Count > 0 )
+						{
+							foreach( var war in context.Warnings )
+								Console.WriteLine($"Warning: {war.LexicalInfo.FullPath} {war.LexicalInfo.Line},{war.LexicalInfo.Column} {war.Message}");
+						}
+					}
+				}
+				catch( InvalidOperationException ioex )
+				{
+					//end
+					Debug.WriteLine($"BlockingCollection threw InvalidOperationException. ( Probably completed. )");
+				}
+				catch( Exception ex )
+				{
+					Debug.WriteLine($"BlockingCollection threw exception; {ex.Message}");
+				}
+			});
+
+			Task.WaitAll(reportTask, compileTask);
+
+			//Task.WaitAll(compileTask);
+
+			return new Dictionary<string, BooScriptAssembly>(assemblies);
+		}
+
+		public static Dictionary<string, BooScriptAssembly> SerialCompile(IEnumerable<BooScriptAssemblyConfig> scriptConfigs, IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
+		{
+			var assemblies = new Dictionary<string, BooScriptAssembly>();
+			var configs = new Dictionary<string, BooScriptAssemblyConfig>();
+			var bc = new BlockingCollection<CompilerContext>();
+
+			foreach( var cfg in scriptConfigs )
+			{
+				if( !configs.ContainsKey(cfg.AssemblyName) )
+				{
+					configs.Add(cfg.AssemblyName, cfg);
+				}
+				else
+				{
+					//duplicate found
+					Console.WriteLine($"Skipping build of duplicate Assembly, '{cfg.AssemblyName}'");
+				}
+			}
+
+			//compiles scripts into assemblies, using n tasks/threads.
+			foreach(var kvp in configs)
+			{
+				var cfg = kvp.Value;
+				var buildTime = DateTime.Now;
+				var context = Compile(cfg.AssemblyName, cfg.FileNames, references, imports, ensuredMethodSignatures);
+				var scriptAssembly = new BooScriptAssembly(buildTime, context);
+
+				assemblies.Add(cfg.AssemblyName, scriptAssembly);
+
+				if( context.Errors.Count > 0 )
+				{
+					foreach( var err in context.Errors )
+						Console.WriteLine($"Error: {err.LexicalInfo.FullPath} {err.LexicalInfo.Line},{err.LexicalInfo.Column} {err.Message}");
+				}
+				else if( context.Warnings.Count > 0 )
+				{
+					foreach( var war in context.Warnings )
+						Console.WriteLine($"Warning: {war.LexicalInfo.FullPath} {war.LexicalInfo.Line},{war.LexicalInfo.Column} {war.Message}");
+				}
+			}
+			
+			return assemblies;
+		}
+
+#endif
 	}
 }
