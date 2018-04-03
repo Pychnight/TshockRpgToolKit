@@ -80,7 +80,10 @@ namespace CustomNpcs
 		{
 			compileGuard();
 
-			Dictionary<string, CompilerContext> contexts = new Dictionary<string, CompilerContext>();
+			var contexts = new Dictionary<string, CompilerContext>();
+			var compiler = new BooScriptCompiler();
+			
+			compiler.Configure(references,defaultImports,ensuredMethodSignatures);
 			
 			foreach(var kvp in modules)
 			{
@@ -91,11 +94,7 @@ namespace CustomNpcs
 				var scriptName = Path.GetFileNameWithoutExtension(scriptPath);
 				var assemblyName = $"{AssemblyNamePrefix}{scriptName}.dll";
 				var buildTime = DateTime.Now;
-				var context = BooScriptCompiler.Compile(assemblyName,
-														new string[] { scriptPath },
-														references,
-														defaultImports,
-														ensuredMethodSignatures);
+				var context = compiler.Compile(assemblyName, new string[] { scriptPath });
 
 				contexts.Add(scriptPath, context);
 
