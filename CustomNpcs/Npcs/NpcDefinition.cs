@@ -204,7 +204,7 @@ namespace CustomNpcs.Npcs
 			npc.behindTiles = _baseOverride.BehindTiles ?? npc.behindTiles;
         }
 		
-		internal bool LinkToScript(Assembly ass)
+		protected override bool OnLinkToScriptAssembly(Assembly ass)
 		{
 			if( ass == null )
 				return false;

@@ -69,29 +69,22 @@ namespace CustomNpcs
 			
 			ModuleManager = newModuleManager;
 
-			foreach( var kvp in results )
+			var scriptedDefinitions = Definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath));
+
+			foreach(var def in scriptedDefinitions)
 			{
-				var context = kvp.Value;
-				var scriptAssembly = context.GeneratedAssembly;
+				var fileName = Path.Combine(BasePath, def.ScriptPath);
 
-				if( scriptAssembly != null )
+				if( results.TryGetValue(fileName, out var context) )
 				{
-					var fileInput = (FileInput)context.Parameters.Input.First();
+					var scriptAssembly = context.GeneratedAssembly;
 
-					foreach( var def in Definitions )
+					if( scriptAssembly != null )
 					{
-						if( string.IsNullOrWhiteSpace(def.ScriptPath) )
-							continue;
+						var result = def.LinkToScriptAssembly(scriptAssembly);
 
-						var fileName = Path.Combine(BasePath, def.ScriptPath);
-
-						if( fileName == fileInput.Name )
-						{
-							var result = def.LinkToScriptAssembly(scriptAssembly);
-
-							//if(!result)
-							//	CustomNpcsPlugin.Instance.LogPrint($"Failed to link {kvp.Key}.", TraceLevel.Info);
-						}
+						//if(!result)
+						//	//	CustomNpcsPlugin.Instance.LogPrint($"Failed to link {kvp.Key}.", TraceLevel.Info);
 					}
 				}
 			}
