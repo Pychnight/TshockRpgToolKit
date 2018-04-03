@@ -72,18 +72,10 @@ namespace CustomNpcs
 			foreach( var kvp in results )
 			{
 				var context = kvp.Value;
-
-				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
-
-				if( context.Errors.Count < 1 )
-					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
-
 				var scriptAssembly = context.GeneratedAssembly;
 
 				if( scriptAssembly != null )
 				{
-					CustomNpcsPlugin.Instance.LogPrint($"Compiled {kvp.Key}.", TraceLevel.Info);
-
 					var fileInput = (FileInput)context.Parameters.Input.First();
 
 					foreach( var def in Definitions )
@@ -95,14 +87,12 @@ namespace CustomNpcs
 
 						if( fileName == fileInput.Name )
 						{
-							def.LinkToScriptAssembly(scriptAssembly);
-							
+							var result = def.LinkToScriptAssembly(scriptAssembly);
+
+							//if(!result)
+							//	CustomNpcsPlugin.Instance.LogPrint($"Failed to link {kvp.Key}.", TraceLevel.Info);
 						}
 					}
-				}
-				else
-				{
-					CustomNpcsPlugin.Instance.LogPrint($"Compile failed on {kvp.Key}.", TraceLevel.Info);
 				}
 			}
 		}

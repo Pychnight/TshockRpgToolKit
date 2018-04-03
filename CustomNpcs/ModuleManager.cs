@@ -106,6 +106,14 @@ namespace CustomNpcs
 					mi.Assembly = context.GeneratedAssembly;
 					mi.BuildTime = buildTime;
 				}
+
+				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
+				CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
+
+				if(context.Errors.Count==0)
+					CustomNpcsPlugin.Instance.LogPrint($"Compiled {kvp.Key}.", TraceLevel.Info);
+				else
+					CustomNpcsPlugin.Instance.LogPrint($"Failed to compile {kvp.Key}.", TraceLevel.Info);
 			}
 
 			Compiled = true;
@@ -142,7 +150,7 @@ namespace CustomNpcs
 						if(mi.BuildTime < fileModifiedTime)
 						{
 							//source file is newer than assebmly... rebuild.
-							CustomNpcsPlugin.Instance.LogPrint($"{sf} has been modified.", TraceLevel.Info);
+							CustomNpcsPlugin.Instance.LogPrint($"{sf} has been modified, recompiling.", TraceLevel.Info);
 							additionalFiles.Add(sf);
 						}
 						else
@@ -154,7 +162,7 @@ namespace CustomNpcs
 					else
 					{
 						// assembly invalid, must recompile.
-						CustomNpcsPlugin.Instance.LogPrint($"{sf} has no valid Assembly.", TraceLevel.Info);
+						CustomNpcsPlugin.Instance.LogPrint($"{sf} failed to load, recompiling.", TraceLevel.Info);
 						additionalFiles.Add(sf);
 					}
 				}
@@ -164,7 +172,7 @@ namespace CustomNpcs
 				
 				foreach(var nf in newFilenames)
 				{
-					CustomNpcsPlugin.Instance.LogPrint($"{nf} is a new module.", TraceLevel.Info);
+					CustomNpcsPlugin.Instance.LogPrint($"{nf} is a new module, compiling.", TraceLevel.Info);
 					Add(nf);
 				}
 				
