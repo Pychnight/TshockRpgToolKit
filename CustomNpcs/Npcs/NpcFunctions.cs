@@ -227,5 +227,23 @@ namespace CustomNpcs
 		{
 			return baseNpc.netID == type;
 		}
+
+		public static CustomNpc SpawnNpcPart(CustomNpc npc, string customId)
+		{
+			if( npc == null )
+				return null;
+
+			var realNpc = npc.Npc;
+
+			if( realNpc.active != true )
+				return null;
+
+			var pos = npc.Center;
+			var part = SpawnCustomNpc(customId, pos);
+
+			npc.AttachNpcPart(part);
+			
+			return part;
+		}
 	}
 }

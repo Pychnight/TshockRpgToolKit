@@ -177,7 +177,12 @@ namespace CustomNpcs.Npcs
             get => Npc.velocity;
             set => Npc.velocity = value;
         }
+		
+		public CustomNpc Parent { get; set; }
 
+		private List<CustomNpc> children;
+		public List<CustomNpc> Children => children ?? ( children = new List<CustomNpc>()); 
+		
 		public string GivenName
 		{
 			get => Npc._givenName;
@@ -486,6 +491,14 @@ namespace CustomNpcs.Npcs
 			{
 				EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeNpc, this.Index, emoteId, lifeTime);
 			}
+		}
+
+		public void AttachNpcPart(CustomNpc part)
+		{
+			Children.Add(part);
+			part.Parent = this;
+
+			part.Hp = Hp;
 		}
 	}
 }
