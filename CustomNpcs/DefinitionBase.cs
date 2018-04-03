@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,6 +52,27 @@ namespace CustomNpcs
 		/// </summary>
 		protected virtual void OnValidate(ValidationResult result)
 		{
+		}
+
+		/// <summary>
+		/// Links a definition to an Assembly generated from a script. 
+		/// </summary>
+		/// <param name="assembly">Generated Assembly for ScriptPath.</param>
+		public bool LinkToScriptAssembly(Assembly assembly)
+		{
+			//later add better error reporting / handling here!
+			//...
+
+			return OnLinkToScriptAssembly(assembly);
+		}
+
+		/// <summary>
+		/// Allows a derived definition class to control the linking process to an Assembly generated from a script. 
+		/// </summary>
+		/// <param name="assembly">Generated Assembly for ScriptPath.</param>
+		protected virtual bool OnLinkToScriptAssembly(Assembly assembly)
+		{
+			return false;
 		}
 	}
 }

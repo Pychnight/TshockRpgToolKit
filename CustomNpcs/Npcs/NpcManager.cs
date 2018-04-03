@@ -15,13 +15,15 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Corruption;
 using BooTS;
+using Boo.Lang.Compiler.IO;
+using Boo.Lang.Compiler;
 
 namespace CustomNpcs.Npcs
 {
     /// <summary>
     ///     Represents an NPC manager. This class is a singleton.
     /// </summary>
-    public sealed class NpcManager : IDisposable
+    public sealed class NpcManager : CustomTypeManager<NpcDefinition>, IDisposable
     {
         internal const string IgnoreCollisionKey = "CustomNpcs_IgnoreCollision";
 
@@ -40,16 +42,12 @@ namespace CustomNpcs.Npcs
             // Allow dropping nebula armor items.
             ItemID.NebulaPickup1, ItemID.NebulaPickup2, ItemID.NebulaPickup3);
 
-		private static readonly string NpcsBasePath = "npcs";
-		private static readonly string NpcsConfigPath = Path.Combine(NpcsBasePath, "npcs.json");
-
 		private readonly bool[] _checkNpcForReplacement = new bool[Main.maxNPCs + 1];
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 		
-        internal List<NpcDefinition> _definitions = new List<NpcDefinition>();
-				
+        //internal List<NpcDefinition> Definitions = new List<NpcDefinition>();
 		Assembly npcScriptsAssembly;
 			
 		internal NoTargetOperation NoTarget { get; set; }
@@ -57,6 +55,9 @@ namespace CustomNpcs.Npcs
         internal NpcManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
+
+			BasePath = "npcs";
+			ConfigPath = Path.Combine(BasePath, "npcs.json");
 						
 			NoTarget = new NoTargetOperation();
 			
@@ -87,11 +88,11 @@ namespace CustomNpcs.Npcs
         {
             //File.WriteAllText(NpcsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
 
-            foreach (var definition in _definitions)
+            foreach (var definition in Definitions)
             {
                 definition.Dispose();
             }
-            _definitions.Clear();
+            Definitions.Clear();
 
             GeneralHooks.ReloadEvent -= OnReload;
             ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);
@@ -104,24 +105,7 @@ namespace CustomNpcs.Npcs
 			//ServerApi.Hooks.NpcTransform.Deregister(_plugin, OnNpcTransform);
 			OTAPI.Hooks.Npc.PostTransform = null;
 		}
-
-        /// <summary>
-        ///     Finds the definition with the specified name.
-        /// </summary>
-        /// <param name="name">The name, which must not be <c>null</c>.</param>
-        /// <returns>The definition, or <c>null</c> if it does not exist.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        [CanBeNull]
-        public NpcDefinition FindDefinition([NotNull] string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-			return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
-        }
-
+		
         /// <summary>
         ///     Gets the custom NPC associated with the specified NPC.
         /// </summary>
@@ -190,7 +174,7 @@ namespace CustomNpcs.Npcs
             return customNpc;
         }
 
-		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
+		protected override IEnumerable<EnsuredMethodSignature> GetEnsuredMethodSignatures()
 		{
 			var sigs = new List<EnsuredMethodSignature>()
 			{
@@ -232,45 +216,11 @@ namespace CustomNpcs.Npcs
 			
 			return sigs;
 		}
-
-		private void LoadDefinitions()
+		
+		protected override void LoadDefinitions()
 		{
-			_definitions = DefinitionLoader.LoadFromFile<NpcDefinition>(NpcsConfigPath);
-
-			//get script files paths
-			var booScripts = _definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
-										 .Select(d => Path.Combine(NpcsBasePath, d.ScriptPath))
-										 .ToList();
-
-			if( booScripts.Count > 0 )
-			{
-				//Debug.Print($"Compiling boo invasion scripts.");
-				CustomNpcsPlugin.Instance.LogPrint($"Compiling npc scripts.", TraceLevel.Info);
-				var context =  BooScriptCompiler.Compile("ScriptedNpcs.dll",
-															booScripts,
-															ScriptHelpers.GetReferences(),
-															ScriptHelpers.GetDefaultImports(),
-															getEnsuredMethodSignatures());
-
-				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
-
-				if( context.Errors.Count < 1 )
-					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
-
-				npcScriptsAssembly = context.GeneratedAssembly;
-
-				if( npcScriptsAssembly != null )
-				{
-					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
-
-					foreach( var d in _definitions )
-						d.LinkToScript(npcScriptsAssembly);
-				}
-				else
-				{
-					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
-				}
-			}
+			CustomNpcsPlugin.Instance.LogPrint($"Compiling NPC scripts.", TraceLevel.Info);
+			base.LoadDefinitions();			
 		}
 
 		private void OnGameUpdate(EventArgs args)
@@ -561,11 +511,11 @@ namespace CustomNpcs.Npcs
 
 		private void OnReload(ReloadEventArgs args)
         {
-			foreach( var definition in _definitions )
+			foreach( var definition in Definitions )
 			{
 				definition.Dispose();
 			}
-			_definitions.Clear();
+			Definitions.Clear();
 
 			LoadDefinitions();
 			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded NPCs!");
@@ -575,7 +525,7 @@ namespace CustomNpcs.Npcs
         {
             var chances = new Dictionary<NpcDefinition, double>();
            
-			foreach( var definition in _definitions.Where(d => d.ShouldReplace) )
+			foreach( var definition in Definitions.Where(d => d.ShouldReplace) )
 			{
 				var chance = 0.0;
 
@@ -613,9 +563,9 @@ namespace CustomNpcs.Npcs
 
 			var spawnViaGlobalRate = _random.Next((int)spawnRate) == 0;
 
-			var weights = new Dictionary<NpcDefinition, int>(_definitions.Count);
+			var weights = new Dictionary<NpcDefinition, int>(Definitions.Count);
 			
-			foreach( var definition in _definitions )
+			foreach( var definition in Definitions )
 			{
 				if( !definition.ShouldSpawn )
 					continue;

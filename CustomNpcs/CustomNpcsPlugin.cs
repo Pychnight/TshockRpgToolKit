@@ -365,7 +365,7 @@ namespace CustomNpcs
 			
 			if( subCommand == "list" )
 			{
-				var definitions = NpcManager.Instance?._definitions;
+				var definitions = NpcManager.Instance?.Definitions;
 				if( definitions != null )
 				{
 					var defs = from def in definitions

@@ -19,27 +19,24 @@ namespace CustomNpcs.Invasions
     /// <summary>
     ///     Represents an invasion manager. This class is a singleton.
     /// </summary>
-    public sealed class InvasionManager : IDisposable
+    public sealed class InvasionManager : CustomTypeManager<InvasionDefinition>, IDisposable
     {
-		internal static readonly string InvasionsBasePath = "npcs";
-        internal static readonly string InvasionsConfigPath = Path.Combine(InvasionsBasePath, "invasions.json");
-        private static readonly Color InvasionTextColor = new Color(175, 25, 255);
+		private static readonly Color InvasionTextColor = new Color(175, 25, 255);
 		       
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
-
-        private string _currentMiniboss;
+		private string _currentMiniboss;
         private int _currentPoints;
         private int _currentWaveIndex;
-        private List<InvasionDefinition> _definitions = new List<InvasionDefinition>();
         private DateTime _lastProgressUpdate;
         private int _requiredPoints;
-				
-		private Assembly invasionScriptsAssembly;
-				
+					
         internal InvasionManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
+
+			BasePath = "npcs";
+			ConfigPath = Path.Combine(BasePath, "invasions.json");
 
 			LoadDefinitions();
 			
@@ -72,30 +69,13 @@ namespace CustomNpcs.Invasions
             ServerApi.Hooks.NpcKilled.Deregister(_plugin, OnNpcKilled);
 
             CurrentInvasion = null;
-            foreach (var definition in _definitions)
+            foreach (var definition in Definitions)
             {
                 definition.Dispose();
             }
-            _definitions.Clear();
+            Definitions.Clear();
         }
-
-        /// <summary>
-        ///     Finds the definition with the specified name.
-        /// </summary>
-        /// <param name="name">The name, which must not be <c>null</c>.</param>
-        /// <returns>The definition, or <c>null</c> if it does not exist.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        [CanBeNull]
-        public InvasionDefinition FindDefinition([NotNull] string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-			return _definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
-        }
-
+		        
         /// <summary>
         ///     Starts the specified invasion.
         /// </summary>
@@ -145,7 +125,7 @@ namespace CustomNpcs.Invasions
 			}
 		}
 		
-		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
+		protected override IEnumerable<EnsuredMethodSignature> GetEnsuredMethodSignatures()
 		{
 			var sigs = new List<EnsuredMethodSignature>()
 			{
@@ -165,49 +145,13 @@ namespace CustomNpcs.Invasions
 
 			return sigs;
 		}
-		
-		private void LoadDefinitions()
+
+		protected override void LoadDefinitions()
 		{
-			_definitions = DefinitionLoader.LoadFromFile<InvasionDefinition>(InvasionsConfigPath);
-
-			//get script files paths
-			var booScripts = _definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
-										 .Select( d => Path.Combine(InvasionsBasePath, d.ScriptPath))
-										 .ToList();
-
-			if( booScripts.Count > 0 )
-			{
-				//Debug.Print($"Compiling boo invasion scripts.");
-				CustomNpcsPlugin.Instance.LogPrint($"Compiling invasion scripts.", TraceLevel.Info);
-				var context = BooScriptCompiler.Compile("ScriptedInvasions.dll",
-															booScripts,
-															ScriptHelpers.GetReferences(),
-															ScriptHelpers.GetDefaultImports(),
-															getEnsuredMethodSignatures());
-
-				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
-
-				if(context.Errors.Count<1)
-					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
-
-				invasionScriptsAssembly = context.GeneratedAssembly;
-
-				if( invasionScriptsAssembly != null )
-				{
-					//Debug.Print($"Compilation succeeded.");
-					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
-
-					foreach( var d in _definitions )
-						d.LinkToScript(invasionScriptsAssembly);
-				}
-				else
-				{
-					//Debug.Print($"Compilation failed.");
-					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
-				}
-			}
+			CustomNpcsPlugin.Instance.LogPrint($"Compiling invasion scripts.", TraceLevel.Info);
+			base.LoadDefinitions();
 		}
-
+		
 		private void NotifyRelevantPlayers()
         {
             foreach (var player in TShock.Players.Where(p => p != null && p.Active && ShouldSpawnInvasionNpcs(p)))
@@ -326,11 +270,11 @@ namespace CustomNpcs.Invasions
         {
             CurrentInvasion = null;
             
-			foreach( var definition in _definitions )
+			foreach( var definition in Definitions )
 			{
 				definition.Dispose();
 			}
-			_definitions.Clear();
+			Definitions.Clear();
 
 			LoadDefinitions();
 

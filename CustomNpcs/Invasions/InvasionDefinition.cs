@@ -118,7 +118,7 @@ namespace CustomNpcs.Invasions
 			OnBossDefeated = null;
         }
 		
-		internal bool LinkToScript(Assembly ass)
+		protected override bool OnLinkToScriptAssembly(Assembly ass)
 		{
 			if( ass == null )
 				return false;
@@ -199,7 +199,7 @@ namespace CustomNpcs.Invasions
 				result.AddError($"{nameof(Name)} is whitespace.", FilePath, LineNumber, LinePosition);
 			}
 
-			var rooted = Path.Combine(InvasionManager.InvasionsBasePath, ScriptPath ?? "");
+			var rooted = Path.Combine(InvasionManager.Instance.BasePath, ScriptPath ?? "");
 
 			if( ScriptPath != null && !File.Exists(rooted) )
 			{

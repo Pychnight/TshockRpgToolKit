@@ -1,4 +1,6 @@
-﻿using BooTS;
+﻿using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.IO;
+using BooTS;
 using Corruption;
 using CustomNpcs.Npcs;
 using Microsoft.Xna.Framework;
@@ -23,25 +25,22 @@ using TShockAPI.Hooks;
 
 namespace CustomNpcs.Projectiles
 {
-	public class ProjectileManager : IDisposable
+	public class ProjectileManager : CustomTypeManager<ProjectileDefinition>, IDisposable
 	{
 		public static ProjectileManager Instance { get; set; }
-
-		public static readonly string ProjectilesBasePath = "npcs";
-		public static readonly string ProjectilesConfigPath = Path.Combine(ProjectilesBasePath, "projectiles.json");
-
 		CustomNpcsPlugin plugin;
-
-		public List<ProjectileDefinition> Definitions { get; private set; }
+		//public List<ProjectileDefinition> Definitions { get; private set; }
 		ConditionalWeakTable<Projectile, CustomProjectile> customProjectiles;
-		Assembly projectileScriptsAssembly;
-				
+		
 		public ProjectileManager(CustomNpcsPlugin plugin)
 		{
 			this.plugin = plugin;
 
+			BasePath = "npcs";
+			ConfigPath = Path.Combine(BasePath, "projectiles.json");
+			
 			customProjectiles = new ConditionalWeakTable<Projectile, CustomProjectile>();
-						
+
 			LoadDefinitions();
 
 			GeneralHooks.ReloadEvent += OnReload;
@@ -58,7 +57,7 @@ namespace CustomNpcs.Projectiles
 		{
 			//...we never wrote the definitions back, which is fine afaik -- why do the original managers do that? 
 
-			foreach (var def in Definitions)
+			foreach( var def in Definitions )
 			{
 				def.Dispose();
 			}
@@ -73,8 +72,8 @@ namespace CustomNpcs.Projectiles
 			OTAPI.Hooks.Projectile.PreAI = null;
 			OTAPI.Hooks.Projectile.PreKill = null;
 		}
-		
-		private IEnumerable<EnsuredMethodSignature> getEnsuredMethodSignatures()
+
+		protected override IEnumerable<EnsuredMethodSignature> GetEnsuredMethodSignatures()
 		{
 			var sigs = new List<EnsuredMethodSignature>()
 			{
@@ -102,56 +101,10 @@ namespace CustomNpcs.Projectiles
 			return sigs;
 		}
 		
-		private void LoadDefinitions()
+		protected override void LoadDefinitions()
 		{
-			Definitions = DefinitionLoader.LoadFromFile<ProjectileDefinition>(ProjectilesConfigPath);
-
-			//get script files paths
-			var booScripts = Definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
-										 .Select(d => Path.Combine(ProjectilesBasePath, d.ScriptPath))
-										 .ToList();
-
-			if( booScripts.Count > 0 )
-			{
-				//Debug.Print($"Compiling boo invasion scripts.");
-				CustomNpcsPlugin.Instance.LogPrint($"Compiling projectile scripts.", TraceLevel.Info);
-				var context = BooScriptCompiler.Compile("ScriptedProjectiles.dll",
-															booScripts,
-															ScriptHelpers.GetReferences(),
-															ScriptHelpers.GetDefaultImports(),
-															getEnsuredMethodSignatures());
-
-				CustomNpcsPlugin.Instance.LogPrintBooErrors(context);
-
-				if( context.Errors.Count < 1 )
-					CustomNpcsPlugin.Instance.LogPrintBooWarnings(context);
-
-				projectileScriptsAssembly = context.GeneratedAssembly;
-
-				if( projectileScriptsAssembly != null )
-				{
-					//Debug.Print($"Compilation succeeded.");
-					CustomNpcsPlugin.Instance.LogPrint($"Success.", TraceLevel.Info);
-
-					foreach( var d in Definitions )
-						d.LinkToScript(projectileScriptsAssembly);
-				}
-				else
-				{
-					//Debug.Print($"Compilation failed.");
-					CustomNpcsPlugin.Instance.LogPrint($"Failed.", TraceLevel.Info);
-				}
-			}
-		}
-
-		public ProjectileDefinition FindDefinition(string name)
-		{
-			if (name == null)
-			{
-				throw new ArgumentNullException(nameof(name));
-			}
-
-			return Definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
+			CustomNpcsPlugin.Instance.LogPrint($"Compiling Projectile scripts.", TraceLevel.Info);
+			base.LoadDefinitions();
 		}
 
 		public static void SendProjectileUpdate(int index)
