@@ -63,6 +63,38 @@ namespace Banking
 			return InternalName;
 		}
 
+		public string InfoString { get; private set; }
+
+		internal void UpdateInfoString()
+		{
+			try
+			{
+
+				var sb = new StringBuilder();
+				var useSeparator = false;
+				var quadrants = Quadrants.ToList();
+
+				quadrants.Reverse();
+
+				foreach( var q in quadrants )
+				{
+					if( useSeparator )
+						sb.Append(" | ");
+
+					sb.AppendFormat("{0}({1})", q.FullName, q.Abbreviation);
+					useSeparator = true;
+				}
+
+				var quadrantInfo = sb.ToString();
+
+				InfoString = $"{InternalName} - {quadrantInfo}";
+			}
+			catch
+			{
+				InfoString = $"{InternalName} - Information not available.";
+			}
+		}
+
 		private CurrencyConverter currencyConverter;
 		public CurrencyConverter GetCurrencyConverter()
 		{

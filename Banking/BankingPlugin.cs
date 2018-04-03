@@ -64,13 +64,17 @@ namespace Banking
 									
 			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "bank")
 			{
-				HelpText = $"Syntax: {Commands.Specifier}bank bal <player-name>\n" +
-									$"{Commands.Specifier}bank pay <player-name> <amount>\n"
+				HelpText = $"Syntax: {Commands.Specifier}bank bal <currency>\n" +
+									$"{Commands.Specifier}bank pay <currency> <player> <amount>\n" +
+									$"{Commands.Specifier}bank list\n"
 			});
 			Commands.ChatCommands.Add(new Command("banking.admin", BankCommands.BankAdmin, "bankadmin")
 			{
-				HelpText = $"Syntax: {Commands.Specifier}bank bal <player-name>\n" +
-									$"{Commands.Specifier}bank pay <player-name> <amount>\n"
+				HelpText = $"Syntax: {Commands.Specifier}bank bal <currency> <player>\n" +
+									$"{Commands.Specifier}bank set <currency> <player> <amount>\n" +
+									$"{Commands.Specifier}bank give <currency> <player> <amount>\n" +
+									$"{Commands.Specifier}bank take <currency> <player> <amount>\n" +
+									$"{Commands.Specifier}bank reset <currency> <player>\n"
 			});
 			Commands.ChatCommands.Add(new Command("banking.multiplier", BankCommands.Multiplier, "multiplier")
 			{

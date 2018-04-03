@@ -52,8 +52,13 @@ namespace Banking
 						viewBankHelp(player);
 						return;
 
+					case "list":
+						listCurrency(player);
+						return;
+
 					default:
 						player.SendErrorMessage($"Unknown subcommand '{subcommand}'.");
+						viewBankHelp(player);
 						break;
 				}
 			}
@@ -152,6 +157,7 @@ namespace Banking
 			player.SendErrorMessage($"Usage is:");
 			player.SendErrorMessage($"{Commands.Specifier}bank bal <currency>");
 			player.SendErrorMessage($"{Commands.Specifier}bank pay <currency> <player> <amount>");
+			player.SendErrorMessage($"{Commands.Specifier}bank list");
 		}
 
 		private static void viewBalance(TSPlayer client, string currencyType, string target=null)
@@ -218,6 +224,16 @@ namespace Banking
 			{
 				client.SendErrorMessage($"Currency format for '{currencyType}' is invalid.");
 				return;
+			}
+		}
+
+		private static void listCurrency(TSPlayer client)
+		{
+			client.SendInfoMessage($"Recognized Currencies:");
+
+			foreach(var cur in BankingPlugin.Instance.Bank.CurrencyManager)
+			{
+				client.SendInfoMessage($"{cur.InfoString}");
 			}
 		}
 

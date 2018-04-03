@@ -33,6 +33,8 @@ namespace Banking
 				//we do this to avoid string parsing on every look up
 				//foreach(var kvp in cur.Rewards)
 				//	kvp.Value.PreParseValues(cur);
+				
+				cur.UpdateInfoString();
 								
 				Definitions.Add(cur.InternalName, cur);
 			}
