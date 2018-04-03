@@ -265,12 +265,18 @@ namespace Banking
 		{
 			Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
 			Debug.Print($"Value: {args.npc.value}");
-			NpcStrikeTracker.OnNpcKilled(args.npc);
+			//NpcStrikeTracker.OnNpcKilled(args.npc);
+
+			Task.Run(() =>
+			{
+				//Debug.Print("Task.Run() => OnNpcKilled!");
+				NpcStrikeTracker.OnNpcKilled(args.npc);
+			});
 		}
-		
+
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
-			//Debug.Print("OnStruckNpcKilled!");
+			Debug.Print("OnStruckNpcKilled!");
 			RewardDistributor.TryAddKillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
 		}
 

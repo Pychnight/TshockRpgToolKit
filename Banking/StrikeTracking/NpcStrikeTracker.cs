@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,13 +14,15 @@ namespace Banking
 	/// </summary>
 	public class NpcStrikeTracker
 	{
-		Dictionary<int, PlayerStrikeInfo> npcStrikes;
+		//Dictionary<int, PlayerStrikeInfo> npcStrikes;
+		ConcurrentDictionary<int, PlayerStrikeInfo> npcStrikes;
 
 		public event EventHandler<StruckNpcKilledEventArgs> StruckNpcKilled;
 
 		public NpcStrikeTracker()
 		{
-			npcStrikes = new Dictionary<int, PlayerStrikeInfo>();
+			//npcStrikes = new Dictionary<int, PlayerStrikeInfo>();
+			npcStrikes = new ConcurrentDictionary<int, PlayerStrikeInfo>();
 		}
 
 		public void Clear()
@@ -63,7 +66,8 @@ namespace Banking
 			{
 				playerStrikes = new PlayerStrikeInfo();
 				playerStrikes.OriginalNpcType = npc.type;//used to help determine despawns.
-				npcStrikes.Add(npcIndex, playerStrikes);
+				 //npcStrikes.Add(npcIndex, playerStrikes);
+				npcStrikes.TryAdd(npcIndex, playerStrikes);
 			}
 
 			var realDamage = CalculateNpcDamage(npc, damage, isCritical);
@@ -81,7 +85,8 @@ namespace Banking
 
 			if( npcStrikes.TryGetValue(npcIndex, out var strikes) )
 			{
-				npcStrikes.Remove(npcIndex);
+				//npcStrikes.Remove(npcIndex);
+				npcStrikes.TryRemove(npcIndex, out var psi);
 				if(StruckNpcKilled!=null)
 				{
 					var args = new StruckNpcKilledEventArgs(npc,strikes);
@@ -108,7 +113,8 @@ namespace Banking
 				if( npc?.active != true )
 				{
 					Debug.Print($"Npc #{npcIndex} despawned. Removing from strike tracking.");
-					npcStrikes.Remove(npcIndex);
+					//npcStrikes.Remove(npcIndex);
+					npcStrikes.TryRemove(npcIndex, out var psi);
 				}
 			}
 		}
