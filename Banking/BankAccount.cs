@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,19 +10,44 @@ namespace Banking
 {
 	public class BankAccount
 	{
+		static object updateLocker = new object();
+		//dictionary of accounts that been modified, and need to be persisted to the db
+		internal static ConcurrentDictionary<int, BankAccount> AccountsToUpdate { get; set; } = new ConcurrentDictionary<int, BankAccount>();
+
 		object locker = new object();
 
+		//used only as a key within the update set, no relevance to db, or even between sessions.
+		internal int InternalId { get; private set; }
 		public string Name { get; private set; }
 		public string OwnerName { get; private set; }
 		//public string CurrencyType { get; private set; }
 		public decimal Balance { get; internal set; }
-		
+
 		internal BankAccount(string ownerName, string name, decimal startingFunds)
 		{
 			OwnerName = ownerName;
 			//CurrencyType = currencyType;
 			Name = name;
 			Balance = startingFunds;
+		}
+
+		internal static void UpdateAccounts()
+		{
+			var bank = BankingPlugin.Instance.Bank;
+			var accounts = AccountsToUpdate.Select( kvp => kvp.Value ).ToList();
+			
+			AccountsToUpdate.Clear();//we need better sync here, stuff can happen between above line and the clear().
+
+			Task.Run(() =>
+			{
+				Debug.Print($"Updating {accounts.Count} BankAccounts.");
+				bank.Database.Update(accounts);
+			});
+		}
+
+		private void markForUpdate()
+		{
+			AccountsToUpdate.TryAdd(InternalId, this);
 		}
 
 		/// <summary>
@@ -37,7 +64,8 @@ namespace Banking
 				//previousBalance = Balance;
 				Balance = amount;
 				//newBalance = Balance;
-				bank.Database.Update(this);
+				//bank.Database.Update(this);
+				markForUpdate();
 			}
 
 			//bank.InvokeBalanceChanged(this, newBalance, previousBalance);
@@ -60,7 +88,8 @@ namespace Banking
 				previousBalance = Balance;
 				Balance += amount;
 				newBalance = Balance;
-				bank.Database.Update(this);
+				//bank.Database.Update(this);
+				markForUpdate();
 			}
 
 			bank.InvokeBalanceChanged(this, newBalance, previousBalance);
@@ -90,7 +119,8 @@ namespace Banking
 				previousBalance = Balance;
 				Balance -= amount;
 				newBalance = Balance;
-				bank.Database.Update(this);
+				//bank.Database.Update(this);
+				markForUpdate();
 			}
 
 			bank.InvokeBalanceChanged(this, newBalance, previousBalance);

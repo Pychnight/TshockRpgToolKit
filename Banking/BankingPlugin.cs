@@ -61,6 +61,7 @@ namespace Banking
 			ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			//ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
+			ServerApi.Hooks.WorldSave.Register(this, OnWorldSave);
 									
 			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "bank")
 			{
@@ -138,6 +139,11 @@ namespace Banking
 		private void OnReload(ReloadEventArgs e)
 		{
 			onLoad();
+		}
+		
+		private void OnWorldSave(WorldSaveEventArgs args)
+		{
+			BankAccount.UpdateAccounts();
 		}
 
 		private void OnServerJoin(JoinEventArgs args)
