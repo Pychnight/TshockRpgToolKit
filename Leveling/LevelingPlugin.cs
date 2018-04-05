@@ -171,28 +171,6 @@ namespace Leveling
 
 		private void OnReload(ReloadEventArgs args)
 		{
-			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-			//    .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
-
-			//ItemNameToLevelRequirements.Clear();
-			//var levels = _classes.SelectMany(c => c.Levels).ToList();
-			//foreach (var @class in _classes)
-			//{
-			//    @class.Resolve(levels, 0);
-			//}
-			//foreach (var @class in _classes)
-			//{
-			//    @class.Resolve(levels, 1);
-			//}
-			//foreach (var level in levels)
-			//{
-			//    foreach (var itemName in level.ItemNamesAllowed)
-			//    {
-			//        ItemNameToLevelRequirements[itemName] = level;
-			//    }
-			//}
-
 			onLoad();
 
 			// We have to resolve sessions again.

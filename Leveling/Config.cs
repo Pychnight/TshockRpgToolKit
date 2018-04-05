@@ -62,7 +62,7 @@ namespace Leveling
 		{
 			if(string.IsNullOrWhiteSpace(DefaultClassName))
 			{
-				throw new Exception("DefaultClassName is not set.");
+				throw new Exception("DefaultClass is not set.");
 			}
 		}
 	}
