@@ -68,7 +68,7 @@ namespace Housing
         {
             if (disposing)
             {
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
+                //File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
 
                 GeneralHooks.ReloadEvent -= OnReload;
                 ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
