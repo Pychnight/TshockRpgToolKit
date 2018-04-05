@@ -59,9 +59,6 @@
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\refs\Boo.Lang.Useful.dll</HintPath>
     </Reference>
-    <Reference Include="BooTS">
-      <HintPath>..\refs\BooTS.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
@@ -156,6 +153,10 @@
     <ProjectReference Include="..\..\Corruption\Corruption\Corruption.csproj">
       <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
       <Name>Corruption</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Terraria-Boo\BooTS\BooTS.csproj">
+      <Project>{a74d2d6c-99ab-465b-bc81-935b9139bfba}</Project>
+      <Name>BooTS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
