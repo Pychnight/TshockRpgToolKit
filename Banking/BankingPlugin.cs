@@ -94,8 +94,7 @@ namespace Banking
 		{
 			if( disposing )
 			{
-				//Config.Save(ConfigPath);
-				JsonConfig.Save(this, Config.Instance, ConfigPath);
+				//JsonConfig.Save(this, Config.Instance, ConfigPath);
 				//Bank.Save();
 				
 				GeneralHooks.ReloadEvent -= OnReload;
