@@ -145,7 +145,7 @@ namespace Leveling
         {
             if (disposing)
             {
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
+                //File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
                 foreach (var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession))
                 {
                     session.Save();
