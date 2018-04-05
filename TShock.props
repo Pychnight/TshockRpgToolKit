@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	
+	<PropertyGroup>
+		<TShockVersion>4.3.24</TShockVersion>
+		<TShockPluginsPath>bin\tshock_$(TShockVersion)\ServerPlugins</TShockPluginsPath>
+		<OutputPath>$(TShockPluginsPath)\</OutputPath>
+	</PropertyGroup>
+
+	<!-- override default csproj props -->
+	<!-- ...or how to waste time with msbuild! Couldn't override the project props in anyway, unless I completely remove/comment them out in the csproj -->
+	<!--<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<OutputPath>$(TShockPluginsPath)\</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<OutputPath>$(TShockPluginsPath)\</OutputPath>
+	</PropertyGroup>-->
+
+	<!-- Add group and target for packaging as a versioned zip -->
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Deploy\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+</Project>
