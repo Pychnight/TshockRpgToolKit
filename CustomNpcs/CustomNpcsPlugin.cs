@@ -94,7 +94,7 @@ namespace CustomNpcs
 		{
 			if( disposing )
 			{
-				File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
+				//File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
 
 				InvasionManager.Instance?.Dispose();
 				InvasionManager.Instance = null;
