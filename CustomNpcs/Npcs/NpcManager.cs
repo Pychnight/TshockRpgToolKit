@@ -235,6 +235,11 @@ namespace CustomNpcs.Npcs
                     npc.netUpdate = true;
                 }
 
+				if(customNpc?.HasChildren==true)
+				{
+					customNpc?.UpdateChildren();
+				}
+
 				if(customNpc?.HasTransformed == true)
 				{
 					var id = customNpc.Npc.whoAmI;

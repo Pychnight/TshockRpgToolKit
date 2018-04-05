@@ -240,8 +240,8 @@ namespace CustomNpcs
 
 			var pos = npc.Center;
 			var part = SpawnCustomNpc(customId, pos);
-
-			npc.AttachNpcPart(part);
+						
+			npc.AttachChild(part);
 			
 			return part;
 		}

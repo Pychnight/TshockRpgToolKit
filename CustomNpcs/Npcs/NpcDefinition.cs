@@ -202,7 +202,7 @@ namespace CustomNpcs.Npcs
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
 			npc.behindTiles = _baseOverride.BehindTiles ?? npc.behindTiles;
-        }
+		}
 		
 		protected override bool OnLinkToScriptAssembly(Assembly ass)
 		{
