@@ -75,11 +75,24 @@ namespace CustomNpcs
 			{
 				var fileName = Path.Combine(BasePath, def.ScriptPath);
 
+				//if newly compile assembly, examine the context, and try to link to the new assembly
 				if( results.TryGetValue(fileName, out var context) )
 				{
 					var scriptAssembly = context.GeneratedAssembly;
 
 					if( scriptAssembly != null )
+					{
+						var result = def.LinkToScriptAssembly(scriptAssembly);
+
+						//if(!result)
+						//	//	CustomNpcsPlugin.Instance.LogPrint($"Failed to link {kvp.Key}.", TraceLevel.Info);
+					}
+				}
+				else
+				{
+					var scriptAssembly = ModuleManager[fileName];
+
+					if(scriptAssembly!=null)
 					{
 						var result = def.LinkToScriptAssembly(scriptAssembly);
 
