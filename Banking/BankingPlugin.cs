@@ -176,38 +176,28 @@ namespace Banking
 							//Debug.Print($"var1: {var1}");
 							//Debug.Print($"var2: {var2}");
 
-							if( action==0 && var1 == 0 )//tile has been killed
+							if( action==0 && var1 == 0 )
 							{
+								//kill tile
 								var player = TShock.Players[args.Msg.whoAmI];
-								var key = new Vector2(tileX, tileY);
-
-								if(!player.TilesDestroyed.TryGetValue(key,out var dummy))
+								var tile = Main.tile[tileX, tileY];
+								
+								//ignore walls and grass
+								if(tile.collisionType>0)
 								{
-									var tile = Main.tile[tileX, tileY];
-
-									//ignore walls and grass
-									if(tile.collisionType>0)
-									{
-										player.TilesDestroyed.Add(key, tile);
-
-										OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
-										return;
-									}
+									//player.TilesDestroyed.Add(key, tile);
+									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
+									return;
 								}
 							}
 							else if(action==1)// && var1 > 0)
 							{
+								//place tile
 								var player = TShock.Players[args.Msg.whoAmI];
-								var key = new Vector2(tileX, tileY);
-
-								if( !player.TilesCreated.TryGetValue(key, out var dummy) )
-								{
-									var tile = Main.tile[tileX, tileY];
-									player.TilesCreated.Add(key, tile);
-
-									OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile.type));
-									return;
-								}
+								var tile = Main.tile[tileX, tileY];
+								
+								OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile.type));
+								return;
 							}
 						}
 					}
@@ -291,17 +281,75 @@ namespace Banking
 
 		private void OnTileKilled(TileChangedEventArgs args)
 		{
-			//Debug.Print("OnTileKilled!");
-			if(args.Player!=null)
-				RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Mining, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
-		}
+			Debug.Print("OnTileKilled!");
 
+			var player = args.Player;
+			var key = new Vector2(args.TileX, args.TileY);
+
+			if( !TShock.Regions.CanBuild(args.TileX,args.TileY,player))
+			{
+				Debug.Print("Cannot build here.");
+				return;
+			}
+
+			if( !player.TilesDestroyed.TryGetValue(key, out var dummy) &&
+				!player.TilesCreated.TryGetValue(key,out var dummy2) ) //dont gain from mining own placed tiles
+			{
+				var tile = Main.tile[args.TileX, args.TileY];
+
+				//ignore walls and grass
+				if( tile.collisionType > 0 )
+				{
+					player.TilesDestroyed.Add(key, tile);
+
+					if( args.Player != null )
+						RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Mining, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
+				}
+			}
+			else
+				Debug.Print("Already destroyed.");
+		}
+		
 		private void OnTilePlaced(TileChangedEventArgs args)
 		{
-			//Debug.Print("OnTilePlaced!");
-			if( args.Player != null )
-				RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Placing, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
+			Debug.Print("OnTilePlaced!");
+
+			var player = args.Player;
+			var key = new Vector2(args.TileX, args.TileY);
+
+			if( !TShock.Regions.CanBuild(args.TileX, args.TileY, player) )
+			{
+				Debug.Print("Cannot build here.");
+				return;
+			}
+
+			if( !player.TilesCreated.TryGetValue(key, out var dummy) )
+			{
+				var tile = Main.tile[args.TileX, args.TileY];
+				player.TilesCreated.Add(key, tile);
+
+				if( args.Player != null )
+					RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Placing, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
+			}
+			else
+				Debug.Print("Already placed.");
 		}
+
+		//private bool canBuild(int tileX, int tileY, TSPlayer player)
+		//{
+		//	//TShock.Regions.CanBuild(tileX, tileY, player);
+		//	var regions = TShock.Regions.Regions.Where(r => r.InArea(tileX,tileY)).ToList();
+
+		//	foreach(var reg in regions)
+		//	{
+		//		if(!reg.HasPermissionToBuildInRegion(player))
+		//		{
+		//			return false;
+		//		}
+		//	}
+
+		//	return true;
+		//}
 						
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
