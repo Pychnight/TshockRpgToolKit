@@ -1,5 +1,6 @@
 ﻿using Banking.Configuration;
 using Banking.Rewards;
+using Corruption;
 using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using OTAPI.Tile;
@@ -288,7 +289,7 @@ namespace Banking
 			var player = args.Player;
 			var key = new Vector2(args.TileX, args.TileY);
 
-			if( !TShock.Regions.CanBuild(args.TileX,args.TileY,player))
+			if(!canBuild(args.TileX,args.TileY,player))
 			{
 				Debug.Print("Cannot build here.");
 				return;
@@ -319,7 +320,7 @@ namespace Banking
 			var player = args.Player;
 			var key = new Vector2(args.TileX, args.TileY);
 
-			if( !TShock.Regions.CanBuild(args.TileX, args.TileY, player) )
+			if( !canBuild(args.TileX, args.TileY, player) )
 			{
 				Debug.Print("Cannot build here.");
 				return;
@@ -337,22 +338,14 @@ namespace Banking
 				Debug.Print("Already placed.");
 		}
 
-		//private bool canBuild(int tileX, int tileY, TSPlayer player)
-		//{
-		//	//TShock.Regions.CanBuild(tileX, tileY, player);
-		//	var regions = TShock.Regions.Regions.Where(r => r.InArea(tileX,tileY)).ToList();
+		private bool canBuild(int tileX, int tileY, TSPlayer player)
+		{
+			if( AreaFunctions.InSpawn(tileX, tileY) )
+				return false;
+			
+			return TShock.Regions.CanBuild(tileX, tileY, player);
+		}
 
-		//	foreach(var reg in regions)
-		//	{
-		//		if(!reg.HasPermissionToBuildInRegion(player))
-		//		{
-		//			return false;
-		//		}
-		//	}
-
-		//	return true;
-		//}
-						
 		public BankAccount GetBankAccount(TSPlayer player, string accountType)
 		{
 			return Bank.GetBankAccount(player.Name,accountType);
