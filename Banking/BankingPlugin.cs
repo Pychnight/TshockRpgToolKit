@@ -226,25 +226,27 @@ namespace Banking
 							}
 
 							if( otherPlayer != null )
-								RewardDistributor.TryAddReward(otherPlayer.Name, RewardReason.DeathPvP, otherPlayer.Name);
+							{
+								//RewardDistributor.TryAddReward(otherPlayer.Name, RewardReason.DeathPvP, otherPlayer.Name);
+								RewardDistributor.TryAddDeathPenalty(player.Name, RewardReason.DeathPvP, otherPlayer.Name);
+							}
 							else
-								RewardDistributor.TryAddReward(player.Name, RewardReason.DeathPvP, "");
+							{
+								//RewardDistributor.TryAddReward(player.Name, RewardReason.DeathPvP, "");
+								RewardDistributor.TryAddDeathPenalty(player.Name, RewardReason.DeathPvP, "");
+							}
 						}
 						else
 						{
-							RewardDistributor.TryAddReward(player.Name, RewardReason.Death, "");
+							//RewardDistributor.TryAddReward(player.Name, RewardReason.Death, "");
+							RewardDistributor.TryAddDeathPenalty(player.Name, RewardReason.Death, "");
 						}
 					}
 
 					break;
 			}
 		}
-
-		//private void OnWorldSave(WorldSaveEventArgs args)
-		//{
-		//	BankAccountManager.Save();
-		//}
-
+		
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();

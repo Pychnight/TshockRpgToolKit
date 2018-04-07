@@ -109,8 +109,8 @@ namespace Banking
 			var sb = new StringBuilder();
 			var sign = Math.Sign(value);
 			value = Math.Abs(value);
-
-			if( sign < 0 )
+			
+			if( sign < 0 && value>=1.0m )
 			{
 				sb.Append('-');
 			}

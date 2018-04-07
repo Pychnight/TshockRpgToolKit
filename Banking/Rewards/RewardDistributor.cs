@@ -42,20 +42,14 @@ namespace Banking.Rewards
 
 				foreach( var currency in bank.CurrencyManager )
 				{
-					if( currency == null )
-					{
-						Debug.Assert(currency != null, "Currency should never be null!");
-						continue;
-					}
-
+					Debug.Assert(currency != null, "Currency should never be null!");
+					
 					if( !currency.GainBy.Contains(RewardReason.Killing) )
 						continue;
 
 					if( npcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
-					{
 						continue;
-					}
-
+					
 					var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
 
 					if( rewardAccount == null )
@@ -98,7 +92,84 @@ namespace Banking.Rewards
 				}
 			}
 		}
-		
+
+		public void TryAddDeathPenalty(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, string weaponName = null)
+		{
+			var bank = BankingPlugin.Instance.Bank;
+			var playerAccountMap = bank[playerName];
+
+			Debug.Assert(gainedBy == RewardReason.Death || gainedBy == RewardReason.DeathPvP,
+							"TryAddDeathPenalty() must be RewardReason.Death, or RewardReason.DeathPvP.");
+			
+			foreach( var currency in bank.CurrencyManager )
+			{
+				Debug.Assert(currency != null, "Currency should never be null!");
+
+				//var rewardAccount = playerAccountMap.GetAccountForCurrencyReward(currency.InternalName);
+				var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
+
+				if( rewardAccount == null )
+				{
+					Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
+					continue;
+				}
+
+				//var evaluator = GetRewardEvaluator(currency.InternalName, gainedBy);
+
+				switch( gainedBy )
+				{
+					case RewardReason.Death:
+						var factor = 1.0m; // ( session.Class.DeathPenaltyMultiplierOverride ?? 1.0 );
+
+						decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyMultiplier * factor * rewardAccount.Balance,
+																	(decimal)currency.DeathPenaltyMinimum), 2);
+						if( loss == 0.0m )
+							continue;
+
+						if( rewardAccount.TryWithdraw(loss, false) )
+						{
+							loss = -loss;//make negative
+							trySendCombatText(playerName, currency, ref loss);
+						}
+						break;
+
+					case RewardReason.DeathPvP:
+						//decimal value = evaluator.GetRewardValue(playerName, currency.InternalName, itemName, (decimal)defaultValue);//<---not sure how or if to slot this in.
+						//decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum));
+						decimal lossPvP = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum),2);
+
+						if( lossPvP == 0.0m )
+							continue;
+
+						if( string.IsNullOrWhiteSpace(itemName) )//itemName will hold other players name, if available.
+						{
+							if( rewardAccount.TryWithdraw(lossPvP, false) )
+								trySendCombatText(playerName, currency, ref lossPvP);
+						}
+						else
+						{
+							var other = bank.GetBankAccount(itemName, currency.InternalName);
+
+							if( other == null )
+							{
+								Debug.Print($"Unable to find player {itemName}'s BankAccount for DeathPvP.");
+								continue;
+							}
+
+							if( rewardAccount.TryTransferTo(other, lossPvP, false) )
+							{
+								lossPvP = -lossPvP;//make negative
+								trySendCombatText(playerName, currency, ref lossPvP);
+
+								lossPvP = -lossPvP;//make positive
+								trySendCombatText(itemName, currency, ref lossPvP);
+							}
+						}
+						break;
+				}
+			}
+		}
+				
 		public void TryAddReward(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, bool npcSpawnedFromStatue = false, string weaponName = null )
 		{
 			var bank = BankingPlugin.Instance.Bank;
