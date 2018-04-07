@@ -1,5 +1,6 @@
 ﻿using Banking.Configuration;
 using Banking.Rewards;
+using Banking.TileTracking;
 using Corruption;
 using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
@@ -38,6 +39,7 @@ namespace Banking
 		internal CombatTextDistributor CombatTextDistributor;
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
+		internal PlayerTileTracker PlayerTileTracker;
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
 				
@@ -61,7 +63,7 @@ namespace Banking
 			ServerApi.Hooks.NpcStrike.Register(this, OnNpcStrike);
 			ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
-			//ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
+			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 			ServerApi.Hooks.WorldSave.Register(this, OnWorldSave);
 									
 			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "bank")
@@ -106,8 +108,8 @@ namespace Banking
 				ServerApi.Hooks.NpcStrike.Deregister(this, OnNpcStrike);
 				ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
-				//ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
-				//ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
+				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
+				ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
 			}
 
 			base.Dispose(disposing);
@@ -117,18 +119,28 @@ namespace Banking
 		{
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 
-			if(Bank==null)
+			try
 			{
-				CombatTextDistributor = new CombatTextDistributor();
-				Bank = new Bank();
-				NpcStrikeTracker = new NpcStrikeTracker();
-				NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
-				RewardDistributor = new RewardDistributor();
-				VoteChecker = new VoteChecker();
-			}
+				Debug.Print($"Loading Bank.");
+				
+				if( Bank == null )
+				{
+					CombatTextDistributor = new CombatTextDistributor();
+					Bank = new Bank();
+					NpcStrikeTracker = new NpcStrikeTracker();
+					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
+					PlayerTileTracker = new PlayerTileTracker(DataDirectory);
+					RewardDistributor = new RewardDistributor();
+					VoteChecker = new VoteChecker();
+				}
 
-			NpcStrikeTracker.Clear();
-			Bank.Load();
+				NpcStrikeTracker.Clear();
+				Bank.Load();
+			}
+			catch(Exception ex)
+			{
+				this.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
 		}
 
 		private void OnPostInitialize(EventArgs args)
@@ -150,6 +162,12 @@ namespace Banking
 		{
 			var player = new TSPlayer(args.Who);
 			Bank.EnsureBankAccountsExist(player.Name);
+		}
+
+		private void OnServerLeave(LeaveEventArgs args)
+		{
+			var player = new TSPlayer(args.Who);
+			PlayerTileTracker.OnPlayerLeave(player.Name);
 		}
 
 		private void OnNetGetData(GetDataEventArgs args)
@@ -295,15 +313,17 @@ namespace Banking
 				return;
 			}
 
-			if( !player.TilesDestroyed.TryGetValue(key, out var dummy) &&
-				!player.TilesCreated.TryGetValue(key,out var dummy2) ) //dont gain from mining own placed tiles
+			//if( !player.TilesDestroyed.TryGetValue(key, out var dummy) &&
+			//	!player.TilesCreated.TryGetValue(key,out var dummy2) ) //dont gain from mining own placed tiles
+			if( !PlayerTileTracker.HasModifiedTile(player.Name,args.TileX,args.TileY))
 			{
 				var tile = Main.tile[args.TileX, args.TileY];
 
 				//ignore walls and grass
 				if( tile.collisionType > 0 )
 				{
-					player.TilesDestroyed.Add(key, tile);
+					//player.TilesDestroyed.Add(key, tile);
+					PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 					if( args.Player != null )
 						RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Mining, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
@@ -326,10 +346,12 @@ namespace Banking
 				return;
 			}
 
-			if( !player.TilesCreated.TryGetValue(key, out var dummy) )
+			//if( !player.TilesCreated.TryGetValue(key, out var dummy) )
+			if(!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
 			{
-				var tile = Main.tile[args.TileX, args.TileY];
-				player.TilesCreated.Add(key, tile);
+				//var tile = Main.tile[args.TileX, args.TileY];
+				//player.TilesCreated.Add(key, tile);
+				PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 				if( args.Player != null )
 					RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Placing, args.Type.ToString(), 1);//ideally we wont create strings, but for now...

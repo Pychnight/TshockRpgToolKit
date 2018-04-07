@@ -84,6 +84,8 @@
     <Compile Include="BankAccount.cs" />
     <Compile Include="Bank.cs" />
     <Compile Include="Configuration\VotingConfig.cs" />
+    <Compile Include="TileTracking\PlayerTileTracker.cs" />
+    <Compile Include="TileTracking\TileAccessMap.cs" />
     <Compile Include="VoteChecker.cs" />
     <None Include="Currency\Money.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
