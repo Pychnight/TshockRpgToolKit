@@ -35,8 +35,26 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CustomNpcs">
-      <HintPath>..\refs\CustomNpcs.dll</HintPath>
+    <Reference Include="Boo.Lang">
+      <HintPath>..\refs\boo-custom\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.CodeDom">
+      <HintPath>..\refs\boo-custom\Boo.Lang.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>..\refs\boo-custom\Boo.Lang.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Extensions">
+      <HintPath>..\refs\boo-custom\Boo.Lang.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\refs\boo-custom\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\refs\boo-custom\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\refs\boo-custom\Boo.Lang.Useful.dll</HintPath>
     </Reference>
     <Reference Include="JetBrains.Annotations, Version=10.4.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\..\packages\JetBrains.Annotations.10.4.0\lib\net\JetBrains.Annotations.dll</HintPath>
@@ -107,12 +125,26 @@
     <None Include="packages.config" />
     <None Include="utils.lua" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Corruption\Corruption\Corruption.csproj">
+      <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
+      <Name>Corruption</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Custom-Npcs-2\CustomNpcs\CustomNpcs.csproj">
+      <Project>{b96b0ad7-6ff5-4ecc-ad22-00ce7fdc3177}</Project>
+      <Name>CustomNpcs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Terraria-Boo\BooTS\BooTS.csproj">
+      <Project>{a74d2d6c-99ab-465b-bc81-935b9139bfba}</Project>
+      <Name>BooTS</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-	<Import Project="..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
+  <Import Project="..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
