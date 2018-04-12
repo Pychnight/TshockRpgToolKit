@@ -1,4 +1,4 @@
--- Counts the number of blocks in the area matching the ID.
+-- Counts the number of blocks in the area matching the ID. ( Replaced in Corruption.TileFunctions. )
 function CountBlocks(x, y, x2, y2, id)
 	local count = 0
     local minX = math.min(x, x2)
@@ -15,8 +15,8 @@ function CountBlocks(x, y, x2, y2, id)
 	return count
 end
 
--- Counts the number of blocks in the area matching the ID and frames.
-function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY)
+-- Counts the number of blocks in the area matching the ID and frames. ( Replaced in Corruption.TileFunctions. )
+function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY) 
 	local count = 0
     local minX = math.min(x, x2)
     local maxX = math.max(x, x2)
@@ -32,7 +32,7 @@ function CountBlocksWithFrames(x, y, x2, y2, id, frameX, frameY)
 	return count
 end
 
--- Counts the number of NPCs in the area matching the name. (Uses GivenOrTypeName)
+-- Counts the number of NPCs in the area matching the name. (Uses GivenOrTypeName) ( Replace in Corruption.NpcFunctions. )
 function CountNpcs(x, y, x2, y2, name)
     local count = 0
     local minX = math.min(x, x2)
@@ -49,7 +49,7 @@ function CountNpcs(x, y, x2, y2, name)
     return count
 end
 
--- Counts the number of walls in the area matching the ID.
+-- Counts the number of walls in the area matching the ID. ( Replaced in Corruption.TileFunctions. )
 function CountWalls(x, y, x2, y2, id)
 	local count = 0
     local minX = math.min(x, x2)
@@ -66,7 +66,7 @@ function CountWalls(x, y, x2, y2, id)
 	return count
 end
 
--- Finds an NPC by name. (Uses GivenOrTypeName)
+-- Finds an NPC by name. (Uses GivenOrTypeName) ( Replace in Corruption.NpcFunctions. )
 function FindNpcByName(name)
 	for i = 0, 200 do
 		local npc = Main.npc[i]
@@ -76,7 +76,7 @@ function FindNpcByName(name)
 	end
 end
 
--- Finds an NPC by type.
+-- Finds an NPC by type. ( Replace in Corruption.NpcFunctions. )
 function FindNpcByType(type)
 	for i = 0, 200 do
 		local npc = Main.npc[i]
@@ -94,7 +94,7 @@ function ForEachPlayer(callback)
 	end
 end
 
--- Determines if the block at the coordinates matches the ID.
+-- Determines if the block at the coordinates matches the ID. ( Replaced in Corruption.TileFunctions. )
 function MatchesBlock(x, y, id)
 	local tile = GetTile(x, y)
 	if id == "air" then
@@ -110,68 +110,68 @@ function MatchesBlock(x, y, id)
 	end
 end
 
--- Determines if the block at the coordinates matches the ID and frames.
+-- Determines if the block at the coordinates matches the ID and frames. ( Replaced in Corruption.TileFunctions, and spelling corrected. )
 function MatchesBlockWtihFrames(x, y, id, frameX, frameY)
 	local tile = GetTile(x, y)
 	return tile:active() and GetTileType(tile) == id and tile.frameX == frameX and tile.frameY == frameY
 end
 
--- Determines if the wall at the coordinates matches the ID.
+-- Determines if the wall at the coordinates matches the ID. ( Replaced in Corruption.TileFunctions. )
 function MatchesWall(x, y, id)
 	local tile = GetTile(x, y)
 	return tile.type == id
 end
 
--- Adds a chat response trigger.
+-- Adds a chat response trigger. ( Replaced in UtilsTriggers. )
 function QuickChatResponse(response, onlyLeader, callback)
 	local trigger = ChatResponse(party, response, onlyLeader)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Adds a condition trigger.
+-- Adds a condition trigger. ( Replaced in UtilsTriggers. )
 function QuickCondition(condition, callback)
 	local trigger = Condition(condition)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Adds a drop items trigger.
+-- Adds a drop items trigger. ( Replaced in UtilsTriggers. )
 function QuickDropItems(name, amount, callback)
 	local trigger = DropItems(party, name, amount)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Adds a gather items trigger.
+-- Adds a gather items trigger. ( Replaced in UtilsTriggers. )
 function QuickGatherItems(name, amount, callback)
 	local trigger = GatherItems(party, name, amount)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Adds an in area trigger.
+-- Adds an in area trigger. ( Replaced in UtilsTriggers. )
 function QuickInArea(x, y, x2, y2, isEveryone, callback)
 	local trigger = InArea(party, x, y, x2, y2, isEveryone)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Adds a kill NPCs trigger.
+-- Adds a kill NPCs trigger. ( Replaced in UtilsTriggers. )
 function QuickKillNpcs(names, amount, callback)
 	local trigger = KillNpcs(party, names, amount)
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Adds a wait trigger.
+-- Adds a wait trigger. ( Replaced in UtilsTriggers. )
 function QuickWait(seconds, callback)
 	local trigger = Wait(TimeSpan.FromSeconds(seconds))
 	trigger.Callback = callback
 	AddTrigger(trigger)
 end
 
--- Sets the block at the coordinates to the ID.
+-- Sets the block at the coordinates to the ID. ( Replaced in Corruption.TileFunctions. )
 function SetBlock(x, y, id)
 	local tile = GetTile(x, y)
 	if id == "air" then
@@ -200,7 +200,7 @@ function SetBlock(x, y, id)
 	end
 end
 
--- Sets the blocks in the area.
+-- Sets the blocks in the area. ( Replaced in Corruption.TileFunctions. )
 function SetBlocks(x, y, x2, y2, id)
     local minX = math.min(x, x2)
     local maxX = math.max(x, x2)
@@ -213,13 +213,13 @@ function SetBlocks(x, y, x2, y2, id)
 	end
 end
 
--- Sets the walls at the coordinates.
+-- Sets the walls at the coordinates. ( Replaced in Corruption.TileFunctions. )
 function SetWall(x, y, id)
 	local tile = GetTile(x, y)
 	tile.wall = id
 end
 
--- Sets the walls in the area.
+-- Sets the walls in the area. ( Replaced in Corruption.TileFunctions. )
 function SetWalls(x, y, x2, y2, id)
     local minX = math.min(x, x2)
     local maxX = math.max(x, x2)

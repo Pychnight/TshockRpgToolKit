@@ -96,6 +96,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
+    <None Include="Next\UtilsTriggers.cs" />
     <Compile Include="Party.cs" />
     <Compile Include="QuestFunctions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
