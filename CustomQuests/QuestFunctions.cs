@@ -21,6 +21,16 @@ namespace CustomQuests
     {
         private static readonly Random Random = new Random();
 
+		/// <summary>
+		///		Broadcasts the specified message.
+		/// </summary>
+		/// <param name="message">The message string.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
+		public static void Broadcast(string message)
+		{
+			Broadcast(message, Color.White);
+		}
+
         /// <summary>
         ///     Broadcasts the specified message.
         /// </summary>
