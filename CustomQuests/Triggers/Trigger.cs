@@ -21,6 +21,8 @@ namespace CustomQuests.Triggers
         [UsedImplicitly]
         public LuaFunction Callback { get; set; }
 
+		public Action Action { get; set; }
+
         /// <summary>
         ///     Gets a value indicating whether the trigger is completed.
         /// </summary>
@@ -55,7 +57,10 @@ namespace CustomQuests.Triggers
             {
                 try
                 {
-                    Callback?.Call();
+					if( Action != null )
+						Action();
+					else
+						Callback?.Call();
                 }
                 catch (LuaException ex)
                 {

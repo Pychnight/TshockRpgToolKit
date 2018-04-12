@@ -22,8 +22,13 @@ namespace CustomQuests.Triggers
             _condition = condition ?? throw new ArgumentNullException(nameof(condition));
         }
 
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
+		public Condition(Func<bool> condition)
+		{
+			throw new NotImplementedException("Development stub.");
+		}
+
+		/// <inheritdoc />
+		protected override void Dispose(bool disposing)
         {
             if (disposing)
             {

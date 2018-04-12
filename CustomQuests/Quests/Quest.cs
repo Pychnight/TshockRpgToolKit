@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using NLua;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace CustomQuests.Quests
 {
@@ -14,10 +15,14 @@ namespace CustomQuests.Quests
     /// </summary>
     public class Quest : IDisposable
     {
-        private readonly Dictionary<string, QuestThread> _threads = new Dictionary<string, QuestThread>
+		protected readonly Dictionary<string, QuestThread> _threads = new Dictionary<string, QuestThread>
         {
             ["main"] = new QuestThread()
         };
+
+		public Quest()
+		{
+		}
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Quest" /> class with the specified quest info.
@@ -45,7 +50,7 @@ namespace CustomQuests.Quests
         ///     Gets the quest info.
         /// </summary>
         [NotNull]
-        public QuestInfo QuestInfo { get; }
+        public QuestInfo QuestInfo { get; internal set; }
 
 		/// <summary>
 		///  Gets or sets a friendly string informing players of their progress within a quest.

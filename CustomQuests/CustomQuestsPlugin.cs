@@ -14,6 +14,7 @@ using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
+using Corruption.PluginSupport;
 
 namespace CustomQuests
 {
@@ -55,7 +56,7 @@ namespace CustomQuests
         /// <summary>
         ///     Gets the author.
         /// </summary>
-        public override string Author => "MarioE";
+        public override string Author => "MarioE, Timothy Barela";
 
         /// <summary>
         ///     Gets the description.
@@ -113,7 +114,7 @@ namespace CustomQuests
             GetDataHandlers.TileEdit += OnTileEdit;
             ServerApi.Hooks.NetSendData.Register(this, OnSendData);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
-            ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
+            ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 
             Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
             Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
@@ -141,7 +142,7 @@ namespace CustomQuests
                 GetDataHandlers.TileEdit -= OnTileEdit;
                 ServerApi.Hooks.NetSendData.Deregister(this, OnSendData);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
-                ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
+                ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
             }
 
             base.Dispose(disposing);
@@ -270,7 +271,7 @@ namespace CustomQuests
             player.SendTileSquare(x, y, 5);
         }
 
-        private void OnUpdate(EventArgs args)
+        private void OnGameUpdate(EventArgs args)
         {
             foreach (var player in TShock.Players.Where(p => p?.User != null))
             {
@@ -706,13 +707,22 @@ namespace CustomQuests
                 return;
             }
 
-            var path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
-            if (!File.Exists(path))
-            {
-                player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                return;
-            }
-
+			var path = "";
+			
+			if(!string.IsNullOrEmpty(questInfo.LuaPath) && questInfo.LuaPath.EndsWith(".boo"))
+			{
+				Debug.Print("Accepting a boo quest.");
+			}
+			else
+			{
+				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
+				if( !File.Exists(path) )
+				{
+					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+					return;
+				}
+			}
+			
             var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
                 .Count(s => s.CurrentQuestName == inputName);
             if (concurrentParties >= questInfo.MaxConcurrentParties)
@@ -789,20 +799,22 @@ namespace CustomQuests
             }
         }
 
-        private void QuestList(CommandArgs args)
-        {
-            var parameters = args.Parameters;
-            var player = args.Player;
-            if (parameters.Count > 2)
-            {
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
-                return;
-            }
+		private void QuestList(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			if( parameters.Count > 2 )
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
+				return;
+			}
 
-            var session = GetSession(player);
-            var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
-                .Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name).ToList();
-            var completedQuests = session.CompletedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
+			var session = GetSession(player);
+			var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
+															.Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name)
+															.ToList();
+			
+			var completedQuests = session.CompletedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
             var totalQuestCount = availableQuests.Count + completedQuests.Count;
             var maxPage = (totalQuestCount - 1) / QuestsPerPage + 1;
             var inputPageNumber = parameters.Count == 1 ? "1" : parameters[1];

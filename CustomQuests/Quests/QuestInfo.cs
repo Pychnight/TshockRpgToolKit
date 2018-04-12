@@ -49,5 +49,10 @@
         ///     Gets or sets the required region name.
         /// </summary>
         public string RequiredRegionName { get; set; }
-    }
+
+		public override string ToString()
+		{
+			return $"{{{Name}|'{FriendlyName}'}}";
+		}
+	}
 }

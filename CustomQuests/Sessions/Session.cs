@@ -7,6 +7,13 @@ using JetBrains.Annotations;
 using NLua;
 using TShockAPI;
 using System.Diagnostics;
+using BooTS;
+//using CustomQuests.Next;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.Xna.Framework;
+using CustomQuests.Next;
+using System.Reflection;
 
 namespace CustomQuests.Sessions
 {
@@ -15,9 +22,10 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class Session : IDisposable
     {
-        internal readonly TSPlayer _player;//made internal, as a quick fix for SessionManager needing the player in OnReload().
-
-        private Quest _currentQuest;
+		static Dictionary<string, Assembly> scriptAssemblies = new Dictionary<string, Assembly>();
+		
+		internal readonly TSPlayer _player;//made internal, as a quick fix for SessionManager needing the player in OnReload().
+		private Quest _currentQuest;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Session" /> class with the specified player and session information.
@@ -53,6 +61,12 @@ namespace CustomQuests.Sessions
         [CanBeNull]
         public Lua CurrentLua { get; private set; }
 
+		//temp for development
+		public bool IsBoo { get; set; }
+
+		//temp placeholder
+		//public Task CurrentBoo { get; private set; }
+		
         /// <summary>
         ///     Gets or sets the current quest.
         /// </summary>
@@ -128,9 +142,11 @@ namespace CustomQuests.Sessions
                 throw new ArgumentNullException(nameof(questInfo));
             }
 
-            return questInfo.RequiredRegionName == null ||
+            var result = questInfo.RequiredRegionName == null ||
                    TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
                        .Any(r => r.Name == questInfo.RequiredRegionName);
+
+			return result;
         }
 
 		/// <summary>
@@ -213,24 +229,83 @@ namespace CustomQuests.Sessions
 			//ensure there is a party set, even if a solo player.
 			Party = Party ?? new Party(_player.Name, _player);
 
-			var quest = new Quest(questInfo);
-			var lua = new Lua {["party"] = Party};
-            lua.LoadCLRPackage();
-            lua.DoString("import('System')");
-            lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
-            lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-            lua.DoString("import('OTAPI', 'Terraria')");
-            LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
-            LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
-            LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
-				
-			//set these before, or various quest specific functions will get null ref's from within the quest.
-			CurrentQuest = quest;
-			CurrentQuestInfo = questInfo;
-			CurrentLua = lua;
+			//var quest = new Quest(questInfo);
+			var path = "";
 
-			var path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
-            lua.DoFile(path);
+			if( !string.IsNullOrEmpty(questInfo.LuaPath) && questInfo.LuaPath.EndsWith(".boo") )
+			{
+				Debug.Print("Using a boo script.");
+				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.boo");
+				
+				if(!scriptAssemblies.TryGetValue(path, out var scriptAssembly))
+				{
+					Debug.Print($"Compiling quest script '{path}'.");
+
+					var bc = new BooScriptCompiler();
+
+					bc.Configure(CustomQuests.Next.ScriptHelpers.GetReferences(), CustomQuests.Next.ScriptHelpers.GetDefaultImports());
+														
+					var assName = $"Quest_{questInfo.Name}.dll";
+					var context = bc.Compile(assName, new string[] { path });
+
+					if( context.Errors.Count > 0 )
+					{
+						foreach( var err in context.Errors )
+							Debug.Print(err.Message);
+
+						Debug.Print($"Compilation failed. Aborting quest.");
+						return;
+					}
+					else if( context.Warnings.Count > 0 )
+					{
+						foreach( var war in context.Warnings )
+							Debug.Print(war.Message);
+					}
+
+					scriptAssembly = context.GeneratedAssembly;
+
+					scriptAssemblies.Add(path, scriptAssembly);
+				}
+
+				var quest = (BooQuest)scriptAssembly.CreateInstance("TestBooQuest");
+
+				//var quest = new BooQuest(questInfo);
+
+				//set these before, or various quest specific functions will get null ref's from within the quest.
+
+				quest.QuestInfo = questInfo;
+				quest.party = new Next.Party(_player);
+
+
+				CurrentQuest = quest;
+				CurrentQuestInfo = questInfo;
+				//CurrentLua = lua;
+
+				quest.Run();
+			}
+			else
+			{
+				var quest = new Quest(questInfo);
+
+				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
+
+				var lua = new Lua { ["party"] = Party };
+				lua.LoadCLRPackage();
+				lua.DoString("import('System')");
+				lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
+				lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
+				lua.DoString("import('OTAPI', 'Terraria')");
+				LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
+				LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
+				LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
+
+				//set these before, or various quest specific functions will get null ref's from within the quest.
+				CurrentQuest = quest;
+				CurrentQuestInfo = questInfo;
+				CurrentLua = lua;
+
+				lua.DoFile(path);
+			}
         }
 
         /// <summary>

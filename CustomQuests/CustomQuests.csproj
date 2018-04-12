@@ -99,7 +99,9 @@
     <Compile Include="Next\Party.cs" />
     <Compile Include="Next\PartyMember.cs" />
     <Compile Include="Next\PartyMemberNotificationExtensions.cs" />
+    <Compile Include="Next\ScriptHelpers.cs" />
     <None Include="Next\UtilsTriggers.cs" />
+    <Compile Include="Next\BooQuest.cs" />
     <Compile Include="Next\Team.cs" />
     <Compile Include="Next\TeamManager.cs" />
     <Compile Include="Party.cs" />
