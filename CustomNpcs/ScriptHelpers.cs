@@ -11,11 +11,11 @@ using TShockAPI;
 
 namespace CustomNpcs
 {
-	internal static class ScriptHelpers
+	public static class ScriptHelpers
 	{
 		static List<string> defaultImports;
 		
-		internal static IEnumerable<string> GetDefaultImports()
+		public static IEnumerable<string> GetDefaultImports()
 		{
 			return defaultImports ?? (defaultImports = new List<string>()
 			{
@@ -29,6 +29,7 @@ namespace CustomNpcs
 				"Corruption.TileFunctions",
 				"Corruption.PlayerFunctions",
 				"Corruption.PlayerCommandFunctions",
+				"Corruption.NpcFunctions",
 				"CustomNpcs",
 				"CustomNpcs.Invasions",
 				"CustomNpcs.Npcs",
@@ -39,7 +40,7 @@ namespace CustomNpcs
 			});
 		}
 
-		internal static IEnumerable<Assembly> GetReferences()
+		public static IEnumerable<Assembly> GetReferences(bool addCallingAssembly = true)
 		{
 			var assemblies = new List<Assembly>();
 			
@@ -53,14 +54,19 @@ namespace CustomNpcs
 			var otapiAss = Assembly.GetAssembly(typeof(Vector2));
 			var tshockAss = Assembly.GetAssembly(typeof(TSPlayer));
 			var corruptionAss = Assembly.GetAssembly(typeof(AreaFunctions));
-			var pluginAss = Assembly.GetExecutingAssembly();
-			
+			//var pluginAss = Assembly.GetExecutingAssembly();
+						
 			assemblies.Add(mscorAss);
 			assemblies.Add(sysAss);
 			assemblies.Add(otapiAss);
 			assemblies.Add(tshockAss);
 			assemblies.Add(corruptionAss);
-			assemblies.Add(pluginAss);
+
+			if(addCallingAssembly)
+			{
+				var pluginAss = Assembly.GetCallingAssembly();
+				assemblies.Add(pluginAss);
+			}
 
 			assemblies.AddRange(BooHelpers.GetBooLangAssemblies());
 
