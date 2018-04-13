@@ -290,7 +290,7 @@ namespace CustomQuests.Sessions
 
 				//set these before, or various quest specific functions will get null ref's from within the quest.
 				quest.QuestInfo = questInfo;
-				quest.party = new Next.Party(_player);
+				quest.party = new Next.Party(Party.AsEnumerable());
 
 				CurrentQuest = quest;
 				CurrentQuestInfo = questInfo;

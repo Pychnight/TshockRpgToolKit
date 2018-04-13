@@ -11,10 +11,19 @@ namespace CustomQuests.Next
 	{
 		public TSPlayer Player { get; private set; }
 		public string Name => Player.Name;
+		public float X => Player.X;
+		public float Y => Player.Y;
+		public int TileX => Player.TileX;
+		public int TileY => Player.TileY;
 
 		public PartyMember(TSPlayer player)
 		{
 			Player = player;
+		}
+
+		public override string ToString()
+		{
+			return Player?.ToString();
 		}
 	}
 }
