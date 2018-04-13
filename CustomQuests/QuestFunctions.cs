@@ -9,6 +9,7 @@ using Terraria;
 using TShockAPI;
 using TShockAPI.Localization;
 using TShockAPI.DB;
+using System.Diagnostics;
 
 // ReSharper disable InconsistentNaming
 
@@ -20,6 +21,12 @@ namespace CustomQuests
     public static class QuestFunctions
     {
         private static readonly Random Random = new Random();
+
+		[LuaGlobal]
+		public static void DebugLog(string txt)
+		{
+			Debug.Print(txt);
+		}
 
 		/// <summary>
 		///		Broadcasts the specified message.

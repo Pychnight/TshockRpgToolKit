@@ -41,5 +41,17 @@ namespace CustomQuests.Next
 
 			AddTrigger(wait);
 		}
+
+		//For boo compatibility, since optional arguments aren't working in boo
+		public void AddTrigger(Trigger trigger, bool prioritized )
+		{
+			AddTrigger(trigger, prioritized);
+		}
+
+		//For boo compatibility, since optional arguments aren't working in boo
+		public void AddTrigger(Trigger trigger)
+		{
+			base.AddTrigger(trigger);
+		}
 	}
 }

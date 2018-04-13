@@ -96,6 +96,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
+    <Compile Include="Next\ModuleToInstanceClassStep.cs" />
     <Compile Include="Next\Party.cs" />
     <Compile Include="Next\PartyMember.cs" />
     <Compile Include="Next\PartyMemberNotificationExtensions.cs" />

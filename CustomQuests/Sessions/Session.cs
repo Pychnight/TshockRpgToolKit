@@ -14,6 +14,7 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using CustomQuests.Next;
 using System.Reflection;
+using Boo.Lang.Compiler.Ast;
 
 namespace CustomQuests.Sessions
 {
@@ -234,7 +235,7 @@ namespace CustomQuests.Sessions
 
 			if( !string.IsNullOrEmpty(questInfo.LuaPath) && questInfo.LuaPath.EndsWith(".boo") )
 			{
-				Debug.Print("Using a boo script.");
+				//Debug.Print("Using a boo script.");
 				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.boo");
 				
 				if(!scriptAssemblies.TryGetValue(path, out var scriptAssembly))
@@ -244,7 +245,19 @@ namespace CustomQuests.Sessions
 					var bc = new BooScriptCompiler();
 
 					bc.Configure(CustomQuests.Next.ScriptHelpers.GetReferences(), CustomQuests.Next.ScriptHelpers.GetDefaultImports());
-														
+
+					var name = Path.GetFileNameWithoutExtension(questInfo.LuaPath);
+
+					var convertStep = new ModuleToInstanceClassStep();
+					convertStep.SourceModuleName = name;
+					convertStep.TargetClassName = $"{name}BooQuest";
+					convertStep.TargetBaseClassName = "CustomQuests.Next.BooQuest";
+					convertStep.TargetMethodName = "OnRun";
+					convertStep.TargetMethodModifiers = TypeMemberModifiers.Protected | TypeMemberModifiers.Override;
+
+					var pipe = bc.InternalCompiler.Parameters.Pipeline;
+					pipe.InsertAfter(typeof(InjectImportsStep), convertStep);
+																			
 					var assName = $"Quest_{questInfo.Name}.dll";
 					var context = bc.Compile(assName, new string[] { path });
 
@@ -254,6 +267,7 @@ namespace CustomQuests.Sessions
 							Debug.Print(err.Message);
 
 						Debug.Print($"Compilation failed. Aborting quest.");
+						Party.SendErrorMessage("Failed to build quest. Aborting.");
 						return;
 					}
 					else if( context.Warnings.Count > 0 )
@@ -263,19 +277,20 @@ namespace CustomQuests.Sessions
 					}
 
 					scriptAssembly = context.GeneratedAssembly;
-
 					scriptAssemblies.Add(path, scriptAssembly);
 				}
 
-				var quest = (BooQuest)scriptAssembly.CreateInstance("TestBooQuest");
+				var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(BooQuest))
+															.Select( dt => dt.AsType())
+															.FirstOrDefault();
 
+				//var quest = (BooQuest)scriptAssembly.CreateInstance("TestBooQuest");
+				var quest = (BooQuest)Activator.CreateInstance(questType);
 				//var quest = new BooQuest(questInfo);
 
 				//set these before, or various quest specific functions will get null ref's from within the quest.
-
 				quest.QuestInfo = questInfo;
 				quest.party = new Next.Party(_player);
-
 
 				CurrentQuest = quest;
 				CurrentQuestInfo = questInfo;

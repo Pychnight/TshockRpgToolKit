@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,9 @@ namespace CustomQuests.Next
 	{
 		public static void SendMessage(this PartyMember member, string message)
 		{
-			Console.WriteLine(message);
+			//Console.WriteLine(message);
+			var color = Color.White;
+			member.Player.SendMessage(message, color);
 		}
 
 		public static void SendMessage(this IEnumerable<PartyMember> members, string message)

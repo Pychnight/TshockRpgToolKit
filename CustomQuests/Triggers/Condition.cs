@@ -13,6 +13,8 @@ namespace CustomQuests.Triggers
     {
         private LuaFunction _condition;
 
+		private Func<bool> condition;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="Condition" /> class with the specified condition.
         /// </summary>
@@ -24,7 +26,7 @@ namespace CustomQuests.Triggers
 
 		public Condition(Func<bool> condition)
 		{
-			throw new NotImplementedException("Development stub.");
+			this.condition = condition;
 		}
 
 		/// <inheritdoc />
@@ -49,7 +51,10 @@ namespace CustomQuests.Triggers
         {
             try
             {
-                return (bool)_condition.Call()[0];
+				if( condition != null )
+					return condition();
+				else
+					return (bool)_condition.Call()[0];
             }
             catch (Exception ex)
             {

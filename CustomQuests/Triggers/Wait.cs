@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace CustomQuests.Triggers
@@ -13,6 +14,14 @@ namespace CustomQuests.Triggers
 
         private DateTime _startTime;
 
+		/// <summary>
+		///     Initializes a new instance of the <see cref="Wait" /> class with the specified delay.
+		/// </summary>
+		/// <param name="milliseconds">The delay, in milliseconds.</param>
+		public Wait(int milliseconds) : this(TimeSpan.FromMilliseconds(milliseconds))
+		{
+		}
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="Wait" /> class with the specified delay.
         /// </summary>
@@ -20,7 +29,7 @@ namespace CustomQuests.Triggers
         public Wait(TimeSpan delay)
         {
             _delay = delay;
-        }
+		}
 
         /// <inheritdoc />
         protected override void Initialize()
