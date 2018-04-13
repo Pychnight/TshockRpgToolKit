@@ -41,6 +41,25 @@ namespace CustomQuests.Next
 
 			AddTrigger(wait);
 		}
+		
+		public void trigger(string threadName, Trigger trigger, Action action)
+		{
+			trigger.Action = action;
+
+			base.AddTrigger(trigger, false, threadName);
+		}
+
+		//public void trigger(Trigger trigger, Action action)
+		//{
+		//	this.trigger("main", trigger, action);
+		//}
+
+		public void AddTrigger(string threadName, Trigger trigger, Action action)
+		{
+			trigger.Action = action;
+
+			base.AddTrigger(trigger, false, threadName);
+		}
 
 		//For boo compatibility, since optional arguments aren't working in boo
 		public void AddTrigger(Trigger trigger, bool prioritized )

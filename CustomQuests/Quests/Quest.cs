@@ -94,9 +94,20 @@ namespace CustomQuests.Quests
                 thread = new QuestThread();
                 _threads[threadName] = thread;
             }
-            thread.AddTrigger(trigger, prioritized);
+
+			Debug.Print($"Trigger added to thread '{threadName}'. [{trigger.GetType()}] ");
+
+			thread.AddTrigger(trigger, prioritized);
 			thread.Name = threadName;
         }
+
+		//[LuaGlobal]
+		//public void AddTriggerX(string threadName, Trigger trigger, LuaFunction callback)
+		//{
+		//	trigger.Callback = callback;
+
+		//	AddTrigger(trigger, false, threadName);
+		//}
 
         /// <summary>
         ///     Completes the quest.

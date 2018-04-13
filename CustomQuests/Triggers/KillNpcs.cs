@@ -21,20 +21,31 @@ namespace CustomQuests.Triggers
 		private HashSet<string> npcNames;
 		//private HashSet<int> npcIds;
         private readonly Party _party;
+		private readonly Next.Party nextParty; //future api version
 
         private int _amount;
+		
+		public KillNpcs(Next.Party party, string npcName, int amount)
+		{
+			nextParty = party ?? throw new ArgumentNullException(nameof(party));
+			npcNames = new HashSet<string>();
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
-        /// </summary>
-        /// <param name="party">The party, which must not be <c>null</c>.</param>
-        /// <param name="npcNames">Object containing NPC names, or <c>null</c> for any NPC.</param>
-        /// <param name="amount">The amount, which must be positive.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
-        /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-        public KillNpcs([NotNull] Party party, [CanBeNull] object npcNames = null, int amount = 1)
+			npcNames.Add(npcName);
+
+			_amount = amount;
+		}
+		
+		/// <summary>
+		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
+		/// </summary>
+		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="npcNames">Object containing NPC names, or <c>null</c> for any NPC.</param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public KillNpcs([NotNull] Party party, [CanBeNull] object npcNames = null, int amount = 1)
         {
 			_party = party ?? throw new ArgumentNullException(nameof(party));
 			
@@ -123,12 +134,31 @@ namespace CustomQuests.Triggers
 			Debug.Print($"NpcKilled TypeName: {npc.TypeName}");
 			Debug.Print($"NpcKilled type: {npc.type}");
 			Debug.Print($"Contains name? {npcNames.Contains(npc.GivenOrTypeName)}");
-						
+
 
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
 			//             (_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? true))
-			
-			if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) &&
+
+			int lastStruck = 0;
+
+			//boo path
+			if(nextParty!=null)
+			{
+				if( LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) &&
+				nextParty.Any(m => m.Player.Index == lastStruck) &&
+				npcNames.Contains(npc.GivenOrTypeName) )
+				{
+					Debug.Print("Kill counted!");
+
+					LastStrucks.Remove(npc.whoAmI);
+					--_amount;
+				}
+				
+				return;
+			}
+
+			//lua path
+			if (LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) &&
 				_party.Any(p => p.Index == lastStruck) &&
 				npcNames.Contains(npc.GivenOrTypeName) )
 			{
@@ -142,11 +172,24 @@ namespace CustomQuests.Triggers
         private void OnNpcStrike(NpcStrikeEventArgs args)
         {
             var playerIndex = args.Player.whoAmI;
-            if (args.Handled || _party.All(p => p.Index != playerIndex))
-            {
-                return;
-            }
 
+			if(nextParty!=null)
+			{
+				//boo path
+				if( args.Handled || nextParty.All(m => m.Player.Index != playerIndex) )
+				{
+					return;
+				}
+			}
+			else
+			{
+				//lua path
+				if( args.Handled || _party.All(p => p.Index != playerIndex) )
+				{
+					return;
+				}
+			}
+			
             var npc = args.Npc;
             //if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
 			if (!npcNames.Contains(npc.GivenOrTypeName))
