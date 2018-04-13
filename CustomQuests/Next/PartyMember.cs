@@ -16,9 +16,24 @@ namespace CustomQuests.Next
 		public int TileX => Player.TileX;
 		public int TileY => Player.TileY;
 
+		public Dictionary<string,object> Variables { get; private set; }
+		public object this[string variableName]
+		{
+			get
+			{
+				Variables.TryGetValue(variableName, out var varValue);
+				return varValue;
+			}
+			set
+			{
+				Variables[variableName] = value;
+			}
+		}
+
 		public PartyMember(TSPlayer player)
 		{
 			Player = player;
+			Variables = new Dictionary<string, object>();
 		}
 
 		public override string ToString()
