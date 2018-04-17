@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using NLua;
 using TShockAPI;
 
 namespace CustomQuests.Triggers
@@ -11,19 +10,12 @@ namespace CustomQuests.Triggers
     [UsedImplicitly]
     public sealed class Condition : Trigger
     {
-        private LuaFunction _condition;
-
-		private Func<bool> condition;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Condition" /> class with the specified condition.
-        /// </summary>
-        /// <param name="condition">The condition, which must not be <c>null</c>.</param>
-        public Condition([NotNull] LuaFunction condition)
-        {
-            _condition = condition ?? throw new ArgumentNullException(nameof(condition));
-        }
-
+        private Func<bool> condition;
+		
+		/// <summary>
+		///     Initializes a new instance of the <see cref="Condition" /> class with the specified condition.
+		/// </summary>
+		/// <param name="condition">The condition, which must not be <c>null</c>.</param>
 		public Condition(Func<bool> condition)
 		{
 			this.condition = condition;
@@ -34,8 +26,9 @@ namespace CustomQuests.Triggers
         {
             if (disposing)
             {
-                _condition?.Dispose();
-                _condition = null;
+				//_condition?.Dispose();
+				//_condition = null;
+				condition = null;
             }
 
             base.Dispose(disposing);
@@ -51,10 +44,7 @@ namespace CustomQuests.Triggers
         {
             try
             {
-				if( condition != null )
-					return condition();
-				else
-					return (bool)_condition.Call()[0];
+				return condition?.Invoke() == true;
             }
             catch (Exception ex)
             {

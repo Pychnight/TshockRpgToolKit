@@ -16,31 +16,43 @@ namespace CustomQuests.Triggers
     {
         private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
         private readonly string _itemName;
-        private readonly Party _party;
+		private readonly Next.Party party;
+		private int _amount;
+		
+		/// <summary>
+		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
+		/// </summary>
+		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public GatherItems([NotNull] Next.Party party, [CanBeNull] string itemName, int amount)
+		{
+			this.party = party ?? throw new ArgumentNullException(nameof(party));
+			_itemName = itemName;
+			_amount = amount > 0
+				? amount
+				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+		}
 
-        private int _amount;
+		/// <summary>
+		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party and item name.
+		/// </summary>
+		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public GatherItems([NotNull] Next.Party party, [CanBeNull] string itemName) : this(party,itemName,1)
+		{
+		}
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
-        /// </summary>
-        /// <param name="party">The party, which must not be <c>null</c>.</param>
-        /// <param name="itemName">The item name, or <c>null</c> for any item.</param>
-        /// <param name="amount">The amount, which must be positive.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
-        /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-        public GatherItems([NotNull] Party party, [CanBeNull] string itemName = null, int amount = 1)
-        {
-            _party = party ?? throw new ArgumentNullException(nameof(party));
-            _itemName = itemName;
-            _amount = amount > 0
-                ? amount
-                : throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
+		/// <inheritdoc />
+		protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
@@ -97,7 +109,7 @@ namespace CustomQuests.Triggers
                     _blacklistedIndexes.Add(index);
                 }
             }
-            else if (_party.Any(p => p.Index == player.Index))
+            else if (party.Any(p => p.Player.Index == player.Index))
             {
                 var index = args.ID;
                 var item = Main.item[index];

@@ -7,8 +7,6 @@ using CustomQuests.Quests;
 using CustomQuests.Sessions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using NLua;
-using NLua.Exceptions;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -30,8 +28,8 @@ namespace CustomQuests
         private static readonly string ConfigPath = Path.Combine("quests", "config.json");
         private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
 
-        private readonly Dictionary<string, Party> _parties =
-            new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, OldParty> _parties =
+            new Dictionary<string, OldParty>(StringComparer.OrdinalIgnoreCase);
 
         private Config _config = new Config();
 
@@ -160,13 +158,16 @@ namespace CustomQuests
             var questSession = player == party.Leader ? session : GetSession(party.Leader);
             if (questSession.CurrentQuest != null)
             {
-                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-                onAbortFunction?.Call();
-                foreach (var player2 in party)
-                {
-                    var session2 = GetSession(player2);
-                    session2.IsAborting = true;
-                }
+				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+				//onAbortFunction?.Call();
+				//foreach (var player2 in party)
+				//{
+				//    var session2 = GetSession(player2);
+				//    session2.IsAborting = true;
+				//}
+
+				throw new NotImplementedException("Aborting not implemented yet.");
+
                 party.SendInfoMessage("Aborted quest.");
             }
 
@@ -379,7 +380,7 @@ namespace CustomQuests
                 return;
             }
 
-            var party = new Party(inputName, player);
+            var party = new OldParty(inputName, player);
             _parties[inputName] = party;
             session.Party = party;
             player.TPlayer.team = 1;
@@ -642,38 +643,43 @@ namespace CustomQuests
                     var session2 = GetSession(player2);
                     session2.IsAborting = true;
                 }
-                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-                try
-                {
-                    onAbortFunction?.Call();
-                }
-                catch (Exception ex)
-                {
-                    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-                    TShock.Log.ConsoleInfo(ex.ToString());
-                }
 
-                foreach (var player2 in party)
-                {
-                    var session2 = GetSession(player2);
-                    session2.HasAborted = true;
-                }
+				throw new NotImplementedException("Aborting not supported yet.");
+
+                //var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+                //try
+                //{
+                //    onAbortFunction?.Call();
+                //}
+                //catch (Exception ex)
+                //{
+                //    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+                //    TShock.Log.ConsoleInfo(ex.ToString());
+                //}
+
+                //foreach (var player2 in party)
+                //{
+                //    var session2 = GetSession(player2);
+                //    session2.HasAborted = true;
+                //}
                 party.SendSuccessMessage("Aborted quest.");
             }
             else
             {
                 session.IsAborting = true;
-                var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-                try
-                {
-                    onAbortFunction?.Call();
-                }
-                catch (Exception ex)
-                {
-                    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-                    TShock.Log.ConsoleInfo(ex.ToString());
-                }
-                session.HasAborted = true;
+
+				throw new NotImplementedException("Aborting not supported yet.");
+				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+				//try
+				//{
+				//    onAbortFunction?.Call();
+				//}
+				//catch (Exception ex)
+				//{
+				//    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+				//    TShock.Log.ConsoleInfo(ex.ToString());
+				//}
+				session.HasAborted = true;
 
                 player.SendSuccessMessage("Aborted quest.");
             }
@@ -770,12 +776,18 @@ namespace CustomQuests
                         session2.CurrentQuest = session.CurrentQuest;
                     }
                 }
-                catch (LuaException ex)
-                {
-                    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                    TShock.Log.ConsoleError(ex.ToString());
-                    TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                }
+                //catch (LuaException ex)
+                //{
+                //    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+                //    TShock.Log.ConsoleError(ex.ToString());
+                //    TShock.Log.ConsoleError(ex.InnerException?.ToString());
+                //}
+				catch(Exception ex)
+				{
+					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+					TShock.Log.ConsoleError(ex.ToString());
+					TShock.Log.ConsoleError(ex.InnerException?.ToString());
+				}
             }
             else
             {
@@ -790,13 +802,19 @@ namespace CustomQuests
                     player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                     session.LoadQuest(questInfo);
                 }
-                catch (LuaException ex)
-                {
-                    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                    TShock.Log.ConsoleError(ex.ToString());
-                    TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                }
-            }
+                //catch (LuaException ex)
+                //{
+                //    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+                //    TShock.Log.ConsoleError(ex.ToString());
+                //    TShock.Log.ConsoleError(ex.InnerException?.ToString());
+                //}
+				catch( Exception ex )
+				{
+					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+					TShock.Log.ConsoleError(ex.ToString());
+					TShock.Log.ConsoleError(ex.InnerException?.ToString());
+				}
+			}
         }
 
 		private void QuestList(CommandArgs args)

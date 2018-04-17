@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using CustomNpcs.Npcs;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
-using NLua;
 using OTAPI.Tile;
 using Terraria;
 using TShockAPI;
@@ -22,7 +21,6 @@ namespace CustomQuests
     {
         private static readonly Random Random = new Random();
 
-		[LuaGlobal]
 		public static void DebugLog(string txt)
 		{
 			Debug.Print(txt);
@@ -34,7 +32,6 @@ namespace CustomQuests
         /// <param name="command">The command string, which must not be <c>null</c>.</param>
         /// <returns><c>true</c> if the command was executed successfully; otherwise, <c>false</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="command" /> is <c>null</c>.</exception>
-        [LuaGlobal]
         [UsedImplicitly]
         public static bool ExecuteCommand([NotNull] string command)
         {
@@ -52,7 +49,6 @@ namespace CustomQuests
         /// <param name="name">The name, which must not be <c>null</c>.</param>
         /// <returns>The region, or <c>null</c> if it does not exist.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        [LuaGlobal]
         public static Region GetRegion([NotNull] string name)
         {
             if (name == null)
@@ -69,7 +65,6 @@ namespace CustomQuests
         /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <returns>The tile.</returns>
-        [LuaGlobal]
         [Pure]
         [UsedImplicitly]
         public static ITile GetTile(int x, int y) => Main.tile[x, y];
@@ -82,7 +77,6 @@ namespace CustomQuests
         /// <remarks>
         ///     This method is required since we can't get the type property in Lua since it is an unsigned short.
         /// </remarks>
-        [LuaGlobal]
         [UsedImplicitly]
         public static int GetTileType([NotNull] ITile tile) => tile.type;
 
@@ -93,7 +87,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place1x2(int x, int y, int type, int style)
         {
@@ -107,7 +100,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place1x2Top(int x, int y, int type, int style)
         {
@@ -121,7 +113,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place1xX(int x, int y, int type, int style)
         {
@@ -135,7 +126,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place2x1(int x, int y, int type, int style)
         {
@@ -149,7 +139,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place2x2(int x, int y, int type, int style)
         {
@@ -163,7 +152,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place2x3Wall(int x, int y, int type, int style)
         {
@@ -177,7 +165,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place2xX(int x, int y, int type, int style)
         {
@@ -191,7 +178,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place3x1(int x, int y, int type, int style)
         {
@@ -205,7 +191,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place3x2(int x, int y, int type, int style)
         {
@@ -219,7 +204,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place3x2Wall(int x, int y, int type, int style)
         {
@@ -233,7 +217,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place3x3(int x, int y, int type, int style)
         {
@@ -247,7 +230,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place3x3Wall(int x, int y, int type, int style)
         {
@@ -261,7 +243,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place3x4(int x, int y, int type, int style)
         {
@@ -275,7 +256,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place4x2(int x, int y, int type, int style)
         {
@@ -289,7 +269,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place4x3Wall(int x, int y, int type, int style)
         {
@@ -303,7 +282,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place5x4(int x, int y, int type, int style)
         {
@@ -317,7 +295,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place6x3(int x, int y, int type, int style)
         {
@@ -331,7 +308,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void Place6x4Wall(int x, int y, int type, int style)
         {
@@ -344,7 +320,6 @@ namespace CustomQuests
         /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void PlaceChest(int x, int y, int style)
         {
@@ -393,7 +368,6 @@ namespace CustomQuests
         /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
         /// <param name="type">The type.</param>
         /// <param name="style">The style.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void PlaceObject(int x, int y, int type, int style)
         {
@@ -408,7 +382,6 @@ namespace CustomQuests
         /// <param name="type">The type.</param>
         /// <param name="stack">The stack.</param>
         /// <param name="prefix">The prefix.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void PutItemIntoChest(int x, int y, int type, int stack = 1, byte prefix = 0)
         {
@@ -440,7 +413,6 @@ namespace CustomQuests
         /// <param name="max">The maximum, which must be at least the minimum.</param>
         /// <returns>The random integer.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
-        [LuaGlobal]
         [UsedImplicitly]
         public static int RandomInt(int min, int max)
         {
@@ -460,7 +432,6 @@ namespace CustomQuests
         /// <remarks>
         ///     This method is required, since we can't set the type property in Lua since it is an unsigned short.
         /// </remarks>
-        [LuaGlobal]
         [UsedImplicitly]
         public static void SetTileType([NotNull] ITile tile, int type)
         {
@@ -481,7 +452,6 @@ namespace CustomQuests
         ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
         /// </exception>
         /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
-        [LuaGlobal]
         [UsedImplicitly]
         public static CustomNpc[] SpawnCustomMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
         {
@@ -531,7 +501,6 @@ namespace CustomQuests
         ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
         /// </exception>
         /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
-        [LuaGlobal]
         [UsedImplicitly]
         public static NPC[] SpawnMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
         {

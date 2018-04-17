@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
-using NLua;
 using TShockAPI;
 using System.Diagnostics;
 using BooTS;
@@ -56,11 +55,11 @@ namespace CustomQuests.Sessions
         [NotNull]
         public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
 
-        /// <summary>
-        ///     Gets or sets the current Lua instance.
-        /// </summary>
-        [CanBeNull]
-        public Lua CurrentLua { get; private set; }
+        ///// <summary>
+        /////     Gets or sets the current Lua instance.
+        ///// </summary>
+        //[CanBeNull]
+        //public Lua CurrentLua { get; private set; }
 
 		//temp for development
 		public bool IsBoo { get; set; }
@@ -111,7 +110,7 @@ namespace CustomQuests.Sessions
         ///     Gets or sets the party.
         /// </summary>
         [CanBeNull]
-        public Party Party { get; set; }
+        public OldParty Party { get; set; }
 
         /// <summary>
         ///     Gets the session information.
@@ -126,8 +125,8 @@ namespace CustomQuests.Sessions
         {
             CurrentQuest?.Dispose();
             CurrentQuest = null;
-            CurrentLua?.Dispose();
-            CurrentLua = null;
+            //CurrentLua?.Dispose();
+            //CurrentLua = null;
         }
 
         /// <summary>
@@ -154,7 +153,6 @@ namespace CustomQuests.Sessions
 		///     Gets the quest state. This can be used in quest scripts to restore from a save point.
 		/// </summary>
 		/// <returns>The state.</returns>
-		[LuaGlobal]
 		[UsedImplicitly]
 		public string GetQuestState()
 		{
@@ -168,7 +166,6 @@ namespace CustomQuests.Sessions
 		///     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
 		/// </summary>
 		/// <param name="state">The state.</param>
-		[LuaGlobal]
 		[UsedImplicitly]
 		public void SetQuestState([CanBeNull] string state)
 		{
@@ -181,7 +178,6 @@ namespace CustomQuests.Sessions
 		///     Gets the quest state. This can be used in quest scripts to restore from a save point.
 		/// </summary>
 		/// <returns>The state.</returns>
-		[LuaGlobal]
 		[UsedImplicitly]
 		public string GetSavePoint()
 		{
@@ -198,7 +194,6 @@ namespace CustomQuests.Sessions
 		///     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
 		/// </summary>
 		/// <param name="state">The state.</param>
-		[LuaGlobal]
 		[UsedImplicitly]
 		public void SetSavePoint([CanBeNull] string state)
 		{
@@ -228,7 +223,7 @@ namespace CustomQuests.Sessions
             }
 
 			//ensure there is a party set, even if a solo player.
-			Party = Party ?? new Party(_player.Name, _player);
+			Party = Party ?? new OldParty(_player.Name, _player);
 
 			//var quest = new Quest(questInfo);
 			var path = "";
@@ -298,29 +293,29 @@ namespace CustomQuests.Sessions
 
 				quest.Run();
 			}
-			else
-			{
-				var quest = new Quest(questInfo);
+			//else
+			//{
+			//	var quest = new Quest(questInfo);
 
-				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
+			//	path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
 
-				var lua = new Lua { ["party"] = Party };
-				lua.LoadCLRPackage();
-				lua.DoString("import('System')");
-				lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
-				lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-				lua.DoString("import('OTAPI', 'Terraria')");
-				LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
-				LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
-				LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
+			//	var lua = new Lua { ["party"] = Party };
+			//	lua.LoadCLRPackage();
+			//	lua.DoString("import('System')");
+			//	lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
+			//	lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
+			//	lua.DoString("import('OTAPI', 'Terraria')");
+			//	LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
+			//	LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
+			//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
 
-				//set these before, or various quest specific functions will get null ref's from within the quest.
-				CurrentQuest = quest;
-				CurrentQuestInfo = questInfo;
-				CurrentLua = lua;
+			//	//set these before, or various quest specific functions will get null ref's from within the quest.
+			//	CurrentQuest = quest;
+			//	CurrentQuestInfo = questInfo;
+			//	CurrentLua = lua;
 
-				lua.DoFile(path);
-			}
+			//	lua.DoFile(path);
+			//}
         }
 
         /// <summary>

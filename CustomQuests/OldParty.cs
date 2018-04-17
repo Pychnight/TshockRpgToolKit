@@ -14,19 +14,19 @@ namespace CustomQuests
     /// <summary>
     ///     Represents a party of players.
     /// </summary>
-    public sealed class Party : IEnumerable<TSPlayer>
+    public sealed class OldParty : IEnumerable<TSPlayer>
     {
         private readonly List<TSPlayer> _players = new List<TSPlayer>();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Party" /> class with the specified leader.
+        ///     Initializes a new instance of the <see cref="OldParty" /> class with the specified leader.
         /// </summary>
         /// <param name="name">The name, which must not be <c>null</c>.</param>
         /// <param name="leader">The leader, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException">
         ///     Either <paramref name="name" /> or <paramref name="leader" /> is <c>null</c>.
         /// </exception>
-        public Party([NotNull] string name, [NotNull] TSPlayer leader)
+        public OldParty([NotNull] string name, [NotNull] TSPlayer leader)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Leader = leader ?? throw new ArgumentNullException(nameof(leader));

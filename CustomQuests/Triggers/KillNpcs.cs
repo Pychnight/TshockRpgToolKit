@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Terraria;
 using TerrariaApi.Server;
-using NLua;
 using System.Diagnostics;
 using TShockAPI.Localization;
 
@@ -20,14 +19,13 @@ namespace CustomQuests.Triggers
 
 		private HashSet<string> npcNames;
 		//private HashSet<int> npcIds;
-        private readonly Party _party;
-		private readonly Next.Party nextParty; //future api version
+		private readonly Next.Party party;
 
         private int _amount;
 		
 		public KillNpcs(Next.Party party, string npcName, int amount)
 		{
-			nextParty = party ?? throw new ArgumentNullException(nameof(party));
+			this.party = party ?? throw new ArgumentNullException(nameof(party));
 			npcNames = new HashSet<string>();
 
 			npcNames.Add(npcName);
@@ -45,46 +43,29 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public KillNpcs([NotNull] Party party, [CanBeNull] object npcNames = null, int amount = 1)
-        {
-			_party = party ?? throw new ArgumentNullException(nameof(party));
-			
-			//convert the npcNames object into something we can use...
-			if(npcNames is LuaTable)
-			{
-				var values = (npcNames as LuaTable).Values;
-				var names = new List<string>(values.Count);
+		public KillNpcs(Next.Party party, int amount, params string[] npcNames)
+		{
+			this.party = party ?? throw new ArgumentNullException(nameof(party));
 
-				foreach(var v in values)
-				{
-					var name = GetNPCName(v);
+			//{
+			//	var name = GetNPCName(npcNames);
+			//	if( name == null )
+			//		throw new ArgumentException(nameof(npcNames), "Must be a string, double, or LuaTable.");
 
-					if(name!=null)
-						names.Add(name);
-					else
-						ServerApi.LogWriter.PluginWriteLine(CustomQuestsPlugin.Instance, "KillNpcs:: Npc name must be a string or number.", TraceLevel.Error);
-				}
-				
-				this.npcNames = new HashSet<string>(names);
-			}
-			else
-			{
-				var name = GetNPCName(npcNames);
-				if(name==null)
-					throw new ArgumentException(nameof(npcNames), "Must be a string, double, or LuaTable.");
+			//	this.npcNames = new HashSet<string>() { name };
+			//}
 
-				this.npcNames = new HashSet<string>() { name };
-			}
-			
+			this.npcNames = new HashSet<string>(npcNames);
+
 			Debug.Print("KillNpcList:");
-			foreach(var n in this.npcNames)
+			foreach( var n in this.npcNames )
 			{
 				Debug.Print(n);
 			}
-									
+
 			_amount = amount > 0
-                ? amount
-                : throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+				? amount
+				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 		}
 
 		string GetNPCName(object value)
@@ -134,18 +115,17 @@ namespace CustomQuests.Triggers
 			Debug.Print($"NpcKilled TypeName: {npc.TypeName}");
 			Debug.Print($"NpcKilled type: {npc.type}");
 			Debug.Print($"Contains name? {npcNames.Contains(npc.GivenOrTypeName)}");
-
-
+			
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
 			//             (_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? true))
 
 			int lastStruck = 0;
 
 			//boo path
-			if(nextParty!=null)
+			if(party!=null)
 			{
 				if( LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) &&
-				nextParty.Any(m => m.Player.Index == lastStruck) &&
+				party.Any(m => m.Player.Index == lastStruck) &&
 				npcNames.Contains(npc.GivenOrTypeName) )
 				{
 					Debug.Print("Kill counted!");
@@ -156,40 +136,18 @@ namespace CustomQuests.Triggers
 				
 				return;
 			}
-
-			//lua path
-			if (LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) &&
-				_party.Any(p => p.Index == lastStruck) &&
-				npcNames.Contains(npc.GivenOrTypeName) )
-			{
-				Debug.Print("Kill counted!");
-
-                LastStrucks.Remove(npc.whoAmI);
-                --_amount;
-            }
         }
 
         private void OnNpcStrike(NpcStrikeEventArgs args)
         {
             var playerIndex = args.Player.whoAmI;
 
-			if(nextParty!=null)
+			//boo path
+			if( args.Handled || party.All(m => m.Player.Index != playerIndex) )
 			{
-				//boo path
-				if( args.Handled || nextParty.All(m => m.Player.Index != playerIndex) )
-				{
-					return;
-				}
+				return;
 			}
-			else
-			{
-				//lua path
-				if( args.Handled || _party.All(p => p.Index != playerIndex) )
-				{
-					return;
-				}
-			}
-			
+						
             var npc = args.Npc;
             //if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
 			if (!npcNames.Contains(npc.GivenOrTypeName))

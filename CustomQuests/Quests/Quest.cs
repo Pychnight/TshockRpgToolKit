@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomQuests.Triggers;
 using JetBrains.Annotations;
-using NLua;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -80,7 +79,6 @@ namespace CustomQuests.Quests
         /// <exception cref="ArgumentNullException">
         ///     Either <paramref name="trigger" /> or <paramref name="threadName" />is <c>null</c>.
         /// </exception>
-        [LuaGlobal]
         [UsedImplicitly]
         public void AddTrigger([NotNull] Trigger trigger, bool prioritized = false, string threadName = "main")
         {
@@ -113,7 +111,6 @@ namespace CustomQuests.Quests
         ///     Completes the quest.
         /// </summary>
         /// <param name="isSuccess"><c>true</c> to complete successfully; otherwise, <c>false</c>.</param>
-        [LuaGlobal]
         [UsedImplicitly]
         public void Complete(bool isSuccess)
         {
@@ -129,7 +126,6 @@ namespace CustomQuests.Quests
         /// <exception cref="ArgumentException"><paramref name="threadName" /> is invalid.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="threadName" /> is <c>null</c>.</exception>
         [CanBeNull]
-        [LuaGlobal]
         [UsedImplicitly]
         public Trigger PopTrigger([NotNull] string threadName = "main")
         {

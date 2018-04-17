@@ -1,7 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using NLua;
-using NLua.Exceptions;
 using TShockAPI;
 
 namespace CustomQuests.Triggers
@@ -13,14 +11,10 @@ namespace CustomQuests.Triggers
     public abstract class Trigger : IDisposable
     {
         private bool _isInitialized;
-
-        /// <summary>
-        ///     Gets or sets the callback to run after the trigger is completed for the first time.
-        /// </summary>
-        [CanBeNull]
-        [UsedImplicitly]
-        public LuaFunction Callback { get; set; }
-
+		        
+		/// <summary>
+		///     Gets or sets the Action to run after the trigger is completed for the first time.
+		/// </summary>
 		public Action Action { get; set; }
 
         /// <summary>
@@ -57,15 +51,7 @@ namespace CustomQuests.Triggers
             {
                 try
                 {
-					if( Action != null )
-						Action();
-					else
-						Callback?.Call();
-                }
-                catch (LuaException ex)
-                {
-                    TShock.Log.ConsoleError(ex.ToString());
-                    TShock.Log.ConsoleError(ex.InnerException?.ToString());
+					Action?.Invoke();
                 }
                 catch (Exception ex)
                 {
@@ -84,8 +70,9 @@ namespace CustomQuests.Triggers
         {
             if (disposing)
             {
-                Callback?.Dispose();
-                Callback = null;
+				//Callback?.Dispose();
+				//Callback = null;
+				Action = null;
             }
         }
 

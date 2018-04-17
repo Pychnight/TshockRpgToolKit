@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TShockAPI;
 using TerrariaApi.Server;
-using NLua;
+//using NLua;
 
 namespace CustomQuests.Sessions
 {
@@ -147,16 +147,19 @@ namespace CustomQuests.Sessions
 				if (quest != null)
 				{
 					session.IsAborting = true;
-					var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-					try
-					{
-						onAbortFunction?.Call();
-					}
-					catch (Exception ex)
-					{
-						TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-						TShock.Log.ConsoleInfo(ex.ToString());
-					}
+					//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+					//try
+					//{
+					//	onAbortFunction?.Call();
+					//}
+					//catch (Exception ex)
+					//{
+					//	TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+					//	TShock.Log.ConsoleInfo(ex.ToString());
+					//}
+
+					throw new NotImplementedException("Aborting not implemented yet.");
+
 					session.HasAborted = true;
 
 					player.SendSuccessMessage("Aborted quest.");
