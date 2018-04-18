@@ -13,6 +13,7 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using Corruption.PluginSupport;
+using CustomQuests.Next;
 
 namespace CustomQuests
 {
@@ -644,31 +645,8 @@ namespace CustomQuests
                     session2.IsAborting = true;
                 }
 
-				throw new NotImplementedException("Aborting not supported yet.");
+				//throw new NotImplementedException("Aborting not supported yet.");
 
-                //var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-                //try
-                //{
-                //    onAbortFunction?.Call();
-                //}
-                //catch (Exception ex)
-                //{
-                //    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-                //    TShock.Log.ConsoleInfo(ex.ToString());
-                //}
-
-                //foreach (var player2 in party)
-                //{
-                //    var session2 = GetSession(player2);
-                //    session2.HasAborted = true;
-                //}
-                party.SendSuccessMessage("Aborted quest.");
-            }
-            else
-            {
-                session.IsAborting = true;
-
-				throw new NotImplementedException("Aborting not supported yet.");
 				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
 				//try
 				//{
@@ -679,6 +657,60 @@ namespace CustomQuests
 				//    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
 				//    TShock.Log.ConsoleInfo(ex.ToString());
 				//}
+
+				//foreach (var player2 in party)
+				//{
+				//    var session2 = GetSession(player2);
+				//    session2.HasAborted = true;
+				//}
+
+				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+				try
+				{
+					var bquest = (BooQuest)session.CurrentQuest;
+					bquest.Abort();
+				}
+				catch( Exception ex )
+				{
+					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
+					TShock.Log.ConsoleInfo(ex.ToString());
+				}
+
+				foreach( var player2 in party )
+				{
+					var session2 = GetSession(player2);
+					session2.HasAborted = true;
+				}
+				
+				party.SendSuccessMessage("Aborted quest.");
+            }
+            else
+            {
+                session.IsAborting = true;
+
+				//throw new NotImplementedException("Aborting not supported yet.");
+				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+				//try
+				//{
+				//    onAbortFunction?.Call();
+				//}
+				//catch (Exception ex)
+				//{
+				//    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
+				//    TShock.Log.ConsoleInfo(ex.ToString());
+				//}
+
+				try
+				{
+					var bquest = (BooQuest)session.CurrentQuest;
+					bquest.Abort();
+				}
+				catch( Exception ex )
+				{
+					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
+					TShock.Log.ConsoleInfo(ex.ToString());
+				}
+
 				session.HasAborted = true;
 
                 player.SendSuccessMessage("Aborted quest.");

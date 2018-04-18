@@ -2,16 +2,20 @@
 using CustomQuests.Triggers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace CustomQuests.Next
 {
 	public partial class BooQuest : Quest
 	{
 		internal Task Task { get; set; }
+
 		public Party party { get; internal set; }
+		public PartyMember leader => party.Leader;
 		public TeamManager teams => party.Teams;
 
 		public BooQuest() : base()
@@ -40,6 +44,32 @@ namespace CustomQuests.Next
 			};
 
 			AddTrigger(wait);
+		}
+
+		//internal void Abort(TSPlayer player)
+		//{
+		//	var index = party.IndexOf(player);
+
+		//	if(index>-1)
+		//	{
+		//		var member = party[index];
+		//		OnAbort(member);
+		//	}
+		//}
+
+		//protected virtual void OnAbort(PartyMember member)
+		//{
+		//	Debug.Print("OnAbort for ${member.Name}");
+		//}
+
+		public void Abort()
+		{
+			OnAbort();
+		}
+				
+		protected internal virtual void OnAbort()
+		{
+			Debug.Print($"OnAbort()! for {QuestInfo.Name}");
 		}
 		
 		public void trigger(string threadName, Trigger trigger, Action action)
