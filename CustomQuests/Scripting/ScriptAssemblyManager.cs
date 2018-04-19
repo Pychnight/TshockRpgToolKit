@@ -59,7 +59,7 @@ namespace CustomQuests.Scripting
 			var convertStep = new ModuleToInstanceClassStep();
 			convertStep.SourceModuleName = name;
 			convertStep.TargetClassName = $"{name}BooQuest";
-			convertStep.TargetBaseClassName = "CustomQuests.Next.BooQuest";
+			convertStep.TargetBaseClassName = "CustomQuests.Quests.BooQuest";
 			convertStep.TargetMethodName = "OnRun";
 			convertStep.TargetMethodModifiers = TypeMemberModifiers.Protected | TypeMemberModifiers.Override;
 

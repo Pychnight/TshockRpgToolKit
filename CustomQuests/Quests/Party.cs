@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TShockAPI;
 
-namespace CustomQuests.Next
+namespace CustomQuests.Quests
 {
 	public class Party : IEnumerable<PartyMember>
 	{

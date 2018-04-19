@@ -99,14 +99,6 @@ namespace CustomQuests.Quests
 			thread.Name = threadName;
         }
 
-		//[LuaGlobal]
-		//public void AddTriggerX(string threadName, Trigger trigger, LuaFunction callback)
-		//{
-		//	trigger.Callback = callback;
-
-		//	AddTrigger(trigger, false, threadName);
-		//}
-
         /// <summary>
         ///     Completes the quest.
         /// </summary>

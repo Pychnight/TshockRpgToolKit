@@ -6,6 +6,7 @@ using Terraria;
 using TerrariaApi.Server;
 using System.Diagnostics;
 using TShockAPI.Localization;
+using CustomQuests.Quests;
 
 namespace CustomQuests.Triggers
 {
@@ -19,11 +20,11 @@ namespace CustomQuests.Triggers
 
 		private HashSet<string> npcNames;
 		//private HashSet<int> npcIds;
-		private readonly Next.Party party;
+		private readonly Party party;
 
         private int _amount;
 		
-		public KillNpcs(Next.Party party, string npcName, int amount)
+		public KillNpcs(Party party, string npcName, int amount)
 		{
 			this.party = party ?? throw new ArgumentNullException(nameof(party));
 			npcNames = new HashSet<string>();
@@ -43,7 +44,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public KillNpcs(Next.Party party, int amount, params string[] npcNames)
+		public KillNpcs(Party party, int amount, params string[] npcNames)
 		{
 			this.party = party ?? throw new ArgumentNullException(nameof(party));
 

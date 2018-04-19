@@ -6,14 +6,10 @@ using CustomQuests.Quests;
 using JetBrains.Annotations;
 using TShockAPI;
 using System.Diagnostics;
-using BooTS;
-//using CustomQuests.Next;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Xna.Framework;
-using CustomQuests.Next;
 using System.Reflection;
-using Boo.Lang.Compiler.Ast;
 using CustomQuests.Scripting;
 
 namespace CustomQuests.Sessions
@@ -98,9 +94,10 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets or sets the party.
         /// </summary>
-        [CanBeNull]
-        public OldParty Party { get; set; }
-
+        //[CanBeNull]
+        //public OldParty Party { get; set; }
+		public Party Party { get; set; }
+		
         /// <summary>
         ///     Gets the session information.
         /// </summary>
@@ -172,7 +169,7 @@ namespace CustomQuests.Sessions
 		{
 			Debug.Print($"GetSavePoint:");
 
-			var isPartyLeader = _player == Party.Leader;
+			var isPartyLeader = _player == Party.Leader.Player;
 			var questName = SessionInfo.CurrentQuestInfo.Name;
 			var savePoint = SessionInfo.GetOrCreateSavePoint(questName,isPartyLeader);
 
@@ -190,7 +187,7 @@ namespace CustomQuests.Sessions
 
 			if(SessionInfo.CurrentQuestInfo!=null)
 			{
-				var isPartyLeader = _player == Party.Leader;
+				var isPartyLeader = _player == Party.Leader.Player;
 				var questName = SessionInfo.CurrentQuestInfo.Name;
 				var savePoint = SessionInfo?.GetOrCreateSavePoint(questName,isPartyLeader);
 
@@ -208,9 +205,10 @@ namespace CustomQuests.Sessions
         {
             if(questInfo == null)
 				throw new ArgumentNullException(nameof(questInfo));
-            
+
 			//ensure there is a party set, even if a solo player.
-			Party = Party ?? new OldParty(_player.Name, _player);
+			//Party = Party ?? new OldParty(_player.Name, _player);
+			Party = Party ?? new Party(_player.Name, _player);
 			
 			if(!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
 			{
@@ -228,7 +226,8 @@ namespace CustomQuests.Sessions
 					
 					//set these before, or various quest specific functions will get null ref's from within the quest.
 					quest.QuestInfo = questInfo;
-					quest.party = new Next.Party(_player.Name, Party.AsEnumerable());
+					//quest.party = new Party(_player.Name, Party.AsEnumerable());
+					quest.party = Party;
 
 					CurrentQuest = quest;
 					CurrentQuestInfo = questInfo;
@@ -291,7 +290,7 @@ namespace CustomQuests.Sessions
                 return;
             }
 
-			var isPartyLeader = _player == Party.Leader;
+			var isPartyLeader = _player == Party.Leader.Player;
 
             if (Party == null || isPartyLeader)
             {

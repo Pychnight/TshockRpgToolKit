@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TShockAPI;
 using TerrariaApi.Server;
-using CustomQuests.Next;
+using CustomQuests.Quests;
 
 namespace CustomQuests.Sessions
 {

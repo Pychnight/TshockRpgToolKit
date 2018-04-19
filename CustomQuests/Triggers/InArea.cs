@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CustomQuests.Quests;
 using JetBrains.Annotations;
 
 namespace CustomQuests.Triggers
@@ -15,7 +16,7 @@ namespace CustomQuests.Triggers
         private readonly int _maxY;
         private readonly int _minX;
         private readonly int _minY;
-		private readonly Next.Party party;
+		private readonly Party party;
 		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="InArea" /> class with the specified party and positions.
@@ -27,7 +28,7 @@ namespace CustomQuests.Triggers
 		/// <param name="y2">The second Y position.</param>
 		/// <param name="requireEveryone"><c>true</c> if everyone in the party must be in the area; otherwise, <c>false</c>.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="party" /> is <c>null</c>.</exception>
-		public InArea([NotNull] Next.Party party, int x, int y, int x2, int y2, bool requireEveryone)
+		public InArea( Party party, int x, int y, int x2, int y2, bool requireEveryone)
 		{
 			this.requireEveryone = requireEveryone;
 			this.party = party ?? throw new ArgumentNullException(nameof(party));
@@ -46,7 +47,7 @@ namespace CustomQuests.Triggers
 		/// <param name="x2">The second X position.</param>
 		/// <param name="y2">The second Y position.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="party" /> is <c>null</c>.</exception>
-		public InArea(Next.Party party, int x, int y, int x2, int y2) : this(party,x,y,x2,y2,true)
+		public InArea(Party party, int x, int y, int x2, int y2) : this(party,x,y,x2,y2,true)
 		{
 		}
 

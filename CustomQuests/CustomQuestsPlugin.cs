@@ -13,7 +13,6 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using Corruption.PluginSupport;
-using CustomQuests.Next;
 
 namespace CustomQuests
 {
@@ -29,10 +28,12 @@ namespace CustomQuests
         private static readonly string ConfigPath = Path.Combine("quests", "config.json");
         private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
 
-        private readonly Dictionary<string, OldParty> _parties =
-            new Dictionary<string, OldParty>(StringComparer.OrdinalIgnoreCase);
+		//private readonly Dictionary<string, OldParty> _parties =
+		//    new Dictionary<string, OldParty>(StringComparer.OrdinalIgnoreCase);
 
-        private Config _config = new Config();
+		private readonly Dictionary<string, Party> _parties = new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
+
+		private Config _config = new Config();
 
         private DateTime _lastSave;
         private List<QuestInfo> _questInfos = new List<QuestInfo>();
@@ -78,7 +79,7 @@ namespace CustomQuests
         /// <param name="player">The player, which must not be <c>null</c>.</param>
         /// <returns>The session.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
-        public Session GetSession([NotNull] TSPlayer player)
+        public Session GetSession(TSPlayer player)
         {
             if (player == null)
             {
@@ -87,6 +88,13 @@ namespace CustomQuests
 
             return _sessionManager.GetOrCreate(player);
         }
+
+		//compatibility shim.
+		internal Session GetSession(PartyMember member)
+		{
+			return GetSession(member.Player);
+		}
+
 
         /// <summary>
         ///     Initializes the plugin.
@@ -156,7 +164,7 @@ namespace CustomQuests
                 return;
             }
 
-            var questSession = player == party.Leader ? session : GetSession(party.Leader);
+            var questSession = player == party.Leader.Player ? session : GetSession(party.Leader);
             if (questSession.CurrentQuest != null)
             {
 				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
@@ -167,12 +175,24 @@ namespace CustomQuests
 				//    session2.IsAborting = true;
 				//}
 
-				throw new NotImplementedException("Aborting not implemented yet.");
+				try
+				{
+					var bquest = (BooQuest)session.CurrentQuest;
+					bquest.Abort();
+				}
+				catch( Exception ex )
+				{
+					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
+					TShock.Log.ConsoleInfo(ex.ToString());
+				}
+
+
+				//throw new NotImplementedException("Aborting not implemented yet.");
 
                 party.SendInfoMessage("Aborted quest.");
             }
 
-            if (player == party.Leader)
+            if (player == party.Leader.Player)
             {
                 foreach (var player2 in party)
                 {
@@ -381,7 +401,8 @@ namespace CustomQuests
                 return;
             }
 
-            var party = new OldParty(inputName, player);
+			//var party = new OldParty(inputName, player);
+			var party = new Party(inputName, player);
             _parties[inputName] = party;
             session.Party = party;
             player.TPlayer.team = 1;
@@ -450,9 +471,9 @@ namespace CustomQuests
                 party.Add(player2);
                 foreach (var player3 in party)
                 {
-                    player3.TPlayer.team = 1;
+                    player3.Player.TPlayer.team = 1;
                     player2.SendData(PacketTypes.PlayerTeam, "", player3.Index);
-                    player3.TPlayer.team = 0;
+                    player3.Player.TPlayer.team = 0;
                 }
                 player2.TPlayer.team = 1;
                 party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
@@ -486,7 +507,7 @@ namespace CustomQuests
                 player.SendErrorMessage("You are not in a party.");
                 return;
             }
-            if (party.Leader != player)
+            if (party.Leader.Player != player)
             {
                 player.SendErrorMessage("You are not the leader of your party.");
                 return;
@@ -633,7 +654,7 @@ namespace CustomQuests
             var party = session.Party;
             if (party != null)
             {
-                if (party.Leader != player)
+                if (party.Leader.Player != player)
                 {
                     player.SendErrorMessage("Only the party leader can abort the quest.");
                     return;
@@ -773,7 +794,7 @@ namespace CustomQuests
             var party = session.Party;
             if (party != null)
             {
-                if (party.Leader != player)
+                if (party.Leader.Player != player)
                 {
                     player.SendErrorMessage("Only the party leader can accept a quest.");
                     return;
@@ -801,7 +822,7 @@ namespace CustomQuests
                     player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                     session.LoadQuest(questInfo);
 
-                    foreach (var player2 in party.Where(p => p != player))
+                    foreach (var player2 in party.Where(p => p.Player != player))
                     {
                         player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                         var session2 = GetSession(player2);
@@ -1024,7 +1045,7 @@ namespace CustomQuests
 			}
 			else
 			{
-				var isPartyLeader = player == session.Party.Leader;
+				var isPartyLeader = player == session.Party.Leader.Player;
 				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
 				//var questStatus = session.CurrentQuest.QuestStatus ?? "";
 				//var color		= session.CurrentQuest.QuestStatusColor;

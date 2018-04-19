@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomQuests.Quests;
 using JetBrains.Annotations;
 using Terraria;
 using TShockAPI;
@@ -16,7 +17,7 @@ namespace CustomQuests.Triggers
     {
         private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
         private readonly string _itemName;
-		private readonly Next.Party party;
+		private readonly Party party;
 		private int _amount;
 		
 		/// <summary>
@@ -29,7 +30,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems([NotNull] Next.Party party, [CanBeNull] string itemName, int amount)
+		public GatherItems( Party party, string itemName, int amount)
 		{
 			this.party = party ?? throw new ArgumentNullException(nameof(party));
 			_itemName = itemName;
@@ -47,7 +48,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems([NotNull] Next.Party party, [CanBeNull] string itemName) : this(party,itemName,1)
+		public GatherItems( Party party, string itemName) : this(party,itemName,1)
 		{
 		}
 

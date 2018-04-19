@@ -40,7 +40,7 @@ namespace CustomQuests.Scripting
 				"CustomNpcs.ProjectileFunctions",
 				"CustomNpcs.CustomIDFunctions",
 				"CustomQuests",
-				"CustomQuests.Next",
+				"CustomQuests.Quests",
 				"CustomQuests.QuestFunctions",
 				"CustomQuests.Triggers"
 			} );

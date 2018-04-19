@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomQuests.Next
+namespace CustomQuests.Quests
 {
 	public class Team : IEnumerable<PartyMember>
 	{

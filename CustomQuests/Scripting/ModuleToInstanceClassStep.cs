@@ -13,7 +13,7 @@ namespace CustomQuests.Scripting
 	//this only handles a single module currently.!
 
 	/// <summary>
-	/// Converts a module's global statements and members into an instance class.
+	/// Converts a Boo module's global statements and members into an instance class.
 	/// </summary>
 	public class ModuleToInstanceClassStep : AbstractTransformerCompilerStep
 	{

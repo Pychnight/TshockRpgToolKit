@@ -8,7 +8,7 @@ using Terraria;
 using Terraria.ID;
 using TShockAPI.Localization;
 
-namespace CustomQuests.Next
+namespace CustomQuests.Quests
 {
 	//some seemingly redundant overloads live in here, but are needed since boo doesnt support optional arguments.
 
@@ -469,7 +469,7 @@ namespace CustomQuests.Next
 		public static void Teleport(this IEnumerable<PartyMember> members, int x, int y)
 		{
 			foreach( var m in members )
-				m.Teleport(16 * x, 16 * y);
+				m.Teleport(x,y);
 		}
 
 		#endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CustomQuests.Quests;
 using JetBrains.Annotations;
 using TerrariaApi.Server;
 
@@ -13,7 +14,7 @@ namespace CustomQuests.Triggers
     {
         private readonly string _message;
         private readonly bool _onlyLeader;
-        private readonly Next.Party party;
+        private readonly Party party;
 
         private bool _responded;
 
@@ -23,7 +24,7 @@ namespace CustomQuests.Triggers
 		/// <param name="party">The party, which must not be <c>null</c>.</param>
 		/// <param name="message">The message, which must not be <c>null</c>.</param>
 		/// <param name="onlyLeader"><c>true</c> if only the leader can respond; otherwise, <c>false</c>.</param>
-		public ChatResponse([NotNull] Next.Party party, [NotNull] string message, bool onlyLeader)
+		public ChatResponse( Party party, string message, bool onlyLeader)
 		{
 			this.party = party ?? throw new ArgumentNullException(nameof(party));
 			_message = message ?? throw new ArgumentNullException(nameof(message));
@@ -35,7 +36,7 @@ namespace CustomQuests.Triggers
 		/// </summary>
 		/// <param name="party">The party, which must not be <c>null</c>.</param>
 		/// <param name="message">The message, which must not be <c>null</c>.</param>
-		public ChatResponse([NotNull] Next.Party party, [NotNull] string message) : this(party,message,false)
+		public ChatResponse(Party party, string message) : this(party,message,false)
 		{
 		}
 
