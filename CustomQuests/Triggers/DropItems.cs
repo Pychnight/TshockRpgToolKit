@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
@@ -15,22 +16,22 @@ namespace CustomQuests.Triggers
     public sealed class DropItems : Trigger
     {
         private readonly string _itemName;
-        private readonly Party party;
+		private List<PartyMember> partyMembers;
         private int _amount;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party, item name, and amount.
 		/// </summary>
-		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
 		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
 		/// <param name="amount">The amount, which must be positive.</param>
 		/// <exception cref="ArgumentNullException">
-		///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
+		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public DropItems(Party party, string itemName, int amount)
+		public DropItems(IEnumerable<PartyMember> partyMembers, string itemName, int amount)
 		{
-			this.party = party ?? throw new ArgumentNullException(nameof(party));
+			this.partyMembers = new List<PartyMember>(partyMembers) ?? throw new ArgumentNullException(nameof(partyMembers));
 			_itemName = itemName;
 			_amount = amount > 0
 				? amount
@@ -40,16 +41,43 @@ namespace CustomQuests.Triggers
 		/// <summary>
 		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party and item name.
 		/// </summary>
-		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
 		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
 		/// <exception cref="ArgumentNullException">
-		///     Either <paramref name="party" /> or <paramref name="itemName" /> is <c>null</c>.
+		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public DropItems(Party party, string itemName) : this(party,itemName,1)
+		public DropItems(IEnumerable<PartyMember> partyMembers, string itemName) : this(partyMembers,itemName,1)
 		{
 		}
-		
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party, item name, and amount.
+		/// </summary>
+		/// <param name="partyMember">The party member, which must not be <c>null</c>.</param>
+		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="partyMember" /> or <paramref name="itemName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public DropItems(PartyMember partyMember, string itemName, int amount) : this(partyMember.ToEnumerable(),itemName,amount)
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party and item name.
+		/// </summary>
+		/// <param name="partyMember">The party member, which must not be <c>null</c>.</param>
+		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="partyMember" /> or <paramref name="itemName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public DropItems(PartyMember partyMember, string itemName) : this(partyMember, itemName, 1)
+		{
+		}
+
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
         {
@@ -73,7 +101,7 @@ namespace CustomQuests.Triggers
         private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
         {
             var player = args.Player;
-            if (args.Handled || args.ID != Main.maxItems || party.All(p => p.Player.Index != player.Index))
+            if (args.Handled || args.ID != Main.maxItems || partyMembers.All(p => p.Player.Index != player.Index))
             {
                 return;
             }
