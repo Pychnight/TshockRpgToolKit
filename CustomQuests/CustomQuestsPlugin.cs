@@ -747,13 +747,13 @@ namespace CustomQuests
 
 			var path = "";
 			
-			if(!string.IsNullOrEmpty(questInfo.LuaPath) && questInfo.LuaPath.EndsWith(".boo"))
+			if(!string.IsNullOrEmpty(questInfo.ScriptPath) && questInfo.ScriptPath.EndsWith(".boo"))
 			{
 				Debug.Print("Accepting a boo quest.");
 			}
 			else
 			{
-				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
+				path = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.lua");
 				if( !File.Exists(path) )
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");

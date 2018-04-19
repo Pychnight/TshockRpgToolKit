@@ -16,9 +16,9 @@
         public string FriendlyName { get; set; }
 
         /// <summary>
-        ///     Gets or sets the Lua path.
+        ///     Gets or sets the script path.
         /// </summary>
-        public string LuaPath { get; set; }
+        public string ScriptPath { get; set; }
 
         /// <summary>
         ///     Gets or sets the maximum number of parties that can concurrently do the quest.

@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework;
 using CustomQuests.Next;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
+using CustomQuests.Scripting;
 
 namespace CustomQuests.Sessions
 {
@@ -22,8 +23,8 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class Session : IDisposable
     {
-		static Dictionary<string, Assembly> scriptAssemblies = new Dictionary<string, Assembly>();
-		
+		internal static ScriptAssemblyManager ScriptAssemblyManager = new ScriptAssemblyManager();
+				
 		internal readonly TSPlayer _player;//made internal, as a quick fix for SessionManager needing the player in OnReload().
 		private Quest _currentQuest;
 
@@ -54,19 +55,7 @@ namespace CustomQuests.Sessions
         [ItemNotNull]
         [NotNull]
         public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
-
-        ///// <summary>
-        /////     Gets or sets the current Lua instance.
-        ///// </summary>
-        //[CanBeNull]
-        //public Lua CurrentLua { get; private set; }
-
-		//temp for development
-		public bool IsBoo { get; set; }
-
-		//temp placeholder
-		//public Task CurrentBoo { get; private set; }
-		
+			
         /// <summary>
         ///     Gets or sets the current quest.
         /// </summary>
@@ -217,113 +206,44 @@ namespace CustomQuests.Sessions
 		/// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
 		public void LoadQuest([NotNull] QuestInfo questInfo)
         {
-            if (questInfo == null)
-            {
-                throw new ArgumentNullException(nameof(questInfo));
-            }
-
+            if(questInfo == null)
+				throw new ArgumentNullException(nameof(questInfo));
+            
 			//ensure there is a party set, even if a solo player.
 			Party = Party ?? new OldParty(_player.Name, _player);
-
-			//var quest = new Quest(questInfo);
-			var path = "";
-
-			if( !string.IsNullOrEmpty(questInfo.LuaPath) && questInfo.LuaPath.EndsWith(".boo") )
+			
+			if(!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
 			{
-				//Debug.Print("Using a boo script.");
-				path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.boo");
-				
-				if(!scriptAssemblies.TryGetValue(path, out var scriptAssembly))
+				var scriptPath = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
+				var scriptAssembly = ScriptAssemblyManager.GetOrCompile(scriptPath);
+
+				if(scriptAssembly!=null)
 				{
-					Debug.Print($"Compiling quest script '{path}'.");
-
-					var bc = new BooScriptCompiler();
-
-					bc.Configure(CustomQuests.Next.ScriptHelpers.GetReferences(), CustomQuests.Next.ScriptHelpers.GetDefaultImports());
-
-					var name = Path.GetFileNameWithoutExtension(questInfo.LuaPath);
-
-					var convertStep = new ModuleToInstanceClassStep();
-					convertStep.SourceModuleName = name;
-					convertStep.TargetClassName = $"{name}BooQuest";
-					convertStep.TargetBaseClassName = "CustomQuests.Next.BooQuest";
-					convertStep.TargetMethodName = "OnRun";
-					convertStep.TargetMethodModifiers = TypeMemberModifiers.Protected | TypeMemberModifiers.Override;
-
-					var pipe = bc.InternalCompiler.Parameters.Pipeline;
-					pipe.InsertAfter(typeof(InjectImportsStep), convertStep);
-																			
-					var assName = $"Quest_{questInfo.Name}.dll";
-					var context = bc.Compile(assName, new string[] { path });
-
-					if( context.Errors.Count > 0 )
-					{
-						foreach( var err in context.Errors )
-							Debug.Print(err.Message);
-
-						Debug.Print($"Compilation failed. Aborting quest.");
-						Party.SendErrorMessage("Failed to build quest. Aborting.");
-						return;
-					}
-					else if( context.Warnings.Count > 0 )
-					{
-						foreach( var war in context.Warnings )
-							Debug.Print(war.Message);
-					}
-
-					scriptAssembly = context.GeneratedAssembly;
-					scriptAssemblies.Add(path, scriptAssembly);
-				}
-
-				var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(BooQuest))
-															.Select( dt => dt.AsType())
+					var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(BooQuest))
+															.Select(dt => dt.AsType())
 															.FirstOrDefault();
 
-				//var quest = (BooQuest)scriptAssembly.CreateInstance("TestBooQuest");
-				var quest = (BooQuest)Activator.CreateInstance(questType);
-				//var quest = new BooQuest(questInfo);
+					//var quest = (BooQuest)scriptAssembly.CreateInstance("TestBooQuest");
+					var quest = (BooQuest)Activator.CreateInstance(questType);
+					
+					//set these before, or various quest specific functions will get null ref's from within the quest.
+					quest.QuestInfo = questInfo;
+					quest.party = new Next.Party(_player.Name, Party.AsEnumerable());
 
-				//set these before, or various quest specific functions will get null ref's from within the quest.
-				quest.QuestInfo = questInfo;
-				quest.party = new Next.Party(_player.Name, Party.AsEnumerable());
-
-				CurrentQuest = quest;
-				CurrentQuestInfo = questInfo;
-				//CurrentLua = lua;
-
-				quest.Run();
+					CurrentQuest = quest;
+					CurrentQuestInfo = questInfo;
+					
+					quest.Run();
+				}
 			}
-			//else
-			//{
-			//	var quest = new Quest(questInfo);
-
-			//	path = Path.Combine("quests", questInfo.LuaPath ?? $"{questInfo.Name}.lua");
-
-			//	var lua = new Lua { ["party"] = Party };
-			//	lua.LoadCLRPackage();
-			//	lua.DoString("import('System')");
-			//	lua.DoString("import('CustomQuests', 'CustomQuests.Triggers')");
-			//	lua.DoString("import('OTAPI', 'Microsoft.Xna.Framework')");
-			//	lua.DoString("import('OTAPI', 'Terraria')");
-			//	LuaRegistrationHelper.TaggedInstanceMethods(lua, quest);
-			//	LuaRegistrationHelper.TaggedInstanceMethods(lua, this);
-			//	LuaRegistrationHelper.TaggedStaticMethods(lua, typeof(QuestFunctions));
-
-			//	//set these before, or various quest specific functions will get null ref's from within the quest.
-			//	CurrentQuest = quest;
-			//	CurrentQuestInfo = questInfo;
-			//	CurrentLua = lua;
-
-			//	lua.DoFile(path);
-			//}
-        }
-
-        /// <summary>
-        ///     Revokes the quest with the specified name.
-        /// </summary>
-        /// <param name="name">The quest name, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        public void RevokeQuest([NotNull] string name)
+		}
+		
+		/// <summary>
+		///     Revokes the quest with the specified name.
+		/// </summary>
+		/// <param name="name">The quest name, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		public void RevokeQuest([NotNull] string name)
         {
             if (name == null)
             {

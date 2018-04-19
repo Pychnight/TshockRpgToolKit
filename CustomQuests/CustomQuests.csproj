@@ -90,11 +90,12 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
-    <Compile Include="Next\ModuleToInstanceClassStep.cs" />
+    <Compile Include="Scripting\ModuleToInstanceClassStep.cs" />
     <Compile Include="Next\Party.cs" />
     <Compile Include="Next\PartyMember.cs" />
     <Compile Include="Next\PartyMemberExtensions.cs" />
-    <Compile Include="Next\ScriptHelpers.cs" />
+    <Compile Include="Scripting\ScriptAssemblyManager.cs" />
+    <Compile Include="Scripting\ScriptHelpers.cs" />
     <None Include="Next\UtilsTriggers.cs" />
     <Compile Include="Next\BooQuest.cs" />
     <Compile Include="Next\Team.cs" />

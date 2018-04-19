@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomQuests.Next
+namespace CustomQuests.Scripting
 {
 	internal static class ScriptHelpers
 	{

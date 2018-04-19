@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TShockAPI;
 using TerrariaApi.Server;
-//using NLua;
+using CustomQuests.Next;
 
 namespace CustomQuests.Sessions
 {
@@ -158,13 +158,26 @@ namespace CustomQuests.Sessions
 					//	TShock.Log.ConsoleInfo(ex.ToString());
 					//}
 
-					throw new NotImplementedException("Aborting not implemented yet.");
+					try
+					{
+						var bquest = (BooQuest)session.CurrentQuest;
+						bquest.Abort();
+					}
+					catch( Exception ex )
+					{
+						TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
+						TShock.Log.ConsoleInfo(ex.ToString());
+					}
+
+					//throw new NotImplementedException("Aborting not implemented yet.");
 
 					session.HasAborted = true;
 
 					player.SendSuccessMessage("Aborted quest.");
 				}
 			}
+
+			Session.ScriptAssemblyManager.Clear();
 		}
-    }
+	}
 }
