@@ -41,5 +41,10 @@ namespace CustomQuests.Quests
 		{
 			return Player?.ToString();
 		}
+
+		public IEnumerable<PartyMember> ToEnumerable()
+		{
+			return new PartyMember[] { this };
+		}
 	}
 }
