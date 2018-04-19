@@ -194,7 +194,7 @@ namespace CustomQuests.Quests
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
 
-			member.SendSuccessMessage(message);
+			member.Player.SendSuccessMessage(message);
 		}
 
 		/// <summary>
