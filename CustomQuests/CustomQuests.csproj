@@ -143,6 +143,9 @@
       <Name>BooTS</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="changelog.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
