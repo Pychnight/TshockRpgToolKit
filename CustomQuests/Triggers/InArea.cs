@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
@@ -16,22 +17,23 @@ namespace CustomQuests.Triggers
         private readonly int _maxY;
         private readonly int _minX;
         private readonly int _minY;
-		private readonly Party party;
+		List<PartyMember> partyMembers;
 		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="InArea" /> class with the specified party and positions.
 		/// </summary>
-		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
 		/// <param name="x">The first X position.</param>
 		/// <param name="y">The first Y position.</param>
 		/// <param name="x2">The second X position.</param>
 		/// <param name="y2">The second Y position.</param>
 		/// <param name="requireEveryone"><c>true</c> if everyone in the party must be in the area; otherwise, <c>false</c>.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="party" /> is <c>null</c>.</exception>
-		public InArea( Party party, int x, int y, int x2, int y2, bool requireEveryone)
+		/// <exception cref="ArgumentNullException"><paramref name="partyMembers" /> is <c>null</c>.</exception>
+		public InArea( IEnumerable<PartyMember> partyMembers, int x, int y, int x2, int y2, bool requireEveryone)
 		{
 			this.requireEveryone = requireEveryone;
-			this.party = party ?? throw new ArgumentNullException(nameof(party));
+			//this.party = party ?? throw new ArgumentNullException(nameof(party));
+			this.partyMembers = new List<PartyMember>(partyMembers) ?? throw new ArgumentNullException(nameof(partyMembers));
 			_maxX = Math.Max(x, x2);
 			_minX = Math.Min(x, x2);
 			_maxY = Math.Max(y, y2);
@@ -41,16 +43,30 @@ namespace CustomQuests.Triggers
 		/// <summary>
 		///     Initializes a new instance of the <see cref="InArea" /> class with the specified party and positions.
 		/// </summary>
-		/// <param name="party">The party, which must not be <c>null</c>.</param>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
 		/// <param name="x">The first X position.</param>
 		/// <param name="y">The first Y position.</param>
 		/// <param name="x2">The second X position.</param>
 		/// <param name="y2">The second Y position.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="party" /> is <c>null</c>.</exception>
-		public InArea(Party party, int x, int y, int x2, int y2) : this(party,x,y,x2,y2,true)
+		/// <exception cref="ArgumentNullException"><paramref name="partyMembers" /> is <c>null</c>.</exception>
+		public InArea(IEnumerable<PartyMember> partyMembers, int x, int y, int x2, int y2) : this(partyMembers, x, y, x2, y2, true)
 		{
 		}
 
+		/// <summary>
+		///     Initializes a new instance of the <see cref="InArea" /> class with the specified party and positions.
+		/// </summary>
+		/// <param name="partyMember">The party member, which must not be <c>null</c>.</param>
+		/// <param name="x">The first X position.</param>
+		/// <param name="y">The first Y position.</param>
+		/// <param name="x2">The second X position.</param>
+		/// <param name="y2">The second Y position.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="partyMembers" /> is <c>null</c>.</exception>
+		public InArea(PartyMember partyMember, int x, int y, int x2, int y2)
+			: this(partyMember.ToEnumerable(), x, y, x2, y2, false)
+		{
+		}
+		
 		/// <inheritdoc />
 		protected override void Initialize()
         {
@@ -59,7 +75,7 @@ namespace CustomQuests.Triggers
         /// <inheritdoc />
         protected override bool UpdateImpl() =>
             requireEveryone
-                ? party.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
-                : party.Any(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
+                ? partyMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
+                : partyMembers.Any(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
     }
 }
