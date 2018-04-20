@@ -17,6 +17,9 @@ namespace CustomQuests.Quests
 		public int TileX => Player.TileX;
 		public int TileY => Player.TileY;
 
+		public Team Team { get; internal set; }
+		public bool HasTeam => Team != null;
+
 		public Dictionary<string,object> Variables { get; private set; }
 		public object this[string variableName]
 		{

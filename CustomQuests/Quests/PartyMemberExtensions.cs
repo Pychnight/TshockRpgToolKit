@@ -56,7 +56,7 @@ namespace CustomQuests.Quests
 		{
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
-			
+
 			foreach( var m in members )
 				m.SendErrorMessage(message);
 		}
@@ -78,7 +78,7 @@ namespace CustomQuests.Quests
 		{
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
-			
+
 			foreach( var m in members )
 				m.SendWarningMessage(message);
 		}
@@ -100,7 +100,7 @@ namespace CustomQuests.Quests
 		{
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
-			
+
 			foreach( var member in members )
 				member.SendInfoMessage(message);
 		}
@@ -119,11 +119,11 @@ namespace CustomQuests.Quests
 		/// <param name="message">The message, which must not be <c>null</c>.</param>
 		/// <param name="color">The color.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
-		public static void SendMessage( this IEnumerable<PartyMember> members, string message, Color color)
+		public static void SendMessage(this IEnumerable<PartyMember> members, string message, Color color)
 		{
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
-			
+
 			foreach( var m in members )
 				m.SendMessage(message, color);
 		}
@@ -148,7 +148,7 @@ namespace CustomQuests.Quests
 		{
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
-			
+
 			foreach( var m in members )
 				m.SendMessage(message, r, g, b);
 		}
@@ -184,7 +184,7 @@ namespace CustomQuests.Quests
 		{
 			if( status == null )
 				throw new ArgumentNullException(nameof(status));
-			
+
 			foreach( var m in members )
 				m.SendStatus(status);
 		}
@@ -206,11 +206,11 @@ namespace CustomQuests.Quests
 		{
 			if( message == null )
 				throw new ArgumentNullException(nameof(message));
-			
+
 			foreach( var m in members )
 				m.SendSuccessMessage(message);
 		}
-		
+
 		#endregion
 
 		#region Status effects
@@ -219,7 +219,7 @@ namespace CustomQuests.Quests
 		{
 			if( seconds <= 0 )
 				throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
-			
+
 			member.Player.SetBuff(buffType, seconds * 60);
 		}
 
@@ -232,8 +232,8 @@ namespace CustomQuests.Quests
 		public static void Buff(this IEnumerable<PartyMember> members, int buffType, int seconds)
 		{
 			if( seconds <= 0 )
-					throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
-			
+				throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
+
 			foreach( var member in members )
 				member.Buff(buffType, seconds);
 		}
@@ -242,7 +242,7 @@ namespace CustomQuests.Quests
 		{
 			if( damage <= 0 )
 				throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be positive.");
-			
+
 			member.Player.DamagePlayer(damage);
 		}
 
@@ -255,7 +255,7 @@ namespace CustomQuests.Quests
 		{
 			if( damage <= 0 )
 				throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be positive.");
-			
+
 			foreach( var member in members )
 				member.Damage(damage);
 		}
@@ -264,7 +264,7 @@ namespace CustomQuests.Quests
 		{
 			if( health <= 0 )
 				throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
-						
+
 			member.Player.Heal(health);
 		}
 
@@ -277,7 +277,7 @@ namespace CustomQuests.Quests
 		{
 			if( health <= 0 )
 				throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
-			
+
 			foreach( var member in members )
 				member.Heal(health);
 		}
@@ -370,7 +370,7 @@ namespace CustomQuests.Quests
 				m.Player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
 			}
 		}
-				
+
 		public static void RemoveItem(this PartyMember member, string name)
 		{
 			member.RemoveItem(name, 1, 0);
