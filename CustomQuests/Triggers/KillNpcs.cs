@@ -18,9 +18,7 @@ namespace CustomQuests.Triggers
     {
         private static readonly Dictionary<int, int> LastStrucks = new Dictionary<int, int>();
 
-		private HashSet<string> npcNames;
-		//private HashSet<int> npcIds;
-		//private readonly Party party;
+		private HashSet<string> npcTypes;
 		private List<PartyMember> partyMembers;
 		private int _amount;
 
@@ -28,13 +26,13 @@ namespace CustomQuests.Triggers
 		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
 		/// </summary>
 		/// <param name="party">The party, which must not be <c>null</c>.</param>
-		/// <param name="npcNames">Object containing NPC names, or <c>null</c> for any NPC.</param>
+		/// <param name="npcTypes">Object containing NPC names, or <c>null</c> for any NPC.</param>
 		/// <param name="amount">The amount, which must be positive.</param>
 		/// <exception cref="ArgumentNullException">
 		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public KillNpcs(PartyMember partyMember, int amount, params string[] npcNames) : this(partyMember.ToEnumerable(), amount, npcNames)
+		public KillNpcs(PartyMember partyMember, int amount, params object[] npcTypes) : this(partyMember.ToEnumerable(), amount, npcTypes)
 		{
 		}
 		
@@ -42,19 +40,19 @@ namespace CustomQuests.Triggers
 		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
 		/// </summary>
 		/// <param name="party">The party, which must not be <c>null</c>.</param>
-		/// <param name="npcNames">Object containing NPC names, or <c>null</c> for any NPC.</param>
+		/// <param name="npcTypes">Object containing NPC type names or type ids, or <c>null</c> for any NPC.</param>
 		/// <param name="amount">The amount, which must be positive.</param>
 		/// <exception cref="ArgumentNullException">
 		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params string[] npcNames)
+		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes)
 		{
 			if( partyMembers == null )
 				throw new ArgumentNullException(nameof(partyMembers));
 
-			this.partyMembers = new List<PartyMember>(partyMembers); 
-			
+			this.partyMembers = new List<PartyMember>(partyMembers);
+
 			//{
 			//	var name = GetNPCName(npcNames);
 			//	if( name == null )
@@ -63,10 +61,15 @@ namespace CustomQuests.Triggers
 			//	this.npcNames = new HashSet<string>() { name };
 			//}
 
-			this.npcNames = new HashSet<string>(npcNames);
+			//we now ignore invalid inputs, and just keep valid ones.
+			var validInputs = npcTypes.Where(o => o is string || o is int);
+			var types = validInputs.Select( o => GetNPCName(o));
+			var validTypes = types.Where(s => s != null);
+
+			this.npcTypes = new HashSet<string>(validTypes);
 
 			Debug.Print("KillNpcList:");
-			foreach( var n in this.npcNames )
+			foreach( var n in this.npcTypes )
 				Debug.Print(n);
 			
 			_amount = amount > 0
@@ -80,9 +83,9 @@ namespace CustomQuests.Triggers
 			{
 				return value as string;
 			}
-			else if (value is double)
+			else if (value is int)
 			{
-				var id = (int)(double)value;
+				var id = (int)value;
 				var name = EnglishLanguage.GetNpcNameById(id);//think id should be renamed 'type'
 				return name;
 			}
@@ -120,9 +123,9 @@ namespace CustomQuests.Triggers
 			Debug.Print($"NpcKilled id: {npc.whoAmI}");
 			Debug.Print($"NpcKilled TypeName: {npc.TypeName}");
 			Debug.Print($"NpcKilled type: {npc.type}");
-			Debug.Print($"Contains name? {npcNames.Contains(npc.GivenOrTypeName)}");
+			Debug.Print($"Contains name? {npcTypes.Contains(npc.GivenOrTypeName)}");
 
-			if( !npcNames.Contains(npc.GivenOrTypeName) )
+			if( !npcTypes.Contains(npc.GivenOrTypeName) )
 				return;
 
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
@@ -148,7 +151,7 @@ namespace CustomQuests.Triggers
 			var npcId = npc.whoAmI;
 
 			//if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
-			if( args.Handled || !npcNames.Contains(npc.GivenOrTypeName) )
+			if( args.Handled || !npcTypes.Contains(npc.GivenOrTypeName) )
 				return;
 			
 			if( partyMembers.All(m => m.Player.Index != playerIndex) )

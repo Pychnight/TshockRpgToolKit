@@ -474,63 +474,62 @@ namespace CustomQuests
         /// <summary>
         ///     Spawns the mob with the specified name, coordinates, and amount.
         /// </summary>
-        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+        /// <param name="nameOrType">The name or type, which must be a valid NPC name and not <c>null</c>.</param>
         /// <param name="x">The X coordinate.</param>
         /// <param name="y">The Y coordinate.</param>
         /// <param name="radius">The radius, which must be positive.</param>
         /// <param name="amount">The amount, which must be positive.</param>
         /// <returns>The spawned NPCs.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="nameOrType" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
         /// </exception>
-        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
-        [UsedImplicitly]
-        public static NPC[] SpawnMob([NotNull] string name, int x, int y, int radius = 10, int amount = 1)
+        /// <exception cref="FormatException"><paramref name="nameOrType" /> is not a valid NPC name.</exception>
+        public static NPC[] SpawnMob(string nameOrType, int x, int y, int radius = 10, int amount = 1)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (radius <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-            }
-            if (amount <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-            }
-
-            var npcId = GetNpcIdFromName(name);
+            if (nameOrType == null)
+				throw new ArgumentNullException(nameof(nameOrType));
+                        
+			//var npcId = GetNpcIdFromName(name);
+			var npcId = Corruption.NpcFunctions.GetNpcTypeFromNameOrType(nameOrType);
             if (npcId == null)
-            {
-                throw new FormatException($"Invalid NPC name '{name}'.");
-            }
-
-            var npcs = new List<NPC>();
-            for (var i = 0; i < amount; ++i)
-            {
-                TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                var npcIndex = NPC.NewNPC(16 * spawnX, 16 * spawnY, (int)npcId);
-                if (npcIndex != Main.maxNPCs)
-                {
-                    npcs.Add(Main.npc[npcIndex]);
-                }
-            }
-            return npcs.ToArray();
+				throw new FormatException($"Invalid NPC name '{nameOrType}'.");
+            
+			return SpawnMob((int)npcId, x, y, radius, amount);
         }
 
-        private static int? GetNpcIdFromName(string name)
-        {
-            for (var i = -65; i < Main.maxNPCTypes; ++i)
-            {
-                var npcName = EnglishLanguage.GetNpcNameById(i);
-                if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
-                {
-                    return i;
-                }
-            }
-            return null;
-        }
-    }
+		/// <summary>
+		///     Spawns the mob with the specified name, coordinates, and amount.
+		/// </summary>
+		/// <param name="type">The type, which must be a valid NPC type.</param>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		/// <param name="radius">The radius, which must be positive.</param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <returns>The spawned NPCs.</returns>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
+		/// </exception>
+		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+		public static NPC[] SpawnMob(int type, int x, int y, int radius = 10, int amount = 1)
+		{
+			if( radius <= 0 )
+				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+			
+			if( amount <= 0 )
+				throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+						
+			var npcs = new List<NPC>();
+			for( var i = 0; i < amount; ++i )
+			{
+				TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
+				var npcIndex = NPC.NewNPC(16 * spawnX, 16 * spawnY, type);
+				if( npcIndex != Main.maxNPCs )
+				{
+					npcs.Add(Main.npc[npcIndex]);
+				}
+			}
+			return npcs.ToArray();
+		}
+	}
 }
