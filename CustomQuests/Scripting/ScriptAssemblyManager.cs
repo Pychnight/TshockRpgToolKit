@@ -1,5 +1,6 @@
 ﻿using Boo.Lang.Compiler.Ast;
 using BooTS;
+using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,27 +70,18 @@ namespace CustomQuests.Scripting
 			var assName = $"Quest_{name}.dll";
 			var holder = new ScriptAssemblyHolder(DateTime.Now);
 			var context = bc.Compile(assName, new string[] { scriptPath });
+									
+			CustomQuestsPlugin.Instance.LogPrintBooErrors(context);
+			CustomQuestsPlugin.Instance.LogPrintBooWarnings(context);
 
-			if( context.Errors.Count > 0 )
+			if( context.Errors.Count == 0 )
 			{
-				foreach( var err in context.Errors )
-					Debug.Print(err.Message);
-
-				Debug.Print($"Compilation failed. Aborting quest.");
-				//Party.SendErrorMessage("Failed to build quest. Aborting.");
-				//return;
+				holder.Assembly = context.GeneratedAssembly;
+				CustomQuestsPlugin.Instance.LogPrint($"Compiled quest {name}",TraceLevel.Info);
 			}
 			else
-			{
-				if( context.Warnings.Count > 0 )
-				{
-					foreach( var war in context.Warnings )
-						Debug.Print(war.Message);
-				}
+				CustomQuestsPlugin.Instance.LogPrint($"Failed to compile {name}.", TraceLevel.Error);
 
-				holder.Assembly = context.GeneratedAssembly;
-			}
-			
 			return holder;
 		}
 		
