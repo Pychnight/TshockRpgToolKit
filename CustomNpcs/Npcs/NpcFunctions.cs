@@ -178,7 +178,8 @@ namespace CustomNpcs
 				throw new ArgumentNullException(nameof(nameOrType));
 			}
 
-			var npcType = GetNpcTypeFromNameOrType(nameOrType);
+			//var npcType = GetNpcTypeFromNameOrType(nameOrType);
+			var npcType = Corruption.NpcFunctions.GetNpcTypeFromNameOrType(nameOrType);
 			if( npcType == null )
 			{
 				throw new FormatException($"Invalid NPC name or ID '{nameOrType}'.");
@@ -186,24 +187,6 @@ namespace CustomNpcs
 
 			var npcId = NPC.NewNPC((int)position.X, (int)position.Y, (int)npcType);
 			return npcId != Main.maxNPCs ? Main.npc[npcId] : null;
-		}
-
-		private static int? GetNpcTypeFromNameOrType(string nameOrType)
-		{
-			if( int.TryParse(nameOrType, out var id) && -65 <= id && id < Main.maxNPCTypes )
-			{
-				return id;
-			}
-
-			for( var i = -65; i < Main.maxNPCTypes; ++i )
-			{
-				var npcName = EnglishLanguage.GetNpcNameById(i);
-				if( npcName?.Equals(nameOrType, StringComparison.OrdinalIgnoreCase) == true )
-				{
-					return i;
-				}
-			}
-			return null;
 		}
 
 		//Utility function for replacing with a type.
