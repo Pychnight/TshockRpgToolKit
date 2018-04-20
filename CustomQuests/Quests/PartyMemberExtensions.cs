@@ -469,71 +469,126 @@ namespace CustomQuests.Quests
 		public static void Teleport(this IEnumerable<PartyMember> members, int x, int y)
 		{
 			foreach( var m in members )
-				m.Teleport(x,y);
+				m.Teleport(x, y);
+		}
+
+		/// <summary>
+		///     Sends the tile square to the PartyMember.
+		/// </summary>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		/// <param name="radius">The radius, which must be positive.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
+		public static void SendTileSquare(PartyMember partyMember, int x, int y, int radius)
+		{
+			if( radius <= 0 )
+				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+
+			partyMember.Player.SendTileSquare(x, y, radius);
+		}
+
+		/// <summary>
+		///     Sends the tile square to the PartyMember.
+		/// </summary>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
+		public static void SendTileSquare(PartyMember partyMember, int x, int y)
+		{
+			SendTileSquare(partyMember, x, y, 1);
+		}
+
+		/// <summary>
+		///     Sends the tile square to the party.
+		/// </summary>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		/// <param name="radius">The radius, which must be positive.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
+		public static void SendTileSquare(this IEnumerable<PartyMember> partyMembers, int x, int y, int radius)
+		{
+			if( radius <= 0 )
+				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+			
+			foreach( var member in partyMembers )
+				member.Player.SendTileSquare(x, y, radius);
+		}
+
+		/// <summary>
+		///     Sends the tile square to the party.
+		/// </summary>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
+		public static void SendTileSquare(this IEnumerable<PartyMember> partyMembers, int x, int y)
+		{
+			SendTileSquare(partyMembers, x, y, 1);
+		}
+
+		#endregion
+
+		#region Quest Management
+
+		/// <summary>
+		///     Unlocks the quest with the specified name for the PartyMember.
+		/// </summary>
+		/// <param name="name">The quest name, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		public static void UnlockQuest(this PartyMember partyMember, string name)
+		{
+			if( name == null )
+				throw new ArgumentNullException(nameof(name));
+
+			var session = CustomQuestsPlugin.Instance.GetSession(partyMember);
+			session.UnlockQuest(name);
+		}
+
+		/// <summary>
+		///     Unlocks the quest with the specified name for the PartyMembers.
+		/// </summary>
+		/// <param name="name">The quest name, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		public static void UnlockQuest(this IEnumerable<PartyMember> partyMembers, string name)
+		{
+			if( name == null )
+				throw new ArgumentNullException(nameof(name));
+			
+			foreach( var session in partyMembers.Select(CustomQuestsPlugin.Instance.GetSession) )
+				session.UnlockQuest(name);
+		}
+
+		/// <summary>
+		///     Revokes the quest with the specified name for the PartyMember.
+		/// </summary>
+		/// <param name="name">The quest name, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		public static void RevokeQuest(this PartyMember partyMember, string name)
+		{
+			if( name == null )
+				throw new ArgumentNullException(nameof(name));
+
+			var session = CustomQuestsPlugin.Instance.GetSession(partyMember);
+			session.RevokeQuest(name);
+		}
+
+		/// <summary>
+		///     Revokes the quest with the specified name for the PartyMembers.
+		/// </summary>
+		/// <param name="name">The quest name, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		public static void RevokeQuest(this IEnumerable<PartyMember> partyMembers, string name)
+		{
+			if( name == null )
+				throw new ArgumentNullException(nameof(name));
+			
+			foreach( var session in partyMembers.Select(CustomQuestsPlugin.Instance.GetSession) )
+				session.RevokeQuest(name);
 		}
 
 		#endregion
 
 		#region Needing implementation
-
-		///// <summary>
-		/////     Unlocks the quest with the specified name for the party.
-		///// </summary>
-		///// <param name="name">The quest name, which must not be <c>null</c>.</param>
-		///// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		//public void UnlockQuest(string name)
-		//{
-		//	if( name == null )
-		//	{
-		//		throw new ArgumentNullException(nameof(name));
-		//	}
-
-		//	foreach( var session in _players.Select(CustomQuestsPlugin.Instance.GetSession) )
-		//	{
-		//		session.UnlockQuest(name);
-		//	}
-		//}
-
-		///// <summary>
-		/////     Revokes the quest with the specified name for the party.
-		///// </summary>
-		///// <param name="name">The quest name, which must not be <c>null</c>.</param>
-		///// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		//[UsedImplicitly]
-		//public void RevokeQuest([NotNull] string name)
-		//{
-		//	if( name == null )
-		//	{
-		//		throw new ArgumentNullException(nameof(name));
-		//	}
-
-		//	foreach( var session in _players.Select(CustomQuestsPlugin.Instance.GetSession) )
-		//	{
-		//		session.RevokeQuest(name);
-		//	}
-		//}
-
-		///// <summary>
-		/////     Sends the tile square to the party.
-		///// </summary>
-		///// <param name="x">The X coordinate.</param>
-		///// <param name="y">The Y coordinate.</param>
-		///// <param name="radius">The radius, which must be positive.</param>
-		///// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
-		//[UsedImplicitly]
-		//public void SendTileSquare(int x, int y, int radius = 1)
-		//{
-		//	if( radius <= 0 )
-		//	{
-		//		throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-		//	}
-
-		//	foreach( var player in _players )
-		//	{
-		//		player.SendTileSquare(x, y, radius);
-		//	}
-		//}
-
+		
 		///// <summary>
 		/////     Sets a message that party members may retrieve to see their progress.
 		///// </summary>
