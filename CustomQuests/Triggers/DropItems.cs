@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Corruption;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
 using Terraria;
@@ -52,6 +53,31 @@ namespace CustomQuests.Triggers
 		}
 
 		/// <summary>
+		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party and item name.
+		/// </summary>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
+		/// <param name="itemType">The item type.</param>
+		/// <exception cref="ArgumentNullException">
+		///     If <paramref name="partyMembers" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public DropItems(IEnumerable<PartyMember> partyMembers, int itemType, int amount) : this(partyMembers, ItemFunctions.GetItemNameFromId(itemType), amount)
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party and item name.
+		/// </summary>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
+		/// <param name="itemType">The item type.</param>
+		/// <exception cref="ArgumentNullException">
+		///     If <paramref name="partyMembers" /> is <c>null</c>.
+		/// </exception>
+		public DropItems(IEnumerable<PartyMember> partyMembers, int itemType) : this(partyMembers, itemType, 1)
+		{
+		}
+
+		/// <summary>
 		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party, item name, and amount.
 		/// </summary>
 		/// <param name="partyMember">The party member, which must not be <c>null</c>.</param>
@@ -75,6 +101,31 @@ namespace CustomQuests.Triggers
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
 		public DropItems(PartyMember partyMember, string itemName) : this(partyMember, itemName, 1)
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party and item name.
+		/// </summary>
+		/// <param name="partyMember">The party member, which must not be <c>null</c>.</param>
+		/// <param name="itemType">The item type.</param>
+		/// <exception cref="ArgumentNullException">
+		///     If <paramref name="partyMember" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public DropItems(PartyMember partyMember, int itemType, int amount) : this(partyMember.ToEnumerable(), itemType, amount)
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party and item name.
+		/// </summary>
+		/// <param name="partyMember">The party member, which must not be <c>null</c>.</param>
+		/// <param name="itemType">The item type.</param>
+		/// <exception cref="ArgumentNullException">
+		///     If <paramref name="partyMember" /> is <c>null</c>.
+		/// </exception>
+		public DropItems(PartyMember partyMember, int itemType) : this(partyMember, itemType, 1)
 		{
 		}
 

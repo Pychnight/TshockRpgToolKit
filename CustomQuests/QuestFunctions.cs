@@ -9,6 +9,8 @@ using TShockAPI;
 using TShockAPI.Localization;
 using TShockAPI.DB;
 using System.Diagnostics;
+using Corruption;
+using Corruption.PluginSupport;
 
 // ReSharper disable InconsistentNaming
 
@@ -390,14 +392,35 @@ namespace CustomQuests
             }
         }
 
-        /// <summary>
-        ///     Returns a random integer in the specified range.
-        /// </summary>
-        /// <param name="min">The minimum.</param>
-        /// <param name="max">The maximum, which must be at least the minimum.</param>
-        /// <returns>The random integer.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
-        [UsedImplicitly]
+		/// <summary>
+		///     Puts an item into the chest at the specified coordinates.
+		/// </summary>
+		/// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
+		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
+		/// <param name="itemType">The item type.</param>
+		/// <param name="stack">The stack.</param>
+		/// <param name="prefix">The prefix.</param>
+		public static void PutItemIntoChest(int x, int y, string itemType, int stack = 1, byte prefix = 0)
+		{
+			var id = ItemFunctions.GetItemIdFromName(itemType);
+
+			if(id==null)
+			{
+				CustomQuestsPlugin.Instance.LogPrint($"Can't put item in chest. No id found for '{itemType}'.",TraceLevel.Error);
+				return;
+			}
+
+			PutItemIntoChest(x, y, (int)id, stack, prefix);
+		}
+
+		/// <summary>
+		///     Returns a random integer in the specified range.
+		/// </summary>
+		/// <param name="min">The minimum.</param>
+		/// <param name="max">The maximum, which must be at least the minimum.</param>
+		/// <returns>The random integer.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
+		[UsedImplicitly]
         public static int RandomInt(int min, int max)
         {
             if (max < min)
@@ -491,7 +514,7 @@ namespace CustomQuests
 				throw new ArgumentNullException(nameof(nameOrType));
                         
 			//var npcId = GetNpcIdFromName(name);
-			var npcId = Corruption.NpcFunctions.GetNpcTypeFromNameOrType(nameOrType);
+			var npcId = Corruption.NpcFunctions.GetNpcIdFromNameOrType(nameOrType);
             if (npcId == null)
 				throw new FormatException($"Invalid NPC name '{nameOrType}'.");
             

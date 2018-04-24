@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Corruption;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
 using Terraria;
@@ -52,6 +53,14 @@ namespace CustomQuests.Triggers
 		{
 		}
 
+		public GatherItems(IEnumerable<PartyMember> partyMembers, int itemType, int amount) : this(partyMembers, ItemFunctions.GetItemNameFromId(itemType), amount)
+		{
+		}
+
+		public GatherItems(IEnumerable<PartyMember> partyMembers, int itemType) : this(partyMembers, itemType, 1)
+		{
+		}
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
 		/// </summary>
@@ -76,6 +85,14 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMember" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		public GatherItems(PartyMember partyMember, string itemName) : this(partyMember, itemName, 1)
+		{
+		}
+
+		public GatherItems(PartyMember partyMember, int itemType, int amount) : this(partyMember, ItemFunctions.GetItemNameFromId(itemType), amount)
+		{
+		}
+
+		public GatherItems(PartyMember partyMember, int itemType ) : this(partyMember, itemType, 1 )
 		{
 		}
 

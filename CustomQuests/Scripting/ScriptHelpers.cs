@@ -32,6 +32,7 @@ namespace CustomQuests.Scripting
 				"Corruption.PlayerFunctions",
 				"Corruption.PlayerCommandFunctions",
 				"Corruption.NpcFunctions",
+				"Corruption.ItemFunctions",
 				"CustomNpcs",
 				"CustomNpcs.Invasions",
 				"CustomNpcs.Npcs",
