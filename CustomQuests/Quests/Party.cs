@@ -68,6 +68,12 @@ namespace CustomQuests.Quests
 			return result;
 		}
 
+		public bool Contains(string playerName)
+		{
+			var result = IndexOf(playerName) > -1;
+			return result;
+		}
+
 		public int IndexOf(TSPlayer player)
 		{
 			var result = partyMembers.FindIndex(pm => pm.Player.Index == player.Index);
@@ -83,6 +89,38 @@ namespace CustomQuests.Quests
 			var result = partyMembers.FindIndex(pm => pm == member);
 			return result;
 			//return IndexOf(member.Player);
+		}
+
+		public int IndexOf(string playerName)
+		{
+			var result = partyMembers.FindIndex(pm => pm.Player.Name == playerName);
+			return result;
+		}
+
+		public bool SetLeader(int index)
+		{
+			if( index < 1 )
+				return false;//already leader, or invalid index
+
+			if( index >= partyMembers.Count )
+				return false;
+
+			var currentLeader = Leader;
+			var newLeader = partyMembers[index];
+			partyMembers[index] = currentLeader;
+			partyMembers[0] = newLeader;
+
+			return true;
+		}
+
+		public bool SetLeader(PartyMember member)
+		{
+			var memberIndex = IndexOf(member);
+
+			if( memberIndex == -1 )
+				return false;
+
+			return SetLeader(memberIndex);
 		}
 		
 		public IEnumerator<PartyMember> GetEnumerator()
