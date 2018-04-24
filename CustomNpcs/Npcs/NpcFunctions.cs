@@ -179,7 +179,7 @@ namespace CustomNpcs
 			}
 
 			//var npcType = GetNpcTypeFromNameOrType(nameOrType);
-			var npcType = Corruption.NpcFunctions.GetNpcTypeFromNameOrType(nameOrType);
+			var npcType = Corruption.NpcFunctions.GetNpcIdFromNameOrType(nameOrType);
 			if( npcType == null )
 			{
 				throw new FormatException($"Invalid NPC name or ID '{nameOrType}'.");
