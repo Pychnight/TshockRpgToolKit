@@ -363,13 +363,18 @@ namespace CustomQuests
             {
                 PartyLeave(args);
             }
-            else
+			else if( subcommand.Equals("leader", StringComparison.OrdinalIgnoreCase) )
+			{
+				PartyLeader(args);
+			}
+			else
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>.");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave.");
-            }
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}party leader <player>.");
+			}
         }
 
         private void PartyForm(CommandArgs args)
@@ -512,43 +517,47 @@ namespace CustomQuests
                 player.SendErrorMessage("You are not the leader of your party.");
                 return;
             }
-            if (session.CurrentQuest != null)
-            {
-                player.SendErrorMessage("You cannot kick a player while in a quest.");
-                return;
-            }
+            //if (session.CurrentQuest != null)
+            //{
+            //    player.SendErrorMessage("You cannot kick a player while in a quest.");
+            //    return;
+            //}
 
             var inputPlayer = parameters[1];
-            var players = TShock.Utils.FindPlayer(inputPlayer);
-            if (players.Count == 0)
+			//var players = TShock.Utils.FindPlayer(inputPlayer);
+			var targetIndex = party.IndexOf(inputPlayer);
+
+            if (targetIndex < 0)
             {
                 player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
                 return;
             }
-            if (players.Count > 1)
-            {
-                TShock.Utils.SendMultipleMatchError(player, players);
-                return;
-            }
+			if( targetIndex == 0 )
+			{
+				player.SendErrorMessage("You cannot kick yourself from the party.");
+				return;
+			}
 
-            var player2 = players[0];
-            if (!party.Contains(player2))
-            {
-                player.SendErrorMessage($"{player2.Name} is not in the party.");
-                return;
-            }
-            if (player == player2)
-            {
-                player.SendErrorMessage("You cannot kick yourself from the party.");
-                return;
-            }
+			//if (players.Count > 1)
+			//{
+			//    TShock.Utils.SendMultipleMatchError(player, players);
+			//    return;
+			//}
 
-            var session2 = GetSession(player2);
+			//var player2 = players[0];
+			//if (!party.Contains(player2))
+			//{
+			//    player.SendErrorMessage($"{player2.Name} is not in the party.");
+			//    return;
+			//}
+
+			var targetMember = party[targetIndex];
+			var session2 = GetSession(targetMember);
             session2.Party = null;
-            party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
-            party.Remove(player2);
-            party.SendInfoMessage($"{player.Name} kicked {player2.Name} from the party.");
-            player2.SendInfoMessage("You have been kicked from the party.");
+            party.SendData(PacketTypes.PlayerTeam, "", targetMember.Index);
+            party.Remove(targetMember.Player);
+            party.SendInfoMessage($"{player.Name} kicked {targetMember.Name} from the party.");
+            targetMember.SendInfoMessage("You have been kicked from the party.");
         }
 
         private void PartyLeave(CommandArgs args)
@@ -577,7 +586,53 @@ namespace CustomQuests
             LeaveParty(player);
         }
 
-        private void Quest(CommandArgs args)
+		private void PartyLeader(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+						
+			if( parameters.Count != 2 )
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}party leader <player>.");
+				return;
+			}
+
+			var session = GetSession(player);
+			var party = session.Party;
+			var newLeader = parameters[1];
+
+			if( party == null )
+			{
+				player.SendErrorMessage("You are not in a party.");
+				return;
+			}
+			if( player != party.Leader.Player)
+			{
+				player.SendErrorMessage("You are not the party leader.");
+				return;
+			}
+
+			var newLeaderIndex = party.IndexOf(newLeader);
+			if( newLeaderIndex == -1 )
+			{
+				player.SendErrorMessage($"{newLeader} is not a member of your party.");
+				return;
+			}
+
+			var result = party.SetLeader(newLeaderIndex);
+			if(result)
+			{
+				player.SendInfoMessage("You are no longer party leader.");
+				party.SendInfoMessage($"{newLeader} is now the party leader.");
+			}
+			else
+			{
+				player.SendErrorMessage($"Failed to set party leader.");
+				return;
+			}
+		}
+
+		private void Quest(CommandArgs args)
         {
             var parameters = args.Parameters;
             var player = args.Player;
