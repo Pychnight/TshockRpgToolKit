@@ -62,7 +62,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl()
+        protected internal override bool UpdateImpl()
         {
             foreach (var trigger in _triggers)
             {

@@ -73,7 +73,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() =>
+        protected internal override bool UpdateImpl() =>
             requireEveryone
                 ? partyMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
                 : partyMembers.Any(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);

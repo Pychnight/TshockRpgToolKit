@@ -57,7 +57,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => _responded;
+        protected internal override bool UpdateImpl() => _responded;
 
         private void OnChat(ServerChatEventArgs args)
         {

@@ -38,6 +38,6 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => DateTime.UtcNow - _startTime > _delay;
+        protected internal override bool UpdateImpl() => DateTime.UtcNow - _startTime > _delay;
     }
 }

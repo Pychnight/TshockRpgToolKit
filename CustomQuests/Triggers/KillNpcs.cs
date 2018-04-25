@@ -113,7 +113,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => _amount <= 0;
+        protected internal override bool UpdateImpl() => _amount <= 0;
 
         private void OnNpcKilled(NpcKilledEventArgs args)
         {

@@ -1,10 +1,12 @@
 ﻿using CustomQuests.Quests;
 using CustomQuests.Triggers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TShockAPI;
 
@@ -12,7 +14,12 @@ namespace CustomQuests.Quests
 {
 	public partial class BooQuest : Quest
 	{
-		internal Task Task { get; set; }
+		private Task questTask { get; set; }
+		private CancellationTokenSource CancellationTokenSource;
+		protected CancellationToken CancellationToken => CancellationTokenSource.Token;
+		//private ConcurrentBag<Trigger> triggers;
+		private ConcurrentDictionary<int, Trigger> triggers;
+		int nextTriggerId = 1;
 
 		public Party party { get; internal set; }
 		public PartyMember leader => party.Leader;
@@ -20,30 +27,24 @@ namespace CustomQuests.Quests
 
 		public BooQuest() : base()
 		{
+			CancellationTokenSource = new CancellationTokenSource();
+			//triggers = new ConcurrentBag<Trigger>();
+			triggers = new ConcurrentDictionary<int, Trigger>();
 		}
 
-		public BooQuest(QuestInfo definition) : base(definition)
-		{
-			//Definition = definition;
-		}
+		//public BooQuest(QuestInfo definition) : base(definition)
+		//{
+		//	//Definition = definition;
+		//	CancellationTokenSource = new CancellationTokenSource();
+		//}
 
 		internal void Run()
 		{
-			Task = Task.Run(() => OnRun());
+			questTask = Task.Run(() => OnRun());
 		}
 
 		protected virtual void OnRun()
 		{
-			Console.WriteLine("Hello from TestQuest!");
-
-			var wait = new Wait(TimeSpan.FromSeconds(5));
-			wait.Action = () =>
-			{
-				Console.WriteLine("Okay, we out. Peace.");
-				Complete(true);
-			};
-
-			AddTrigger(wait);
 		}
 
 		//internal void Abort(TSPlayer player)
@@ -102,5 +103,80 @@ namespace CustomQuests.Quests
 		{
 			base.AddTrigger(trigger);
 		}
+
+		public override void Complete(bool isSuccess)
+		{
+			base.Complete(isSuccess);
+			CancellationTokenSource.Cancel();
+		}
+
+		public override void Update()
+		{
+			if( IsEnded )
+				return;
+
+			var completedTriggers = new List<Trigger>();
+			
+			foreach(var trigger in triggers.Values)
+			{
+				trigger.Update();
+
+				if(trigger.IsCompleted)
+					completedTriggers.Add(trigger);
+			}
+
+			foreach(var ct in completedTriggers)
+			{
+				triggers.TryRemove(ct.Id, out var removedTrigger);
+			}
+
+			base.Update();
+		}
+
+		#region Task based DSL
+
+		protected void Delay(int milliseconds)
+		{
+			Task.Delay(milliseconds,CancellationToken).Wait();
+		}
+
+		protected void Delay(TimeSpan timeSpan)
+		{
+			Task.Delay(timeSpan, CancellationToken).Wait();
+		}
+
+		protected Task CreateTask(Action action)
+		{
+			var t = new Task(action, CancellationToken);
+			return t;
+		}
+
+		protected bool IsCancellationRequested()
+		{
+			return CancellationToken.IsCancellationRequested;
+		}
+
+		protected Task XTrigger(Trigger trigger)
+		{
+			return XTrigger(trigger, -1);
+		}
+
+		protected Task XTrigger(Trigger trigger, int timeout)
+		{
+			//var t = Task.Delay(-1);
+
+			trigger.Id = nextTriggerId++;
+			
+			triggers.TryAdd(trigger.Id, trigger);
+			trigger.Task = Task.Run( () =>
+			{
+				SpinWait.SpinUntil(() => trigger.UpdateImpl(), timeout);
+			}, CancellationToken);
+
+			return trigger.Task;
+		}
+
+		#endregion
 	}
+	
 }

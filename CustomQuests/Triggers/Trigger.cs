@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TShockAPI;
 
@@ -31,6 +32,16 @@ namespace CustomQuests.Triggers
             GC.SuppressFinalize(this);
         }
 
+		/// <summary>
+		/// Temporary - id to track triggers within a BooQuest.
+		/// </summary>
+		internal int Id { get; set; }
+
+		/// <summary>
+		/// Temporary holding place for a linked Task.
+		/// </summary>
+		internal Task Task { get; set; }
+		
         /// <summary>
         ///     Updates the trigger.
         /// </summary>
@@ -85,6 +96,6 @@ namespace CustomQuests.Triggers
         ///     Updates the trigger.
         /// </summary>
         /// <returns><c>true</c> if the trigger is completed; otherwise, <c>false</c>.</returns>
-        protected abstract bool UpdateImpl();
+        protected internal abstract bool UpdateImpl();
     }
 }

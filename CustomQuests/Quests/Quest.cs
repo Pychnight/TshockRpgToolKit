@@ -104,7 +104,7 @@ namespace CustomQuests.Quests
         /// </summary>
         /// <param name="isSuccess"><c>true</c> to complete successfully; otherwise, <c>false</c>.</param>
         [UsedImplicitly]
-        public void Complete(bool isSuccess)
+        public virtual void Complete(bool isSuccess)
         {
             IsEnded = true;
             IsSuccessful = isSuccess;
@@ -136,7 +136,7 @@ namespace CustomQuests.Quests
         /// <summary>
         ///     Updates the quest.
         /// </summary>
-        public void Update()
+        public virtual void Update()
         {
             if (IsEnded)
             {
