@@ -16,7 +16,7 @@ namespace CustomQuests.Quests
 	{
 		private Task questTask { get; set; }
 		private CancellationTokenSource CancellationTokenSource;
-		protected CancellationToken CancellationToken => CancellationTokenSource.Token;
+		protected CancellationToken QuestCancellationToken => CancellationTokenSource.Token;
 		//private ConcurrentBag<Trigger> triggers;
 		private ConcurrentDictionary<int, Trigger> triggers;
 		int nextTriggerId = 1;
@@ -28,7 +28,6 @@ namespace CustomQuests.Quests
 		public BooQuest() : base()
 		{
 			CancellationTokenSource = new CancellationTokenSource();
-			//triggers = new ConcurrentBag<Trigger>();
 			triggers = new ConcurrentDictionary<int, Trigger>();
 		}
 
@@ -71,46 +70,27 @@ namespace CustomQuests.Quests
 		protected internal virtual void OnAbort()
 		{
 			Debug.Print($"OnAbort()! for {QuestInfo.Name}");
+			Debug.Print("Cancelling...");
+			CancellationTokenSource.Cancel();
 		}
 		
-		public void trigger(string threadName, Trigger trigger, Action action)
-		{
-			trigger.Action = action;
-
-			base.AddTrigger(trigger, false, threadName);
-		}
-
-		//public void trigger(Trigger trigger, Action action)
-		//{
-		//	this.trigger("main", trigger, action);
-		//}
-
-		public void AddTrigger(string threadName, Trigger trigger, Action action)
-		{
-			trigger.Action = action;
-
-			base.AddTrigger(trigger, false, threadName);
-		}
-
-		//For boo compatibility, since optional arguments aren't working in boo
-		public void AddTrigger(Trigger trigger, bool prioritized )
-		{
-			AddTrigger(trigger, prioritized);
-		}
-
-		//For boo compatibility, since optional arguments aren't working in boo
-		public void AddTrigger(Trigger trigger)
-		{
-			base.AddTrigger(trigger);
-		}
-
 		public override void Complete(bool isSuccess)
 		{
 			base.Complete(isSuccess);
 			CancellationTokenSource.Cancel();
 		}
 
-		public override void Update()
+		public override void Dispose()
+		{
+			base.Dispose();
+
+			foreach( var ct in triggers.Values )
+			{
+				ct.Dispose();
+			}
+		}
+
+		internal override void Update()
 		{
 			if( IsEnded )
 				return;
@@ -128,6 +108,7 @@ namespace CustomQuests.Quests
 			foreach(var ct in completedTriggers)
 			{
 				triggers.TryRemove(ct.Id, out var removedTrigger);
+				ct.Dispose();
 			}
 
 			base.Update();
@@ -137,43 +118,105 @@ namespace CustomQuests.Quests
 
 		protected void Delay(int milliseconds)
 		{
-			Task.Delay(milliseconds,CancellationToken).Wait();
+			Task.Delay(milliseconds,QuestCancellationToken).Wait();
 		}
 
 		protected void Delay(TimeSpan timeSpan)
 		{
-			Task.Delay(timeSpan, CancellationToken).Wait();
+			Task.Delay(timeSpan, QuestCancellationToken).Wait();
 		}
 
 		protected Task CreateTask(Action action)
 		{
-			var t = new Task(action, CancellationToken);
+			return CreateTask(QuestCancellationToken, action);
+		}
+
+		protected Task CreateTask(CancellationToken cancellationToken, Action action)
+		{
+			var t = new Task(action, cancellationToken);
 			return t;
 		}
 
 		protected bool IsCancellationRequested()
 		{
-			return CancellationToken.IsCancellationRequested;
+			return QuestCancellationToken.IsCancellationRequested;
 		}
+		
+		//protected Task XTrigger(Trigger trigger, int timeout)
+		//{
+		//	//var t = Task.Delay(-1);
 
-		protected Task XTrigger(Trigger trigger)
-		{
-			return XTrigger(trigger, -1);
-		}
+		//	trigger.Id = nextTriggerId++;
+			
+		//	triggers.TryAdd(trigger.Id, trigger);
+		//	trigger.Task = Task.Run( () =>
+		//	{
+		//		SpinWait.SpinUntil(() => trigger.UpdateImpl(), timeout);
+		//	}, QuestCancellationToken);
 
-		protected Task XTrigger(Trigger trigger, int timeout)
+		//	return trigger.Task;
+		//}
+
+		private void AddTrigger(Trigger trigger, CancellationToken cancellationToken )
 		{
-			//var t = Task.Delay(-1);
+			if( trigger.Id != 0 )
+				throw new InvalidOperationException("Trigger has already been used.");
 
 			trigger.Id = nextTriggerId++;
+			trigger.Task = Task.Run(() =>
+			{
+				trigger.Signal.Wait(cancellationToken);
+			}, cancellationToken);
 			
 			triggers.TryAdd(trigger.Id, trigger);
-			trigger.Task = Task.Run( () =>
-			{
-				SpinWait.SpinUntil(() => trigger.UpdateImpl(), timeout);
-			}, CancellationToken);
+		}
 
-			return trigger.Task;
+		private Task[] AddTrigger(Trigger[] triggers, CancellationToken cancellationToken)
+		{
+			var tasks = new Task[triggers.Length];
+			var i = 0;
+
+			foreach( var trigger in triggers )
+			{
+				AddTrigger(trigger, cancellationToken);
+				tasks[i++] = trigger.Task;
+			}
+
+			return tasks;
+		}
+
+		protected bool TriggerWaitAll(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
+		{
+			var tasks = AddTrigger(triggers, cancellationToken);
+			var result = Task.WaitAll(tasks, timeoutMilliseconds, cancellationToken);
+			return result;
+		}
+
+		protected bool TriggerWaitAll(int timeoutMilliseconds, params Trigger[] triggers)
+		{
+			return TriggerWaitAll(timeoutMilliseconds, QuestCancellationToken, triggers);
+		}
+
+		protected bool TriggerWaitAll(params Trigger[] triggers)
+		{
+			return TriggerWaitAll(-1, triggers);
+		}
+		
+		protected int TriggerWaitAny(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
+		{
+			var tasks = AddTrigger(triggers, cancellationToken);
+			var result = Task.WaitAny(tasks, timeoutMilliseconds, cancellationToken);
+			return result;
+		}
+
+		protected int TriggerWaitAny(int timeoutMilliseconds, params Trigger[] triggers)
+		{
+			return TriggerWaitAny(timeoutMilliseconds, QuestCancellationToken, triggers);
+		}
+
+		protected int TriggerWaitAny(params Trigger[] triggers)
+		{
+			return TriggerWaitAny(-1, triggers);
 		}
 
 		#endregion

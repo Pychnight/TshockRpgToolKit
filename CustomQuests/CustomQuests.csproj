@@ -105,7 +105,6 @@
     <Compile Include="Quests\Quest.cs" />
     <Compile Include="Quests\QuestInfo.cs" />
     <Compile Include="Sessions\SavePoint.cs" />
-    <Compile Include="Quests\QuestThread.cs" />
     <Compile Include="Sessions\FileSessionRepository.cs" />
     <Compile Include="Sessions\Session.cs" />
     <Compile Include="Sessions\SessionInfo.cs" />
