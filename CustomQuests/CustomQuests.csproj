@@ -111,8 +111,6 @@
     <Compile Include="Sessions\SessionManager.cs" />
     <Compile Include="Sessions\SessionRepository.cs" />
     <Compile Include="Sessions\SqliteSessionRepository.cs" />
-    <Compile Include="Triggers\All.cs" />
-    <Compile Include="Triggers\Any.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
     <Compile Include="Triggers\Condition.cs" />
     <Compile Include="Triggers\GatherItems.cs" />
@@ -120,7 +118,6 @@
     <Compile Include="Triggers\InArea.cs" />
     <Compile Include="Triggers\KillNpcs.cs" />
     <Compile Include="Triggers\Trigger.cs" />
-    <Compile Include="Triggers\Wait.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
