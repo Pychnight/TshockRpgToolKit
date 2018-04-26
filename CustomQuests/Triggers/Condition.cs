@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 using TShockAPI;
 
 namespace CustomQuests.Triggers
@@ -7,7 +6,6 @@ namespace CustomQuests.Triggers
     /// <summary>
     ///     Represents a condition trigger.
     /// </summary>
-    [UsedImplicitly]
     public sealed class Condition : Trigger
     {
         private Func<bool> condition;
@@ -26,8 +24,6 @@ namespace CustomQuests.Triggers
         {
             if (disposing)
             {
-				//_condition?.Dispose();
-				//_condition = null;
 				condition = null;
             }
 
@@ -44,13 +40,13 @@ namespace CustomQuests.Triggers
         {
             try
             {
-				return condition?.Invoke() == true;
+				return condition!=null ? condition() : true;//disregard trigger if it received a null Func.
             }
             catch (Exception ex)
             {
                 TShock.Log.ConsoleInfo("An exception occurred in Condition: ");
                 TShock.Log.ConsoleInfo(ex.ToString());
-                return true;
+				return true;
             }
         }
     }

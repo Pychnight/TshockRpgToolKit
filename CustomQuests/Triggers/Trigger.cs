@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using TShockAPI;
 
 namespace CustomQuests.Triggers
@@ -14,9 +13,11 @@ namespace CustomQuests.Triggers
     {
         private bool _isInitialized;
 
+		/// <summary>
+		/// Signals that the Trigger's UpdateImpl() has been set to true, allowing linked Tasks to stop blocking.  
+		/// </summary>
 		internal ManualResetEventSlim Signal { get; private set; } = new ManualResetEventSlim();
-
-
+		
 		public bool IsDisposed { get; private set; }
 
         /// <summary>

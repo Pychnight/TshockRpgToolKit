@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Corruption;
 using CustomQuests.Quests;
-using JetBrains.Annotations;
 using Terraria;
 using TShockAPI;
 using TShockAPI.Localization;
@@ -13,12 +12,11 @@ namespace CustomQuests.Triggers
     /// <summary>
     ///     Represents a gather items trigger.
     /// </summary>
-    [UsedImplicitly]
     public sealed class GatherItems : Trigger
     {
         private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
         private readonly string _itemName;
-		private List<PartyMember> partyMembers;
+		private IEnumerable<PartyMember> partyMembers;
 		private int _amount;
 		
 		/// <summary>
@@ -33,7 +31,7 @@ namespace CustomQuests.Triggers
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
 		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount)
 		{
-			this.partyMembers = new List<PartyMember>(partyMembers) ?? throw new ArgumentNullException(nameof(partyMembers));
+			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 
 			_itemName = itemName;
 			_amount = amount > 0
