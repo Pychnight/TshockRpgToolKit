@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace CustomQuests.Sessions
 {
@@ -37,6 +38,7 @@ namespace CustomQuests.Sessions
 		//public Dictionary<string, SavePoint> PartyLeaderSavePoints { get; } = new Dictionary<string, SavePoint>();
 		//public Dictionary<string, QuestStatusManager> QuestSavePoints { get; } = new Dictionary<string, QuestStatusManager>();
 
+		[JsonIgnore]
 		public QuestStatusManager QuestStatusManager { get; set; } = new QuestStatusManager();
 
 

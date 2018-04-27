@@ -648,23 +648,6 @@ namespace CustomQuests.Quests
 			
 			foreach( var member in partyMembers )
 			{
-				//var session = CustomQuestsPlugin.Instance.GetSession(member);
-
-				//if( session != null && session.CurrentQuest != null )
-				//{
-				//	//var isPartyLeader = member == session.Party.Leader;
-
-				//	//Debug.Print("SetQuestStatus() SAVEPOINT!");
-				//	//var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.CurrentQuestName, isPartyLeader);
-				//	//savePoint.QuestStatus = questStatus;
-				//	//savePoint.QuestStatusColor = color;
-				
-				//	member.SendMessage(questStatus, color);
-
-				//	//var mgr = session.SessionInfo.GetOrCreateSavePointManager(session.CurrentQuestName);
-				//	//mgr.SetQuestStatus(index, questStatus, color);
-				//}
-
 				member.SetQuestStatus(index, questStatus, color);
 			}
 		}
