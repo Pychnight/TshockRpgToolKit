@@ -147,17 +147,7 @@ namespace CustomQuests.Sessions
 				if (quest != null)
 				{
 					session.IsAborting = true;
-					//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-					//try
-					//{
-					//	onAbortFunction?.Call();
-					//}
-					//catch (Exception ex)
-					//{
-					//	TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-					//	TShock.Log.ConsoleInfo(ex.ToString());
-					//}
-
+					
 					try
 					{
 						var bquest = (BooQuest)session.CurrentQuest;
@@ -169,10 +159,7 @@ namespace CustomQuests.Sessions
 						TShock.Log.ConsoleInfo(ex.ToString());
 					}
 
-					//throw new NotImplementedException("Aborting not implemented yet.");
-
 					session.HasAborted = true;
-
 					player.SendSuccessMessage("Aborted quest.");
 				}
 			}

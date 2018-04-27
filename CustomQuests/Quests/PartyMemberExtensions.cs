@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -588,7 +589,7 @@ namespace CustomQuests.Quests
 		#endregion
 
 		#region Needing implementation
-		
+
 		///// <summary>
 		/////     Sets a message that party members may retrieve to see their progress.
 		///// </summary>
@@ -635,6 +636,72 @@ namespace CustomQuests.Quests
 		//	SetQuestStatus(questStatus, color);
 		//}
 
+		/// <summary>
+		///     Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="questStatus" /> is <c>null</c>.</exception>
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus, Color color)
+		{
+			if( questStatus == null )
+				throw new ArgumentNullException(nameof(questStatus));
+			
+			foreach( var member in partyMembers )
+			{
+				//var session = CustomQuestsPlugin.Instance.GetSession(member);
+
+				//if( session != null && session.CurrentQuest != null )
+				//{
+				//	//var isPartyLeader = member == session.Party.Leader;
+
+				//	//Debug.Print("SetQuestStatus() SAVEPOINT!");
+				//	//var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.CurrentQuestName, isPartyLeader);
+				//	//savePoint.QuestStatus = questStatus;
+				//	//savePoint.QuestStatusColor = color;
+				
+				//	member.SendMessage(questStatus, color);
+
+				//	//var mgr = session.SessionInfo.GetOrCreateSavePointManager(session.CurrentQuestName);
+				//	//mgr.SetQuestStatus(index, questStatus, color);
+				//}
+
+				member.SetQuestStatus(index, questStatus, color);
+			}
+		}
+
+		/// <summary>
+		///		Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		/// <param name="r">The red component.</param>
+		/// <param name="g">The green component.</param>
+		/// <param name="b">The blue component.</param>
+		public static void SetQuestStatus( this IEnumerable<PartyMember> partyMembers, int index, string questStatus, byte r, byte g, byte b)
+		{
+			var color = new Color(r, g, b);
+			partyMembers.SetQuestStatus(index, questStatus, color);
+		}
+
+		/// <summary>
+		///		Sets a message that party members may retrieve to see their progress.
+		/// </summary>
+		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus)
+		{
+			partyMembers.SetQuestStatus(index, questStatus, Color.White);
+		}
+
 		#endregion
+
+		//public static void SetSpawn( this IEnumerable<PartyMember> partyMembers, int x, int y)
+		//{
+		//	foreach( var m in partyMembers )
+		//		m.SetSpawn(x, y);
+		//}
+
+		//public static void SetSpawn(this PartyMember partyMember, int x, int y)
+		//{
+			
+		//}
 	}
 }

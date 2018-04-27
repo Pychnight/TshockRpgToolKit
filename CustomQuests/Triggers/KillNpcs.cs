@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Terraria;
 using TerrariaApi.Server;
 using System.Diagnostics;
@@ -13,13 +12,12 @@ namespace CustomQuests.Triggers
     /// <summary>
     ///     Represents a kill NPCs trigger.
     /// </summary>
-    [UsedImplicitly]
-    public sealed class KillNpcs : Trigger
+	public sealed class KillNpcs : Trigger
     {
         private static readonly Dictionary<int, int> LastStrucks = new Dictionary<int, int>();
 
 		private HashSet<string> npcTypes;
-		private List<PartyMember> partyMembers;
+		private IEnumerable<PartyMember> partyMembers;
 		private int _amount;
 
 		/// <summary>
@@ -51,7 +49,7 @@ namespace CustomQuests.Triggers
 			if( partyMembers == null )
 				throw new ArgumentNullException(nameof(partyMembers));
 
-			this.partyMembers = new List<PartyMember>(partyMembers);
+			this.partyMembers = partyMembers;
 
 			//{
 			//	var name = GetNPCName(npcNames);
@@ -113,7 +111,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => _amount <= 0;
+        protected internal override bool UpdateImpl() => _amount <= 0;
 
         private void OnNpcKilled(NpcKilledEventArgs args)
         {

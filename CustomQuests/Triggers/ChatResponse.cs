@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomQuests.Quests;
-using JetBrains.Annotations;
 using TerrariaApi.Server;
 
 namespace CustomQuests.Triggers
@@ -9,44 +9,38 @@ namespace CustomQuests.Triggers
     /// <summary>
     ///     Represents a chat response trigger.
     /// </summary>
-    [UsedImplicitly]
     public sealed class ChatResponse : Trigger
     {
-        private readonly string _message;
-        private readonly bool _onlyLeader;
-        private readonly Party party;
-
-        private bool _responded;
+        private readonly string responseString;
+		private IEnumerable<PartyMember> members;
+		private bool responded;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="ChatResponse" /> class with the specified party and message.
 		/// </summary>
-		/// <param name="party">The party, which must not be <c>null</c>.</param>
-		/// <param name="message">The message, which must not be <c>null</c>.</param>
-		/// <param name="onlyLeader"><c>true</c> if only the leader can respond; otherwise, <c>false</c>.</param>
-		public ChatResponse( Party party, string message, bool onlyLeader)
+		/// <param name="partyMembers">The party, which must not be <c>null</c>.</param>
+		/// <param name="responseString">The response string to check for.</param>
+		public ChatResponse( IEnumerable<PartyMember> partyMembers, string responseString)
 		{
-			this.party = party ?? throw new ArgumentNullException(nameof(party));
-			_message = message ?? throw new ArgumentNullException(nameof(message));
-			_onlyLeader = onlyLeader;
+			members = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
+			this.responseString = responseString ?? throw new ArgumentNullException(nameof(responseString));
 		}
 
 		/// <summary>
-		///     Initializes a new instance of the <see cref="ChatResponse" /> class with the specified party and message.
+		///		Initializes a new instance of the <see cref="ChatResponse"/> class with the specified PartyMember and key response.
 		/// </summary>
-		/// <param name="party">The party, which must not be <c>null</c>.</param>
-		/// <param name="message">The message, which must not be <c>null</c>.</param>
-		public ChatResponse(Party party, string message) : this(party,message,false)
+		/// <param name="partyMember">The PartyMember.</param>
+		/// <param name="responseString">The response string to check for.</param>
+		public ChatResponse( PartyMember partyMember, string responseString)
+			: this(partyMember.ToEnumerable(), responseString )
 		{
 		}
-
+		
 		protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
-                ServerApi.Hooks.ServerChat.Deregister(CustomQuestsPlugin.Instance, OnChat);
-            }
-
+				ServerApi.Hooks.ServerChat.Deregister(CustomQuestsPlugin.Instance, OnChat);
+            
             base.Dispose(disposing);
         }
 
@@ -57,17 +51,15 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() => _responded;
+        protected internal override bool UpdateImpl() => responded;
 
         private void OnChat(ServerChatEventArgs args)
         {
-            if( ( _onlyLeader ? args.Who == party.Leader.Player.Index : party.Any(p => p.Player.Index == args.Who) ) &&
-			   args.Text.Equals(_message, StringComparison.OrdinalIgnoreCase) )
+            if( members.Any(p => p.Index == args.Who) && args.Text.Equals(responseString, StringComparison.OrdinalIgnoreCase) )
 			{
-				_responded = true;
+				responded = true;
 				args.Handled = true;
 			}
-
 		}
     }
 }

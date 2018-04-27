@@ -42,27 +42,14 @@ namespace CustomQuests.Triggers
 
             _triggers = triggerList;
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var trigger in _triggers)
-                {
-                    trigger.Dispose();
-                }
-            }
-
-            base.Dispose(disposing);
-        }
-
-        /// <inheritdoc />
+		
+		/// <inheritdoc />
         protected override void Initialize()
         {
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl()
+        protected internal override bool UpdateImpl()
         {
             foreach (var trigger in _triggers)
             {

@@ -13,6 +13,8 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using Corruption.PluginSupport;
+using Microsoft.Xna.Framework;
+using System.Threading.Tasks;
 
 namespace CustomQuests
 {
@@ -28,15 +30,12 @@ namespace CustomQuests
         private static readonly string ConfigPath = Path.Combine("quests", "config.json");
         private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
 
-		//private readonly Dictionary<string, OldParty> _parties =
-		//    new Dictionary<string, OldParty>(StringComparer.OrdinalIgnoreCase);
+		private Config _config = new Config();
 
 		private readonly Dictionary<string, Party> _parties = new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
 
-		private Config _config = new Config();
-
         private DateTime _lastSave;
-        private List<QuestInfo> _questInfos = new List<QuestInfo>();
+		private QuestManager questManager = new QuestManager();
         private SessionManager _sessionManager;
 
         /// <summary>
@@ -94,35 +93,25 @@ namespace CustomQuests
 		{
 			return GetSession(member.Player);
 		}
-
-
+		
         /// <summary>
         ///     Initializes the plugin.
         /// </summary>
         public override void Initialize()
         {
-            Directory.CreateDirectory("quests");
-			if (File.Exists(ConfigPath))
-            {
-                _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-            _sessionManager = new SessionManager(_config, this);
-            if (File.Exists(QuestInfosPath))
-            {
-                _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
+			questManager = new QuestManager();
 
-				Debug.Print("Found the following quest infos:");
-				foreach(var qi in _questInfos)
-					Debug.Print($"Quest: {qi.FriendlyName}");
-            }
+			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
+			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
+			ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
+			ServerApi.Hooks.NetSendData.Register(this, OnSendData);
+			//ServerApi.Hooks.NetGetData.Register(this, onGetData);
 
-            GeneralHooks.ReloadEvent += OnReload;
+			GeneralHooks.ReloadEvent += OnReload;
             GetDataHandlers.PlayerTeam += OnPlayerTeam;
-            GetDataHandlers.TileEdit += OnTileEdit;
-            ServerApi.Hooks.NetSendData.Register(this, OnSendData);
-            ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
-            ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
-
+			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
+			GetDataHandlers.TileEdit += OnTileEdit;
+            			
             Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
             Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
             Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
@@ -131,19 +120,144 @@ namespace CustomQuests
 			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
         }
 
-        /// <summary>
-        ///     Disposes the plugin.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to dispose managed resources; otherwise, <c>false</c>.</param>
-        protected override void Dispose(bool disposing)
+		private void OnPostInitialize(EventArgs args)
+		{
+			load();
+		}
+
+		private void load()
+		{
+			Directory.CreateDirectory("quests");
+			if( File.Exists(ConfigPath) )
+			{
+				_config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+			}
+			_sessionManager = new SessionManager(_config, this);
+			
+			questManager.LoadQuestInfos(QuestInfosPath);
+		}
+
+		private void OnReload(ReloadEventArgs args)
+		{
+			_sessionManager.OnReload();//abort in play quests
+			load();
+		}
+
+		//private void OnPlayerSpawn(object sender, GetDataHandlers.SpawnEventArgs args)
+		//{
+		//	Debug.Print("OnPlayerSpawn");
+		//	Debug.Print($"SpawnX: {args.SpawnX}");
+		//	Debug.Print($"SpawnY: {args.SpawnY}");
+
+		//	//args.SpawnX += 20;
+		//	//args.SpawnY += 20;
+
+		//	var playerIndex = args.Player;
+
+		//	TShock.Players[playerIndex].Spawn(args.SpawnX, args.SpawnY);
+
+		//	args.Handled = true;
+		//}
+
+		//private void dummy(GetDataEventArgs args)
+		//{
+		//	if( args.MsgID == PacketTypes.PlayerTeam)
+		//	{
+		//		Debug.Print("Viola");
+		//	}
+		//}
+
+		//private void onGetData(GetDataEventArgs args)
+		//{
+		//	if( args.Handled )
+		//		return;
+
+		//	if( args.MsgID == PacketTypes.PlayerDeathV2 )
+		//	{
+		//		//based off of MarioE's original code from the Leveling plugin...
+		//		//using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+		//		{
+		//			var player = TShock.Players[args.Msg.whoAmI];
+
+		//			//player.Spawn(Main.spawnTileX + 20, Main.spawnTileY);
+
+		//			//if( args.MsgID == PacketTypes.PlayerSpawnSelf )
+		//			//{
+		//			//	Debug.Print("SpawnSelf");
+		//			//	return;
+		//			//}
+		//		}
+
+		//		Debug.Print("PlayerDeathV2");
+		//	}
+
+		//	if( args.MsgID == PacketTypes.PlayerSpawn )
+		//	{
+		//		Debug.Print("Player Spawn!");
+
+		//		//if(disableSpawn)
+		//		//{
+		//		//	Debug.Print("Disabled spawn.");
+		//		//	args.Handled = true;
+		//		//	return;
+		//		//}
+
+		//		var playerIndex = (int)args.Msg.readBuffer[0];
+
+		//		using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+		//		{
+		//			var player = reader.ReadByte();
+		//			var spawnX = reader.ReadInt16();
+		//			var spawnY = reader.ReadInt16();
+
+		//			//reader.Seek(1, SeekOrigin.Begin);
+		//			//reader.Write((short)2409);
+		//			//reader.Write((short)249 - 10);
+
+		//			Debug.Print($"Spawn#: {player}");
+		//			Debug.Print($"SpawnX: {spawnX}");
+		//			Debug.Print($"SpawnY: {spawnY}");
+
+		//			//disableSpawn = true;
+
+		//			//var tp = new TSPlayer(player);
+
+		//			var tp = TShock.Players[player];
+
+		//			Debug.Print($"Name: {tp.Name}");
+
+
+
+		//			args.Handled = true;
+
+		//			Task.Run(() =>
+		//			{
+		//				//tp.TPlayer.SpawnX = spawnX + 100;
+		//				//tp.TPlayer.SpawnY = spawnY - 10;
+
+		//				tp.TPlayer.SpawnX = 2409;
+		//				tp.TPlayer.SpawnY = 249;
+
+		//				var pos = new Vector2(tp.TPlayer.SpawnX, tp.TPlayer.SpawnY);
+
+		//				Debug.Print("Deferred spawn!");
+		//				Task.Delay(2500).Wait();
+		//				tp.TPlayer.Teleport(pos);
+		//			});
+		//		}
+		//	}
+		//}
+
+		/// <summary>
+		///     Disposes the plugin.
+		/// </summary>
+		/// <param name="disposing"><c>true</c> to dispose managed resources; otherwise, <c>false</c>.</param>
+		protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
                 _sessionManager.Dispose();
-
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented));
-                File.WriteAllText(QuestInfosPath, JsonConvert.SerializeObject(_questInfos, Formatting.Indented));
-
+				
                 GeneralHooks.ReloadEvent -= OnReload;
                 GetDataHandlers.PlayerTeam -= OnPlayerTeam;
                 GetDataHandlers.TileEdit -= OnTileEdit;
@@ -226,7 +340,7 @@ namespace CustomQuests
                 if (session.Party != null)
                 {
                     session.Dispose();
-                    session.SetQuestState(null);
+                    //session.SetQuestState(null);
                 }
 
                 LeaveParty(player);
@@ -246,23 +360,14 @@ namespace CustomQuests
                 player.TPlayer.team = 0;
             }
         }
-
-        private void OnReload(ReloadEventArgs args)
+		
+		private void OnSendData(SendDataEventArgs args)
         {
-			_sessionManager.OnReload();//abort in play quests
-			
-            if (File.Exists(ConfigPath))
-            {
-                _config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-            }
-            if (File.Exists(QuestInfosPath))
-            {
-                _questInfos = JsonConvert.DeserializeObject<List<QuestInfo>>(File.ReadAllText(QuestInfosPath));
-            }
-        }
+			//if(args.MsgId == PacketTypes.PlayerSpawnSelf)
+			//{
+			//	Debug.Print("SpawnSelf!");
+			//}
 
-        private void OnSendData(SendDataEventArgs args)
-        {
             if (args.Handled || args.MsgId != PacketTypes.Status)
             {
                 return;
@@ -720,27 +825,7 @@ namespace CustomQuests
                     var session2 = GetSession(player2);
                     session2.IsAborting = true;
                 }
-
-				//throw new NotImplementedException("Aborting not supported yet.");
-
-				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-				//try
-				//{
-				//    onAbortFunction?.Call();
-				//}
-				//catch (Exception ex)
-				//{
-				//    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-				//    TShock.Log.ConsoleInfo(ex.ToString());
-				//}
-
-				//foreach (var player2 in party)
-				//{
-				//    var session2 = GetSession(player2);
-				//    session2.HasAborted = true;
-				//}
-
-				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+				
 				try
 				{
 					var bquest = (BooQuest)session.CurrentQuest;
@@ -756,6 +841,7 @@ namespace CustomQuests
 				{
 					var session2 = GetSession(player2);
 					session2.HasAborted = true;
+					session2.QuestStatusManager.Clear();
 				}
 				
 				party.SendSuccessMessage("Aborted quest.");
@@ -810,7 +896,7 @@ namespace CustomQuests
                 return;
             }
 
-            var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
+            var availableQuests = session.AvailableQuestNames.Select(s => questManager.First(q => q.Name == s))
                 .Where(session.CanSeeQuest).ToList();
             var inputName = string.Join(" ", parameters.Skip(1));
             var questInfo = availableQuests.FirstOrDefault(
@@ -881,16 +967,11 @@ namespace CustomQuests
                     {
                         player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                         var session2 = GetSession(player2);
+						session2.QuestStatusManager.Clear();
                         session2.CurrentQuest = session.CurrentQuest;
                     }
                 }
-                //catch (LuaException ex)
-                //{
-                //    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                //    TShock.Log.ConsoleError(ex.ToString());
-                //    TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                //}
-				catch(Exception ex)
+               	catch(Exception ex)
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 					TShock.Log.ConsoleError(ex.ToString());
@@ -910,13 +991,7 @@ namespace CustomQuests
                     player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                     session.LoadQuest(questInfo);
                 }
-                //catch (LuaException ex)
-                //{
-                //    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                //    TShock.Log.ConsoleError(ex.ToString());
-                //    TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                //}
-				catch( Exception ex )
+               	catch( Exception ex )
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 					TShock.Log.ConsoleError(ex.ToString());
@@ -936,11 +1011,14 @@ namespace CustomQuests
 			}
 
 			var session = GetSession(player);
-			var availableQuests = session.AvailableQuestNames.Select(s => _questInfos.First(q => q.Name == s))
-															.Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name)
-															.ToList();
 			
-			var completedQuests = session.CompletedQuestNames.Select(s => _questInfos.First(q => q.Name == s)).ToList();
+			var quests = session.AvailableQuestNames.Where(s => questManager[s] != null).Select(s => questManager[s]);
+			var availableQuests = quests.Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name).ToList();
+																		
+			//...because sometimes quests are renamed, or removed...
+			var validCompletedQuests = session.CompletedQuestNames.Where(q => questManager[q] != null);
+			var completedQuests = validCompletedQuests.Select( s => questManager[s] ).ToList();
+			
             var totalQuestCount = availableQuests.Count + completedQuests.Count;
             var maxPage = (totalQuestCount - 1) / QuestsPerPage + 1;
             var inputPageNumber = parameters.Count == 1 ? "1" : parameters[1];
@@ -1016,14 +1094,14 @@ namespace CustomQuests
                     $"{(player2 == player ? "You have" : $"{player2.Name} has")} not unlocked quest '{inputName}'.");
                 return;
             }
-            if (_questInfos.All(q => q.Name != inputName))
+            if (questManager.All(q => q.Name != inputName))
             {
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
 
             session2.RevokeQuest(inputName);
-            var questInfo = _questInfos.First(q => q.Name == inputName);
+            var questInfo = questManager.First(q => q.Name == inputName);
             player2.SendSuccessMessage($"Revoked quest '{questInfo.Name}'.");
             if (player2 != player)
             {
@@ -1074,14 +1152,14 @@ namespace CustomQuests
                     $"{(player2 == player ? "You have" : $"{player2.Name} has")} already completed quest '{inputName}'.");
                 return;
             }
-            if (_questInfos.All(q => q.Name != inputName))
+            if (questManager.All(q => q.Name != inputName))
             {
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
 
             session2.UnlockQuest(inputName);
-            var questInfo = _questInfos.First(q => q.Name == inputName);
+            var questInfo = questManager.First(q => q.Name == inputName);
             player2.SendSuccessMessage($"Unlocked quest '{questInfo.Name}'.");
             if (player2 != player)
             {
@@ -1102,13 +1180,9 @@ namespace CustomQuests
 			{
 				var isPartyLeader = player == session.Party.Leader.Player;
 				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
-				//var questStatus = session.CurrentQuest.QuestStatus ?? "";
-				//var color		= session.CurrentQuest.QuestStatusColor;
-				var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.SessionInfo.CurrentQuestInfo.Name, isPartyLeader);
-				var questStatus = savePoint.QuestStatus;
-				var color = savePoint.QuestStatusColor;
-
-				player.SendMessage($"[Quest {questName}] {questStatus}", color);
+				
+				foreach( var qs in session.QuestStatusManager )
+					player.SendMessage(qs.Text, qs.Color);
 			}
 		}
 

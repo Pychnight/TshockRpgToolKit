@@ -90,13 +90,13 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
+    <Compile Include="QuestManager.cs" />
     <Compile Include="Scripting\ModuleToInstanceClassStep.cs" />
     <Compile Include="Quests\Party.cs" />
     <Compile Include="Quests\PartyMember.cs" />
     <Compile Include="Quests\PartyMemberExtensions.cs" />
     <Compile Include="Scripting\ScriptAssemblyManager.cs" />
     <Compile Include="Scripting\ScriptHelpers.cs" />
-    <None Include="Next\UtilsTriggers.cs" />
     <Compile Include="Quests\BooQuest.cs" />
     <Compile Include="Quests\Team.cs" />
     <Compile Include="Quests\TeamManager.cs" />
@@ -104,16 +104,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quests\Quest.cs" />
     <Compile Include="Quests\QuestInfo.cs" />
-    <Compile Include="Sessions\SavePoint.cs" />
-    <Compile Include="Quests\QuestThread.cs" />
+    <Compile Include="Sessions\QuestStatus.cs" />
     <Compile Include="Sessions\FileSessionRepository.cs" />
+    <Compile Include="Sessions\QuestStatusManager.cs" />
     <Compile Include="Sessions\Session.cs" />
     <Compile Include="Sessions\SessionInfo.cs" />
     <Compile Include="Sessions\SessionManager.cs" />
     <Compile Include="Sessions\SessionRepository.cs" />
     <Compile Include="Sessions\SqliteSessionRepository.cs" />
-    <Compile Include="Triggers\All.cs" />
-    <Compile Include="Triggers\Any.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
     <Compile Include="Triggers\Condition.cs" />
     <Compile Include="Triggers\GatherItems.cs" />
@@ -121,7 +119,6 @@
     <Compile Include="Triggers\InArea.cs" />
     <Compile Include="Triggers\KillNpcs.cs" />
     <Compile Include="Triggers\Trigger.cs" />
-    <Compile Include="Triggers\Wait.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomQuests.Quests;
-using JetBrains.Annotations;
 
 namespace CustomQuests.Triggers
 {
     /// <summary>
     ///     Represents an in-area trigger.
     /// </summary>
-    [UsedImplicitly]
     public sealed class InArea : Trigger
     {
         private readonly bool requireEveryone;
@@ -17,7 +15,7 @@ namespace CustomQuests.Triggers
         private readonly int _maxY;
         private readonly int _minX;
         private readonly int _minY;
-		List<PartyMember> partyMembers;
+		IEnumerable<PartyMember> partyMembers;
 		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="InArea" /> class with the specified party and positions.
@@ -33,7 +31,7 @@ namespace CustomQuests.Triggers
 		{
 			this.requireEveryone = requireEveryone;
 			//this.party = party ?? throw new ArgumentNullException(nameof(party));
-			this.partyMembers = new List<PartyMember>(partyMembers) ?? throw new ArgumentNullException(nameof(partyMembers));
+			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 			_maxX = Math.Max(x, x2);
 			_minX = Math.Min(x, x2);
 			_maxY = Math.Max(y, y2);
@@ -73,7 +71,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected override bool UpdateImpl() =>
+        protected internal override bool UpdateImpl() =>
             requireEveryone
                 ? partyMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
                 : partyMembers.Any(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
