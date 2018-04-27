@@ -109,6 +109,9 @@ namespace CustomQuests.Sessions
 			if (connection!=null)
 			{
 				var json = JsonConvert.SerializeObject(sessionInfo, Formatting.Indented);
+
+				Debug.Print(json);
+
 				using (var cmd = connection.CreateCommand())
 				{
 					cmd.CommandText = "INSERT OR REPLACE INTO sessions ( player, data ) " +

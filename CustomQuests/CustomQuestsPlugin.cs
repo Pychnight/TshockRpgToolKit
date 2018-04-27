@@ -13,6 +13,8 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using Corruption.PluginSupport;
+using Microsoft.Xna.Framework;
+using System.Threading.Tasks;
 
 namespace CustomQuests
 {
@@ -338,7 +340,7 @@ namespace CustomQuests
                 if (session.Party != null)
                 {
                     session.Dispose();
-                    session.SetQuestState(null);
+                    //session.SetQuestState(null);
                 }
 
                 LeaveParty(player);
@@ -823,27 +825,7 @@ namespace CustomQuests
                     var session2 = GetSession(player2);
                     session2.IsAborting = true;
                 }
-
-				//throw new NotImplementedException("Aborting not supported yet.");
-
-				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-				//try
-				//{
-				//    onAbortFunction?.Call();
-				//}
-				//catch (Exception ex)
-				//{
-				//    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-				//    TShock.Log.ConsoleInfo(ex.ToString());
-				//}
-
-				//foreach (var player2 in party)
-				//{
-				//    var session2 = GetSession(player2);
-				//    session2.HasAborted = true;
-				//}
-
-				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
+				
 				try
 				{
 					var bquest = (BooQuest)session.CurrentQuest;
@@ -859,6 +841,7 @@ namespace CustomQuests
 				{
 					var session2 = GetSession(player2);
 					session2.HasAborted = true;
+					session2.QuestStatusManager.Clear();
 				}
 				
 				party.SendSuccessMessage("Aborted quest.");
@@ -984,16 +967,11 @@ namespace CustomQuests
                     {
                         player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                         var session2 = GetSession(player2);
+						session2.QuestStatusManager.Clear();
                         session2.CurrentQuest = session.CurrentQuest;
                     }
                 }
-                //catch (LuaException ex)
-                //{
-                //    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                //    TShock.Log.ConsoleError(ex.ToString());
-                //    TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                //}
-				catch(Exception ex)
+               	catch(Exception ex)
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 					TShock.Log.ConsoleError(ex.ToString());
@@ -1013,13 +991,7 @@ namespace CustomQuests
                     player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
                     session.LoadQuest(questInfo);
                 }
-                //catch (LuaException ex)
-                //{
-                //    player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-                //    TShock.Log.ConsoleError(ex.ToString());
-                //    TShock.Log.ConsoleError(ex.InnerException?.ToString());
-                //}
-				catch( Exception ex )
+               	catch( Exception ex )
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 					TShock.Log.ConsoleError(ex.ToString());
@@ -1208,13 +1180,9 @@ namespace CustomQuests
 			{
 				var isPartyLeader = player == session.Party.Leader.Player;
 				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
-				//var questStatus = session.CurrentQuest.QuestStatus ?? "";
-				//var color		= session.CurrentQuest.QuestStatusColor;
-				var savePoint = session.SessionInfo.GetOrCreateSavePoint(session.SessionInfo.CurrentQuestInfo.Name, isPartyLeader);
-				var questStatus = savePoint.QuestStatus;
-				var color = savePoint.QuestStatusColor;
-
-				player.SendMessage($"[Quest {questName}] {questStatus}", color);
+				
+				foreach( var qs in session.QuestStatusManager )
+					player.SendMessage(qs.Text, qs.Color);
 			}
 		}
 

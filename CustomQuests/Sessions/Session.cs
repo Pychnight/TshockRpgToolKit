@@ -97,6 +97,8 @@ namespace CustomQuests.Sessions
         //[CanBeNull]
         //public OldParty Party { get; set; }
 		public Party Party { get; set; }
+
+		public QuestStatusManager QuestStatusManager => SessionInfo.QuestStatusManager;
 		
         /// <summary>
         ///     Gets the session information.
@@ -135,66 +137,70 @@ namespace CustomQuests.Sessions
 			return result;
         }
 
-		/// <summary>
-		///     Gets the quest state. This can be used in quest scripts to restore from a save point.
-		/// </summary>
-		/// <returns>The state.</returns>
-		[UsedImplicitly]
-		public string GetQuestState()
-		{
-			//Debug.Print($"GetQuestState: {SessionInfo.CurrentQuestState}");
-			//return SessionInfo.CurrentQuestState;
+		///// <summary>
+		/////     Gets the quest state. This can be used in quest scripts to restore from a save point.
+		///// </summary>
+		///// <returns>The state.</returns>
+		//[UsedImplicitly]
+		//public string GetQuestState()
+		//{
+		//	//Debug.Print($"GetQuestState: {SessionInfo.CurrentQuestState}");
+		//	//return SessionInfo.CurrentQuestState;
 
-			return GetSavePoint(); 
-		}
+		//	return GetSavePoint(); 
+		//}
 
-		/// <summary>
-		///     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
-		/// </summary>
-		/// <param name="state">The state.</param>
-		[UsedImplicitly]
-		public void SetQuestState([CanBeNull] string state)
-		{
-			//SessionInfo.CurrentQuestState = state;
-			//Debug.Print($"SetQuestState: {state}");
-			SetSavePoint(state);
-		}
+		///// <summary>
+		/////     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
+		///// </summary>
+		///// <param name="state">The state.</param>
+		//[UsedImplicitly]
+		//public void SetQuestState([CanBeNull] string state)
+		//{
+		//	//SessionInfo.CurrentQuestState = state;
+		//	//Debug.Print($"SetQuestState: {state}");
+		//	SetSavePoint(state);
+		//}
 
-		/// <summary>
-		///     Gets the quest state. This can be used in quest scripts to restore from a save point.
-		/// </summary>
-		/// <returns>The state.</returns>
-		[UsedImplicitly]
-		public string GetSavePoint()
-		{
-			Debug.Print($"GetSavePoint:");
+		///// <summary>
+		/////     Gets the quest state. This can be used in quest scripts to restore from a save point.
+		///// </summary>
+		///// <returns>The state.</returns>
+		//[UsedImplicitly]
+		//public string GetSavePoint()
+		//{
+		//	Debug.Print($"GetSavePoint:");
 
-			var isPartyLeader = _player == Party.Leader.Player;
-			var questName = SessionInfo.CurrentQuestInfo.Name;
-			var savePoint = SessionInfo.GetOrCreateSavePoint(questName,isPartyLeader);
+		//	var isPartyLeader = _player == Party.Leader.Player;
+		//	var questName = SessionInfo.CurrentQuestInfo.Name;
 
-			return savePoint.SaveData;
-		}
+		//	Debug.Print("GetSavePoint() SAVEPOINT!");
+		//	//var savePoint = SessionInfo.GetOrCreateSavePoint(questName,isPartyLeader);
+		//	//return savePoint.SaveData;
 
-		/// <summary>
-		///     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
-		/// </summary>
-		/// <param name="state">The state.</param>
-		[UsedImplicitly]
-		public void SetSavePoint([CanBeNull] string state)
-		{
-			Debug.Print($"SetSavePoint:");
+		//	return null;
+		//}
 
-			if(SessionInfo.CurrentQuestInfo!=null)
-			{
-				var isPartyLeader = _player == Party.Leader.Player;
-				var questName = SessionInfo.CurrentQuestInfo.Name;
-				var savePoint = SessionInfo?.GetOrCreateSavePoint(questName,isPartyLeader);
+		///// <summary>
+		/////     Sets the quest state. This can be used in quest scripts to mark a specific point in the quest that has been achieved.
+		///// </summary>
+		///// <param name="state">The state.</param>
+		//[UsedImplicitly]
+		//public void SetSavePoint([CanBeNull] string state)
+		//{
+		//	Debug.Print($"SetSavePoint:");
 
-				savePoint.PartyName = Party.Name;
-				savePoint.SaveData = state;
-			}
-		}
+		//	if(SessionInfo.CurrentQuestInfo!=null)
+		//	{
+		//		var isPartyLeader = _player == Party.Leader.Player;
+		//		var questName = SessionInfo.CurrentQuestInfo.Name;
+
+		//		Debug.Print("SetSavePoint() SAVEPOINT!");
+		//		//var savePoint = SessionInfo?.GetOrCreateSavePoint(questName,isPartyLeader);
+		//		//savePoint.PartyName = Party.Name;
+		//		//savePoint.SaveData = state;
+		//	}
+		//}
 
 		/// <summary>
 		///     Loads the quest with the specified info.
@@ -285,7 +291,7 @@ namespace CustomQuests.Sessions
                     IsAborting = false;
                     HasAborted = false;
                     Dispose();
-                    SetQuestState(null);
+                    //SetQuestState(null);
                 }
                 return;
             }
@@ -299,7 +305,8 @@ namespace CustomQuests.Sessions
             if (CurrentQuest.IsEnded)
             {
 				//remove save point
-				SessionInfo.RemoveSavePoint(this.CurrentQuestInfo.Name, isPartyLeader);
+				Debug.Print("UpdateQuest() SAVEPOINT!");
+				//SessionInfo.RemoveSavePoint(this.CurrentQuestInfo.Name, isPartyLeader);
 				
 				if (CurrentQuest.IsSuccessful)
                 {
