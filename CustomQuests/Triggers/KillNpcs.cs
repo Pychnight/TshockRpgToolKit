@@ -20,6 +20,8 @@ namespace CustomQuests.Triggers
 		private IEnumerable<PartyMember> partyMembers;
 		private int _amount;
 
+		private bool AnyNcpType => npcTypes == null; 
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
 		/// </summary>
@@ -58,7 +60,7 @@ namespace CustomQuests.Triggers
 
 			//	this.npcNames = new HashSet<string>() { name };
 			//}
-
+			
 			//we now ignore invalid inputs, and just keep valid ones.
 			var validInputs = npcTypes.Where(o => o is string || o is int);
 			var types = validInputs.Select( o => GetNPCName(o));
@@ -73,6 +75,28 @@ namespace CustomQuests.Triggers
 			_amount = amount > 0
 				? amount
 				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+		}
+
+		/// <summary>
+		///		Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party and amount, accepting any NPC type.
+		/// </summary>
+		/// <param name="partyMembers"></param>
+		/// <param name="amount"></param>
+		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount)
+		{
+			if( partyMembers == null )
+				throw new ArgumentNullException(nameof(partyMembers));
+
+			this.partyMembers = partyMembers;
+			this.npcTypes = null;
+
+			_amount = amount > 0
+				? amount
+				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+		}
+
+		public KillNpcs(PartyMember partyMember) : this(partyMember.ToEnumerable(), 1)
+		{
 		}
 
 		string GetNPCName(object value)
@@ -121,9 +145,9 @@ namespace CustomQuests.Triggers
 			Debug.Print($"NpcKilled id: {npc.whoAmI}");
 			Debug.Print($"NpcKilled TypeName: {npc.TypeName}");
 			Debug.Print($"NpcKilled type: {npc.type}");
-			Debug.Print($"Contains name? {npcTypes.Contains(npc.GivenOrTypeName)}");
+			//Debug.Print($"Contains name? {npcTypes.Contains(npc.GivenOrTypeName)}");
 
-			if( !npcTypes.Contains(npc.GivenOrTypeName) )
+			if(!AnyNcpType && !npcTypes.Contains(npc.GivenOrTypeName) )
 				return;
 
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
@@ -149,7 +173,7 @@ namespace CustomQuests.Triggers
 			var npcId = npc.whoAmI;
 
 			//if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
-			if( args.Handled || !npcTypes.Contains(npc.GivenOrTypeName) )
+			if( args.Handled || (!AnyNcpType && !npcTypes.Contains(npc.GivenOrTypeName )) )
 				return;
 			
 			if( partyMembers.All(m => m.Player.Index != playerIndex) )
