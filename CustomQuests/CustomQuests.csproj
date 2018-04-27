@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
+    <Compile Include="QuestManager.cs" />
     <Compile Include="Scripting\ModuleToInstanceClassStep.cs" />
     <Compile Include="Quests\Party.cs" />
     <Compile Include="Quests\PartyMember.cs" />
