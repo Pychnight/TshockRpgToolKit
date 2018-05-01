@@ -185,11 +185,21 @@ namespace CustomQuests.Quests
 			return tasks;
 		}
 
+		protected bool TriggerWaitAll(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)
+		{
+			return TriggerWaitAll(timeout.Milliseconds, cancellationToken, triggers);
+		}
+
 		protected bool TriggerWaitAll(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
 		{
 			var tasks = AddTrigger(triggers, cancellationToken);
 			var result = Task.WaitAll(tasks, timeoutMilliseconds, cancellationToken);
 			return result;
+		}
+
+		protected bool TriggerWaitAll(TimeSpan timeout, params Trigger[] triggers)
+		{
+			return TriggerWaitAll(timeout.Milliseconds, triggers);
 		}
 
 		protected bool TriggerWaitAll(int timeoutMilliseconds, params Trigger[] triggers)
@@ -209,9 +219,19 @@ namespace CustomQuests.Quests
 			return result;
 		}
 
+		protected int TriggerWaitAny(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)
+		{
+			return TriggerWaitAny(timeout.Milliseconds, cancellationToken, triggers);
+		}
+
 		protected int TriggerWaitAny(int timeoutMilliseconds, params Trigger[] triggers)
 		{
 			return TriggerWaitAny(timeoutMilliseconds, QuestCancellationToken, triggers);
+		}
+
+		protected int TriggerWaitAny(TimeSpan timeout, params Trigger[] triggers)
+		{
+			return TriggerWaitAny(timeout.Milliseconds, triggers);
 		}
 
 		protected int TriggerWaitAny(params Trigger[] triggers)
