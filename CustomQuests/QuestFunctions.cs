@@ -46,27 +46,6 @@ namespace CustomQuests
         }
 		
         /// <summary>
-        ///     Gets the tile located at the specified coordinates.
-        /// </summary>
-        /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
-        /// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
-        /// <returns>The tile.</returns>
-        [Pure]
-        [UsedImplicitly]
-        public static ITile GetTile(int x, int y) => Main.tile[x, y];
-
-        /// <summary>
-        ///     Gets the type of the specified tile.
-        /// </summary>
-        /// <param name="tile">The tile, which must not be <c>null</c>.</param>
-        /// <returns>The type.</returns>
-        /// <remarks>
-        ///     This method is required since we can't get the type property in Lua since it is an unsigned short.
-        /// </remarks>
-        [UsedImplicitly]
-        public static int GetTileType([NotNull] ITile tile) => tile.type;
-
-        /// <summary>
         ///     Places a 1x2 object.
         /// </summary>
         /// <param name="x">The X coordinate, which must be within the bounds of the world.</param>
@@ -430,21 +409,7 @@ namespace CustomQuests
 
             return Random.Next(min, max);
         }
-
-        /// <summary>
-        ///     Sets the type of the specified tile.
-        /// </summary>
-        /// <param name="tile">The tile, which must not be <c>null</c>.</param>
-        /// <param name="type">The type.</param>
-        /// <remarks>
-        ///     This method is required, since we can't set the type property in Lua since it is an unsigned short.
-        /// </remarks>
-        [UsedImplicitly]
-        public static void SetTileType([NotNull] ITile tile, int type)
-        {
-            tile.type = (ushort)type;
-        }
-
+		
         /// <summary>
         ///     Spawns the custom mob with the specified name, coordinates, and amount.
         /// </summary>
