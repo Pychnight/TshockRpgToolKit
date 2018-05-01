@@ -14,8 +14,7 @@ namespace CustomQuests.Triggers
     /// </summary>
 	public sealed class KillNpcs : Trigger
     {
-        private static readonly Dictionary<int, int> LastStrucks = new Dictionary<int, int>();
-
+		private Dictionary<int, int> LastStrucks = new Dictionary<int, int>();
 		private HashSet<string> npcTypes;
 		private IEnumerable<PartyMember> partyMembers;
 		private int _amount;
@@ -52,7 +51,7 @@ namespace CustomQuests.Triggers
 				throw new ArgumentNullException(nameof(partyMembers));
 
 			this.partyMembers = partyMembers;
-
+			
 			//{
 			//	var name = GetNPCName(npcNames);
 			//	if( name == null )
@@ -141,6 +140,7 @@ namespace CustomQuests.Triggers
         {
 			var npc = args.npc;
 
+			//Debug.Print($"DebugId: {debugId}");
 			Debug.Print($"NpcKilled name: {npc.GivenOrTypeName}");
 			Debug.Print($"NpcKilled id: {npc.whoAmI}");
 			Debug.Print($"NpcKilled TypeName: {npc.TypeName}");
