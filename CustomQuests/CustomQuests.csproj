@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChestUnlockedEventArgs.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
     <Compile Include="QuestManager.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Sessions\SessionRepository.cs" />
     <Compile Include="Sessions\SqliteSessionRepository.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
+    <Compile Include="Triggers\ChestUnlock.cs" />
     <Compile Include="Triggers\Condition.cs" />
     <Compile Include="Triggers\GatherItems.cs" />
     <Compile Include="Triggers\DropItems.cs" />

@@ -18,107 +18,115 @@ using System.Threading.Tasks;
 
 namespace CustomQuests
 {
-    /// <summary>
-    ///     Represents the custom quests plugin.
-    /// </summary>
-    [ApiVersion(2, 1)]
-    [UsedImplicitly]
-    public sealed class CustomQuestsPlugin : TerrariaPlugin
-    {
-        private const int QuestsPerPage = 5;
+	/// <summary>
+	///     Represents the custom quests plugin.
+	/// </summary>
+	[ApiVersion(2, 1)]
+	[UsedImplicitly]
+	public sealed class CustomQuestsPlugin : TerrariaPlugin
+	{
+		private const int QuestsPerPage = 5;
 
-        private static readonly string ConfigPath = Path.Combine("quests", "config.json");
-        private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
+		private static readonly string ConfigPath = Path.Combine("quests", "config.json");
+		private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
 
 		private Config _config = new Config();
 
 		private readonly Dictionary<string, Party> _parties = new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
 
-        private DateTime _lastSave;
+		private DateTime _lastSave;
 		private QuestManager questManager = new QuestManager();
-        private SessionManager _sessionManager;
+		private SessionManager _sessionManager;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="CustomQuestsPlugin" /> class using the specified Main instance.
-        /// </summary>
-        /// <param name="game">The Main instance.</param>
-        public CustomQuestsPlugin(Main game) : base(game)
-        {
-            Instance = this;
-        }
+		/// <summary>
+		///     Initializes a new instance of the <see cref="CustomQuestsPlugin" /> class using the specified Main instance.
+		/// </summary>
+		/// <param name="game">The Main instance.</param>
+		public CustomQuestsPlugin(Main game) : base(game)
+		{
+			Instance = this;
+		}
 
-        /// <summary>
-        ///     Gets the custom quests plugin instance.
-        /// </summary>
-        public static CustomQuestsPlugin Instance { get; private set; }
+		/// <summary>
+		///     Gets the custom quests plugin instance.
+		/// </summary>
+		public static CustomQuestsPlugin Instance { get; private set; }
 
-        /// <summary>
-        ///     Gets the author.
-        /// </summary>
-        public override string Author => "MarioE, Timothy Barela";
+		/// <summary>
+		///     Gets the author.
+		/// </summary>
+		public override string Author => "MarioE, Timothy Barela";
 
-        /// <summary>
-        ///     Gets the description.
-        /// </summary>
-        public override string Description => "Provides a custom quest system.";
+		/// <summary>
+		///     Gets the description.
+		/// </summary>
+		public override string Description => "Provides a custom quest system.";
 
-        /// <summary>
-        ///     Gets the name.
-        /// </summary>
-        public override string Name => "CustomQuests";
+		/// <summary>
+		///     Gets the name.
+		/// </summary>
+		public override string Name => "CustomQuests";
 
-        /// <summary>
-        ///     Gets the version.
-        /// </summary>
-        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+		/// <summary>
+		///     Gets the version.
+		/// </summary>
+		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        /// <summary>
-        ///     Gets the corresponding session for the specified player.
-        /// </summary>
-        /// <param name="player">The player, which must not be <c>null</c>.</param>
-        /// <returns>The session.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
-        public Session GetSession(TSPlayer player)
-        {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
 
-            return _sessionManager.GetOrCreate(player);
-        }
+		/// <summary>
+		///		Event fired when a chest is unlocked.
+		/// </summary>
+		public event EventHandler<ChestUnlockedEventArgs> ChestUnlocked;
+
+		/// <summary>
+		///     Gets the corresponding session for the specified player.
+		/// </summary>
+		/// <param name="player">The player, which must not be <c>null</c>.</param>
+		/// <returns>The session.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
+		public Session GetSession(TSPlayer player)
+		{
+			if( player == null )
+			{
+				throw new ArgumentNullException(nameof(player));
+			}
+
+			return _sessionManager.GetOrCreate(player);
+		}
 
 		//compatibility shim.
 		internal Session GetSession(PartyMember member)
 		{
 			return GetSession(member.Player);
 		}
-		
-        /// <summary>
-        ///     Initializes the plugin.
-        /// </summary>
-        public override void Initialize()
-        {
+
+		/// <summary>
+		///     Initializes the plugin.
+		/// </summary>
+		public override void Initialize()
+		{
 			questManager = new QuestManager();
 
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 			ServerApi.Hooks.NetSendData.Register(this, OnSendData);
-			//ServerApi.Hooks.NetGetData.Register(this, onGetData);
-
+			ServerApi.Hooks.NetGetData.Register(this, onGetData);
+			
 			GeneralHooks.ReloadEvent += OnReload;
-            GetDataHandlers.PlayerTeam += OnPlayerTeam;
+			GetDataHandlers.PlayerTeam += OnPlayerTeam;
 			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
 			GetDataHandlers.TileEdit += OnTileEdit;
-            			
-            Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
-            Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
-            Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
-            Commands.ChatCommands.Add(new Command("customquests.party", Party, "party"));
-            Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
+
+			//GetDataHandlers.
+
+			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
+			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
+			Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
+			Commands.ChatCommands.Add(new Command("customquests.party", Party, "party"));
+			Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
 			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
-        }
+		}
 
 		private void OnPostInitialize(EventArgs args)
 		{
@@ -133,7 +141,7 @@ namespace CustomQuests
 				_config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
 			}
 			_sessionManager = new SessionManager(_config, this);
-			
+
 			questManager.LoadQuestInfos(QuestInfosPath);
 		}
 
@@ -166,6 +174,36 @@ namespace CustomQuests
 		//		Debug.Print("Viola");
 		//	}
 		//}
+
+		private void onGetData(GetDataEventArgs args)
+		{
+			if( args.Handled )
+				return;
+
+			switch(args.MsgID)
+			{
+				case PacketTypes.ChestUnlock:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var type = reader.ReadByte();
+						var x = reader.ReadInt16();
+						var y = reader.ReadInt16();
+
+						if(type==1)
+						{
+							OnChestUnlock(x, y);
+						}
+						//type==2 = door unlock
+					}
+					break;
+			}
+		}
+
+		void OnChestUnlock(int x, int y)
+		{
+			Debug.Print($"OnChestUnlock! {x}, {y}");
+			ChestUnlocked?.Invoke(this, new ChestUnlockedEventArgs(x, y));
+		}
 
 		//private void onGetData(GetDataEventArgs args)
 		//{
