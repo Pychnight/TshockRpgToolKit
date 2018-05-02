@@ -944,23 +944,15 @@ namespace CustomQuests
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
-
-			var path = "";
-			
-			if(!string.IsNullOrEmpty(questInfo.ScriptPath) && questInfo.ScriptPath.EndsWith(".boo"))
+						
+			var path = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
+			if( !File.Exists(path) )
 			{
-				Debug.Print("Accepting a boo quest.");
+				player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
+				CustomQuestsPlugin.Instance.LogPrint($"Failed to start quest '{questInfo.Name}'. Script file not found at '{path}'.",TraceLevel.Error);
+				return;
 			}
-			else
-			{
-				path = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.lua");
-				if( !File.Exists(path) )
-				{
-					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-					return;
-				}
-			}
-			
+						
             var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
                 .Count(s => s.CurrentQuestName == inputName);
             if (concurrentParties >= questInfo.MaxConcurrentParties)
