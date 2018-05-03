@@ -100,7 +100,6 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets the session information.
         /// </summary>
-        [NotNull]
         public SessionInfo SessionInfo { get; }
 
         /// <summary>
@@ -199,6 +198,25 @@ namespace CustomQuests.Sessions
 		//		//savePoint.SaveData = state;
 		//	}
 		//}
+
+		/// <summary>
+		/// Clears all quest data.
+		/// </summary>
+		public void Clear()
+		{
+			var si = SessionInfo;
+
+			si.AvailableQuestNames.Clear();
+			si.CompletedQuestNames.Clear();
+			si.RepeatedQuestNames.Clear();
+
+			si.QuestStatusManager.Clear();
+
+			foreach( var name in CustomQuestsPlugin.Instance._config.DefaultQuestNames )
+				si.AvailableQuestNames.Add(name);
+
+			CustomQuestsPlugin.Instance._sessionManager.sessionRepository.Save(si, _player.Name);
+		}
 
 		/// <summary>
 		///     Loads the quest with the specified info.

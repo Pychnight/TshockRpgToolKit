@@ -30,11 +30,11 @@ namespace CustomQuests
 		private static readonly string ConfigPath = Path.Combine("quests", "config.json");
 		private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
 
-		private Config _config = new Config();
+		internal Config _config = new Config();
 		private readonly Dictionary<string, Party> _parties = new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
 		private DateTime _lastSave;
 		internal QuestManager QuestManager = new QuestManager();
-		private SessionManager _sessionManager;
+		internal SessionManager _sessionManager;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomQuestsPlugin" /> class using the specified Main instance.
@@ -123,7 +123,7 @@ namespace CustomQuests
 			Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
 			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
 		}
-
+		
 		private void OnPostInitialize(EventArgs args)
 		{
 			load();
@@ -801,6 +801,10 @@ namespace CustomQuests
 			{
 				QuestStatus(args);
 			}
+			else if(subcommand.Equals("clear",StringComparison.OrdinalIgnoreCase))
+			{
+				QuestClear(args);
+			}
             else
             {
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort.");
@@ -811,7 +815,8 @@ namespace CustomQuests
                 {
                     player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
                     player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
-                }
+					player.SendErrorMessage($"Syntax: {Commands.Specifier}quest clear [player].");
+				}
             }
         }
 
@@ -1178,21 +1183,52 @@ namespace CustomQuests
 			var player = args.Player;
 			var session = GetSession(player);
 
-			if(session.CurrentQuest==null )
+			if( session.CurrentQuest == null )
 			{
 				player.SendErrorMessage("You are not currently on a quest!");
 			}
 			else
 			{
 				var isPartyLeader = player == session.Party.Leader.Player;
-				var questName	= session.CurrentQuest.QuestInfo.FriendlyName;
-				
+				var questName = session.CurrentQuest.QuestInfo.FriendlyName;
+
 				foreach( var qs in session.QuestStatusManager )
 					player.SendMessage(qs.Text, qs.Color);
 			}
 		}
 
-        private void TileInfo(CommandArgs args)
+		private void QuestClear(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+			if( parameters.Count != 2 )
+			{
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest clear player.");
+				return;
+			}
+
+			var targetPlayerName = parameters[1];
+			var targetPlayer = TShock.Utils.FindPlayer(targetPlayerName).FirstOrDefault();
+
+			if(targetPlayer==null)
+			{
+				player.SendErrorMessage($"Unable to find player {targetPlayerName}.");
+				return;
+			}
+
+			var session = GetSession(targetPlayer);
+			if(session.CurrentQuest!=null)
+			{
+				player.SendErrorMessage($"Unable to clear a player's data, while they are on a quest.");
+				return;
+			}
+
+			session.Clear();
+
+			player.SendInfoMessage($"Players quest data has been cleared.");
+		}
+
+		private void TileInfo(CommandArgs args)
         {
             var player = args.Player;
             player.AwaitingTempPoint = -1;
