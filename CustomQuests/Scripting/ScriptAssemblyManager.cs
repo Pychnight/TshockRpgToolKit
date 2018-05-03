@@ -77,10 +77,12 @@ namespace CustomQuests.Scripting
 			if( context.Errors.Count == 0 )
 			{
 				holder.Assembly = context.GeneratedAssembly;
-				CustomQuestsPlugin.Instance.LogPrint($"Compiled quest {name}",TraceLevel.Info);
+				CustomQuestsPlugin.Instance.LogPrint($"Compiled quest {name}", TraceLevel.Info);
 			}
 			else
+			{
 				CustomQuestsPlugin.Instance.LogPrint($"Failed to compile {name}.", TraceLevel.Error);
+			}
 
 			return holder;
 		}

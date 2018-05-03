@@ -11,6 +11,7 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using System.Reflection;
 using CustomQuests.Scripting;
+using Corruption.PluginSupport;
 
 namespace CustomQuests.Sessions
 {
@@ -64,8 +65,6 @@ namespace CustomQuests.Sessions
                 _currentQuest = value;
                 CurrentQuestInfo = _currentQuest?.QuestInfo;
                 SessionInfo.CurrentQuestInfo = CurrentQuestInfo;
-
-
             }
         }
 
@@ -94,9 +93,7 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets or sets the party.
         /// </summary>
-        //[CanBeNull]
-        //public OldParty Party { get; set; }
-		public Party Party { get; set; }
+        public Party Party { get; set; }
 
 		public QuestStatusManager QuestStatusManager => SessionInfo.QuestStatusManager;
 		
@@ -113,8 +110,6 @@ namespace CustomQuests.Sessions
         {
             CurrentQuest?.Dispose();
             CurrentQuest = null;
-            //CurrentLua?.Dispose();
-            //CurrentLua = null;
         }
 
         /// <summary>
@@ -129,6 +124,9 @@ namespace CustomQuests.Sessions
             {
                 throw new ArgumentNullException(nameof(questInfo));
             }
+
+			if( CustomQuestsPlugin.Instance.QuestManager.IsQuestInvalid(questInfo.Name) )
+				return false;
 
             var result = questInfo.RequiredRegionName == null ||
                    TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
@@ -207,13 +205,12 @@ namespace CustomQuests.Sessions
 		/// </summary>
 		/// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
-		public void LoadQuest([NotNull] QuestInfo questInfo)
+		public void LoadQuest(QuestInfo questInfo)
         {
             if(questInfo == null)
 				throw new ArgumentNullException(nameof(questInfo));
 
 			//ensure there is a party set, even if a solo player.
-			//Party = Party ?? new OldParty(_player.Name, _player);
 			Party = Party ?? new Party(_player.Name, _player);
 			
 			if(!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
@@ -227,18 +224,20 @@ namespace CustomQuests.Sessions
 															.Select(dt => dt.AsType())
 															.FirstOrDefault();
 
-					//var quest = (BooQuest)scriptAssembly.CreateInstance("TestBooQuest");
 					var quest = (BooQuest)Activator.CreateInstance(questType);
 					
 					//set these before, or various quest specific functions will get null ref's from within the quest.
 					quest.QuestInfo = questInfo;
-					//quest.party = new Party(_player.Name, Party.AsEnumerable());
 					quest.party = Party;
-
 					CurrentQuest = quest;
 					CurrentQuestInfo = questInfo;
 					
 					quest.Run();
+				}
+				else
+				{
+					CustomQuestsPlugin.Instance.LogPrint($"Cannot load quest '{questInfo.Name}', no assembly exists. ( Did compilation fail? ) ", TraceLevel.Error);
+					CustomQuestsPlugin.Instance.QuestManager.AddInvalidQuest(questInfo.Name);
 				}
 			}
 		}

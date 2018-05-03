@@ -31,11 +31,9 @@ namespace CustomQuests
 		private static readonly string QuestInfosPath = Path.Combine("quests", "quests.json");
 
 		private Config _config = new Config();
-
 		private readonly Dictionary<string, Party> _parties = new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
-
 		private DateTime _lastSave;
-		private QuestManager questManager = new QuestManager();
+		internal QuestManager QuestManager = new QuestManager();
 		private SessionManager _sessionManager;
 
 		/// <summary>
@@ -105,7 +103,7 @@ namespace CustomQuests
 		/// </summary>
 		public override void Initialize()
 		{
-			questManager = new QuestManager();
+			QuestManager = new QuestManager();
 
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
@@ -117,9 +115,7 @@ namespace CustomQuests
 			GetDataHandlers.PlayerTeam += OnPlayerTeam;
 			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
 			GetDataHandlers.TileEdit += OnTileEdit;
-
-			//GetDataHandlers.
-
+			
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
 			Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
@@ -142,7 +138,7 @@ namespace CustomQuests
 			}
 			_sessionManager = new SessionManager(_config, this);
 
-			questManager.LoadQuestInfos(QuestInfosPath);
+			QuestManager.LoadQuestInfos(QuestInfosPath);
 		}
 
 		private void OnReload(ReloadEventArgs args)
@@ -319,14 +315,6 @@ namespace CustomQuests
             var questSession = player == party.Leader.Player ? session : GetSession(party.Leader);
             if (questSession.CurrentQuest != null)
             {
-				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-				//onAbortFunction?.Call();
-				//foreach (var player2 in party)
-				//{
-				//    var session2 = GetSession(player2);
-				//    session2.IsAborting = true;
-				//}
-
 				try
 				{
 					var bquest = (BooQuest)session.CurrentQuest;
@@ -337,9 +325,6 @@ namespace CustomQuests
 					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
 					TShock.Log.ConsoleInfo(ex.ToString());
 				}
-
-
-				//throw new NotImplementedException("Aborting not implemented yet.");
 
                 party.SendInfoMessage("Aborted quest.");
             }
@@ -549,7 +534,6 @@ namespace CustomQuests
                 return;
             }
 
-			//var party = new OldParty(inputName, player);
 			var party = new Party(inputName, player);
             _parties[inputName] = party;
             session.Party = party;
@@ -887,19 +871,7 @@ namespace CustomQuests
             else
             {
                 session.IsAborting = true;
-
-				//throw new NotImplementedException("Aborting not supported yet.");
-				//var onAbortFunction = session.CurrentLua?["OnAbort"] as LuaFunction;
-				//try
-				//{
-				//    onAbortFunction?.Call();
-				//}
-				//catch (Exception ex)
-				//{
-				//    TShock.Log.ConsoleInfo("An exception occurred in OnAbort: ");
-				//    TShock.Log.ConsoleInfo(ex.ToString());
-				//}
-
+				
 				try
 				{
 					var bquest = (BooQuest)session.CurrentQuest;
@@ -933,10 +905,13 @@ namespace CustomQuests
                 player.SendErrorMessage("You are already in a quest. Either abort it or complete it.");
                 return;
             }
+			
+			var availableQuests = session.AvailableQuestNames.Where(n => QuestManager.Contains(n))
+											.Select(n => QuestManager[n])
+											.Where(session.CanSeeQuest)
+											.ToList();
 
-            var availableQuests = session.AvailableQuestNames.Select(s => questManager.First(q => q.Name == s))
-                .Where(session.CanSeeQuest).ToList();
-            var inputName = string.Join(" ", parameters.Skip(1));
+			var inputName = string.Join(" ", parameters.Skip(1));
             var questInfo = availableQuests.FirstOrDefault(
                 q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
             if (questInfo == null)
@@ -950,6 +925,7 @@ namespace CustomQuests
 			{
 				player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 				CustomQuestsPlugin.Instance.LogPrint($"Failed to start quest '{questInfo.Name}'. Script file not found at '{path}'.",TraceLevel.Error);
+				QuestManager.AddInvalidQuest(questInfo.Name);
 				return;
 			}
 						
@@ -1004,8 +980,8 @@ namespace CustomQuests
                	catch(Exception ex)
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-					TShock.Log.ConsoleError(ex.ToString());
-					TShock.Log.ConsoleError(ex.InnerException?.ToString());
+					CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+					CustomQuestsPlugin.Instance.LogPrint(ex.InnerException?.ToString());
 				}
             }
             else
@@ -1024,8 +1000,8 @@ namespace CustomQuests
                	catch( Exception ex )
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
-					TShock.Log.ConsoleError(ex.ToString());
-					TShock.Log.ConsoleError(ex.InnerException?.ToString());
+					CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+					CustomQuestsPlugin.Instance.LogPrint(ex.InnerException?.ToString());
 				}
 			}
         }
@@ -1042,12 +1018,12 @@ namespace CustomQuests
 
 			var session = GetSession(player);
 			
-			var quests = session.AvailableQuestNames.Where(s => questManager[s] != null).Select(s => questManager[s]);
+			var quests = session.AvailableQuestNames.Where(s => QuestManager[s] != null).Select(s => QuestManager[s]);
 			var availableQuests = quests.Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name).ToList();
 																		
 			//...because sometimes quests are renamed, or removed...
-			var validCompletedQuests = session.CompletedQuestNames.Where(q => questManager[q] != null);
-			var completedQuests = validCompletedQuests.Select( s => questManager[s] ).ToList();
+			var validCompletedQuests = session.CompletedQuestNames.Where(q => QuestManager[q] != null);
+			var completedQuests = validCompletedQuests.Select( s => QuestManager[s] ).ToList();
 			
             var totalQuestCount = availableQuests.Count + completedQuests.Count;
             var maxPage = (totalQuestCount - 1) / QuestsPerPage + 1;
@@ -1124,14 +1100,14 @@ namespace CustomQuests
                     $"{(player2 == player ? "You have" : $"{player2.Name} has")} not unlocked quest '{inputName}'.");
                 return;
             }
-            if (questManager.All(q => q.Name != inputName))
+            if (QuestManager.All(q => q.Name != inputName))
             {
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
 
             session2.RevokeQuest(inputName);
-            var questInfo = questManager.First(q => q.Name == inputName);
+            var questInfo = QuestManager.First(q => q.Name == inputName);
             player2.SendSuccessMessage($"Revoked quest '{questInfo.Name}'.");
             if (player2 != player)
             {
@@ -1182,14 +1158,14 @@ namespace CustomQuests
                     $"{(player2 == player ? "You have" : $"{player2.Name} has")} already completed quest '{inputName}'.");
                 return;
             }
-            if (questManager.All(q => q.Name != inputName))
+            if (QuestManager.All(q => q.Name != inputName))
             {
                 player.SendErrorMessage($"Invalid quest name '{inputName}'.");
                 return;
             }
 
             session2.UnlockQuest(inputName);
-            var questInfo = questManager.First(q => q.Name == inputName);
+            var questInfo = QuestManager.First(q => q.Name == inputName);
             player2.SendSuccessMessage($"Unlocked quest '{questInfo.Name}'.");
             if (player2 != player)
             {

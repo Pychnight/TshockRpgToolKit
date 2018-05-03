@@ -16,6 +16,8 @@ namespace CustomQuests
 		List<QuestInfo> questInfoList;//maintains ordering, enables correct serialization/deserialization to json...
 		Dictionary<string, QuestInfo> questInfos;
 
+		HashSet<string> invalidQuests;//records quests that are broken in someway, and should not be ran/listed.
+
 		public int Count => questInfoList.Count;
 		public QuestInfo this[int index] => questInfoList[index];
 		public QuestInfo this[string name]
@@ -30,6 +32,7 @@ namespace CustomQuests
 		public QuestManager()
 		{
 			questInfos = new Dictionary<string, QuestInfo>();
+			invalidQuests = new HashSet<string>();
 		}
 
 		public void LoadQuestInfos(string fileName)
@@ -56,6 +59,7 @@ namespace CustomQuests
 				questInfoList = new List<QuestInfo>();
 			}
 
+			invalidQuests.Clear();
 			questInfos.Clear();
 			foreach( var qi in questInfoList )
 				questInfos.Add(qi.Name, qi);
@@ -63,6 +67,21 @@ namespace CustomQuests
 			Debug.Print("Found the following quest infos:");
 			foreach( var qi in questInfoList )
 				Debug.Print($"Quest: {qi.Name},  {qi.FriendlyName} - {qi.Description}");
+		}
+
+		public bool Contains(string questName)
+		{
+			return questInfos.ContainsKey(questName);
+		}
+
+		public void AddInvalidQuest(string questName)
+		{
+			invalidQuests.Add(questName);
+		}
+
+		public bool IsQuestInvalid(string questName)
+		{
+			return invalidQuests.Contains(questName);
 		}
 		
 		public IEnumerator<QuestInfo> GetEnumerator()
