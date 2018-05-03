@@ -187,7 +187,7 @@ namespace CustomQuests
 
 						if(type==1)
 						{
-							OnChestUnlock(x, y);
+							OnChestUnlock(args.Msg.whoAmI, x, y);
 						}
 						//type==2 = door unlock
 					}
@@ -195,10 +195,10 @@ namespace CustomQuests
 			}
 		}
 
-		void OnChestUnlock(int x, int y)
+		void OnChestUnlock(int playerIndex, int x, int y)
 		{
 			Debug.Print($"OnChestUnlock! {x}, {y}");
-			ChestUnlocked?.Invoke(this, new ChestUnlockedEventArgs(x, y));
+			ChestUnlocked?.Invoke(this, new ChestUnlockedEventArgs(playerIndex, x, y));
 		}
 
 		//private void onGetData(GetDataEventArgs args)
