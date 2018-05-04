@@ -69,12 +69,16 @@ namespace CustomQuests
 		///     Gets the version.
 		/// </summary>
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
-
+		
 		/// <summary>
 		///		Event fired when a chest is unlocked.
 		/// </summary>
 		public event EventHandler<ChestUnlockedEventArgs> ChestUnlocked;
+
+		/// <summary>
+		///		Event fired when an item stack in a chest is changed.
+		/// </summary>
+		public event EventHandler<ChestItemChangedEventArgs> ChestItemChanged;
 
 		/// <summary>
 		///     Gets the corresponding session for the specified player.
@@ -115,7 +119,8 @@ namespace CustomQuests
 			GetDataHandlers.PlayerTeam += OnPlayerTeam;
 			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
 			GetDataHandlers.TileEdit += OnTileEdit;
-			
+			//GetDataHandlers.ChestItemChange += OnChestItemChanged;
+						
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
 			Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
@@ -123,7 +128,7 @@ namespace CustomQuests
 			Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
 			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
 		}
-		
+				
 		private void OnPostInitialize(EventArgs args)
 		{
 			load();
@@ -162,15 +167,7 @@ namespace CustomQuests
 
 		//	args.Handled = true;
 		//}
-
-		//private void dummy(GetDataEventArgs args)
-		//{
-		//	if( args.MsgID == PacketTypes.PlayerTeam)
-		//	{
-		//		Debug.Print("Viola");
-		//	}
-		//}
-
+		
 		private void onGetData(GetDataEventArgs args)
 		{
 			if( args.Handled )
@@ -192,14 +189,48 @@ namespace CustomQuests
 						//type==2 = door unlock
 					}
 					break;
+
+				case PacketTypes.ChestItem:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var chestId = reader.ReadInt16();
+						var itemSlot = reader.ReadByte();
+						var stack = reader.ReadInt16();
+						var prefix = reader.ReadInt16();
+						var netId = reader.ReadInt16();
+
+						OnChestItem(args.Msg.whoAmI, chestId, itemSlot, stack, prefix, netId);
+					}
+					break;
 			}
 		}
 
 		void OnChestUnlock(int playerIndex, int x, int y)
 		{
 			Debug.Print($"OnChestUnlock! {x}, {y}");
+			//Debug.Print($"whoAmI: {args.Msg.whoAmI}");
 			ChestUnlocked?.Invoke(this, new ChestUnlockedEventArgs(playerIndex, x, y));
 		}
+
+		void OnChestItem(int playerIndex, int chestId, int itemSlot, int stack, int prefix, int netId)
+		{
+			Debug.Print($"OnChestItem!");
+			Debug.Print($"playerIndex: {playerIndex}");
+			Debug.Print($"chestId: {chestId}");
+			Debug.Print($"itemSlot: {itemSlot}");
+			Debug.Print($"stack: {stack}");
+			Debug.Print($"prefix: {prefix}");
+			Debug.Print($"netId: {netId}");
+
+			ChestItemChanged?.Invoke(this, new ChestItemChangedEventArgs(playerIndex, chestId, itemSlot, stack, prefix, netId));
+		}
+
+		//private void OnChestItemChanged(object sender, GetDataHandlers.ChestItemEventArgs args)
+		//{
+		//	args.
+
+		//	ChestItemChanged?.Invoke(this, new ChestItemChangedEventArgs(args., args.ID, args.Slot, args.Stacks, args.Prefix, netId));
+		//}
 
 		//private void onGetData(GetDataEventArgs args)
 		//{
