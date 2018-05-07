@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using TShockAPI;
 using TerrariaApi.Server;
 using CustomQuests.Quests;
+using Corruption.PluginSupport;
 
 namespace CustomQuests.Sessions
 {
@@ -155,8 +156,7 @@ namespace CustomQuests.Sessions
 					}
 					catch( Exception ex )
 					{
-						TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
-						TShock.Log.ConsoleInfo(ex.ToString());
+						CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 					}
 
 					session.HasAborted = true;

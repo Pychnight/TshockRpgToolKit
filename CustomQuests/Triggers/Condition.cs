@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using System;
 using TShockAPI;
 
 namespace CustomQuests.Triggers
@@ -44,8 +45,7 @@ namespace CustomQuests.Triggers
             }
             catch (Exception ex)
             {
-                TShock.Log.ConsoleInfo("An exception occurred in Condition: ");
-                TShock.Log.ConsoleInfo(ex.ToString());
+                CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				return true;
             }
         }

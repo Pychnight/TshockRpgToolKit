@@ -12,13 +12,8 @@ namespace CustomQuests.Quests
 	{
 		List<PartyMember> partyMembers;
 		//Dictionary<int, int> playerIndexToPartyIndex;
-
-		#region OldParty Compatibility
 		
 		public string Name { get; private set; }
-		
-		#endregion
-
 		public int Count => partyMembers.Count;
 		public PartyMember this[int index] => partyMembers[index];
 		public PartyMember Leader => partyMembers[0];
@@ -43,13 +38,6 @@ namespace CustomQuests.Quests
 				var member = new PartyMember(player);
 				partyMembers.Add(member);
 			}
-
-			//if(!Contains(player))
-			//{
-			//	var member = new PartyMember(player);
-			//	partyMembers.Add(member);
-			//	playerIndexToPartyIndex.Add(player.Index, partyMembers.Count-1);
-			//}
 		}
 
 		internal void Remove(TSPlayer player)

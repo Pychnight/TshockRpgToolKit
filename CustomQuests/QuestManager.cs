@@ -1,4 +1,5 @@
-﻿using CustomQuests.Quests;
+﻿using Corruption.PluginSupport;
+using CustomQuests.Quests;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -53,8 +54,11 @@ namespace CustomQuests
 			}
 			catch(Exception ex)
 			{
-				Debug.Print(ex.Message);
-				Debug.Print(ex.StackTrace);
+				//Debug.Print(ex.Message);
+				//Debug.Print(ex.StackTrace);
+
+				CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
+
 
 				questInfoList = new List<QuestInfo>();
 			}

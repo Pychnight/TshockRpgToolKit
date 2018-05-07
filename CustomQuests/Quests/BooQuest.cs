@@ -17,7 +17,6 @@ namespace CustomQuests.Quests
 		private Task questTask { get; set; }
 		private CancellationTokenSource CancellationTokenSource;
 		protected CancellationToken QuestCancellationToken => CancellationTokenSource.Token;
-		//private ConcurrentBag<Trigger> triggers;
 		private ConcurrentDictionary<int, Trigger> triggers;
 		int nextTriggerId = 1;
 
@@ -45,23 +44,7 @@ namespace CustomQuests.Quests
 		protected virtual void OnRun()
 		{
 		}
-
-		//internal void Abort(TSPlayer player)
-		//{
-		//	var index = party.IndexOf(player);
-
-		//	if(index>-1)
-		//	{
-		//		var member = party[index];
-		//		OnAbort(member);
-		//	}
-		//}
-
-		//protected virtual void OnAbort(PartyMember member)
-		//{
-		//	Debug.Print("OnAbort for ${member.Name}");
-		//}
-
+		
 		public void Abort()
 		{
 			OnAbort();
@@ -142,21 +125,6 @@ namespace CustomQuests.Quests
 			return QuestCancellationToken.IsCancellationRequested;
 		}
 		
-		//protected Task XTrigger(Trigger trigger, int timeout)
-		//{
-		//	//var t = Task.Delay(-1);
-
-		//	trigger.Id = nextTriggerId++;
-			
-		//	triggers.TryAdd(trigger.Id, trigger);
-		//	trigger.Task = Task.Run( () =>
-		//	{
-		//		SpinWait.SpinUntil(() => trigger.UpdateImpl(), timeout);
-		//	}, QuestCancellationToken);
-
-		//	return trigger.Task;
-		//}
-
 		private void AddTrigger(Trigger trigger, CancellationToken cancellationToken )
 		{
 			if( trigger.Id != 0 )

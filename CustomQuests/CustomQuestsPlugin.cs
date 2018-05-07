@@ -353,8 +353,7 @@ namespace CustomQuests
 				}
 				catch( Exception ex )
 				{
-					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
-					TShock.Log.ConsoleInfo(ex.ToString());
+					CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				}
 
                 party.SendInfoMessage("Aborted quest.");
@@ -891,8 +890,7 @@ namespace CustomQuests
 				}
 				catch( Exception ex )
 				{
-					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
-					TShock.Log.ConsoleInfo(ex.ToString());
+					CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				}
 
 				foreach( var player2 in party )
@@ -915,8 +913,7 @@ namespace CustomQuests
 				}
 				catch( Exception ex )
 				{
-					TShock.Log.ConsoleInfo("An exception occurred in OnAbort()!");
-					TShock.Log.ConsoleInfo(ex.ToString());
+					CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				}
 
 				session.HasAborted = true;
