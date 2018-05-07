@@ -1,4 +1,5 @@
-﻿using CustomQuests.Sessions;
+﻿using Corruption;
+using CustomQuests.Sessions;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace CustomQuests.Quests
 		public int SpawnTileX { get; set; }
 		public int SpawnTileY { get; set; }
 		
+		public PlayerInventoryManager Items { get; private set; }
+
 		public Dictionary<string,object> Variables { get; private set; }
 		public object this[string variableName]
 		{
@@ -43,6 +46,7 @@ namespace CustomQuests.Quests
 		public PartyMember(TSPlayer player)
 		{
 			Player = player;
+			Items = new PlayerInventoryManager(player);
 			Variables = new Dictionary<string, object>();
 
 			SpawnTileX = Main.spawnTileX;

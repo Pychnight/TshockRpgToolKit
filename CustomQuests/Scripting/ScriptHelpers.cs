@@ -26,6 +26,7 @@ namespace CustomQuests.Scripting
 				"System.Threading.Tasks",
 				"Microsoft.Xna.Framework",
 				"TShockAPI",
+				"Corruption",
 				"Corruption.AreaFunctions",
 				"Corruption.EmoteFunctions",
 				"Corruption.TimeFunctions",
