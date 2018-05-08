@@ -20,8 +20,6 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class Session : IDisposable
     {
-		internal static ScriptAssemblyManager ScriptAssemblyManager = new ScriptAssemblyManager();
-				
 		internal readonly TSPlayer _player;//made internal, as a quick fix for SessionManager needing the player in OnReload().
 		private Quest _currentQuest;
 
@@ -234,7 +232,7 @@ namespace CustomQuests.Sessions
 			if(!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
 			{
 				var scriptPath = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
-				var scriptAssembly = ScriptAssemblyManager.GetOrCompile(scriptPath);
+				var scriptAssembly = CustomQuestsPlugin.Instance.ScriptAssemblyManager.GetOrCompile(scriptPath);
 
 				if(scriptAssembly!=null)
 				{
@@ -255,7 +253,7 @@ namespace CustomQuests.Sessions
 				else
 				{
 					CustomQuestsPlugin.Instance.LogPrint($"Cannot load quest '{questInfo.Name}', no assembly exists. ( Did compilation fail? ) ", TraceLevel.Error);
-					CustomQuestsPlugin.Instance.QuestManager.AddInvalidQuest(questInfo.Name);
+					CustomQuestsPlugin.Instance.QuestManager.InvalidQuests.Add(questInfo.Name);
 				}
 			}
 		}

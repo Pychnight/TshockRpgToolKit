@@ -15,6 +15,7 @@ using System.Diagnostics;
 using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
+using CustomQuests.Scripting;
 
 namespace CustomQuests
 {
@@ -34,6 +35,7 @@ namespace CustomQuests
 		private readonly Dictionary<string, Party> _parties = new Dictionary<string, Party>(StringComparer.OrdinalIgnoreCase);
 		private DateTime _lastSave;
 		internal QuestManager QuestManager = new QuestManager();
+		internal ScriptAssemblyManager ScriptAssemblyManager = new ScriptAssemblyManager();
 		internal SessionManager _sessionManager;
 
 		/// <summary>
@@ -149,6 +151,7 @@ namespace CustomQuests
 		private void OnReload(ReloadEventArgs args)
 		{
 			_sessionManager.OnReload();//abort in play quests
+			ScriptAssemblyManager.Clear();//clear loaded in quest code.
 			load();
 		}
 
@@ -958,7 +961,7 @@ namespace CustomQuests
 			{
 				player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 				CustomQuestsPlugin.Instance.LogPrint($"Failed to start quest '{questInfo.Name}'. Script file not found at '{path}'.",TraceLevel.Error);
-				QuestManager.AddInvalidQuest(questInfo.Name);
+				QuestManager.InvalidQuests.Add(questInfo.Name);
 				return;
 			}
 						

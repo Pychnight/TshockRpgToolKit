@@ -163,8 +163,6 @@ namespace CustomQuests.Sessions
 					player.SendSuccessMessage("Aborted quest.");
 				}
 			}
-
-			Session.ScriptAssemblyManager.Clear();
 		}
 	}
 }
