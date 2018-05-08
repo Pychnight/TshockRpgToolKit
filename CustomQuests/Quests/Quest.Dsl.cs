@@ -12,93 +12,18 @@ using TShockAPI;
 
 namespace CustomQuests.Quests
 {
-	public partial class BooQuest : Quest
+	public partial class Quest : IDisposable
 	{
-		private Task questTask { get; set; }
-		private CancellationTokenSource CancellationTokenSource;
-		protected CancellationToken QuestCancellationToken => CancellationTokenSource.Token;
-		private ConcurrentDictionary<int, Trigger> triggers;
-		int nextTriggerId = 1;
+		//private Task questTask { get; set; }
+		//private CancellationTokenSource CancellationTokenSource;
+		//protected CancellationToken QuestCancellationToken => CancellationTokenSource.Token;
+		//private ConcurrentDictionary<int, Trigger> triggers;
+		//int nextTriggerId = 1;
 
 		public Party party { get; internal set; }
 		public PartyMember leader => party.Leader;
 		public TeamManager teams => party.Teams;
-
-		public BooQuest() : base()
-		{
-			CancellationTokenSource = new CancellationTokenSource();
-			triggers = new ConcurrentDictionary<int, Trigger>();
-		}
-
-		//public BooQuest(QuestInfo definition) : base(definition)
-		//{
-		//	//Definition = definition;
-		//	CancellationTokenSource = new CancellationTokenSource();
-		//}
-
-		internal void Run()
-		{
-			questTask = Task.Run(() => OnRun());
-		}
-
-		protected virtual void OnRun()
-		{
-		}
 		
-		public void Abort()
-		{
-			OnAbort();
-		}
-				
-		protected internal virtual void OnAbort()
-		{
-			Debug.Print($"OnAbort()! for {QuestInfo.Name}");
-			Debug.Print("Cancelling...");
-			CancellationTokenSource.Cancel();
-		}
-		
-		public override void Complete(bool isSuccess)
-		{
-			base.Complete(isSuccess);
-			CancellationTokenSource.Cancel();
-		}
-
-		public override void Dispose()
-		{
-			base.Dispose();
-
-			foreach( var ct in triggers.Values )
-			{
-				ct.Dispose();
-			}
-		}
-
-		internal override void Update()
-		{
-			if( IsEnded )
-				return;
-
-			var completedTriggers = new List<Trigger>();
-			
-			foreach(var trigger in triggers.Values)
-			{
-				trigger.Update();
-
-				if(trigger.IsCompleted)
-					completedTriggers.Add(trigger);
-			}
-
-			foreach(var ct in completedTriggers)
-			{
-				triggers.TryRemove(ct.Id, out var removedTrigger);
-				ct.Dispose();
-			}
-
-			base.Update();
-		}
-
-		#region Task based DSL
-
 		protected void Delay(int milliseconds)
 		{
 			Task.Delay(milliseconds,QuestCancellationToken).Wait();
@@ -206,8 +131,5 @@ namespace CustomQuests.Quests
 		{
 			return TriggerWaitAny(-1, triggers);
 		}
-
-		#endregion
 	}
-	
 }

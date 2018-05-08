@@ -236,11 +236,11 @@ namespace CustomQuests.Sessions
 
 				if(scriptAssembly!=null)
 				{
-					var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(BooQuest))
+					var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(Quest))
 															.Select(dt => dt.AsType())
 															.FirstOrDefault();
 
-					var quest = (BooQuest)Activator.CreateInstance(questType);
+					var quest = (Quest)Activator.CreateInstance(questType);
 					
 					//set these before, or various quest specific functions will get null ref's from within the quest.
 					quest.QuestInfo = questInfo;

@@ -151,7 +151,7 @@ namespace CustomQuests.Sessions
 					
 					try
 					{
-						var bquest = (BooQuest)session.CurrentQuest;
+						var bquest = session.CurrentQuest;
 						bquest.Abort();
 					}
 					catch( Exception ex )

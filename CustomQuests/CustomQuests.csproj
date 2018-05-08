@@ -99,7 +99,7 @@
     <Compile Include="Quests\PartyMemberExtensions.cs" />
     <Compile Include="Scripting\ScriptAssemblyManager.cs" />
     <Compile Include="Scripting\ScriptHelpers.cs" />
-    <Compile Include="Quests\BooQuest.cs" />
+    <Compile Include="Quests\Quest.Dsl.cs" />
     <Compile Include="Quests\Team.cs" />
     <Compile Include="Quests\TeamManager.cs" />
     <Compile Include="QuestFunctions.cs" />

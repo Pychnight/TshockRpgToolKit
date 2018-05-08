@@ -351,7 +351,7 @@ namespace CustomQuests
             {
 				try
 				{
-					var bquest = (BooQuest)session.CurrentQuest;
+					var bquest = session.CurrentQuest;
 					bquest.Abort();
 				}
 				catch( Exception ex )
@@ -888,7 +888,7 @@ namespace CustomQuests
 				
 				try
 				{
-					var bquest = (BooQuest)session.CurrentQuest;
+					var bquest = session.CurrentQuest;
 					bquest.Abort();
 				}
 				catch( Exception ex )
@@ -911,7 +911,7 @@ namespace CustomQuests
 				
 				try
 				{
-					var bquest = (BooQuest)session.CurrentQuest;
+					var bquest = session.CurrentQuest;
 					bquest.Abort();
 				}
 				catch( Exception ex )
