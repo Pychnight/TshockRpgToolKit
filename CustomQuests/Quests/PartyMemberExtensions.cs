@@ -647,9 +647,7 @@ namespace CustomQuests.Quests
 				throw new ArgumentNullException(nameof(questStatus));
 			
 			foreach( var member in partyMembers )
-			{
 				member.SetQuestStatus(index, questStatus, color);
-			}
 		}
 
 		/// <summary>
@@ -672,6 +670,16 @@ namespace CustomQuests.Quests
 		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus)
 		{
 			partyMembers.SetQuestStatus(index, questStatus, Color.White);
+		}
+
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, string questStatus, Color color)
+		{
+			partyMembers.SetQuestStatus(0, questStatus, color);
+		}
+
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, string questStatus)
+		{
+			partyMembers.SetQuestStatus(0, questStatus);
 		}
 
 		#endregion

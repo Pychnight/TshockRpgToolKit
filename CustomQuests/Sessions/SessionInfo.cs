@@ -39,7 +39,7 @@ namespace CustomQuests.Sessions
 		//public Dictionary<string, QuestStatusManager> QuestSavePoints { get; } = new Dictionary<string, QuestStatusManager>();
 
 		[JsonIgnore]
-		public QuestStatusManager QuestStatusManager { get; set; } = new QuestStatusManager();
+		public QuestStatusCollection QuestStatusManager { get; set; } = new QuestStatusCollection();
 
 
 		/// <summary>

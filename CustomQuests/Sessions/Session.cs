@@ -93,7 +93,7 @@ namespace CustomQuests.Sessions
         /// </summary>
         public Party Party { get; set; }
 
-		public QuestStatusManager QuestStatusManager => SessionInfo.QuestStatusManager;
+		//public QuestStatusCollection QuestStatusManager => SessionInfo.QuestStatusManager;
 		
         /// <summary>
         ///     Gets the session information.

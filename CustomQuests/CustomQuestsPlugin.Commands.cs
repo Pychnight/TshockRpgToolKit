@@ -445,7 +445,7 @@ namespace CustomQuests
 				{
 					var session2 = GetSession(player2);
 					session2.HasAborted = true;
-					session2.QuestStatusManager.Clear();
+					//session2.QuestStatusManager.Clear();
 				}
 
 				party.SendSuccessMessage("Aborted quest.");
@@ -555,7 +555,7 @@ namespace CustomQuests
 					{
 						player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 						var session2 = GetSession(player2);
-						session2.QuestStatusManager.Clear();
+						//session2.QuestStatusManager.Clear();
 						session2.CurrentQuest = session.CurrentQuest;
 					}
 				}
@@ -767,11 +767,20 @@ namespace CustomQuests
 			}
 			else
 			{
-				var isPartyLeader = player == session.Party.Leader.Player;
+				//var isPartyLeader = player == session.Party.Leader.Player;
 				var questName = session.CurrentQuest.QuestInfo.FriendlyName;
+				var party = session.Party;
+				var index = party.IndexOf(player);
+								
+				player.SendInfoMessage($"Current Quest: {questName}");
+				
+				if( index > -1)
+				{
+					var member = party[index];
 
-				foreach( var qs in session.QuestStatusManager )
-					player.SendMessage(qs.Text, qs.Color);
+					foreach( var qs in member.QuestStatuses )
+						player.SendMessage(qs.Text ?? "", qs.Color);
+				}
 			}
 		}
 
