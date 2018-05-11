@@ -70,7 +70,7 @@ namespace CustomQuests.Sessions
         ///     Gets the current quest info.
         /// </summary>
         [CanBeNull]
-        public QuestInfo CurrentQuestInfo { get; private set; }
+        public QuestInfo CurrentQuestInfo { get; internal set; }
 
         /// <summary>
         ///     Gets the current quest name.
@@ -105,7 +105,7 @@ namespace CustomQuests.Sessions
         /// </summary>
         public void Dispose()
         {
-            CurrentQuest?.Dispose();
+            //CurrentQuest?.Dispose();
             CurrentQuest = null;
         }
 
@@ -122,7 +122,7 @@ namespace CustomQuests.Sessions
                 throw new ArgumentNullException(nameof(questInfo));
             }
 
-			if( CustomQuestsPlugin.Instance.QuestManager.IsQuestInvalid(questInfo.Name) )
+			if( CustomQuestsPlugin.Instance.QuestLoader.IsQuestInvalid(questInfo.Name) )
 				return false;
 
             var result = questInfo.RequiredRegionName == null ||
@@ -221,43 +221,60 @@ namespace CustomQuests.Sessions
 		/// </summary>
 		/// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
-		public void LoadQuest(QuestInfo questInfo)
-        {
-            if(questInfo == null)
+		//public void LoadQuest(QuestInfo questInfo)
+  //      {
+  //          if(questInfo == null)
+		//		throw new ArgumentNullException(nameof(questInfo));
+
+		//	//ensure there is a party set, even if a solo player.
+		//	Party = Party ?? new Party(_player.Name, _player);
+			
+		//	if(!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
+		//	{
+		//		var scriptPath = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
+		//		var scriptAssembly = CustomQuestsPlugin.Instance.ScriptAssemblyManager.GetOrCompile(scriptPath);
+
+		//		if(scriptAssembly!=null)
+		//		{
+		//			var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(Quest))
+		//													.Select(dt => dt.AsType())
+		//													.FirstOrDefault();
+
+		//			var quest = (Quest)Activator.CreateInstance(questType);
+					
+		//			//set these before, or various quest specific functions will get null ref's from within the quest.
+		//			quest.QuestInfo = questInfo;
+		//			quest.party = Party;
+		//			CurrentQuest = quest;
+		//			CurrentQuestInfo = questInfo;
+					
+		//			quest.Run();
+		//		}
+		//		else
+		//		{
+		//			CustomQuestsPlugin.Instance.LogPrint($"Cannot load quest '{questInfo.Name}', no assembly exists. ( Did compilation fail? ) ", TraceLevel.Error);
+		//			CustomQuestsPlugin.Instance.QuestLoader.InvalidQuests.Add(questInfo.Name);
+		//		}
+		//	}
+		//}
+
+		public void LoadQuestX(QuestInfo questInfo)
+		{
+			if( questInfo == null )
 				throw new ArgumentNullException(nameof(questInfo));
 
 			//ensure there is a party set, even if a solo player.
 			Party = Party ?? new Party(_player.Name, _player);
-			
-			if(!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
+
+			var result = CustomQuestsPlugin.Instance.QuestRunner.Start(questInfo, Party, this);
+
+			if(!result)
 			{
-				var scriptPath = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
-				var scriptAssembly = CustomQuestsPlugin.Instance.ScriptAssemblyManager.GetOrCompile(scriptPath);
-
-				if(scriptAssembly!=null)
-				{
-					var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(Quest))
-															.Select(dt => dt.AsType())
-															.FirstOrDefault();
-
-					var quest = (Quest)Activator.CreateInstance(questType);
-					
-					//set these before, or various quest specific functions will get null ref's from within the quest.
-					quest.QuestInfo = questInfo;
-					quest.party = Party;
-					CurrentQuest = quest;
-					CurrentQuestInfo = questInfo;
-					
-					quest.Run();
-				}
-				else
-				{
-					CustomQuestsPlugin.Instance.LogPrint($"Cannot load quest '{questInfo.Name}', no assembly exists. ( Did compilation fail? ) ", TraceLevel.Error);
-					CustomQuestsPlugin.Instance.QuestManager.InvalidQuests.Add(questInfo.Name);
-				}
+				CustomQuestsPlugin.Instance.LogPrint($"Cannot load quest '{questInfo.Name}', no assembly exists. ( Did compilation fail? ) ", TraceLevel.Error);
+				CustomQuestsPlugin.Instance.QuestLoader.InvalidQuests.Add(questInfo.Name);
 			}
 		}
-		
+
 		/// <summary>
 		///     Revokes the quest with the specified name.
 		/// </summary>
@@ -294,6 +311,8 @@ namespace CustomQuests.Sessions
         /// </summary>
         public void UpdateQuest()
         {
+			//throw new Exception("Refactor");
+
             if (CurrentQuest == null)
             {
                 return;
@@ -311,25 +330,25 @@ namespace CustomQuests.Sessions
                 return;
             }
 
-			var isPartyLeader = _player == Party.Leader.Player;
+			//var isPartyLeader = _player == Party.Leader.Player;
 
-            if (Party == null || isPartyLeader)
-            {
-                CurrentQuest.Update();
-            }
+			//if( Party == null || isPartyLeader )
+			//{
+			//	CurrentQuest.Update();
+			//}
+			
             if (CurrentQuest.IsEnded)
             {
 				//remove save point
-				Debug.Print("UpdateQuest() SAVEPOINT!");
+				Debug.Print("UpdateQuest() Should remove savepoints here!");
 				//SessionInfo.RemoveSavePoint(this.CurrentQuestInfo.Name, isPartyLeader);
 				
 				if (CurrentQuest.IsSuccessful)
                 {
                     var repeatedQuests = SessionInfo.RepeatedQuestNames;
-                    // ReSharper disable once PossibleNullReferenceException
+                    
                     if (CurrentQuestInfo.MaxRepeats >= 0)
                     {
-                        // ReSharper disable once AssignNullToNotNullAttribute
                         if (repeatedQuests.TryGetValue(CurrentQuestName, out var repeats))
                         {
                             repeatedQuests[CurrentQuestName] = repeats + 1;

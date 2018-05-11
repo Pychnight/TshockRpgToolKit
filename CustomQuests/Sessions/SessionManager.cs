@@ -8,6 +8,7 @@ using TShockAPI;
 using TerrariaApi.Server;
 using CustomQuests.Quests;
 using Corruption.PluginSupport;
+using System.Diagnostics;
 
 namespace CustomQuests.Sessions
 {
@@ -72,13 +73,6 @@ namespace CustomQuests.Sessions
             var username = player.User?.Name ?? player.Name;
             if (!_sessions.TryGetValue(username, out var session))
             {
-				//var path = Path.Combine("quests", "sessions", $"{username}.json");
-				//SessionInfo sessionInfo = null;
-				//if (File.Exists(path))
-				//{
-				//    sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(File.ReadAllText(path));
-				//}
-
 				var sessionInfo = sessionRepository.Load(username);
 
                 if (sessionInfo == null)
@@ -93,8 +87,12 @@ namespace CustomQuests.Sessions
                 session = new Session(player, sessionInfo);
                 if (session.CurrentQuestInfo != null)
                 {
-                    session.LoadQuest(session.CurrentQuestInfo);
-                }
+					//throw new NotImplementedException("Rejoining quests is currently disabled.");
+					//session.LoadQuest(session.CurrentQuestInfo);
+
+					Debug.Print("DEBUG: Rejoining quests is currently disabled.");
+					//session.LoadQuestX(session.CurrentQuestInfo);
+				}
 
                 _sessions[username] = session;
             }

@@ -15,11 +15,16 @@ namespace CustomQuests.Quests
     /// </summary>
     public partial class Quest : IDisposable
     {
-		private Task questTask { get; set; }
+		internal protected Task MainQuestTask { get; internal set; } // deliberately long winded, to not clash with likely script names
 		private CancellationTokenSource CancellationTokenSource;
 		protected CancellationToken QuestCancellationToken => CancellationTokenSource.Token;
 		private ConcurrentDictionary<int, Trigger> triggers;
 		int nextTriggerId = 1;
+
+		/// <summary>
+		///     Gets the quest info.
+		/// </summary>
+		public QuestInfo QuestInfo { get; internal set; }
 
 		/// <summary>
 		///     Gets a value indicating whether the quest is ended.
@@ -30,12 +35,7 @@ namespace CustomQuests.Quests
 		///     Gets a value indicating whether the quest is successful.
 		/// </summary>
 		public bool IsSuccessful { get; private set; }
-
-		/// <summary>
-		///     Gets the quest info.
-		/// </summary>
-		public QuestInfo QuestInfo { get; internal set; }
-
+		
 		/// <summary>
 		///  Gets or sets a friendly string informing players of their progress within a quest.
 		/// </summary>
@@ -46,19 +46,8 @@ namespace CustomQuests.Quests
 		{
 			CancellationTokenSource = new CancellationTokenSource();
 			triggers = new ConcurrentDictionary<int, Trigger>();
-
 			QuestStatusColor = Color.White;
 		}
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Quest" /> class with the specified quest info.
-        /// </summary>
-        /// <param name="questInfo">The quest info, which must not be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
-        public Quest(QuestInfo questInfo) : this()
-        {
-            QuestInfo = questInfo ?? throw new ArgumentNullException(nameof(questInfo));
-        }
 		
 		/// <summary>
 		///     Disposes the quest.
@@ -73,7 +62,7 @@ namespace CustomQuests.Quests
 
 		internal void Run()
 		{
-			questTask = Task.Run(() => OnRun());
+			MainQuestTask = Task.Run(() => OnRun());
 		}
 
 		//this method gets overridden in boo, by transplanting the modules main method into it.
@@ -97,7 +86,7 @@ namespace CustomQuests.Quests
 		///     Completes the quest.
 		/// </summary>
 		/// <param name="isSuccess"><c>true</c> to complete successfully; otherwise, <c>false</c>.</param>
-		public virtual void Complete(bool isSuccess)
+		protected void Complete(bool isSuccess)
         {
 			if( IsEnded )
 				return;
@@ -111,12 +100,22 @@ namespace CustomQuests.Quests
         /// <summary>
         ///     Updates the quest.
         /// </summary>
-        internal virtual void Update()
+        internal void Update()
         {
 			if( IsEnded )
 				return;
 
+			checkParty();
 			updateTriggers();
+		}
+
+		private void checkParty()
+		{
+			if(party==null || party.Count<1)
+			{
+				Debug.Print("Party is null or empty, aborting quest.");
+				Abort();
+			}
 		}
 
 		private void updateTriggers()

@@ -91,8 +91,10 @@
     <Compile Include="ChestItemChangedEventArgs.cs" />
     <Compile Include="ChestUnlockedEventArgs.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="CustomQuestsPlugin.Commands.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
-    <Compile Include="QuestManager.cs" />
+    <Compile Include="Quests\QuestLoader.cs" />
+    <Compile Include="Quests\QuestRunner.cs" />
     <Compile Include="Scripting\ModuleToInstanceClassStep.cs" />
     <Compile Include="Quests\Party.cs" />
     <Compile Include="Quests\PartyMember.cs" />

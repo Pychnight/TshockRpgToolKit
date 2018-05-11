@@ -41,7 +41,7 @@ namespace CustomQuests.Quests
 
 		protected Task CreateTask(CancellationToken cancellationToken, Action action)
 		{
-			var t = new Task(action, cancellationToken);
+			var t = new Task(action, cancellationToken, TaskCreationOptions.AttachedToParent);
 			return t;
 		}
 

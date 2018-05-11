@@ -1,5 +1,5 @@
 ﻿using Corruption.PluginSupport;
-using CustomQuests.Quests;
+using CustomQuests.Scripting;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -10,12 +10,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomQuests
+namespace CustomQuests.Quests
 {
-	public class QuestManager : IEnumerable<QuestInfo>
+	public class QuestLoader : IEnumerable<QuestInfo>
 	{
 		List<QuestInfo> questInfoList;//maintains ordering, enables correct serialization/deserialization to json...
 		Dictionary<string, QuestInfo> questInfos;
+		ScriptAssemblyManager scriptAssemblyManager;
 
 		public HashSet<string> InvalidQuests { get; private set; } //records quests that are broken in someway, and should not be ran/listed.
 
@@ -30,13 +31,21 @@ namespace CustomQuests
 			}
 		}
 		
-		public QuestManager()
+		public QuestLoader()
 		{
 			questInfos = new Dictionary<string, QuestInfo>();
 			InvalidQuests = new HashSet<string>();
+			scriptAssemblyManager = new ScriptAssemblyManager();
 		}
 
-		public void LoadQuestInfos(string fileName)
+		public void Clear()
+		{
+			scriptAssemblyManager.Clear();
+			InvalidQuests.Clear();
+			questInfos.Clear();
+		}
+
+		public void LoadQuests(string fileName)
 		{
 			try
 			{
@@ -58,14 +67,60 @@ namespace CustomQuests
 				questInfoList = new List<QuestInfo>();
 			}
 
-			InvalidQuests.Clear();
-			questInfos.Clear();
+			Clear();
+
 			foreach( var qi in questInfoList )
 				questInfos.Add(qi.Name, qi);
 
 			Debug.Print("Found the following quest infos:");
 			foreach( var qi in questInfoList )
 				Debug.Print($"Quest: {qi.Name},  {qi.FriendlyName} - {qi.Description}");
+		}
+		
+		public Quest CreateInstance(QuestInfo questInfo, Party party)
+		{
+			if( questInfo == null )
+				throw new ArgumentNullException(nameof(questInfo));
+
+			if( party == null )
+				throw new ArgumentNullException(nameof(party));
+
+			//check party
+			//...
+
+			//check quest
+			//...
+
+			//check ...
+			//...
+
+			if( !string.IsNullOrWhiteSpace(questInfo.ScriptPath) )
+			{
+				var scriptPath = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
+				var scriptAssembly = scriptAssemblyManager.GetOrCompile(scriptPath);
+
+				if( scriptAssembly != null )
+				{
+					var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(Quest))
+															.Select(dt => dt.AsType())
+															.FirstOrDefault();
+
+					var quest = (Quest)Activator.CreateInstance(questType);
+
+					//set these before, or various quest specific functions will get null ref's from within the quest.
+					quest.QuestInfo = questInfo;
+					quest.party = party;
+
+					return quest;
+				}
+				else
+				{
+					CustomQuestsPlugin.Instance.LogPrint($"Cannot load quest '{questInfo.Name}', no assembly exists. ( Did compilation fail? ) ", TraceLevel.Error);
+					CustomQuestsPlugin.Instance.QuestLoader.InvalidQuests.Add(questInfo.Name);
+				}
+			}
+
+			return null;
 		}
 
 		public bool Contains(string questName)
