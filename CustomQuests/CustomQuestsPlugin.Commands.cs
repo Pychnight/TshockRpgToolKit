@@ -445,7 +445,7 @@ namespace CustomQuests
 				{
 					var session2 = GetSession(player2);
 					session2.HasAborted = true;
-					session2.QuestStatusManager.Clear();
+					//session2.QuestStatusManager.Clear();
 				}
 
 				party.SendSuccessMessage("Aborted quest.");
@@ -493,8 +493,7 @@ namespace CustomQuests
 											.ToList();
 
 			var inputName = string.Join(" ", parameters.Skip(1));
-			var questInfo = availableQuests.FirstOrDefault(
-				q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
+			var questInfo = availableQuests.FirstOrDefault( q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
 			if( questInfo == null )
 			{
 				player.SendErrorMessage($"Invalid quest name '{inputName}'.");
@@ -511,11 +510,10 @@ namespace CustomQuests
 			}
 
 			var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
-				.Count(s => s.CurrentQuestName == inputName);
+											.Count(s => s.CurrentQuestName == inputName);
 			if( concurrentParties >= questInfo.MaxConcurrentParties )
 			{
-				player.SendErrorMessage(
-					$"There are too many parties currently performing the quest '{questInfo.FriendlyName}'.");
+				player.SendErrorMessage($"There are too many parties currently performing the quest '{questInfo.FriendlyName}'.");
 				return;
 			}
 
@@ -549,13 +547,13 @@ namespace CustomQuests
 				{
 					player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 					//session.LoadQuest(questInfo);
-					session.LoadQuestX(questInfo);
+					session.LoadQuest(questInfo);
 
 					foreach( var player2 in party.Where(p => p.Player != player) )
 					{
 						player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 						var session2 = GetSession(player2);
-						session2.QuestStatusManager.Clear();
+						//session2.QuestStatusManager.Clear();
 						session2.CurrentQuest = session.CurrentQuest;
 					}
 				}
@@ -578,7 +576,7 @@ namespace CustomQuests
 				{
 					player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 					//session.LoadQuest(questInfo);
-					session.LoadQuestX(questInfo);
+					session.LoadQuest(questInfo);
 				}
 				catch( Exception ex )
 				{
@@ -767,11 +765,20 @@ namespace CustomQuests
 			}
 			else
 			{
-				var isPartyLeader = player == session.Party.Leader.Player;
+				//var isPartyLeader = player == session.Party.Leader.Player;
 				var questName = session.CurrentQuest.QuestInfo.FriendlyName;
+				var party = session.Party;
+				var index = party.IndexOf(player);
+								
+				player.SendInfoMessage($"Current Quest: {questName}");
+				
+				if( index > -1)
+				{
+					var member = party[index];
 
-				foreach( var qs in session.QuestStatusManager )
-					player.SendMessage(qs.Text, qs.Color);
+					foreach( var qs in member.QuestStatuses )
+						player.SendMessage(qs.Text ?? "", qs.Color);
+				}
 			}
 		}
 

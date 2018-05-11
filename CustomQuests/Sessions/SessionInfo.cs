@@ -38,10 +38,9 @@ namespace CustomQuests.Sessions
 		//public Dictionary<string, SavePoint> PartyLeaderSavePoints { get; } = new Dictionary<string, SavePoint>();
 		//public Dictionary<string, QuestStatusManager> QuestSavePoints { get; } = new Dictionary<string, QuestStatusManager>();
 
-		[JsonIgnore]
-		public QuestStatusManager QuestStatusManager { get; set; } = new QuestStatusManager();
-
-
+		//[JsonIgnore]
+		//public QuestStatusCollection QuestStatusManager { get; set; } = new QuestStatusCollection();
+		
 		/// <summary>
 		///     Gets the repeated quest names.
 		/// </summary>

@@ -13,12 +13,10 @@ namespace CustomQuests.Quests
 	/// </summary>
 	public class QuestStatus
 	{
-		public string QuestName { get; set; }
-
 		/// <summary>
 		/// User friendly string, which can let party members know what they've done, or how to progress.
 		/// </summary>
-		public string Text { get; set; } = "";
+		public string Text { get; set; } = "No status.";
 		public Color Color { get; set; } = Color.White;
 	}
 }

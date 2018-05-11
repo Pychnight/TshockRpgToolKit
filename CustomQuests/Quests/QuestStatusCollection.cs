@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace CustomQuests.Quests
 {
-	public class QuestStatusManager : IEnumerable<QuestStatus>
+	public class QuestStatusCollection : IEnumerable<QuestStatus>
 	{
 		Dictionary<int, QuestStatus> items;
 
 		public int Count => items.Count;
 
-		internal QuestStatusManager()
+		internal QuestStatusCollection()
 		{
 			items = new Dictionary<int, QuestStatus>();
 		}
@@ -41,15 +41,29 @@ namespace CustomQuests.Quests
 			SetQuestStatus(index, text, Color.White);
 		}
 
+		public void SetQuestStatus(string text)
+		{
+			SetQuestStatus(0, text);
+		}
+
 		public QuestStatus GetQuestStatus(int index)
 		{
 			if( !items.TryGetValue(index, out var questStatus) )
 			{
-				//questStatus = new QuestStatus();
-				//items.Add(index, questStatus);
+				if(index==0)
+				{
+					//create a default status, esp. for overloads that dont use indices. 
+					questStatus = new QuestStatus();
+					items.Add(0, questStatus);
+				}
 			}
 
 			return questStatus;
+		}
+
+		public QuestStatus GetQuestStatus()
+		{
+			return GetQuestStatus(0);
 		}
 
 		public IEnumerator<QuestStatus> GetEnumerator()

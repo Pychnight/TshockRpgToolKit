@@ -28,7 +28,7 @@ namespace CustomQuests.Quests
 		public int SpawnTileY { get; set; }
 		
 		public PlayerInventoryManager Items { get; private set; }
-
+		
 		public Dictionary<string,object> Variables { get; private set; }
 		public object this[string variableName]
 		{
@@ -43,11 +43,14 @@ namespace CustomQuests.Quests
 			}
 		}
 
+		public QuestStatusCollection QuestStatuses { get; internal set; } 
+
 		public PartyMember(TSPlayer player)
 		{
 			Player = player;
 			Items = new PlayerInventoryManager(player);
 			Variables = new Dictionary<string, object>();
+			QuestStatuses = new QuestStatusCollection();
 
 			SpawnTileX = Main.spawnTileX;
 			SpawnTileY = Main.spawnTileY;
@@ -70,32 +73,37 @@ namespace CustomQuests.Quests
 
 		public void ClearQuestStatus()
 		{
-			var session = GetSession();
-			session.QuestStatusManager.Clear();
+			QuestStatuses.Clear();
 		}
 
 		public void SetQuestStatus(int index, string text, Color color)
 		{
-			var session = GetSession();
-			session.QuestStatusManager.SetQuestStatus(index, text, color);
+			QuestStatuses.SetQuestStatus(index, text, color);
 		}
 
 		public void SetQuestStatus(int index, string text)
 		{
-			var session = GetSession();
-			session.QuestStatusManager.SetQuestStatus(index, text);
+			QuestStatuses.SetQuestStatus(index, text);
+		}
+
+		public void SetQuestStatus(string text, Color color)
+		{
+			SetQuestStatus(0, text, color);
+		}
+
+		public void SetQuestStatus(string text)
+		{
+			SetQuestStatus(0, text);
 		}
 
 		public QuestStatus GetQuestStatus(int index)
 		{
-			var session = GetSession();
-			return session.QuestStatusManager.GetQuestStatus(index);
+			return QuestStatuses.GetQuestStatus(index);
 		}
 
-		public IEnumerable<QuestStatus> GetQuestStatus()
+		public QuestStatus GetQuestStatus()
 		{
-			var session = GetSession();
-			return session.QuestStatusManager;
+			return GetQuestStatus(0);
 		}
 	}
 }

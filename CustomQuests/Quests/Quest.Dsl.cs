@@ -56,10 +56,16 @@ namespace CustomQuests.Quests
 				throw new InvalidOperationException("Trigger has already been used.");
 
 			trigger.Id = nextTriggerId++;
-			trigger.Task = Task.Run(() =>
+			//trigger.Task = Task.Run(() =>
+			//{
+			//	trigger.Signal.Wait(cancellationToken);
+			//}, cancellationToken);
+			
+			trigger.Task = Task.Factory.StartNew(() =>
 			{
 				trigger.Signal.Wait(cancellationToken);
-			}, cancellationToken);
+			}, cancellationToken, TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
+
 			
 			triggers.TryAdd(trigger.Id, trigger);
 		}
