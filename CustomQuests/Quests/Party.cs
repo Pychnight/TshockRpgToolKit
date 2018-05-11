@@ -40,13 +40,18 @@ namespace CustomQuests.Quests
 			}
 		}
 
-		internal void Remove(TSPlayer player)
+		internal void Remove(TSPlayer player)//, bool notifyLeaderChange = false)
 		{
 			var index = IndexOf(player);
 
 			if(index>-1)
 			{
 				partyMembers.RemoveAt(index);
+
+				//if(index==0 && Count > 0 && notifyLeaderChange)
+				//{
+				//	partyMembers.SendInfoMessage($"{Leader.Name} is the new party leader.");
+				//}
 			}
 		}
 
