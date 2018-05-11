@@ -158,7 +158,7 @@ namespace CustomQuests.Sessions
 					}
 
 					session.HasAborted = true;
-					player.SendSuccessMessage("Aborted quest.");
+					player.SendSuccessMessage("Server reload, quest aborted.");
 				}
 			}
 		}

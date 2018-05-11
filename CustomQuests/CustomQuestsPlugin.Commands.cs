@@ -493,8 +493,7 @@ namespace CustomQuests
 											.ToList();
 
 			var inputName = string.Join(" ", parameters.Skip(1));
-			var questInfo = availableQuests.FirstOrDefault(
-				q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
+			var questInfo = availableQuests.FirstOrDefault( q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
 			if( questInfo == null )
 			{
 				player.SendErrorMessage($"Invalid quest name '{inputName}'.");
@@ -511,11 +510,10 @@ namespace CustomQuests
 			}
 
 			var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
-				.Count(s => s.CurrentQuestName == inputName);
+											.Count(s => s.CurrentQuestName == inputName);
 			if( concurrentParties >= questInfo.MaxConcurrentParties )
 			{
-				player.SendErrorMessage(
-					$"There are too many parties currently performing the quest '{questInfo.FriendlyName}'.");
+				player.SendErrorMessage($"There are too many parties currently performing the quest '{questInfo.FriendlyName}'.");
 				return;
 			}
 
@@ -549,7 +547,7 @@ namespace CustomQuests
 				{
 					player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 					//session.LoadQuest(questInfo);
-					session.LoadQuestX(questInfo);
+					session.LoadQuest(questInfo);
 
 					foreach( var player2 in party.Where(p => p.Player != player) )
 					{
@@ -578,7 +576,7 @@ namespace CustomQuests
 				{
 					player.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 					//session.LoadQuest(questInfo);
-					session.LoadQuestX(questInfo);
+					session.LoadQuest(questInfo);
 				}
 				catch( Exception ex )
 				{

@@ -408,6 +408,7 @@ namespace CustomQuests
                 if (session.Party != null)
                 {
                     session.Dispose();
+					Debug.Print("Disabled SetQuestState() in OnLeave().");
                     //session.SetQuestState(null);
                 }
 
@@ -473,7 +474,7 @@ namespace CustomQuests
             foreach (var player in TShock.Players.Where(p => p?.User != null))
             {
                 var session = GetSession(player);
-                session.UpdateQuest();
+                session.CheckQuestCompleted();
             }
 
             if (DateTime.UtcNow > _lastSave + _config.SavePeriod)

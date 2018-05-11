@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -124,6 +125,28 @@ namespace CustomQuests.Quests
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
+		}
+
+		internal void InitializeFromSessions(QuestInfo questInfo)
+		{
+			foreach(var m in this)
+			{
+				var session = CustomQuestsPlugin.Instance.GetSession(m);
+
+				if(!session.QuestProgress.TryGetValue(questInfo.Name,out var statuses))
+				{
+					Debug.Print("Using PartyMembers quest status.");
+					//copy members quest status to session.
+					statuses = m.QuestStatuses;
+					session.QuestProgress.Add(questInfo.Name, statuses);
+				}
+				else
+				{
+					Debug.Print("Using Session's quest status.");
+					//copy sessions quest status to member.
+					m.QuestStatuses = statuses;
+				}
+			}
 		}
 	}
 }

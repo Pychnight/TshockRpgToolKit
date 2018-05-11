@@ -94,6 +94,7 @@ namespace CustomQuests.Sessions
         public Party Party { get; set; }
 
 		//public QuestStatusCollection QuestStatusManager => SessionInfo.QuestStatusManager;
+		public Dictionary<string, QuestStatusCollection> QuestProgress = new Dictionary<string, QuestStatusCollection>();
 		
         /// <summary>
         ///     Gets the session information.
@@ -208,7 +209,7 @@ namespace CustomQuests.Sessions
 			si.CompletedQuestNames.Clear();
 			si.RepeatedQuestNames.Clear();
 
-			si.QuestStatusManager.Clear();
+			this.QuestProgress.Clear();
 
 			foreach( var name in CustomQuestsPlugin.Instance._config.DefaultQuestNames )
 				si.AvailableQuestNames.Add(name);
@@ -258,14 +259,15 @@ namespace CustomQuests.Sessions
 		//	}
 		//}
 
-		public void LoadQuestX(QuestInfo questInfo)
+		public void LoadQuest(QuestInfo questInfo)
 		{
 			if( questInfo == null )
 				throw new ArgumentNullException(nameof(questInfo));
 
 			//ensure there is a party set, even if a solo player.
 			Party = Party ?? new Party(_player.Name, _player);
-
+			Party.InitializeFromSessions(questInfo);
+						
 			var result = CustomQuestsPlugin.Instance.QuestRunner.Start(questInfo, Party, this);
 
 			if(!result)
@@ -289,6 +291,7 @@ namespace CustomQuests.Sessions
 
             SessionInfo.AvailableQuestNames.Remove(name);
             SessionInfo.CompletedQuestNames.Remove(name);
+			this.QuestProgress.Remove(name);
 		}
 		
         /// <summary>
@@ -307,17 +310,13 @@ namespace CustomQuests.Sessions
         }
 
         /// <summary>
-        ///     Updates the current quest.
+        ///     Checks to see if the current quest has ended, and sets closing values if so.
         /// </summary>
-        public void UpdateQuest()
+        public void CheckQuestCompleted()
         {
-			//throw new Exception("Refactor");
-
-            if (CurrentQuest == null)
-            {
-                return;
-            }
-
+			if (CurrentQuest == null)
+				return;
+            
             if (IsAborting)
             {
                 if (HasAborted)
@@ -329,13 +328,6 @@ namespace CustomQuests.Sessions
                 }
                 return;
             }
-
-			//var isPartyLeader = _player == Party.Leader.Player;
-
-			//if( Party == null || isPartyLeader )
-			//{
-			//	CurrentQuest.Update();
-			//}
 			
             if (CurrentQuest.IsEnded)
             {
@@ -362,13 +354,15 @@ namespace CustomQuests.Sessions
                             SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
                             SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
                             repeatedQuests.Remove(CurrentQuestName);
+							QuestProgress.Remove(CurrentQuestName);
                         }
                     }
                     _player.SendSuccessMessage("Quest completed!");
                 }
                 else
                 {
-                    _player.SendErrorMessage("Quest failed.");
+					QuestProgress.Remove(CurrentQuestName);
+					_player.SendErrorMessage("Quest failed.");
                 }
 
                 Dispose();
