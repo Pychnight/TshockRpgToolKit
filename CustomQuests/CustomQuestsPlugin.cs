@@ -83,6 +83,11 @@ namespace CustomQuests
 		public event EventHandler<ChestItemChangedEventArgs> ChestItemChanged;
 
 		/// <summary>
+		///		Event fired when a sign is read.
+		/// </summary>
+		public event EventHandler<SignReadEventArgs> SignRead;
+
+		/// <summary>
 		///     Gets the corresponding session for the specified player.
 		/// </summary>
 		/// <param name="player">The player, which must not be <c>null</c>.</param>
@@ -122,8 +127,7 @@ namespace CustomQuests
 			GetDataHandlers.PlayerTeam += OnPlayerTeam;
 			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
 			GetDataHandlers.TileEdit += OnTileEdit;
-			//GetDataHandlers.ChestItemChange += OnChestItemChanged;
-						
+									
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
 			Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
@@ -188,7 +192,7 @@ namespace CustomQuests
 
 						if(type==1)
 						{
-							OnChestUnlock(args.Msg.whoAmI, x, y);
+							onChestUnlock(args.Msg.whoAmI, x, y);
 						}
 						//type==2 = door unlock
 					}
@@ -203,20 +207,33 @@ namespace CustomQuests
 						var prefix = reader.ReadInt16();
 						var netId = reader.ReadInt16();
 
-						OnChestItem(args.Msg.whoAmI, chestId, itemSlot, stack, prefix, netId);
+						onChestItem(args.Msg.whoAmI, chestId, itemSlot, stack, prefix, netId);
+					}
+					break;
+
+				case PacketTypes.SignRead:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var x = reader.ReadInt16();
+						var y = reader.ReadInt16();
+
+						onSignRead(args.Msg.whoAmI, x, y);
 					}
 					break;
 			}
 		}
 
-		void OnChestUnlock(int playerIndex, int x, int y)
+		void onChestUnlock(int playerIndex, int x, int y)
 		{
 			Debug.Print($"OnChestUnlock! {x}, {y}");
-			//Debug.Print($"whoAmI: {args.Msg.whoAmI}");
+			Debug.Print($"whoAmI: {playerIndex}");
+			Debug.Print($"x: {x}");
+			Debug.Print($"y: {y}");
+
 			ChestUnlocked?.Invoke(this, new ChestUnlockedEventArgs(playerIndex, x, y));
 		}
 
-		void OnChestItem(int playerIndex, int chestId, int itemSlot, int stack, int prefix, int netId)
+		void onChestItem(int playerIndex, int chestId, int itemSlot, int stack, int prefix, int netId)
 		{
 			Debug.Print($"OnChestItem!");
 			Debug.Print($"playerIndex: {playerIndex}");
@@ -229,12 +246,15 @@ namespace CustomQuests
 			ChestItemChanged?.Invoke(this, new ChestItemChangedEventArgs(playerIndex, chestId, itemSlot, stack, prefix, netId));
 		}
 
-		//private void OnChestItemChanged(object sender, GetDataHandlers.ChestItemEventArgs args)
-		//{
-		//	args.
+		void onSignRead(int playerIndex, int x, int y)
+		{
+			Debug.Print("Sign read!");
+			Debug.Print($"playerIndex: {playerIndex}");
+			Debug.Print($"x: {x}");
+			Debug.Print($"y: {y}");
 
-		//	ChestItemChanged?.Invoke(this, new ChestItemChangedEventArgs(args., args.ID, args.Slot, args.Stacks, args.Prefix, netId));
-		//}
+			SignRead?.Invoke(this, new SignReadEventArgs(playerIndex, x, y));
+		}
 
 		//private void onGetData(GetDataEventArgs args)
 		//{

@@ -116,6 +116,7 @@
     <Compile Include="Sessions\SessionManager.cs" />
     <Compile Include="Sessions\SessionRepository.cs" />
     <Compile Include="Sessions\SqliteSessionRepository.cs" />
+    <Compile Include="SignReadEventArgs.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
     <Compile Include="Triggers\ChestGatherItems.cs" />
     <Compile Include="Triggers\ChestUnlock.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Triggers\DropItems.cs" />
     <Compile Include="Triggers\InArea.cs" />
     <Compile Include="Triggers\KillNpcs.cs" />
+    <Compile Include="Triggers\ReadSign.cs" />
     <Compile Include="Triggers\Trigger.cs" />
   </ItemGroup>
   <ItemGroup>
