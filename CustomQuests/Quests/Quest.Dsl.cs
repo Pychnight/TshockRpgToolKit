@@ -86,7 +86,7 @@ namespace CustomQuests.Quests
 
 		protected bool TriggerWaitAll(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)
 		{
-			return TriggerWaitAll(timeout.Milliseconds, cancellationToken, triggers);
+			return TriggerWaitAll((int)timeout.TotalMilliseconds, cancellationToken, triggers);
 		}
 
 		protected bool TriggerWaitAll(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
@@ -98,7 +98,7 @@ namespace CustomQuests.Quests
 
 		protected bool TriggerWaitAll(TimeSpan timeout, params Trigger[] triggers)
 		{
-			return TriggerWaitAll(timeout.Milliseconds, triggers);
+			return TriggerWaitAll((int)timeout.TotalMilliseconds, triggers);
 		}
 
 		protected bool TriggerWaitAll(int timeoutMilliseconds, params Trigger[] triggers)
@@ -120,7 +120,7 @@ namespace CustomQuests.Quests
 
 		protected int TriggerWaitAny(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)
 		{
-			return TriggerWaitAny(timeout.Milliseconds, cancellationToken, triggers);
+			return TriggerWaitAny((int)timeout.TotalMilliseconds, cancellationToken, triggers);
 		}
 
 		protected int TriggerWaitAny(int timeoutMilliseconds, params Trigger[] triggers)
@@ -130,7 +130,7 @@ namespace CustomQuests.Quests
 
 		protected int TriggerWaitAny(TimeSpan timeout, params Trigger[] triggers)
 		{
-			return TriggerWaitAny(timeout.Milliseconds, triggers);
+			return TriggerWaitAny((int)timeout.TotalMilliseconds, triggers);
 		}
 
 		protected int TriggerWaitAny(params Trigger[] triggers)
