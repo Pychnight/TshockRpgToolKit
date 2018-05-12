@@ -88,6 +88,11 @@ namespace CustomQuests
 		public event EventHandler<SignReadEventArgs> SignRead;
 
 		/// <summary>
+		///		Event fired when a sign is changed.
+		/// </summary>
+		public event EventHandler<SignChangedEventArgs> SignChanged;
+		
+		/// <summary>
 		///     Gets the corresponding session for the specified player.
 		/// </summary>
 		/// <param name="player">The player, which must not be <c>null</c>.</param>
@@ -220,6 +225,19 @@ namespace CustomQuests
 						onSignRead(args.Msg.whoAmI, x, y);
 					}
 					break;
+
+				case PacketTypes.SignNew:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var signId = reader.ReadInt16();
+						var x = reader.ReadInt16();
+						var y = reader.ReadInt16();
+						var txt = reader.ReadString();
+						//var playerId = reader.ReadByte();
+
+						onSignChanged(args.Msg.whoAmI, signId, x, y, txt);
+					}
+					break;
 			}
 		}
 
@@ -254,6 +272,18 @@ namespace CustomQuests
 			Debug.Print($"y: {y}");
 
 			SignRead?.Invoke(this, new SignReadEventArgs(playerIndex, x, y));
+		}
+
+		void onSignChanged(int playerIndex, int signId, int x, int y, string txt )
+		{
+			Debug.Print("Sign changed!");
+			Debug.Print($"playerIndex: {playerIndex}");
+			Debug.Print($"signId: {signId}");
+			Debug.Print($"x: {x}");
+			Debug.Print($"y: {y}");
+			Debug.Print($"txt: {txt}");
+
+			SignChanged?.Invoke(this, new SignChangedEventArgs(playerIndex, signId, x, y, txt));
 		}
 
 		//private void onGetData(GetDataEventArgs args)
