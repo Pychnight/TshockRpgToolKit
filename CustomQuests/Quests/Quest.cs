@@ -21,6 +21,9 @@ namespace CustomQuests.Quests
 		private ConcurrentDictionary<int, Trigger> triggers;
 		int nextTriggerId = 1;
 
+		//used to warn when containing task exited, and Complete() was not called( leads to hanging triggers ).
+		internal bool CalledComplete { get; private set; }
+
 		/// <summary>
 		///     Gets the quest info.
 		/// </summary>
@@ -91,6 +94,7 @@ namespace CustomQuests.Quests
 			if( IsEnded )
 				return;
 
+			CalledComplete = true;
             IsEnded = true;
             IsSuccessful = isSuccess;
 

@@ -72,6 +72,12 @@ namespace CustomQuests.Quests
 
 					case TaskStatus.RanToCompletion:
 						questsToRemove.Add(quest.party.Name);
+
+						if( !quest.CalledComplete )
+						{
+							CustomQuestsPlugin.Instance.LogPrint($"'{quest.QuestInfo.Name}' MainQuestTask finished execution, but no call to Complete() was made. ( Did you forget to wait on a Task? )", TraceLevel.Error);
+						}
+
 						break;
 
 					case TaskStatus.Canceled:
