@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define SQLITE_SESSION_REPOSITORY
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
