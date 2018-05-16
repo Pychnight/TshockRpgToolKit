@@ -213,7 +213,10 @@ namespace CustomQuests
 				player.SendErrorMessage("You are not in a party.");
 				return;
 			}
-			if( party.Leader.Player != player )
+
+			var isAdmin = player.HasPermission("customquests.quest.admin");
+
+			if( !isAdmin && party.Leader.Player != player )
 			{
 				player.SendErrorMessage("You are not the leader of your party.");
 				return;
