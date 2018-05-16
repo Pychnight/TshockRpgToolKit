@@ -1,5 +1,6 @@
 ﻿using Corruption.PluginSupport;
 using CustomQuests.Quests;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,6 +70,10 @@ namespace CustomQuests
 			{
 				PartyLeader(args);
 			}
+			else if( subcommand.Equals("info", StringComparison.OrdinalIgnoreCase) )
+			{
+				PartyInfo(args);
+			}
 			else
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>.");
@@ -76,6 +81,7 @@ namespace CustomQuests
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>.");
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave.");
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party leader <player>.");
+				player.SendErrorMessage($"Syntax: {Commands.Specifier}party info <page>.");
 			}
 		}
 
@@ -336,10 +342,54 @@ namespace CustomQuests
 			}
 		}
 
+		private void PartyInfo(CommandArgs args)
+		{
+			var parameters = args.Parameters;
+			var player = args.Player;
+
+			var session = GetSession(player);
+			var party = session.Party;
+			var pageIndex = 1;
+			
+			if( party == null )
+			{
+				player.SendErrorMessage("You are not in a party.");
+				return;
+			}
+
+			if( args.Parameters.Count == 2 )
+			{
+				if(int.TryParse(args.Parameters[1], out var requestedPageIndex))
+				{
+					pageIndex = requestedPageIndex;
+				}
+			}
+
+			player.SendMessage($"Party '{party.Name}' has {party.Count} members.",Color.Green);
+			
+			const int itemsPerPage = 5;
+			var totalPages = party.PageCount(itemsPerPage);
+
+			if( pageIndex < 1 )
+				pageIndex = 1;
+			else if( pageIndex > totalPages )
+				pageIndex = totalPages;
+
+			var pagedMembers = party.GetPage(pageIndex-1, itemsPerPage);
+									
+			foreach( var member in pagedMembers )
+				if(member == party.Leader)
+					player.SendInfoMessage($"{member.Name} (Leader)");
+				else
+					player.SendInfoMessage($"{member.Name}");
+
+			player.SendMessage($"Page # {pageIndex} / {totalPages}",Color.Green);
+		}
+
 		#endregion
 
 		#region QuestCommands
-		
+
 		private void Quest(CommandArgs args)
 		{
 			var parameters = args.Parameters;
