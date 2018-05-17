@@ -161,7 +161,8 @@ namespace CustomQuests
 		private void OnReload(ReloadEventArgs args)
 		{
 			_sessionManager.OnReload();//abort in play quests
-			//ScriptAssemblyManager.Clear();//clear loaded in quest code.
+			_parties.Clear();
+			
 			load();
 		}
 
