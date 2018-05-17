@@ -64,15 +64,15 @@ namespace CustomQuests.Quests
 			trigger.Task = Task.Factory.StartNew(() =>
 			{
 				trigger.Signal.Wait(cancellationToken);
+				return trigger.Status;
 			}, cancellationToken, TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
-
-			
+						
 			triggers.TryAdd(trigger.Id, trigger);
 		}
 
-		private Task[] AddTrigger(Trigger[] triggers, CancellationToken cancellationToken)
+		private Task<TriggerStatus>[] AddTrigger(Trigger[] triggers, CancellationToken cancellationToken)
 		{
-			var tasks = new Task[triggers.Length];
+			var tasks = new Task<TriggerStatus>[triggers.Length];
 			var i = 0;
 
 			foreach( var trigger in triggers )
@@ -93,7 +93,11 @@ namespace CustomQuests.Quests
 		{
 			var tasks = AddTrigger(triggers, cancellationToken);
 			var result = Task.WaitAll(tasks, timeoutMilliseconds, cancellationToken);
-			return result;
+
+			if( result && tasks.All(t => t.Result == TriggerStatus.Success) )
+				return true;
+			else
+				return false;
 		}
 
 		protected bool TriggerWaitAll(TimeSpan timeout, params Trigger[] triggers)
@@ -114,8 +118,9 @@ namespace CustomQuests.Quests
 		protected int TriggerWaitAny(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
 		{
 			var tasks = AddTrigger(triggers, cancellationToken);
-			var result = Task.WaitAny(tasks, timeoutMilliseconds, cancellationToken);
-			return result;
+			var waitResult = Task.WaitAny(tasks, timeoutMilliseconds, cancellationToken);
+			
+			return waitResult;
 		}
 
 		protected int TriggerWaitAny(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)

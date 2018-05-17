@@ -37,16 +37,17 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected internal override bool UpdateImpl()
+        protected internal override TriggerStatus UpdateImpl()
         {
             try
             {
-				return condition!=null ? condition() : true;//disregard trigger if it received a null Func.
+				var result = condition!=null ? condition() : true;//disregard trigger if it received a null Func.
+				return result.ToTriggerStatus();
             }
             catch (Exception ex)
             {
                 CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
-				return true;
+				return TriggerStatus.Fail;
             }
         }
     }

@@ -129,6 +129,7 @@
     <Compile Include="Triggers\KillNpcs.cs" />
     <Compile Include="Triggers\ReadSign.cs" />
     <Compile Include="Triggers\Trigger.cs" />
+    <Compile Include="Triggers\TriggerStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -40,7 +40,7 @@ namespace CustomQuests.Triggers
 		}
 
 		/// <inheritdoc />
-		protected internal override bool UpdateImpl() => unlocked;
+		protected internal override TriggerStatus UpdateImpl() => unlocked.ToTriggerStatus();
 
 		private void chestUnlocked(object sender, ChestUnlockedEventArgs args)
 		{

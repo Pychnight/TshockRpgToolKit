@@ -141,7 +141,7 @@ namespace CustomQuests.Triggers
 			}
 		}
 
-		protected internal override bool UpdateImpl()
+		protected internal override TriggerStatus UpdateImpl()
 		{
 			while(!success && chestItemChanges.Count>0)
 			{
@@ -164,7 +164,7 @@ namespace CustomQuests.Triggers
 				}
 			}
 			
-			return success;
+			return success.ToTriggerStatus();
 		}
 	}
 }

@@ -112,7 +112,7 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected internal override bool UpdateImpl() => _amount <= 0;
+        protected internal override TriggerStatus UpdateImpl() => (_amount <= 0).ToTriggerStatus();
 
         private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
         {

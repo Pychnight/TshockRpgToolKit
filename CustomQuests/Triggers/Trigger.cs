@@ -14,26 +14,24 @@ namespace CustomQuests.Triggers
         private bool _isInitialized;
 
 		/// <summary>
-		/// Signals that the Trigger's UpdateImpl() has been set to true, allowing linked Tasks to stop blocking.  
+		/// Signals that the Trigger's UpdateImpl() has been set to Success or Fail, allowing linked Tasks to stop blocking.  
 		/// </summary>
 		internal ManualResetEventSlim Signal { get; private set; } = new ManualResetEventSlim();
 		
 		public bool IsDisposed { get; private set; }
 
-        /// <summary>
-        ///     Gets a value indicating whether the trigger is completed.
-        /// </summary>
-        public bool IsCompleted { get; private set; }
-		
-		/// <summary>
-		/// Temporary - id to track triggers within a BooQuest.
-		/// </summary>
+		//Id to track triggers within a Quest.
 		internal int Id { get; set; }
 
 		/// <summary>
+		///     Gets a value indicating the state of the trigger.
+		/// </summary>
+		public TriggerStatus Status { get; private set; }
+				
+		/// <summary>
 		/// Temporary holding place for a linked Task.
 		/// </summary>
-		internal Task Task { get; set; }
+		internal Task<TriggerStatus> Task { get; set; }
 		
         /// <summary>
         ///     Updates the trigger.
@@ -46,16 +44,17 @@ namespace CustomQuests.Triggers
                 _isInitialized = true;
             }
 
-            if (IsCompleted)
+            if(Status != TriggerStatus.Running)
             {
                 return;
             }
 
-            if (UpdateImpl())
+			Status = UpdateImpl();
+			
+			if(Status!=TriggerStatus.Running)
             {
 				Signal.Set();
-                IsCompleted = true;
-            }
+			}
         }
 
 		public void Dispose()
@@ -93,6 +92,6 @@ namespace CustomQuests.Triggers
         ///     Updates the trigger.
         /// </summary>
         /// <returns><c>true</c> if the trigger is completed; otherwise, <c>false</c>.</returns>
-        protected internal abstract bool UpdateImpl();
+        protected internal abstract TriggerStatus UpdateImpl();
     }
 }

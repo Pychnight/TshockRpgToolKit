@@ -89,12 +89,14 @@ namespace CustomQuests.Triggers
 		}
 
 		/// <inheritdoc />
-		protected internal override bool UpdateImpl()
+		protected internal override TriggerStatus UpdateImpl()
 		{
 			if( requireEveryone )
-				return partyMembers.All(m => playerOkay.ContainsKey(m.Index) && playerOkay[m.Index] == true );
+				return partyMembers.All(m => playerOkay.ContainsKey(m.Index) && playerOkay[m.Index] == true )
+									.ToTriggerStatus();
 			else
-				return partyMembers.Any(m => playerOkay.ContainsKey(m.Index) && playerOkay[m.Index] == true );
+				return partyMembers.Any(m => playerOkay.ContainsKey(m.Index) && playerOkay[m.Index] == true )
+									.ToTriggerStatus();
 		}
 	}
 }

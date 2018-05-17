@@ -70,19 +70,19 @@ namespace CustomQuests.Triggers
 		}
 
 		/// <inheritdoc />
-		protected internal override bool UpdateImpl()
+		protected internal override TriggerStatus UpdateImpl()
 		{
 			if( requireEveryone )
 			{
 				var validMembers = partyMembers.GetValidMembers();
 
 				if( validMembers.Any() )
-					return validMembers.All(m => playersWhoRead.Contains(m.Index));
+					return validMembers.All(m => playersWhoRead.Contains(m.Index)).ToTriggerStatus();
 				else
-					return false;
+					return TriggerStatus.Fail;
 			}
 			else
-				return playersWhoRead.Count > 0;
+				return (playersWhoRead.Count > 0).ToTriggerStatus();
 		}
 	}
 }

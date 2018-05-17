@@ -72,19 +72,21 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected internal override bool UpdateImpl()
+        protected internal override TriggerStatus UpdateImpl()
 		{
 			if( requireEveryone )
 			{
 				var validMembers = partyMembers.GetValidMembers();
 
 				if( validMembers.Any())
-					return validMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
+					return validMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
+										.ToTriggerStatus();
 				else
-					return false;
+					return TriggerStatus.Fail;
 			}
 			else
-				return partyMembers.Any(p => p.IsValidMember && _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
+				return partyMembers.Any(p => p.IsValidMember && _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
+									.ToTriggerStatus();
 		}
 	}
 }

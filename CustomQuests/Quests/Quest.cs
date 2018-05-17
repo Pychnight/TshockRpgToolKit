@@ -130,7 +130,7 @@ namespace CustomQuests.Quests
 			{
 				trigger.Update();
 
-				if( trigger.IsCompleted )
+				if( trigger.Status != TriggerStatus.Running )
 					completedTriggers.Add(trigger);
 			}
 
