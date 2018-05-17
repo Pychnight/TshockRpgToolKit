@@ -63,7 +63,7 @@ namespace CustomQuests.Triggers
 			if( args.X != signX || args.Y != signY )
 				return;
 
-			var inParty = partyMembers.FirstOrDefault(m => m.Index == args.PlayerIndex);
+			var inParty = partyMembers.FirstOrDefault(m => m.IsValidMember && m.Index == args.PlayerIndex);
 
 			if( inParty != null )
 				playersWhoRead.Add(args.PlayerIndex);
@@ -73,7 +73,14 @@ namespace CustomQuests.Triggers
 		protected internal override bool UpdateImpl()
 		{
 			if( requireEveryone )
-				return partyMembers.All(m => playersWhoRead.Contains(m.Index));
+			{
+				var validMembers = partyMembers.GetValidMembers();
+
+				if( validMembers.Any() )
+					return validMembers.All(m => playersWhoRead.Contains(m.Index));
+				else
+					return false;
+			}
 			else
 				return playersWhoRead.Count > 0;
 		}
