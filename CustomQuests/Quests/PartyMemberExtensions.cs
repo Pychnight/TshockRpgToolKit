@@ -15,6 +15,20 @@ namespace CustomQuests.Quests
 
 	public static class PartyMemberExtensions
 	{
+		#region Helpers
+		
+		/// <summary>
+		///		Helper to filter for PartyMembers that are still valid members of a Party.
+		/// </summary>
+		/// <param name="members"></param>
+		/// <returns></returns>
+		public static IEnumerable<PartyMember> GetValidMembers(this IEnumerable<PartyMember> members)
+		{
+			return members.Where(m => m.IsValidMember);
+		}
+
+		#endregion
+
 		#region Communication
 
 		public static void SendData(this PartyMember member, PacketTypes packetType, string text = "", int number = 0, float number2 = 0,

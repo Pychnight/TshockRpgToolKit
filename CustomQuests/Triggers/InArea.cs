@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CustomQuests.Quests;
 
@@ -71,9 +72,19 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected internal override bool UpdateImpl() =>
-            requireEveryone
-                ? partyMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY)
-                : partyMembers.Any(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
-    }
+        protected internal override bool UpdateImpl()
+		{
+			if( requireEveryone )
+			{
+				var validMembers = partyMembers.GetValidMembers();
+
+				if( validMembers.Any())
+					return validMembers.All(p => _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
+				else
+					return false;
+			}
+			else
+				return partyMembers.Any(p => p.IsValidMember && _minX <= p.TileX && p.TileX <= _maxX && _minY <= p.TileY && p.TileY <= _maxY);
+		}
+	}
 }

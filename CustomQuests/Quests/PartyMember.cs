@@ -21,6 +21,10 @@ namespace CustomQuests.Quests
 		public int TileX => Player.TileX;
 		public int TileY => Player.TileY;
 
+		/// <summary>
+		///		Gets a value that determines whether the PartyMember is still connected to the party. 
+		/// </summary>
+		public bool IsValidMember { get; internal set; }
 		public Team Team { get; internal set; }
 		public bool HasTeam => Team != null;
 
@@ -45,13 +49,13 @@ namespace CustomQuests.Quests
 
 		public QuestStatusCollection QuestStatuses { get; internal set; } 
 
-		public PartyMember(TSPlayer player)
+		internal PartyMember(TSPlayer player)
 		{
 			Player = player;
 			Items = new PlayerInventoryManager(player);
 			Variables = new Dictionary<string, object>();
 			QuestStatuses = new QuestStatusCollection();
-
+			
 			SpawnTileX = Main.spawnTileX;
 			SpawnTileY = Main.spawnTileY;
 		}

@@ -28,7 +28,12 @@ namespace CustomQuests.Quests
 		{
 			Name = name;
 			//playerIndexToPartyIndex = new Dictionary<int, int>();
-			partyMembers = new List<PartyMember>(players.Select(p => new PartyMember(p)));
+			partyMembers = new List<PartyMember>(players.Count());
+
+			//use Add() so that IsValidMember gets set( along with any future housekeeping data... ) 
+			foreach( var p in players )
+				Add(p);
+
 			Teams = new TeamManager(this);
 		}
 
@@ -38,6 +43,7 @@ namespace CustomQuests.Quests
 			{
 				var member = new PartyMember(player);
 				partyMembers.Add(member);
+				member.IsValidMember = true;
 			}
 		}
 
@@ -47,7 +53,9 @@ namespace CustomQuests.Quests
 
 			if(index>-1)
 			{
+				var member = partyMembers[index];
 				partyMembers.RemoveAt(index);
+				member.IsValidMember = false;
 
 				//if(index==0 && Count > 0 && notifyLeaderChange)
 				//{
