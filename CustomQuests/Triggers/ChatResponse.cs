@@ -55,7 +55,7 @@ namespace CustomQuests.Triggers
 
         private void OnChat(ServerChatEventArgs args)
         {
-            if( members.Any(p => p.Index == args.Who) && args.Text.Equals(responseString, StringComparison.OrdinalIgnoreCase) )
+            if( members.Any(p => p.IsValidMember && p.Index == args.Who) && args.Text.Equals(responseString, StringComparison.OrdinalIgnoreCase) )
 			{
 				responded = true;
 				args.Handled = true;

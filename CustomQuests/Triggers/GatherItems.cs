@@ -152,7 +152,7 @@ namespace CustomQuests.Triggers
                     _blacklistedIndexes.Add(index);
                 }
             }
-            else if (partyMembers.Any(p => p.Player.Index == player.Index))
+            else if (partyMembers.Any(p => p.IsValidMember && p.Player.Index == player.Index))
             {
                 var index = args.ID;
                 var item = Main.item[index];

@@ -46,7 +46,7 @@ namespace CustomQuests.Triggers
 		{
 			if( args.ChestX == chestX && args.ChestY == chestY-1 ) //this -1 offset stems from MarioE's original PlaceChest function. Not sure why its done like this.
 			{
-				if(partyMembers.Any( m => m.Index == args.PlayerIndex ))
+				if(partyMembers.Any( m => m.IsValidMember && m.Index == args.PlayerIndex ))
 					unlocked = true;
 			}
 		}

@@ -134,7 +134,7 @@ namespace CustomQuests.Triggers
 			if(args.ChestId == chestId)
 			{
 				Debug.Print("ChestGatherItems Trigger detected chest modifications.");
-				if( partyMembers.Any( m => m.Index == args.PlayerIndex))
+				if( partyMembers.Any( m => m.IsValidMember && m.Index == args.PlayerIndex))
 				{
 					chestItemChanges.Enqueue(args);
 				}
