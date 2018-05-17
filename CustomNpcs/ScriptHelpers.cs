@@ -50,6 +50,7 @@ namespace CustomNpcs
 
 #pragma warning disable 612, 618
 			var sysAss = Assembly.LoadWithPartialName("System");
+			var sysCore = Assembly.LoadWithPartialName("System.Core");
 #pragma warning restore 612, 618
 
 			var otapiAss = Assembly.GetAssembly(typeof(Vector2));
