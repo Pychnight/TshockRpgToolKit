@@ -124,6 +124,7 @@ namespace CustomQuests
 
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
+			ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 			ServerApi.Hooks.NetSendData.Register(this, OnSendData);
 			ServerApi.Hooks.NetGetData.Register(this, onGetData);
@@ -382,6 +383,7 @@ namespace CustomQuests
                 GetDataHandlers.PlayerTeam -= OnPlayerTeam;
                 GetDataHandlers.TileEdit -= OnTileEdit;
                 ServerApi.Hooks.NetSendData.Deregister(this, OnSendData);
+				ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
                 ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
             }
@@ -445,20 +447,44 @@ namespace CustomQuests
 			}
         }
 
+		private void OnJoin(JoinEventArgs args)
+		{
+			if( args.Who < 0 || args.Who >= Main.maxPlayers )
+			{
+				return;
+			}
+
+			var player = TShock.Players[args.Who];
+
+			if( player != null )
+			{
+				Task.Delay(1750).ContinueWith(t =>
+				{
+					var session = GetSession(player);
+					session.RejoinQuest();
+				});
+			}
+		}
+
         private void OnLeave(LeaveEventArgs args)
         {
             if (args.Who < 0 || args.Who >= Main.maxPlayers)
             {
                 return;
             }
-
+			
             var player = TShock.Players[args.Who];
             if (player != null)
             {
                 var session = GetSession(player);
                 if (session.Party != null)
                 {
-                    session.Dispose();
+					if(session.CurrentQuest!=null && session.CurrentQuest.MainQuestTask.Status == TaskStatus.Running)
+					{
+						session.CurrentQuest.TryAddRejoinablePlayer(player);
+					}
+
+					session.Dispose();
 					Debug.Print("Disabled SetQuestState() in OnLeave().");
                     //session.SetQuestState(null);
                 }

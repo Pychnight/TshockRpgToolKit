@@ -198,6 +198,60 @@ namespace CustomQuests.Sessions
 		//	}
 		//}
 
+		public void RejoinQuest()
+		{
+			var quest = CustomQuestsPlugin.Instance.QuestRunner.GetRejoinableQuest(_player);
+
+			if(quest!=null)
+			{
+				_player.SendInfoMessage($"Rejoin the '{quest.party.Name}' party, on quest '{quest.QuestInfo.FriendlyName}'?");
+				_player.SendInfoMessage("Use /accept or /decline ");
+				_player.AwaitingResponse.Add("accept", args2 =>
+				{
+					if( Party != null )
+					{
+						_player.SendErrorMessage("You cannot rejoin the quest if you are already in a party.");
+						_player.AwaitingResponse.Remove("decline");
+						return;
+					}
+
+					if(quest.MainQuestTask.Status!=TaskStatus.Running)
+					{
+						_player.SendErrorMessage("Sorry, but the quest is over now.");
+						_player.AwaitingResponse.Remove("decline");
+						return;
+					}
+
+					Party = quest.party;
+					CurrentQuest = quest;
+
+					//Debug.Print("TEAM: PartyInvite()... link party to new player!");
+					_player.TPlayer.team = 1;
+					quest.party.SendData(PacketTypes.PlayerTeam, "", _player.Index);
+					_player.TPlayer.team = 0;
+
+					Party.SendInfoMessage($"{_player.Name} has rejoined the party.");
+					Party.Add(_player);
+
+					foreach( var member in Party )
+					{
+						//Debug.Print("TEAM: PartyInvite()... link new player to existing party member!");
+						member.Player.TPlayer.team = 1;
+						_player.SendData(PacketTypes.PlayerTeam, "", member.Index);
+						member.Player.TPlayer.team = 0;
+					}
+
+					_player.SendSuccessMessage($"Rejoined the '{Party.Name}' party.");
+					_player.AwaitingResponse.Remove("decline");
+				});
+				_player.AwaitingResponse.Add("decline", args2 =>
+				{
+					_player.SendSuccessMessage("The party will continue on without you.");
+					_player.AwaitingResponse.Remove("accept");
+				});
+			}
+		}
+
 		/// <summary>
 		/// Clears all quest data.
 		/// </summary>

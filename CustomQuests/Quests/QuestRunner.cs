@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace CustomQuests.Quests
 {
@@ -104,5 +105,13 @@ namespace CustomQuests.Quests
 		//{
 
 		//}
+
+		internal Quest GetRejoinableQuest(TSPlayer player)
+		{
+			var rejoinableQuests = quests.Values.Where(v => v.MainQuestTask.Status == TaskStatus.Running && v.QuestInfo.AllowRejoin);
+			var firstRejoinableQuest = rejoinableQuests.FirstOrDefault(q => q.RejoinablePlayers.Contains(player.Name));
+
+			return firstRejoinableQuest;
+		}
 	}
 }

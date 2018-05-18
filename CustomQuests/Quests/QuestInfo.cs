@@ -52,6 +52,11 @@ namespace CustomQuests.Quests
         /// </summary>
         public string RequiredRegionName { get; set; }
 
+		/// <summary>
+		///		Gets or sets whether party members are allowed to rejoin the quest.
+		/// </summary>
+		public bool AllowRejoin { get; set; }
+
 		public override string ToString()
 		{
 			return $"{{{Name}|'{FriendlyName}'}}";

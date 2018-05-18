@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
+using TShockAPI;
 
 namespace CustomQuests.Quests
 {
@@ -45,11 +46,15 @@ namespace CustomQuests.Quests
 		public string QuestStatus { get; set; }
 		public Color QuestStatusColor { get; set; } // = Color.White;
 
+		internal HashSet<string> RejoinablePlayers { get; private set; }
+		
 		public Quest()
 		{
 			CancellationTokenSource = new CancellationTokenSource();
 			triggers = new ConcurrentDictionary<int, Trigger>();
 			QuestStatusColor = Color.White;
+
+			RejoinablePlayers = new HashSet<string>();
 		}
 		
 		/// <summary>
@@ -63,6 +68,26 @@ namespace CustomQuests.Quests
 			}
 		}
 
+		internal void TryAddRejoinablePlayer(TSPlayer player)
+		{
+			if( !QuestInfo.AllowRejoin )
+				return;
+
+			RejoinablePlayers.Add(player.Name);
+		}
+
+		internal bool CanRejoin(TSPlayer player)
+		{
+			if( !QuestInfo.AllowRejoin )
+				return false;
+
+			if( RejoinablePlayers.Contains(player.Name) )
+				return true;
+
+			return false;
+		}
+
+		
 		internal void Run()
 		{
 			MainQuestTask = Task.Run(() => OnRun());

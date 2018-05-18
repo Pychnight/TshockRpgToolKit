@@ -30,7 +30,7 @@ namespace CustomQuests.Quests
 			//playerIndexToPartyIndex = new Dictionary<int, int>();
 			partyMembers = new List<PartyMember>(players.Count());
 
-			//use Add() so that IsValidMember gets set( along with any future housekeeping data... ) 
+			//use Add() so that IsValidMember gets set( along with any future housekeeping ) 
 			foreach( var p in players )
 				Add(p);
 
