@@ -419,5 +419,59 @@ namespace CustomQuests
 			}
 			return npcs.ToArray();
 		}
+
+		/// <summary>
+		///		Spawns a Projectile. 
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="speedX"></param>
+		/// <param name="speedY"></param>
+		/// <param name="type"></param>
+		/// <param name="damage"></param>
+		/// <param name="knockBack"></param>
+		/// <param name="owner"></param>
+		/// <param name="ai0"></param>
+		/// <param name="ai1"></param>
+		/// <param name="amount"></param>
+		/// <returns>Projectile array.</returns>
+		public static Projectile[] SpawnProjectile(float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner, float ai0, float ai1, int amount)
+		{
+			var projectiles = new Projectile[amount];
+
+			for(var i = 0;i<projectiles.Length;i++ )
+			{
+				var projectileId = Projectile.NewProjectile(x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
+				TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
+				projectiles[i] = Main.projectile[projectileId];
+			}
+			
+			return projectiles;
+		}
+		
+		/// <summary>
+		///     Spawns a custom projectile with the specified name at a position.
+		/// </summary>
+		/// <param name="name">The name, which must be a valid projectile name and not <c>null</c>.</param>
+		/// <param name="position">The position.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+		/// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
+		public static Projectile[] SpawnCustomProjectile(int owner, string name, float x, float y, float xSpeed, float ySpeed, int amount )
+		{
+			var projectiles = new Projectile[amount];
+						
+			for(var i = 0;i<projectiles.Length; i++)
+			{
+				var cp = CustomNpcs.ProjectileFunctions.SpawnCustomProjectile(owner, name, x, y, xSpeed, ySpeed);
+
+				if( cp != null )
+				{
+					projectiles[i] = cp.Projectile;
+				}
+			}
+			
+			return projectiles;
+		}
 	}
 }
