@@ -30,6 +30,7 @@ namespace CustomNpcs
 				"Corruption.PlayerFunctions",
 				"Corruption.PlayerCommandFunctions",
 				"Corruption.NpcFunctions",
+				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
 				"CustomNpcs",
 				"CustomNpcs.Invasions",
