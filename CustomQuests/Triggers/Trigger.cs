@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TShockAPI;
+using TShockAPI.Localization;
 
 namespace CustomQuests.Triggers
 {
@@ -93,5 +96,33 @@ namespace CustomQuests.Triggers
         /// </summary>
         /// <returns><c>true</c> if the trigger is completed; otherwise, <c>false</c>.</returns>
         protected internal abstract TriggerStatus UpdateImpl();
-    }
+
+		//this should probably be moved into Corruption...
+		internal static HashSet<string> BuildNpcNameHashSet(IEnumerable<object> typesOrNames)
+		{
+			//we now ignore invalid inputs, and just keep valid ones.
+			var validInputs = typesOrNames.Where(o => o is string || o is int);
+			var types = validInputs.Select(o => GetNPCName(o));
+			var validTypes = types.Where(s => s != null);
+
+			return new HashSet<string>(validTypes);
+		}
+
+		//this should probably be moved into Corruption...
+		internal static string GetNPCName(object value)
+		{
+			if( value is string )
+			{
+				return value as string;
+			}
+			else if( value is int )
+			{
+				var id = (int)value;
+				var name = EnglishLanguage.GetNpcNameById(id);//think id should be renamed 'type'
+				return name;
+			}
+
+			return null;
+		}
+	}
 }

@@ -71,7 +71,12 @@ namespace CustomQuests
 		///     Gets the version.
 		/// </summary>
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-		
+
+		/// <summary>
+		///		Event fired when an NPC is caught.
+		/// </summary>
+		public event EventHandler<CatchNpcEventArgs> CatchNpc;
+
 		/// <summary>
 		///		Event fired when a chest is unlocked.
 		/// </summary>
@@ -190,6 +195,19 @@ namespace CustomQuests
 
 			switch(args.MsgID)
 			{
+				case PacketTypes.CatchNPC:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var npcId = reader.ReadInt16();
+						//var who = reader.ReadByte();
+
+						onCatchNpc(args.Msg.whoAmI, npcId);
+					}
+					break;
+
+				case PacketTypes.ReleaseNPC:
+					break;
+
 				case PacketTypes.ChestUnlock:
 					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
 					{
@@ -240,7 +258,31 @@ namespace CustomQuests
 						onSignChanged(args.Msg.whoAmI, signId, x, y, txt);
 					}
 					break;
+
+				//case PacketTypes.PlayerSpawn:
+				//	var id = args.Msg.whoAmI;
+				//	var player = TShock.Players[id];
+					
+				//	if(!player.InitSpawn)
+				//	{
+				//		player.Spawn(2137,242);
+				//	}
+
+				//	break;
+
+				//case PacketTypes.PlayerSpawnSelf:
+				//	break;
 			}
+		}
+
+		void onCatchNpc(int playerIndex, int npcId )
+		{
+			Debug.Print("CatchNPC!");
+			Debug.Print($"PlayerIndex: {playerIndex}");
+			Debug.Print($"npcId: {npcId}");
+			//Debug.Print($"who: {who}");
+
+			CatchNpc?.Invoke(this,new CatchNpcEventArgs(playerIndex, npcId));
 		}
 
 		void onChestUnlock(int playerIndex, int x, int y)

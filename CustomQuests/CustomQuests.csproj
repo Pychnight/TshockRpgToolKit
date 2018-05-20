@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CatchNpcEventArgs.cs" />
     <Compile Include="ChestItemChangedEventArgs.cs" />
     <Compile Include="ChestUnlockedEventArgs.cs" />
     <Compile Include="Config.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Sessions\SqliteSessionRepository.cs" />
     <Compile Include="SignChangedEventArgs.cs" />
     <Compile Include="SignReadEventArgs.cs" />
+    <Compile Include="Triggers\CatchNpcs.cs" />
     <Compile Include="Triggers\ChangeSign.cs" />
     <Compile Include="Triggers\ChatResponse.cs" />
     <Compile Include="Triggers\ChestGatherItems.cs" />

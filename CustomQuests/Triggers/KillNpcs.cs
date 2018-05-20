@@ -47,29 +47,8 @@ namespace CustomQuests.Triggers
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
 		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes)
 		{
-			if( partyMembers == null )
-				throw new ArgumentNullException(nameof(partyMembers));
-
-			this.partyMembers = partyMembers;
-			
-			//{
-			//	var name = GetNPCName(npcNames);
-			//	if( name == null )
-			//		throw new ArgumentException(nameof(npcNames), "Must be a string, double, or LuaTable.");
-
-			//	this.npcNames = new HashSet<string>() { name };
-			//}
-			
-			//we now ignore invalid inputs, and just keep valid ones.
-			var validInputs = npcTypes.Where(o => o is string || o is int);
-			var types = validInputs.Select( o => GetNPCName(o));
-			var validTypes = types.Where(s => s != null);
-
-			this.npcTypes = new HashSet<string>(validTypes);
-
-			Debug.Print("KillNpcList:");
-			foreach( var n in this.npcTypes )
-				Debug.Print(n);
+			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
+			this.npcTypes = BuildNpcNameHashSet(npcTypes);
 			
 			_amount = amount > 0
 				? amount
@@ -83,10 +62,7 @@ namespace CustomQuests.Triggers
 		/// <param name="amount"></param>
 		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount)
 		{
-			if( partyMembers == null )
-				throw new ArgumentNullException(nameof(partyMembers));
-
-			this.partyMembers = partyMembers;
+			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 			this.npcTypes = null;
 
 			_amount = amount > 0
@@ -97,23 +73,7 @@ namespace CustomQuests.Triggers
 		public KillNpcs(PartyMember partyMember) : this(partyMember.ToEnumerable(), 1)
 		{
 		}
-
-		string GetNPCName(object value)
-		{
-			if(value is string)
-			{
-				return value as string;
-			}
-			else if (value is int)
-			{
-				var id = (int)value;
-				var name = EnglishLanguage.GetNpcNameById(id);//think id should be renamed 'type'
-				return name;
-			}
-
-			return null;
-		}
-
+		
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
         {
