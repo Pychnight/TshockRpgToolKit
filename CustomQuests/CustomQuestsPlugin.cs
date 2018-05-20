@@ -78,6 +78,11 @@ namespace CustomQuests
 		public event EventHandler<CatchNpcEventArgs> CatchNpc;
 
 		/// <summary>
+		///		Event fired when an NPC is released.
+		/// </summary>
+		public event EventHandler<ReleaseNpcEventArgs> ReleaseNpc;
+
+		/// <summary>
 		///		Event fired when a chest is unlocked.
 		/// </summary>
 		public event EventHandler<ChestUnlockedEventArgs> ChestUnlocked;
@@ -206,6 +211,15 @@ namespace CustomQuests
 					break;
 
 				case PacketTypes.ReleaseNPC:
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var x = reader.ReadInt32();
+						var y = reader.ReadInt32();
+						var npcType = reader.ReadInt16();
+						var style = reader.ReadByte();
+						
+						onReleaseNpc(args.Msg.whoAmI, x, y, npcType, style);
+					}
 					break;
 
 				case PacketTypes.ChestUnlock:
@@ -282,7 +296,19 @@ namespace CustomQuests
 			Debug.Print($"npcId: {npcId}");
 			//Debug.Print($"who: {who}");
 
-			CatchNpc?.Invoke(this,new CatchNpcEventArgs(playerIndex, npcId));
+			CatchNpc?.Invoke(this, new CatchNpcEventArgs(playerIndex, npcId));
+		}
+
+		void onReleaseNpc(int playerIndex, int x, int y, short npcType, byte style)
+		{
+			Debug.Print("ReleaseNPC!");
+			Debug.Print($"PlayerIndex: {playerIndex}");
+			Debug.Print($"x: {x}");
+			Debug.Print($"y: {y}");
+			Debug.Print($"npcType: {npcType}");
+			Debug.Print($"style: {style}");
+
+			ReleaseNpc?.Invoke(this, new ReleaseNpcEventArgs(playerIndex, x, y, npcType, style));
 		}
 
 		void onChestUnlock(int playerIndex, int x, int y)

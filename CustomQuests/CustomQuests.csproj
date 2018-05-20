@@ -96,6 +96,7 @@
     <Compile Include="CustomQuestsPlugin.cs" />
     <Compile Include="Quests\QuestLoader.cs" />
     <Compile Include="Quests\QuestRunner.cs" />
+    <Compile Include="ReleaseNpcEventArgs.cs" />
     <Compile Include="Scripting\ModuleToInstanceClassStep.cs" />
     <Compile Include="Quests\Party.cs" />
     <Compile Include="Quests\PartyMember.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Triggers\InArea.cs" />
     <Compile Include="Triggers\KillNpcs.cs" />
     <Compile Include="Triggers\ReadSign.cs" />
+    <Compile Include="Triggers\ReleaseNpcs.cs" />
     <Compile Include="Triggers\Trigger.cs" />
     <Compile Include="Triggers\TriggerStatus.cs" />
   </ItemGroup>
