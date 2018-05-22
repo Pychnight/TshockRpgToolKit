@@ -146,7 +146,13 @@ namespace CustomQuests
 				player.SendErrorMessage("You are not in a party.");
 				return;
 			}
-
+						
+			if( player != party.Leader.Player )
+			{
+				player.SendErrorMessage("You are not the party leader.");
+				return;
+			}
+			
 			var inputPlayer = parameters[1];
 			var players = TShock.Utils.FindPlayer(inputPlayer);
 			if( players.Count == 0 )
