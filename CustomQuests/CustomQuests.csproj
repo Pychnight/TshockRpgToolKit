@@ -94,6 +94,8 @@
     <Compile Include="Config.cs" />
     <Compile Include="CustomQuestsPlugin.Commands.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
+    <Compile Include="Database\DatabaseFactory.cs" />
+    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Quests\QuestLoader.cs" />
     <Compile Include="Quests\QuestRunner.cs" />
     <Compile Include="ReleaseNpcEventArgs.cs" />
