@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CustomQuests.Quests;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -11,10 +12,10 @@ namespace CustomQuests.Sessions
     public sealed class SessionInfo
     {
         /// <summary>
-        ///     Gets the available quest names.
+        ///     Gets the unlocked quest names.
         /// </summary>
         [NotNull]
-        public HashSet<string> AvailableQuestNames { get; } = new HashSet<string>();
+        public HashSet<string> UnlockedQuestNames { get; } = new HashSet<string>();
 
         /// <summary>
         ///     Gets the completed quest names.
@@ -42,10 +43,15 @@ namespace CustomQuests.Sessions
 		//public QuestStatusCollection QuestStatusManager { get; set; } = new QuestStatusCollection();
 		
 		/// <summary>
-		///     Gets the repeated quest names.
+		///     Gets the number of attempts per quest.
 		/// </summary>
-		[NotNull]
-		public Dictionary<string, int> RepeatedQuestNames { get; } = new Dictionary<string, int>();
+		public Dictionary<string, int> QuestAttempts { get; } = new Dictionary<string, int>();
+		
+		/// <summary>
+		///		Gets or sets a Dictionary containing time stamps of the first attempt at Quest.
+		/// </summary>
+		/// <remarks>This is used to determine quest reset times.</remarks>
+		public Dictionary<string, DateTime> QuestFirstAttemptTimes { get; set; } = new Dictionary<string, DateTime>();
 
 		//public SavePoint GetOrCreateSavePoint(string questName, bool isPartyLeader)
 		//{

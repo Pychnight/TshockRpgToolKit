@@ -615,11 +615,12 @@ namespace CustomQuests
         private void OnGameUpdate(EventArgs args)
         {
 			QuestRunner.Update();
-
+						
             foreach (var player in TShock.Players.Where(p => p?.User != null))
             {
                 var session = GetSession(player);
                 session.CheckQuestCompleted();
+				session.CheckRepeatInterval();
             }
 
             if (DateTime.UtcNow > _lastSave + _config.SavePeriod)

@@ -546,9 +546,9 @@ namespace CustomQuests
 				return;
 			}
 
-			var availableQuests = session.AvailableQuestNames.Where(n => QuestLoader.Contains(n))
+			var availableQuests = session.UnlockedQuestNames.Where(n => QuestLoader.Contains(n))
 											.Select(n => QuestLoader[n])
-											.Where(session.CanSeeQuest)
+											.Where(session.CanAcceptQuest)
 											.ToList();
 
 			var inputName = string.Join(" ", parameters.Skip(1));
@@ -584,9 +584,9 @@ namespace CustomQuests
 					player.SendErrorMessage("Only the party leader can accept a quest.");
 					return;
 				}
-				if( party.Select(GetSession).Any(s => !s.AvailableQuestNames.Contains(questInfo.Name) &&
+				if( party.Select(GetSession).Any(s => !s.UnlockedQuestNames.Contains(questInfo.Name) &&
 													  !s.CompletedQuestNames.Contains(questInfo.Name)) ||
-					party.Select(GetSession).Any(s => !s.CanSeeQuest(questInfo)) )
+					party.Select(GetSession).Any(s => !s.CanAcceptQuest(questInfo)) )
 				{
 					player.SendErrorMessage($"Not everyone can start the quest '{questInfo.FriendlyName}'.");
 					return;
@@ -658,8 +658,8 @@ namespace CustomQuests
 
 			var session = GetSession(player);
 
-			var quests = session.AvailableQuestNames.Where(s => QuestLoader[s] != null).Select(s => QuestLoader[s]);
-			var availableQuests = quests.Where(q => session.CanSeeQuest(q) || session.CurrentQuestName == q.Name).ToList();
+			var quests = session.UnlockedQuestNames.Where(s => QuestLoader[s] != null).Select(s => QuestLoader[s]);
+			var availableQuests = quests.Where(q => session.CanAcceptQuest(q) || session.CurrentQuestName == q.Name).ToList();
 
 			//...because sometimes quests are renamed, or removed...
 			var validCompletedQuests = session.CompletedQuestNames.Where(q => QuestLoader[q] != null);
@@ -734,7 +734,7 @@ namespace CustomQuests
 
 			var session2 = GetSession(player2);
 			var inputName = parameters.Last();
-			if( !session2.AvailableQuestNames.Contains(inputName) && !session2.CompletedQuestNames.Contains(inputName) )
+			if( !session2.UnlockedQuestNames.Contains(inputName) && !session2.CompletedQuestNames.Contains(inputName) )
 			{
 				player.SendErrorMessage(
 					$"{( player2 == player ? "You have" : $"{player2.Name} has" )} not unlocked quest '{inputName}'.");
@@ -786,7 +786,7 @@ namespace CustomQuests
 
 			var session2 = GetSession(player2);
 			var inputName = parameters.Last();
-			if( session2.AvailableQuestNames.Contains(inputName) )
+			if( session2.UnlockedQuestNames.Contains(inputName) )
 			{
 				player.SendErrorMessage(
 					$"{( player2 == player ? "You have" : $"{player2.Name} has" )} already unlocked quest '{inputName}'.");

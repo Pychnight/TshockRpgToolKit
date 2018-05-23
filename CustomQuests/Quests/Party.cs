@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomQuests.Sessions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -135,12 +136,15 @@ namespace CustomQuests.Quests
 			return GetEnumerator();
 		}
 
-		internal void InitializeFromSessions(QuestInfo questInfo)
+		internal void OnPreStart(QuestInfo questInfo)
 		{
 			foreach(var m in this)
 			{
 				var session = CustomQuestsPlugin.Instance.GetSession(m);
 
+				updateQuestAttempts(questInfo, session);
+				
+				//try to restore previous status
 				if(!session.QuestProgress.TryGetValue(questInfo.Name,out var statuses))
 				{
 					Debug.Print("Using PartyMembers quest status.");
@@ -155,6 +159,27 @@ namespace CustomQuests.Quests
 					m.QuestStatuses = statuses;
 				}
 			}
+		}
+
+		//updates the amount of attempts, and initializes the repeat interval reset timer.
+		private void updateQuestAttempts(QuestInfo questInfo, Session session)
+		{
+			var sessionInfo = session.SessionInfo;
+			
+			if( !sessionInfo.QuestFirstAttemptTimes.ContainsKey(questInfo.Name) )
+			{
+				sessionInfo.QuestFirstAttemptTimes[questInfo.Name] = DateTime.Now;
+				sessionInfo.QuestAttempts[questInfo.Name] = 1;
+				return;
+			}
+			
+			if( sessionInfo.QuestAttempts.TryGetValue(questInfo.Name, out var attempts) )
+			{
+				sessionInfo.QuestAttempts[questInfo.Name] = ++attempts;
+				return;
+			}
+
+			throw new Exception("updateAttempts() should never reach this point.");
 		}
 	}
 }

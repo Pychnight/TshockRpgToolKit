@@ -38,11 +38,11 @@ namespace CustomQuests.Sessions
         }
 
         /// <summary>
-        ///     Gets a read-only view of the available quest names.
+        ///     Gets a read-only view of the unlocked quest names.
         /// </summary>
         [ItemNotNull]
         [NotNull]
-        public IEnumerable<string> AvailableQuestNames => SessionInfo.AvailableQuestNames;
+        public IEnumerable<string> UnlockedQuestNames => SessionInfo.UnlockedQuestNames;
 
         /// <summary>
         ///     Gets a read-only view of the completed quest names.
@@ -50,7 +50,7 @@ namespace CustomQuests.Sessions
         [ItemNotNull]
         [NotNull]
         public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
-			
+		
         /// <summary>
         ///     Gets or sets the current quest.
         /// </summary>
@@ -110,27 +110,81 @@ namespace CustomQuests.Sessions
             CurrentQuest = null;
         }
 
+		public bool CanRepeatQuest(QuestInfo questInfo)
+		{
+			if( questInfo == null )
+			{
+				throw new ArgumentNullException(nameof(questInfo));
+			}
+
+			//can repeat quest?
+			if( questInfo.MaxRepeats > -1 )
+			{
+				if( SessionInfo.QuestAttempts.TryGetValue(questInfo.Name, out var attempts) )
+				{
+					if( attempts > questInfo.MaxRepeats )
+					{
+						if( SessionInfo.QuestFirstAttemptTimes.TryGetValue(questInfo.Name, out var firstAttemptTime) )
+						{
+							if( DateTime.Now - firstAttemptTime < questInfo.RepeatResetInterval )
+							{
+								return false;//we've hit max allowed attempts, but timer hasnt reset
+							}
+							//else
+							//{
+							//	SessionInfo.RepeatedQuestNames.Remove(questInfo.Name);
+							//}
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
+		public bool CanAcceptQuest(QuestInfo questInfo)
+		{
+			if( questInfo == null )
+			{
+				throw new ArgumentNullException(nameof(questInfo));
+			}
+
+			if( CustomQuestsPlugin.Instance.QuestLoader.IsQuestInvalid(questInfo.Name) )
+				return false;
+
+			if( !CanRepeatQuest(questInfo) )
+				return false;
+						
+			var result = questInfo.RequiredRegionName == null ||
+					TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
+						.Any(r => r.Name == questInfo.RequiredRegionName);
+
+			return result;
+		}
+
         /// <summary>
         ///     Determines whether the session can see the specified quest.
         /// </summary>
         /// <param name="questInfo">The quest information, which must not be <c>null</c>.</param>
         /// <returns><c>true</c> if the session can see the quest; otherwise, <c>false</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="questInfo" /> is <c>null</c>.</exception>
-        public bool CanSeeQuest([NotNull] QuestInfo questInfo)
+        public bool CanSeeQuest(QuestInfo questInfo)
         {
-            if (questInfo == null)
-            {
-                throw new ArgumentNullException(nameof(questInfo));
-            }
+			//         if (questInfo == null)
+			//         {
+			//             throw new ArgumentNullException(nameof(questInfo));
+			//         }
 
-			if( CustomQuestsPlugin.Instance.QuestLoader.IsQuestInvalid(questInfo.Name) )
-				return false;
+			//if( CustomQuestsPlugin.Instance.QuestLoader.IsQuestInvalid(questInfo.Name) )
+			//	return false;
 
-            var result = questInfo.RequiredRegionName == null ||
-                   TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
-                       .Any(r => r.Name == questInfo.RequiredRegionName);
+			//         var result = questInfo.RequiredRegionName == null ||
+			//                TShock.Regions.InAreaRegion(_player.TileX, _player.TileY)
+			//                    .Any(r => r.Name == questInfo.RequiredRegionName);
 
-			return result;
+			//return result;
+
+			return CanAcceptQuest(questInfo);
         }
 
 		///// <summary>
@@ -259,14 +313,15 @@ namespace CustomQuests.Sessions
 		{
 			var si = SessionInfo;
 
-			si.AvailableQuestNames.Clear();
+			si.UnlockedQuestNames.Clear();
 			si.CompletedQuestNames.Clear();
-			si.RepeatedQuestNames.Clear();
+			si.QuestAttempts.Clear();
+			si.QuestFirstAttemptTimes.Clear();
 
 			this.QuestProgress.Clear();
 
 			foreach( var name in CustomQuestsPlugin.Instance._config.DefaultQuestNames )
-				si.AvailableQuestNames.Add(name);
+				si.UnlockedQuestNames.Add(name);
 
 			CustomQuestsPlugin.Instance._sessionManager.sessionRepository.Save(si, _player.Name);
 		}
@@ -320,7 +375,7 @@ namespace CustomQuests.Sessions
 
 			//ensure there is a party set, even if a solo player.
 			Party = Party ?? new Party(_player.Name, _player);
-			Party.InitializeFromSessions(questInfo);
+			Party.OnPreStart(questInfo);
 						
 			var result = CustomQuestsPlugin.Instance.QuestRunner.Start(questInfo, Party, this);
 
@@ -343,7 +398,7 @@ namespace CustomQuests.Sessions
                 throw new ArgumentNullException(nameof(name));
             }
 
-            SessionInfo.AvailableQuestNames.Remove(name);
+            SessionInfo.UnlockedQuestNames.Remove(name);
             SessionInfo.CompletedQuestNames.Remove(name);
 			this.QuestProgress.Remove(name);
 		}
@@ -360,7 +415,7 @@ namespace CustomQuests.Sessions
                 throw new ArgumentNullException(nameof(name));
             }
 
-            SessionInfo.AvailableQuestNames.Add(name);
+            SessionInfo.UnlockedQuestNames.Add(name);
         }
 
         /// <summary>
@@ -388,39 +443,70 @@ namespace CustomQuests.Sessions
 				//remove save point
 				Debug.Print("UpdateQuest() Should remove savepoints here!");
 				//SessionInfo.RemoveSavePoint(this.CurrentQuestInfo.Name, isPartyLeader);
-				
+
+				QuestProgress.Remove(CurrentQuestName);
+				//var repeatedQuestNames = SessionInfo.RepeatedQuestNames;
+								
 				if (CurrentQuest.IsSuccessful)
                 {
-                    var repeatedQuests = SessionInfo.RepeatedQuestNames;
+                    //var repeatedQuests = SessionInfo.RepeatedQuestNames;
                     
-                    if (CurrentQuestInfo.MaxRepeats >= 0)
-                    {
-                        if (repeatedQuests.TryGetValue(CurrentQuestName, out var repeats))
-                        {
-                            repeatedQuests[CurrentQuestName] = repeats + 1;
-                        }
-                        else
-                        {
-                            repeatedQuests[CurrentQuestName] = 1;
-                        }
-                        if (repeatedQuests[CurrentQuestName] > CurrentQuestInfo.MaxRepeats)
-                        {
-                            SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
-                            SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
-                            repeatedQuests.Remove(CurrentQuestName);
-							QuestProgress.Remove(CurrentQuestName);
-                        }
-                    }
+                    //if (CurrentQuestInfo.MaxRepeats >= 0)
+                    //{
+                    //    if (repeatedQuests.TryGetValue(CurrentQuestName, out var repeats))
+                    //    {
+                    //        repeatedQuests[CurrentQuestName] = repeats + 1;
+                    //    }
+                    //    else
+                    //    {
+                    //        repeatedQuests[CurrentQuestName] = 1;
+                    //    }
+                    //    if (repeatedQuests[CurrentQuestName] > CurrentQuestInfo.MaxRepeats)
+                    //    {
+                    //        SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
+                    //        SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
+                    //        repeatedQuests.Remove(CurrentQuestName);
+							
+                    //    }
+                    //}
                     _player.SendSuccessMessage("Quest completed!");
                 }
                 else
                 {
-					QuestProgress.Remove(CurrentQuestName);
 					_player.SendErrorMessage("Quest failed.");
                 }
 
                 Dispose();
             }
         }
+
+		public void CheckRepeatInterval()
+		{
+			if( CurrentQuest != null )
+				return;
+
+			var removalList = new List<string>();
+			var now = DateTime.Now;
+
+			foreach(var kvp in SessionInfo.QuestFirstAttemptTimes)
+			{
+				var questInfo = CustomQuestsPlugin.Instance.QuestLoader[kvp.Key];
+
+				if( questInfo == null )
+					continue;
+
+				if( now - kvp.Value >= questInfo.RepeatResetInterval )
+				{
+					removalList.Add(questInfo.Name);
+					Debug.Print($"Resetting {this._player.Name}'s attempts for {questInfo.Name}.");
+				}
+			}
+
+			foreach( var name in removalList )
+			{
+				SessionInfo.QuestAttempts.Remove(name);
+				SessionInfo.QuestFirstAttemptTimes.Remove(name);
+			}
+		}
     }
 }

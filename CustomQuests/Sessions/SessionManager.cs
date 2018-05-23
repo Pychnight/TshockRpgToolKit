@@ -82,7 +82,7 @@ namespace CustomQuests.Sessions
                     sessionInfo = new SessionInfo();
                     foreach (var questName in _config.DefaultQuestNames)
                     {
-                        sessionInfo.AvailableQuestNames.Add(questName);
+                        sessionInfo.UnlockedQuestNames.Add(questName);
                     }
                 }
 
@@ -105,7 +105,7 @@ namespace CustomQuests.Sessions
                     var sessionInfo = session.SessionInfo;
                     if (!sessionInfo.CompletedQuestNames.Contains(questName))
                     {
-                        sessionInfo.AvailableQuestNames.Add(questName);
+                        sessionInfo.UnlockedQuestNames.Add(questName);
                     }
                 }
             }

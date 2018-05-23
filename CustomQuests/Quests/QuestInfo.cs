@@ -43,9 +43,14 @@ namespace CustomQuests.Quests
 		public int MinPartySize { get; set; }
 
 		/// <summary>
-		///     Gets or sets the maximum number of repeats.
+		///     Gets or sets the maximum number of repeats. -1 = infinite.
 		/// </summary>
 		public int MaxRepeats { get; set; }
+
+		/// <summary>
+		///		Gets or sets the period of time from first quest attempt, to resetting the quest attempts counter.
+		/// </summary>
+		public TimeSpan RepeatResetInterval { get; set; } = TimeSpan.FromDays(1.0d);
 
         /// <summary>
         ///     Gets or sets the required region name.
