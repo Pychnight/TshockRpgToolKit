@@ -34,8 +34,6 @@ namespace CustomQuests.Quests
 				if(quests.TryAdd(party.Name, newQuest))
 				{
 					session.CurrentQuest = newQuest;
-					session.CurrentQuestInfo = info;
-
 					newQuest.Run();
 					return true;
 				}

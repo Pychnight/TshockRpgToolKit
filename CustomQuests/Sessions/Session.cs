@@ -54,29 +54,25 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets or sets the current quest.
         /// </summary>
-        [CanBeNull]
         public Quest CurrentQuest
         {
             get => _currentQuest;
             set
             {
                 _currentQuest = value;
-                CurrentQuestInfo = _currentQuest?.QuestInfo;
                 SessionInfo.CurrentQuestInfo = CurrentQuestInfo;
             }
         }
 
-        /// <summary>
-        ///     Gets the current quest info.
-        /// </summary>
-        [CanBeNull]
-        public QuestInfo CurrentQuestInfo { get; internal set; }
+		/// <summary>
+		///     Gets the current quest info.
+		/// </summary>
+		public QuestInfo CurrentQuestInfo => CurrentQuest?.QuestInfo;
 
         /// <summary>
         ///     Gets the current quest name.
         /// </summary>
-        [CanBeNull]
-        public string CurrentQuestName => CurrentQuestInfo?.Name;
+        public string CurrentQuestName => CurrentQuest?.QuestInfo.Name;
 
         /// <summary>
         ///     Gets or sets a value indicating whether the session is aborting the quest.
@@ -445,30 +441,9 @@ namespace CustomQuests.Sessions
 				//SessionInfo.RemoveSavePoint(this.CurrentQuestInfo.Name, isPartyLeader);
 
 				QuestProgress.Remove(CurrentQuestName);
-				//var repeatedQuestNames = SessionInfo.RepeatedQuestNames;
-								
+												
 				if (CurrentQuest.IsSuccessful)
                 {
-                    //var repeatedQuests = SessionInfo.RepeatedQuestNames;
-                    
-                    //if (CurrentQuestInfo.MaxRepeats >= 0)
-                    //{
-                    //    if (repeatedQuests.TryGetValue(CurrentQuestName, out var repeats))
-                    //    {
-                    //        repeatedQuests[CurrentQuestName] = repeats + 1;
-                    //    }
-                    //    else
-                    //    {
-                    //        repeatedQuests[CurrentQuestName] = 1;
-                    //    }
-                    //    if (repeatedQuests[CurrentQuestName] > CurrentQuestInfo.MaxRepeats)
-                    //    {
-                    //        SessionInfo.AvailableQuestNames.Remove(CurrentQuestName);
-                    //        SessionInfo.CompletedQuestNames.Add(CurrentQuestName);
-                    //        repeatedQuests.Remove(CurrentQuestName);
-							
-                    //    }
-                    //}
                     _player.SendSuccessMessage("Quest completed!");
                 }
                 else
