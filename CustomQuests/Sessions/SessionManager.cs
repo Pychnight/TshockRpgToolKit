@@ -11,6 +11,7 @@ using Corruption.PluginSupport;
 using System.Diagnostics;
 using CustomQuests.Sessions;
 using CustomQuests.Database;
+using CustomQuests.Configuration;
 
 namespace CustomQuests.Sessions
 {
@@ -33,12 +34,16 @@ namespace CustomQuests.Sessions
 			_config = config ?? throw new ArgumentNullException(nameof(config));
 			activeSessions = new Dictionary<string, Session>();
 
-			var databasePath = Path.Combine("quests", "sessionsNew.db");
-			var connectionString = $"URI=file:{databasePath}";
-
+			//var databasePath = Path.Combine("quests", "sessionsNew.db");
+			//var connectionString = $"URI=file:{databasePath}";
 			//database = new SqliteDatabase(connectionString);
-			//database.Test();
-			database = new SqliteJsonDatabase(connectionString);
+			//database = new SqliteJsonDatabase(connectionString);
+
+			var connectionString = "Server=localhost;Port=3306;Database=db_quests;Uid=root;Pwd=root;";
+			database = new MySqlJsonDatabase(connectionString);
+
+			//var dbConfig = _config.Database;
+			//database = DatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 		}
 
 		/// <summary>

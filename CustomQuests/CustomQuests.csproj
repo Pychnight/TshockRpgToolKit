@@ -63,6 +63,9 @@
       <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.10.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MySql.Data.6.10.7\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
@@ -72,7 +75,15 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -91,11 +102,13 @@
     <Compile Include="CatchNpcEventArgs.cs" />
     <Compile Include="ChestItemChangedEventArgs.cs" />
     <Compile Include="ChestUnlockedEventArgs.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\DatabaseConfig.cs" />
     <Compile Include="CustomQuestsPlugin.Commands.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
     <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="Database\MySqlJsonDatabase.cs" />
     <Compile Include="Database\SqliteJsonDatabase.cs" />
     <Compile Include="Quests\QuestLoader.cs" />
     <Compile Include="Quests\QuestRunner.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
-namespace CustomQuests
+namespace CustomQuests.Configuration
 {
     /// <summary>
     ///     Represents the configuration.
@@ -11,7 +11,11 @@ namespace CustomQuests
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class Config
     {
-        [JsonProperty("DefaultQuests")]
+		[JsonProperty(Order = 0)]
+		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
+
+
+		[JsonProperty("DefaultQuests",Order = 1)]
         private readonly List<string> _defaultQuestNames = new List<string>();
 
         /// <summary>

@@ -16,6 +16,7 @@ using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
 using CustomQuests.Scripting;
+using CustomQuests.Configuration;
 
 namespace CustomQuests
 {
