@@ -96,6 +96,7 @@
     <Compile Include="CustomQuestsPlugin.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
     <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="Database\SqliteJsonDatabase.cs" />
     <Compile Include="Quests\QuestLoader.cs" />
     <Compile Include="Quests\QuestRunner.cs" />
     <Compile Include="ReleaseNpcEventArgs.cs" />
@@ -113,13 +114,10 @@
     <Compile Include="Quests\Quest.cs" />
     <Compile Include="Quests\QuestInfo.cs" />
     <Compile Include="Quests\QuestStatus.cs" />
-    <Compile Include="Sessions\FileSessionRepository.cs" />
     <Compile Include="Quests\QuestStatusCollection.cs" />
     <Compile Include="Sessions\Session.cs" />
     <Compile Include="Sessions\SessionInfo.cs" />
     <Compile Include="Sessions\SessionManager.cs" />
-    <Compile Include="Sessions\SessionRepository.cs" />
-    <Compile Include="Sessions\SqliteSessionRepository.cs" />
     <Compile Include="SignChangedEventArgs.cs" />
     <Compile Include="SignReadEventArgs.cs" />
     <Compile Include="Triggers\CatchNpcs.cs" />

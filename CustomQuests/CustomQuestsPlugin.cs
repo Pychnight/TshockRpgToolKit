@@ -164,9 +164,13 @@ namespace CustomQuests
 			{
 				_config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
 			}
-			_sessionManager = new SessionManager(_config, this);
-
+			
+			//_sessionManager = new SessionManager(_config);
+			
 			QuestLoader.LoadQuests(QuestInfosPath);
+
+			//new session manager must be initialized after quest loader loads the quest infos, since it requires them as well.
+			_sessionManager = new SessionManager(_config);
 		}
 
 		private void OnReload(ReloadEventArgs args)
@@ -615,26 +619,20 @@ namespace CustomQuests
         private void OnGameUpdate(EventArgs args)
         {
 			QuestRunner.Update();
-						
-            foreach (var player in TShock.Players.Where(p => p?.User != null))
-            {
-                var session = GetSession(player);
-                session.CheckQuestCompleted();
-				session.CheckRepeatInterval();
-            }
 
-            if (DateTime.UtcNow > _lastSave + _config.SavePeriod)
-            {
-                _lastSave = DateTime.UtcNow;
-                foreach (var player in TShock.Players.Where(p => p?.User != null))
-                {
-                    var username = player.User?.Name ?? player.Name;
-                    var session = GetSession(player);
-					//var path = Path.Combine("quests", "sessions", $"{username}.json");
-					//File.WriteAllText(path, JsonConvert.SerializeObject(session.SessionInfo, Formatting.Indented));
-					_sessionManager.sessionRepository.Save(session.SessionInfo, username);
-                }
-            }
-        }
+			foreach( var player in TShock.Players.Where(p => p?.User != null) )
+			{
+				var session = GetSession(player);
+					
+				session.CheckQuestCompleted();
+				session.CheckRepeatInterval();
+			}
+
+			if( DateTime.UtcNow > _lastSave + _config.SavePeriod )
+			{
+				_lastSave = DateTime.UtcNow;
+				_sessionManager.SaveAll();
+			}
+		}
     }
 }

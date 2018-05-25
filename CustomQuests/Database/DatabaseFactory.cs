@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomQuests.Sessions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,10 +23,10 @@ namespace CustomQuests.Database
 				//	db = new MySqlDatabase(connectionString);
 				//	break;
 
-				//case "sqlite":
-				//default:
-				//	db = new SqliteDatabase(connectionString);
-				//	break;
+				case "sqlite":
+				default:
+					db = new SqliteJsonDatabase(connectionString);
+					break;
 			}
 
 			return db;

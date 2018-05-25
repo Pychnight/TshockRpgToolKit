@@ -35,7 +35,7 @@ namespace CustomQuests.Sessions
         {
             _player = player ?? throw new ArgumentNullException(nameof(player));
             SessionInfo = sessionInfo ?? throw new ArgumentNullException(nameof(sessionInfo));
-        }
+		}
 
         /// <summary>
         ///     Gets a read-only view of the unlocked quest names.
@@ -315,11 +315,10 @@ namespace CustomQuests.Sessions
 			si.QuestFirstAttemptTimes.Clear();
 
 			this.QuestProgress.Clear();
-
-			foreach( var name in CustomQuestsPlugin.Instance._config.DefaultQuestNames )
-				si.UnlockedQuestNames.Add(name);
-
-			CustomQuestsPlugin.Instance._sessionManager.sessionRepository.Save(si, _player.Name);
+			
+			si.AddDefaultQuestNames(CustomQuestsPlugin.Instance._config.DefaultQuestNames);
+						
+			CustomQuestsPlugin.Instance._sessionManager.Save(this);
 		}
 
 		/// <summary>

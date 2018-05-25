@@ -11,6 +11,9 @@ namespace CustomQuests.Sessions
     /// </summary>
     public sealed class SessionInfo
     {
+		//public int? Id { get; set; }
+		//public string PlayerName { get; set; }
+
         /// <summary>
         ///     Gets the unlocked quest names.
         /// </summary>
@@ -99,5 +102,14 @@ namespace CustomQuests.Sessions
 
 		//	manager.Remove(questName);
 		//}
+
+		internal void AddDefaultQuestNames(IEnumerable<string> questNames)
+		{
+			foreach( var name in questNames )
+			{
+				if(!CompletedQuestNames.Contains(name) )
+					UnlockedQuestNames.Add(name);
+			}
+		}
 	}
 }
