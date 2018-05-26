@@ -39,11 +39,11 @@ namespace CustomQuests.Sessions
 			//database = new SqliteDatabase(connectionString);
 			//database = new SqliteJsonDatabase(connectionString);
 
-			var connectionString = "Server=localhost;Port=3306;Database=db_quests;Uid=root;Pwd=root;";
-			database = new MySqlJsonDatabase(connectionString);
+			//var connectionString = "Server=localhost;Port=3306;Database=db_quests;Uid=root;Pwd=root;";
+			//database = new MySqlJsonDatabase(connectionString);
 
-			//var dbConfig = _config.Database;
-			//database = DatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+			var dbConfig = _config.Database;
+			database = DatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 		}
 
 		/// <summary>

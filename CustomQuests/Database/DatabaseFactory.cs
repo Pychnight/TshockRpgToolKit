@@ -19,9 +19,10 @@ namespace CustomQuests.Database
 				//	db = new RedisDatabase(connectionString);
 				//	break;
 
-				//case "mysql":
-				//	db = new MySqlDatabase(connectionString);
-				//	break;
+				case "mysql":
+					//connectionString = "hijacked";
+					db = new MySqlJsonDatabase(connectionString);
+					break;
 
 				case "sqlite":
 				default:

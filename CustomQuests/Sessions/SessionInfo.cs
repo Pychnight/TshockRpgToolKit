@@ -29,8 +29,10 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets or sets the current quest info.
         /// </summary>
-        [CanBeNull]
+        [JsonIgnore]
         public QuestInfo CurrentQuestInfo { get; set; }
+		
+		public string CurrentQuestName => CurrentQuestInfo?.Name ?? null;
 
 		//      /// <summary>
 		//      ///     Gets or sets the current quest state.
@@ -55,6 +57,14 @@ namespace CustomQuests.Sessions
 		/// </summary>
 		/// <remarks>This is used to determine quest reset times.</remarks>
 		public Dictionary<string, DateTime> QuestFirstAttemptTimes { get; set; } = new Dictionary<string, DateTime>();
+		
+		[JsonIgnore]
+		public Dictionary<string, QuestStatusCollection> QuestProgress = new Dictionary<string, QuestStatusCollection>();
+
+		//proxy for QuestProgress
+		
+
+
 
 		//public SavePoint GetOrCreateSavePoint(string questName, bool isPartyLeader)
 		//{
@@ -75,7 +85,7 @@ namespace CustomQuests.Sessions
 
 		//	selectedSavePoints.Remove(questName);
 		//}
-		
+
 		//public QuestStatusManager GetOrCreateSavePointManager(string questName)
 		//{
 		//	if( !QuestSavePoints.TryGetValue(questName, out var savePointManager) )

@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using System.Reflection;
 using CustomQuests.Scripting;
 using Corruption.PluginSupport;
+using Newtonsoft.Json;
 
 namespace CustomQuests.Sessions
 {
@@ -61,6 +62,7 @@ namespace CustomQuests.Sessions
             {
                 _currentQuest = value;
                 SessionInfo.CurrentQuestInfo = CurrentQuestInfo;
+				Debug.Print($"CurrentQuest Set to {CurrentQuestInfo?.Name}");
             }
         }
 
@@ -89,8 +91,11 @@ namespace CustomQuests.Sessions
         /// </summary>
         public Party Party { get; set; }
 
-		//public QuestStatusCollection QuestStatusManager => SessionInfo.QuestStatusManager;
-		public Dictionary<string, QuestStatusCollection> QuestProgress = new Dictionary<string, QuestStatusCollection>();
+		/// <summary>
+		///		Gets a Dictionary, of QuestStatusCollections for each partially completed quest.
+		/// </summary>
+		[JsonIgnore]//can deserialize this as is, disabling temporarily.
+		public Dictionary<string, QuestStatusCollection> QuestProgress => SessionInfo.QuestProgress;
 		
         /// <summary>
         ///     Gets the session information.
@@ -104,7 +109,7 @@ namespace CustomQuests.Sessions
         {
             //CurrentQuest?.Dispose();
             CurrentQuest = null;
-        }
+		}
 
 		public bool CanRepeatQuest(QuestInfo questInfo)
 		{
@@ -443,7 +448,10 @@ namespace CustomQuests.Sessions
 												
 				if (CurrentQuest.IsSuccessful)
                 {
-                    _player.SendSuccessMessage("Quest completed!");
+					_player.SendSuccessMessage("Quest completed!");
+
+					var questName = CurrentQuest.QuestInfo.Name;
+					SessionInfo.CompletedQuestNames.Add(questName);
                 }
                 else
                 {

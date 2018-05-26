@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Corruption.PluginSupport;
 using Newtonsoft.Json;
 
 namespace CustomQuests.Configuration
@@ -9,7 +10,7 @@ namespace CustomQuests.Configuration
     ///     Represents the configuration.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class Config
+    public sealed class Config : JsonConfig
     {
 		[JsonProperty(Order = 0)]
 		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();

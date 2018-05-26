@@ -144,7 +144,7 @@ namespace CustomQuests
 			GetDataHandlers.PlayerTeam += OnPlayerTeam;
 			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
 			GetDataHandlers.TileEdit += OnTileEdit;
-									
+												
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
 			Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
@@ -160,11 +160,13 @@ namespace CustomQuests
 
 		private void load()
 		{
-			Directory.CreateDirectory("quests");
-			if( File.Exists(ConfigPath) )
-			{
-				_config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-			}
+			//Directory.CreateDirectory("quests");
+			//if( File.Exists(ConfigPath) )
+			//{
+			//	_config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
+			//}
+
+			_config = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 			
 			//_sessionManager = new SessionManager(_config);
 			
