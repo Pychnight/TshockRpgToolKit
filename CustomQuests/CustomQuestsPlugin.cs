@@ -160,12 +160,6 @@ namespace CustomQuests
 
 		private void load()
 		{
-			//Directory.CreateDirectory("quests");
-			//if( File.Exists(ConfigPath) )
-			//{
-			//	_config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-			//}
-
 			_config = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 			
 			//_sessionManager = new SessionManager(_config);
@@ -173,13 +167,22 @@ namespace CustomQuests
 			QuestLoader.LoadQuests(QuestInfosPath);
 
 			//new session manager must be initialized after quest loader loads the quest infos, since it requires them as well.
-			_sessionManager = new SessionManager(_config);
+
+			//workaround, to preserve parties but still react to changed db config.
+			if(_sessionManager==null)
+			{
+				_sessionManager = new SessionManager(_config);
+			}
+			else
+			{
+				_sessionManager.UseDatabase(_config);//only refresh db, but try to preserve sessions & parties...
+			}
 		}
 
 		private void OnReload(ReloadEventArgs args)
 		{
 			_sessionManager.OnReload();//abort in play quests
-			_parties.Clear();
+			//_parties.Clear();
 			
 			load();
 		}

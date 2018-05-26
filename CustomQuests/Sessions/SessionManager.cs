@@ -22,7 +22,7 @@ namespace CustomQuests.Sessions
 	{
 		private readonly Config _config;
 		private readonly Dictionary<string, Session> activeSessions;
-		internal readonly IDatabase database;
+		internal IDatabase database;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="SessionManager" /> class with the specified configuration.
@@ -42,6 +42,15 @@ namespace CustomQuests.Sessions
 			//var connectionString = "Server=localhost;Port=3306;Database=db_quests;Uid=root;Pwd=root;";
 			//database = new MySqlJsonDatabase(connectionString);
 
+			//var dbConfig = _config.Database;
+			//database = DatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
+
+			UseDatabase(config);
+		}
+
+		//workaround to preserve parties, while not rewriting a bunch of stuff. See CustomQuestsPlugin.load()...
+		internal void UseDatabase(Config config)
+		{
 			var dbConfig = _config.Database;
 			database = DatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 		}
