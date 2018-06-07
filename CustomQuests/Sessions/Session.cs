@@ -432,6 +432,11 @@ namespace CustomQuests.Sessions
                 {
                     IsAborting = false;
                     HasAborted = false;
+
+					//remove the attempt -- we dont count aborts as an attempt anymore. 6-6-2018.
+					Debug.Assert(CurrentQuest != null, "IsAborting==true, but CurrentQuest == null.");
+					RemoveQuestAttempt(CurrentQuest.QuestInfo);
+					
                     Dispose();
                     //SetQuestState(null);
                 }
@@ -490,5 +495,41 @@ namespace CustomQuests.Sessions
 				SessionInfo.QuestFirstAttemptTimes.Remove(name);
 			}
 		}
-    }
+
+		//updates the amount of attempts, and initializes the repeat interval reset timer.
+		internal void AddQuestAttempt(QuestInfo questInfo)
+		{
+			if( !SessionInfo.QuestFirstAttemptTimes.ContainsKey(questInfo.Name) )
+			{
+				SessionInfo.QuestFirstAttemptTimes[questInfo.Name] = DateTime.Now;
+				SessionInfo.QuestAttempts[questInfo.Name] = 1;
+				return;
+			}
+
+			if( SessionInfo.QuestAttempts.TryGetValue(questInfo.Name, out var attempts) )
+			{
+				SessionInfo.QuestAttempts[questInfo.Name] = ++attempts;
+				return;
+			}
+
+			throw new Exception("updateAttempts() should never reach this point.");
+		}
+
+		//removes a quest attempt, in the case of an abort().
+		internal void RemoveQuestAttempt(QuestInfo questInfo)
+		{
+			if( SessionInfo.QuestAttempts.TryGetValue(questInfo.Name, out var attempts) )
+			{
+				SessionInfo.QuestAttempts[questInfo.Name] = Math.Max(0, --attempts);
+
+				//if this was the only attempt, and we're revoking it, make sure we reset the first attempt time too.
+				if( attempts == 0 && SessionInfo.QuestFirstAttemptTimes.ContainsKey(questInfo.Name) )
+				{
+					SessionInfo.QuestFirstAttemptTimes.Remove(questInfo.Name);
+				}
+
+				return;
+			}
+		}
+	}
 }

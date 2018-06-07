@@ -142,7 +142,7 @@ namespace CustomQuests.Quests
 			{
 				var session = CustomQuestsPlugin.Instance.GetSession(m);
 
-				updateQuestAttempts(questInfo, session);
+				session.AddQuestAttempt(questInfo);
 				
 				//try to restore previous status
 				if(!session.QuestProgress.TryGetValue(questInfo.Name,out var statuses))
@@ -161,25 +161,13 @@ namespace CustomQuests.Quests
 			}
 		}
 
-		//updates the amount of attempts, and initializes the repeat interval reset timer.
-		private void updateQuestAttempts(QuestInfo questInfo, Session session)
+		internal void OnAbort(QuestInfo questInfo)
 		{
-			var sessionInfo = session.SessionInfo;
-			
-			if( !sessionInfo.QuestFirstAttemptTimes.ContainsKey(questInfo.Name) )
+			foreach( var m in this )
 			{
-				sessionInfo.QuestFirstAttemptTimes[questInfo.Name] = DateTime.Now;
-				sessionInfo.QuestAttempts[questInfo.Name] = 1;
-				return;
+				var session = CustomQuestsPlugin.Instance.GetSession(m);
+				session.RemoveQuestAttempt(questInfo);
 			}
-			
-			if( sessionInfo.QuestAttempts.TryGetValue(questInfo.Name, out var attempts) )
-			{
-				sessionInfo.QuestAttempts[questInfo.Name] = ++attempts;
-				return;
-			}
-
-			throw new Exception("updateAttempts() should never reach this point.");
 		}
 	}
 }

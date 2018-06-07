@@ -42,20 +42,21 @@ namespace CustomQuests.Quests
 			return false;
 		}
 
-		public void Abort(Party party)
-		{
-			if( quests.TryGetValue(party.Name, out var quest) )
-			{
-				var task = quest.MainQuestTask;
+		//this never got integrated...
+		//public void Abort(Party party)
+		//{
+		//	if( quests.TryGetValue(party.Name, out var quest) )
+		//	{
+		//		var task = quest.MainQuestTask;
 				
-				if( task.Status == TaskStatus.Running ||
-					task.Status == TaskStatus.WaitingToRun ||
-					task.Status == TaskStatus.WaitingForChildrenToComplete )
-				{
-					quest.OnAbort();
-				}
-			}
-		}
+		//		if( task.Status == TaskStatus.Running ||
+		//			task.Status == TaskStatus.WaitingToRun ||
+		//			task.Status == TaskStatus.WaitingForChildrenToComplete )
+		//		{
+		//			quest.OnAbort();
+		//		}
+		//	}
+		//}
 
 		public void Update()
 		{
