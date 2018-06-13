@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomNpcsEdit.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,9 +13,15 @@ namespace CustomNpcsEdit
 {
 	public partial class EditorForm : Form
 	{
+		ProjectileContext projectileContext { get; set; } 
+
 		public EditorForm()
 		{
 			InitializeComponent();
+
+			projectileContext = new ProjectileContext();
+
+
 		}
 	}
 }

@@ -45,14 +45,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ProjectileEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ProjectileEditor.Designer.cs">
+      <DependentUpon>ProjectileEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="EditorForm.Designer.cs">
       <DependentUpon>EditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Context.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\ProjectileEditor.resx">
+      <DependentUpon>ProjectileEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -77,6 +87,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Custom-Npcs-2\CustomNpcs\CustomNpcs.csproj">
+      <Project>{b96b0ad7-6ff5-4ecc-ad22-00ce7fdc3177}</Project>
+      <Name>CustomNpcs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
