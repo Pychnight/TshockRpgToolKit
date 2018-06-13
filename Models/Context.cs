@@ -9,21 +9,8 @@ using System.Windows.Forms.Design;
 
 namespace CustomNpcsEdit.Models
 {
-	//[TypeConverter(typeof(ExpandableObjectConverter))]
-	//public class ProjectileBaseOverride
-	//{
-	//	public string Derp { get; set; }
-	//	public int? Value { get; set; }
-	//	public bool? IsValid { get; set; }
-
-	//	public override string ToString()
-	//	{
-	//		return "";
-	//	}
-	//}
-
 	//[JsonObject(MemberSerialization.OptIn)]
-	[TypeConverter(typeof(ExpandableObjectConverter))]
+	//[TypeConverter(typeof(ExpandableObjectConverter))]
 	public class ProjectileBaseOverride
 	{
 		//[JsonProperty]
@@ -86,10 +73,36 @@ namespace CustomNpcsEdit.Models
 		//[JsonProperty]
 		//public bool? Counterweight { get; set; }
 
-		public override string ToString()
+		public ProjectileBaseOverride()
 		{
-			return "";
 		}
+
+		public ProjectileBaseOverride(ProjectileBaseOverride other)
+		{
+			if( other == null )
+				return;
+
+			AiStyle			= other.AiStyle;
+			Ai				= other.Ai?.ToArray() ?? null;
+			Damage			= other.Damage;
+			KnockBack		= other.KnockBack;
+			Friendly		= other.Friendly;
+			Hostile			= other.Hostile;
+			MaxPenetrate	= other.MaxPenetrate;
+			TimeLeft		= other.TimeLeft;
+			Magic			= other.Magic;
+			Light			= other.Light;
+			Thrown			= other.Thrown;
+			Melee			= other.Melee;
+			ColdDamage		= other.ColdDamage;
+			TileCollide		= other.TileCollide;
+			IgnoreWater		= other.IgnoreWater;
+		}
+
+		//public override string ToString()
+		//{
+		//	return "";
+		//}
 	}
 
 	//public abstract class Context<TItem>
@@ -99,16 +112,7 @@ namespace CustomNpcsEdit.Models
 
 	//	public abstract Context<TItem> Load(string fileName);
 	//}
-
-	///// <summary>
-	///// Wraps a CustomNpcs.ProjectileDefinition, and provides a shape suitable for our editor.
-	///// </summary>
-	//public class Projectile
-	//{
-	//internal ProjectileDefinition WrappedObject { get; set; }
-	//public string Name { get => WrappedObject.Name; set => WrappedObject.Name = value; }
-	//}
-
+	
 	//[JsonObject(MemberSerialization.OptIn)]
 	[DefaultProperty("Name")]
 	public class Projectile : INotifyPropertyChanged //: DefinitionBase, IDisposable
@@ -142,38 +146,74 @@ namespace CustomNpcsEdit.Models
 		[Category("Basic Properties")]
 		[Description("The Terraria Projectile type this Custom Projectile is based upon.")]
 		public int BaseType { get; set; }
-		
-		[Category("Basic Properties")]
-		public bool BaseOverride { get; set; }
+
+
+		private ProjectileBaseOverride baseOverride = new ProjectileBaseOverride();
 
 		//[JsonProperty("BaseOverride", Order = 3)]
 		//[Category("Override Properties")]
 		[Browsable(false)]
-		public ProjectileBaseOverride ProjectileBaseOverride { get; set; } = new ProjectileBaseOverride();
+		public ProjectileBaseOverride ProjectileBaseOverride
+		{
+			get => baseOverride;
+			set => baseOverride = value;
+		}
 
 		[Category("Override Properties")]
-		public int? AiStyle { get; set; }
+		public int? AiStyle
+		{
+			get => baseOverride.AiStyle;
+			set => baseOverride.AiStyle = value;
+		}
 
 		[Category("Override Properties")]
-		public float[] Ai { get; set; }
+		public float[] Ai
+		{
+			get => baseOverride.Ai;
+			set => baseOverride.Ai = value;
+		}
 
 		[Category("Override Properties")]
-		public int? Damage { get; set; }
+		public int? Damage
+		{
+			get => baseOverride.Damage;
+			set => baseOverride.Damage = value;
+		}
 
 		[Category("Override Properties")]
-		public int? KnockBack { get; set; }
+		public int? KnockBack
+		{
+			get => baseOverride.KnockBack;
+			set => baseOverride.KnockBack = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? Friendly { get; set; }
+		public bool? Friendly
+		{
+			get => baseOverride.Friendly;
+			set => baseOverride.Friendly = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? Hostile { get; set; }
+		public bool? Hostile
+		{
+			get => baseOverride.Hostile;
+			set => baseOverride.Hostile = value;
+		}
 
 		[Category("Override Properties")]
-		public int? MaxPenetrate { get; set; }
+		public int? MaxPenetrate
+		{
+			get => baseOverride.MaxPenetrate;
+			set => baseOverride.MaxPenetrate = value;
+		}
 
 		[Category("Override Properties")]
-		public int? TimeLeft { get; set; }
+		public int? TimeLeft
+		{
+			get => baseOverride.TimeLeft;
+			set => baseOverride.TimeLeft = value;
+		}
 
 		//[JsonProperty]
 		//public int? Width { get; set;}
@@ -182,25 +222,53 @@ namespace CustomNpcsEdit.Models
 		//public int? Height { get; set;}
 
 		[Category("Override Properties")]
-		public bool? Magic { get; set; }
+		public bool? Magic
+		{
+			get => baseOverride.Magic;
+			set => baseOverride.Magic = value;
+		}
 
 		[Category("Override Properties")]
-		public float? Light { get; set; }
+		public float? Light
+		{
+			get => baseOverride.Light;
+			set => baseOverride.Light = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? Thrown { get; set; }
+		public bool? Thrown
+		{
+			get => baseOverride.Thrown;
+			set => baseOverride.Thrown = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? Melee { get; set; }
+		public bool? Melee
+		{
+			get => baseOverride.Melee;
+			set => baseOverride.Melee = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? ColdDamage { get; set; }
+		public bool? ColdDamage
+		{
+			get => baseOverride.ColdDamage;
+			set => baseOverride.ColdDamage = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? TileCollide { get; set; }
+		public bool? TileCollide
+		{
+			get => baseOverride.TileCollide;
+			set => baseOverride.TileCollide = value;
+		}
 
 		[Category("Override Properties")]
-		public bool? IgnoreWater { get; set; }
+		public bool? IgnoreWater
+		{
+			get => baseOverride.IgnoreWater;
+			set => baseOverride.IgnoreWater = value;
+		}
 		
 		public Projectile()
 		{
@@ -211,6 +279,7 @@ namespace CustomNpcsEdit.Models
 			Name = other.Name;
 			BaseType = other.BaseType;
 			ScriptPath = other.ScriptPath;
+			ProjectileBaseOverride = new ProjectileBaseOverride(other.ProjectileBaseOverride);
 		}
 	}
 
