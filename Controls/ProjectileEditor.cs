@@ -25,6 +25,12 @@ namespace CustomNpcsEdit.Controls
 			listBoxItems.ValueMember = "Name";
 			listBoxItems.DataSource = projectileContext;
 		}
+		
+		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
+		{
+			projectileContext = new ProjectileContext();
+			listBoxItems.DataSource = projectileContext;
+		}
 
 		private void listBoxItems_SelectedValueChanged(object sender, EventArgs e)
 		{
