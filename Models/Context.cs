@@ -31,7 +31,7 @@ namespace CustomNpcsEdit.Models
 		//[JsonProperty(Order = 0)]
 		//public string Name { get; set; } = "";
 
-		string name = "Projectile";
+		string name = "New Projectile";
 		public string Name
 		{
 			get { return name; }

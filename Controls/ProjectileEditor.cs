@@ -30,5 +30,11 @@ namespace CustomNpcsEdit.Controls
 		{
 			propertyGridItemEditor.SelectedObject = listBoxItems.SelectedItem;
 		}
+
+		private void toolStripButton1_Click(object sender, EventArgs e)
+		{
+			var item = new Projectile();
+			projectileContext.Add(item);
+		}
 	}
 }

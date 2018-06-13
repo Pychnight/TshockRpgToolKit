@@ -28,15 +28,18 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProjectileEditor));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
 			this.listBoxItems = new System.Windows.Forms.ListBox();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-			this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
+			this.toolStripButtonAddItem = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
+			this.toolStripListControl.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// splitContainer1
@@ -48,7 +51,7 @@
 			// splitContainer1.Panel1
 			// 
 			this.splitContainer1.Panel1.Controls.Add(this.listBoxItems);
-			this.splitContainer1.Panel1.Controls.Add(this.toolStrip2);
+			this.splitContainer1.Panel1.Controls.Add(this.toolStripListControl);
 			this.splitContainer1.Panel1.Controls.Add(this.toolStrip1);
 			// 
 			// splitContainer1.Panel2
@@ -70,9 +73,9 @@
 			// 
 			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(26, 25);
+			this.listBoxItems.Location = new System.Drawing.Point(32, 25);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(218, 388);
+			this.listBoxItems.Size = new System.Drawing.Size(212, 388);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -85,15 +88,27 @@
 			this.toolStrip1.TabIndex = 1;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
-			// toolStrip2
+			// toolStripListControl
 			// 
-			this.toolStrip2.Dock = System.Windows.Forms.DockStyle.Left;
-			this.toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.toolStrip2.Location = new System.Drawing.Point(0, 25);
-			this.toolStrip2.Name = "toolStrip2";
-			this.toolStrip2.Size = new System.Drawing.Size(26, 388);
-			this.toolStrip2.TabIndex = 2;
-			this.toolStrip2.Text = "toolStrip2";
+			this.toolStripListControl.Dock = System.Windows.Forms.DockStyle.Left;
+			this.toolStripListControl.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolStripListControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripButtonAddItem});
+			this.toolStripListControl.Location = new System.Drawing.Point(0, 25);
+			this.toolStripListControl.Name = "toolStripListControl";
+			this.toolStripListControl.Size = new System.Drawing.Size(32, 388);
+			this.toolStripListControl.TabIndex = 2;
+			this.toolStripListControl.Text = "toolStrip2";
+			// 
+			// toolStripButtonAddItem
+			// 
+			this.toolStripButtonAddItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonAddItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddItem.Image")));
+			this.toolStripButtonAddItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonAddItem.Name = "toolStripButtonAddItem";
+			this.toolStripButtonAddItem.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonAddItem.Text = "Add New Projectile";
+			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButton1_Click);
 			// 
 			// ProjectileEditor
 			// 
@@ -107,6 +122,8 @@
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
+			this.toolStripListControl.ResumeLayout(false);
+			this.toolStripListControl.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -116,7 +133,8 @@
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private System.Windows.Forms.ListBox listBoxItems;
 		private System.Windows.Forms.PropertyGrid propertyGridItemEditor;
-		private System.Windows.Forms.ToolStrip toolStrip2;
+		private System.Windows.Forms.ToolStrip toolStripListControl;
 		private System.Windows.Forms.ToolStrip toolStrip1;
+		private System.Windows.Forms.ToolStripButton toolStripButtonAddItem;
 	}
 }
