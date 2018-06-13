@@ -31,10 +31,20 @@ namespace CustomNpcsEdit.Controls
 			propertyGridItemEditor.SelectedObject = listBoxItems.SelectedItem;
 		}
 
-		private void toolStripButton1_Click(object sender, EventArgs e)
+		private void toolStripButtonAddItem_Click(object sender, EventArgs e)
 		{
 			var item = new Projectile();
 			projectileContext.Add(item);
+		}
+
+		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)
+		{
+			var index = listBoxItems.SelectedIndex;
+
+			if(index>-1)
+			{
+				projectileContext.RemoveAt(index);
+			}
 		}
 	}
 }

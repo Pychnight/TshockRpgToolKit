@@ -35,6 +35,7 @@
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
 			this.toolStripButtonAddItem = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonDeleteItem = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -93,7 +94,8 @@
 			this.toolStripListControl.Dock = System.Windows.Forms.DockStyle.Left;
 			this.toolStripListControl.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStripListControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButtonAddItem});
+            this.toolStripButtonAddItem,
+            this.toolStripButtonDeleteItem});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 25);
 			this.toolStripListControl.Name = "toolStripListControl";
 			this.toolStripListControl.Size = new System.Drawing.Size(32, 388);
@@ -108,7 +110,18 @@
 			this.toolStripButtonAddItem.Name = "toolStripButtonAddItem";
 			this.toolStripButtonAddItem.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonAddItem.Text = "Add New Projectile";
-			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButton1_Click);
+			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButtonAddItem_Click);
+			// 
+			// toolStripButtonDeleteItem
+			// 
+			this.toolStripButtonDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
+			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
+			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
+			this.toolStripButtonDeleteItem.ToolTipText = "Delete Projectile";
+			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
 			// 
 			// ProjectileEditor
 			// 
@@ -136,5 +149,6 @@
 		private System.Windows.Forms.ToolStrip toolStripListControl;
 		private System.Windows.Forms.ToolStrip toolStrip1;
 		private System.Windows.Forms.ToolStripButton toolStripButtonAddItem;
+		private System.Windows.Forms.ToolStripButton toolStripButtonDeleteItem;
 	}
 }
