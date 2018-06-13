@@ -26,12 +26,16 @@ namespace CustomNpcsEdit.Models
 	//}
 
 	//[JsonObject(MemberSerialization.OptIn)]
+	[DefaultProperty("Name")]
 	public class Projectile : INotifyPropertyChanged //: DefinitionBase, IDisposable
 	{
 		//[JsonProperty(Order = 0)]
 		//public string Name { get; set; } = "";
 
 		string name = "New Projectile";
+
+		[Category("Basic Properties")]
+		[Description("The name of the Projectile.")]
 		public string Name
 		{
 			get { return name; }
@@ -43,9 +47,13 @@ namespace CustomNpcsEdit.Models
 		}
 
 		//[JsonProperty(Order = 1)]
+		[Category("Basic Properties")]
+		[Description("Path to a Boo script that runs custom logic for various Projectile hook points.")]
 		public string ScriptPath { get; set; } = "";
 
 		//[JsonProperty(Order = 2)]
+		[Category("Basic Properties")]
+		[Description("The Terraria Projectile type this Custom Projectile is based upon.")]
 		public int BaseType { get; set; }
 
 		public event PropertyChangedEventHandler PropertyChanged;
