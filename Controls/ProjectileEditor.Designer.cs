@@ -32,24 +32,25 @@
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.listBoxItems = new System.Windows.Forms.ListBox();
 			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
+			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButtonAddItem = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButtonDeleteItem = new System.Windows.Forms.ToolStripButton();
-			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
 			this.toolStripButtonCopy = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonDeleteItem = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButtonMoveUp = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonMoveDown = new System.Windows.Forms.ToolStripButton();
+			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonNewFile = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripButtonOpenFile = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
 			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
+			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -104,6 +105,11 @@
 			this.toolStripListControl.TabIndex = 2;
 			this.toolStripListControl.Text = "toolStrip2";
 			// 
+			// toolStripSeparator5
+			// 
+			this.toolStripSeparator5.Name = "toolStripSeparator5";
+			this.toolStripSeparator5.Size = new System.Drawing.Size(21, 6);
+			// 
 			// toolStripButtonAddItem
 			// 
 			this.toolStripButtonAddItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -113,25 +119,6 @@
 			this.toolStripButtonAddItem.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonAddItem.Text = "Add New Projectile";
 			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButtonAddItem_Click);
-			// 
-			// toolStripButtonDeleteItem
-			// 
-			this.toolStripButtonDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
-			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
-			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(21, 20);
-			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
-			this.toolStripButtonDeleteItem.ToolTipText = "Delete Projectile";
-			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
-			// 
-			// propertyGridItemEditor
-			// 
-			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
-			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
-			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 388);
-			this.propertyGridItemEditor.TabIndex = 0;
 			// 
 			// toolStripButtonCopy
 			// 
@@ -143,6 +130,17 @@
 			this.toolStripButtonCopy.Text = "toolStripButton1";
 			this.toolStripButtonCopy.ToolTipText = "Copy Projectile";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
+			// 
+			// toolStripButtonDeleteItem
+			// 
+			this.toolStripButtonDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
+			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
+			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
+			this.toolStripButtonDeleteItem.ToolTipText = "Delete Projectile";
+			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -169,13 +167,21 @@
 			this.toolStripButtonMoveDown.Text = "Move Down";
 			this.toolStripButtonMoveDown.Click += new System.EventHandler(this.toolStripButtonMoveDown_Click);
 			// 
+			// propertyGridItemEditor
+			// 
+			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
+			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
+			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 388);
+			this.propertyGridItemEditor.TabIndex = 0;
+			// 
 			// toolStrip1
 			// 
 			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonNewFile,
             this.toolStripSeparator2,
-            this.toolStripButton1,
+            this.toolStripButtonOpenFile,
             this.toolStripSeparator3,
             this.toolStripButton2,
             this.toolStripButton3,
@@ -188,13 +194,33 @@
 			this.toolStrip1.TabIndex = 1;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
-			// toolStripButton1
+			// toolStripButtonNewFile
 			// 
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(62, 22);
-			this.toolStripButton1.Text = "Open..";
+			this.toolStripButtonNewFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonNewFile.Image")));
+			this.toolStripButtonNewFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonNewFile.Name = "toolStripButtonNewFile";
+			this.toolStripButtonNewFile.Size = new System.Drawing.Size(51, 22);
+			this.toolStripButtonNewFile.Text = "New";
+			this.toolStripButtonNewFile.Click += new System.EventHandler(this.toolStripButtonNewFile_Click);
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStripButtonOpenFile
+			// 
+			this.toolStripButtonOpenFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonOpenFile.Image")));
+			this.toolStripButtonOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonOpenFile.Name = "toolStripButtonOpenFile";
+			this.toolStripButtonOpenFile.Size = new System.Drawing.Size(62, 22);
+			this.toolStripButtonOpenFile.Text = "Open..";
+			this.toolStripButtonOpenFile.Click += new System.EventHandler(this.toolStripButtonOpenFile_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
 			// 
 			// toolStripButton2
 			// 
@@ -214,34 +240,10 @@
 			this.toolStripButton3.Size = new System.Drawing.Size(73, 22);
 			this.toolStripButton3.Text = "Save As..";
 			// 
-			// toolStripButtonNewFile
-			// 
-			this.toolStripButtonNewFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonNewFile.Image")));
-			this.toolStripButtonNewFile.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButtonNewFile.Name = "toolStripButtonNewFile";
-			this.toolStripButtonNewFile.Size = new System.Drawing.Size(51, 22);
-			this.toolStripButtonNewFile.Text = "New";
-			this.toolStripButtonNewFile.Click += new System.EventHandler(this.toolStripButtonNewFile_Click);
-			// 
-			// toolStripSeparator2
-			// 
-			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripSeparator3
-			// 
-			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
 			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripTextBox1
-			// 
-			this.toolStripTextBox1.Name = "toolStripTextBox1";
-			this.toolStripTextBox1.Size = new System.Drawing.Size(100, 25);
 			// 
 			// toolStripLabel1
 			// 
@@ -249,10 +251,16 @@
 			this.toolStripLabel1.Size = new System.Drawing.Size(28, 22);
 			this.toolStripLabel1.Text = "File:";
 			// 
-			// toolStripSeparator5
+			// toolStripTextBox1
 			// 
-			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(21, 6);
+			this.toolStripTextBox1.Enabled = false;
+			this.toolStripTextBox1.Name = "toolStripTextBox1";
+			this.toolStripTextBox1.Size = new System.Drawing.Size(100, 25);
+			// 
+			// openFileDialogProjectiles
+			// 
+			this.openFileDialogProjectiles.Filter = "Json files|*.json|All files|*.*";
+			this.openFileDialogProjectiles.Title = "Open Custom Projectiles";
 			// 
 			// ProjectileEditor
 			// 
@@ -289,7 +297,7 @@
 		private System.Windows.Forms.ToolStripButton toolStripButtonMoveUp;
 		private System.Windows.Forms.ToolStripButton toolStripButtonMoveDown;
 		private System.Windows.Forms.ToolStrip toolStrip1;
-		private System.Windows.Forms.ToolStripButton toolStripButton1;
+		private System.Windows.Forms.ToolStripButton toolStripButtonOpenFile;
 		private System.Windows.Forms.ToolStripButton toolStripButton2;
 		private System.Windows.Forms.ToolStripButton toolStripButton3;
 		private System.Windows.Forms.ToolStripButton toolStripButtonNewFile;
@@ -299,5 +307,6 @@
 		private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
 		private System.Windows.Forms.ToolStripLabel toolStripLabel1;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+		private System.Windows.Forms.OpenFileDialog openFileDialogProjectiles;
 	}
 }

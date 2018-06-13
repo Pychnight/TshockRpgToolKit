@@ -1,40 +1,41 @@
-﻿using CustomNpcs.Projectiles;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
+using Newtonsoft.Json;
 
 namespace CustomNpcsEdit.Models
 {
-	//[JsonObject(MemberSerialization.OptIn)]
 	//[TypeConverter(typeof(ExpandableObjectConverter))]
+	[JsonObject(MemberSerialization.OptIn)]
 	public class ProjectileBaseOverride
 	{
-		//[JsonProperty]
+		[JsonProperty]
 		public int? AiStyle { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public float[] Ai { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public int? Damage { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public int? KnockBack { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? Friendly { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? Hostile { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public int? MaxPenetrate { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public int? TimeLeft { get; set; }
 
 		//[JsonProperty]
@@ -43,25 +44,25 @@ namespace CustomNpcsEdit.Models
 		//[JsonProperty]
 		//public int? Height { get; set;}
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? Magic { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public float? Light { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? Thrown { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? Melee { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? ColdDamage { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? TileCollide { get; set; }
 
-		//[JsonProperty]
+		[JsonProperty]
 		public bool? IgnoreWater { get; set; }
 
 		/* 	[JsonProperty]
@@ -113,19 +114,17 @@ namespace CustomNpcsEdit.Models
 	//	public abstract Context<TItem> Load(string fileName);
 	//}
 	
-	//[JsonObject(MemberSerialization.OptIn)]
 	[DefaultProperty("Name")]
+	[JsonObject(MemberSerialization.OptIn)]
 	public class Projectile : INotifyPropertyChanged //: DefinitionBase, IDisposable
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
-
-		//[JsonProperty(Order = 0)]
-		//public string Name { get; set; } = "";
-
+		
 		string name = "New Projectile";
 
 		[Category("Basic Properties")]
 		[Description("The name of the Projectile.")]
+		[JsonProperty(Order = 0)]
 		public string Name
 		{
 			get { return name; }
@@ -135,24 +134,22 @@ namespace CustomNpcsEdit.Models
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
-
-		//[JsonProperty(Order = 1)]
+				
 		[Category("Basic Properties")]
 		[Description("Path to a Boo script that runs custom logic for various Projectile hook points.")]
 		[Editor(typeof(FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		[JsonProperty(Order = 1)]
 		public string ScriptPath { get; set; } = "";
 
-		//[JsonProperty(Order = 2)]
 		[Category("Basic Properties")]
 		[Description("The Terraria Projectile type this Custom Projectile is based upon.")]
+		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }
-
-
+		
 		private ProjectileBaseOverride baseOverride = new ProjectileBaseOverride();
 
-		//[JsonProperty("BaseOverride", Order = 3)]
-		//[Category("Override Properties")]
 		[Browsable(false)]
+		[JsonProperty("BaseOverride", Order = 3)]
 		public ProjectileBaseOverride ProjectileBaseOverride
 		{
 			get => baseOverride;
@@ -300,6 +297,15 @@ namespace CustomNpcsEdit.Models
 			}
 			
 			return result;
+		}
+
+		public static ProjectileContext Load(string fileName)
+		{
+			//var ctx = CreateMockContext();
+			var json = File.ReadAllText(fileName);
+			var ctx = JsonConvert.DeserializeObject<ProjectileContext>(json);
+
+			return ctx;
 		}
 	}
 }

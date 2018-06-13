@@ -20,17 +20,30 @@ namespace CustomNpcsEdit.Controls
 			InitializeComponent();
 			
 			projectileContext = ProjectileContext.CreateMockContext();
-			
+
+			SetContext(projectileContext);
+		}
+
+		internal void SetContext(ProjectileContext context)
+		{
 			listBoxItems.DisplayMember = "Name";
 			listBoxItems.ValueMember = "Name";
-			listBoxItems.DataSource = projectileContext;
+			listBoxItems.DataSource = context;
+		}
+
+		internal void Clear()
+		{
+			propertyGridItemEditor.SelectedObject = null;
+			listBoxItems.DataSource = null;
 		}
 		
 		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
 		{
-			propertyGridItemEditor.SelectedObject = null;
+			Clear();
+
 			projectileContext = new ProjectileContext();
-			listBoxItems.DataSource = projectileContext;
+
+			SetContext(projectileContext);
 		}
 
 		private void listBoxItems_SelectedValueChanged(object sender, EventArgs e)
@@ -101,6 +114,29 @@ namespace CustomNpcsEdit.Controls
 
 				projectileContext.Insert(index, item);
 				listBoxItems.SelectedIndex = index;
+			}
+		}
+
+		private void toolStripButtonOpenFile_Click(object sender, EventArgs e)
+		{
+			var result = openFileDialogProjectiles.ShowDialog();
+
+			if(result== DialogResult.OK)
+			{
+				try
+				{
+					var newContext = ProjectileContext.Load(openFileDialogProjectiles.FileName);
+					
+					Clear();
+
+					projectileContext = newContext;
+
+					SetContext(projectileContext);
+				}
+				catch(Exception ex)
+				{
+					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
 			}
 		}
 	}
