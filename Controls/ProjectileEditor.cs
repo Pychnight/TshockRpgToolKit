@@ -28,6 +28,7 @@ namespace CustomNpcsEdit.Controls
 		
 		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
 		{
+			propertyGridItemEditor.SelectedObject = null;
 			projectileContext = new ProjectileContext();
 			listBoxItems.DataSource = projectileContext;
 		}
