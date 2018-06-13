@@ -52,6 +52,17 @@ namespace CustomNpcsEdit.Models
 
 		//[JsonProperty("BaseOverride", Order = 3)]
 		//public BaseOverrideDefinition BaseOverride { get; set; } = new BaseOverrideDefinition();
+
+		public Projectile()
+		{
+		}
+
+		public Projectile(Projectile other)
+		{
+			Name = other.Name;
+			BaseType = other.BaseType;
+			ScriptPath = other.ScriptPath;
+		}
 	}
 
 	public class ProjectileContext : BindingList<Projectile>

@@ -36,6 +36,23 @@ namespace CustomNpcsEdit.Controls
 			var item = new Projectile();
 			projectileContext.Add(item);
 		}
+		
+		private void toolStripButtonCopy_Click(object sender, EventArgs e)
+		{
+			const string suffix = "(Copy)";
+
+			var index = listBoxItems.SelectedIndex;
+
+			if( index > -1 )
+			{
+				var copy = new Projectile((Projectile)listBoxItems.SelectedItem);
+
+				if(!copy.Name.EndsWith(suffix))
+					copy.Name = copy.Name + suffix;
+
+				projectileContext.Insert(++index,copy);
+			}
+		}
 
 		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)
 		{
@@ -46,5 +63,6 @@ namespace CustomNpcsEdit.Controls
 				projectileContext.RemoveAt(index);
 			}
 		}
+
 	}
 }

@@ -30,12 +30,13 @@
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProjectileEditor));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
 			this.listBoxItems = new System.Windows.Forms.ListBox();
-			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
 			this.toolStripButtonAddItem = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonDeleteItem = new System.Windows.Forms.ToolStripButton();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
+			this.toolStripButtonCopy = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -62,14 +63,6 @@
 			this.splitContainer1.SplitterDistance = 244;
 			this.splitContainer1.TabIndex = 0;
 			// 
-			// propertyGridItemEditor
-			// 
-			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
-			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
-			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 413);
-			this.propertyGridItemEditor.TabIndex = 0;
-			// 
 			// listBoxItems
 			// 
 			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -80,21 +73,13 @@
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
-			// toolStrip1
-			// 
-			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(244, 25);
-			this.toolStrip1.TabIndex = 1;
-			this.toolStrip1.Text = "toolStrip1";
-			// 
 			// toolStripListControl
 			// 
 			this.toolStripListControl.Dock = System.Windows.Forms.DockStyle.Left;
 			this.toolStripListControl.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStripListControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonAddItem,
+            this.toolStripButtonCopy,
             this.toolStripButtonDeleteItem});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 25);
 			this.toolStripListControl.Name = "toolStripListControl";
@@ -123,6 +108,34 @@
 			this.toolStripButtonDeleteItem.ToolTipText = "Delete Projectile";
 			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
 			// 
+			// toolStrip1
+			// 
+			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(244, 25);
+			this.toolStrip1.TabIndex = 1;
+			this.toolStrip1.Text = "toolStrip1";
+			// 
+			// propertyGridItemEditor
+			// 
+			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
+			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
+			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 413);
+			this.propertyGridItemEditor.TabIndex = 0;
+			// 
+			// toolStripButtonCopy
+			// 
+			this.toolStripButtonCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonCopy.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCopy.Image")));
+			this.toolStripButtonCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonCopy.Name = "toolStripButtonCopy";
+			this.toolStripButtonCopy.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonCopy.Text = "toolStripButton1";
+			this.toolStripButtonCopy.ToolTipText = "Copy Projectile";
+			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
+			// 
 			// ProjectileEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -150,5 +163,6 @@
 		private System.Windows.Forms.ToolStrip toolStrip1;
 		private System.Windows.Forms.ToolStripButton toolStripButtonAddItem;
 		private System.Windows.Forms.ToolStripButton toolStripButtonDeleteItem;
+		private System.Windows.Forms.ToolStripButton toolStripButtonCopy;
 	}
 }
