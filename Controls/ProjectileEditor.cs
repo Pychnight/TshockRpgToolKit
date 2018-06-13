@@ -64,5 +64,37 @@ namespace CustomNpcsEdit.Controls
 			}
 		}
 
+		private void toolStripButtonMoveUp_Click(object sender, EventArgs e)
+		{
+			var index = listBoxItems.SelectedIndex;
+
+			if( index > 0  )
+			{
+				var item = projectileContext[index];
+
+				projectileContext.RemoveAt(index);
+				projectileContext.Insert(--index, item);
+				listBoxItems.SelectedIndex = index;
+			}
+		}
+
+		private void toolStripButtonMoveDown_Click(object sender, EventArgs e)
+		{
+			var index = listBoxItems.SelectedIndex;
+
+			var lastIndex = projectileContext.Count - 1;
+
+			if( index > -1 && index < lastIndex )
+			{
+				var item = projectileContext[index];
+
+				projectileContext.RemoveAt(index);
+
+				index++;
+
+				projectileContext.Insert(index, item);
+				listBoxItems.SelectedIndex = index;
+			}
+		}
 	}
 }

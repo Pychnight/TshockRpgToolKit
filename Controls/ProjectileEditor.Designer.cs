@@ -37,6 +37,9 @@
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
 			this.toolStripButtonCopy = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripButtonMoveUp = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonMoveDown = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -80,7 +83,10 @@
 			this.toolStripListControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonAddItem,
             this.toolStripButtonCopy,
-            this.toolStripButtonDeleteItem});
+            this.toolStripButtonDeleteItem,
+            this.toolStripSeparator1,
+            this.toolStripButtonMoveUp,
+            this.toolStripButtonMoveDown});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 25);
 			this.toolStripListControl.Name = "toolStripListControl";
 			this.toolStripListControl.Size = new System.Drawing.Size(32, 388);
@@ -136,6 +142,31 @@
 			this.toolStripButtonCopy.ToolTipText = "Copy Projectile";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
 			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(29, 6);
+			// 
+			// toolStripButtonMoveUp
+			// 
+			this.toolStripButtonMoveUp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonMoveUp.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveUp.Image")));
+			this.toolStripButtonMoveUp.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonMoveUp.Name = "toolStripButtonMoveUp";
+			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonMoveUp.Text = "Move Up";
+			this.toolStripButtonMoveUp.Click += new System.EventHandler(this.toolStripButtonMoveUp_Click);
+			// 
+			// toolStripButtonMoveDown
+			// 
+			this.toolStripButtonMoveDown.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveDown.Image")));
+			this.toolStripButtonMoveDown.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonMoveDown.Name = "toolStripButtonMoveDown";
+			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonMoveDown.Text = "Move Down";
+			this.toolStripButtonMoveDown.Click += new System.EventHandler(this.toolStripButtonMoveDown_Click);
+			// 
 			// ProjectileEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -164,5 +195,8 @@
 		private System.Windows.Forms.ToolStripButton toolStripButtonAddItem;
 		private System.Windows.Forms.ToolStripButton toolStripButtonDeleteItem;
 		private System.Windows.Forms.ToolStripButton toolStripButtonCopy;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.ToolStripButton toolStripButtonMoveUp;
+		private System.Windows.Forms.ToolStripButton toolStripButtonMoveDown;
 	}
 }
