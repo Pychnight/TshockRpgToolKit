@@ -16,6 +16,14 @@ namespace CustomNpcsEdit
 		public EditorForm()
 		{
 			InitializeComponent();
+
+			//start on projectiles page for now...
+			tabControl1.SelectedIndex = 2;
+		}
+
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Close();
 		}
 	}
 }
