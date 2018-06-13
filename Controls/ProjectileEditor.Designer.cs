@@ -29,8 +29,8 @@
 		private void InitializeComponent()
 		{
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-			this.listBox1 = new System.Windows.Forms.ListBox();
+			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
+			this.listBoxItems = new System.Windows.Forms.ListBox();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStrip2 = new System.Windows.Forms.ToolStrip();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -47,33 +47,34 @@
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.listBoxItems);
 			this.splitContainer1.Panel1.Controls.Add(this.toolStrip2);
 			this.splitContainer1.Panel1.Controls.Add(this.toolStrip1);
-			this.splitContainer1.Panel1.Controls.Add(this.listBox1);
 			// 
 			// splitContainer1.Panel2
 			// 
-			this.splitContainer1.Panel2.Controls.Add(this.propertyGrid1);
+			this.splitContainer1.Panel2.Controls.Add(this.propertyGridItemEditor);
 			this.splitContainer1.Size = new System.Drawing.Size(498, 413);
 			this.splitContainer1.SplitterDistance = 244;
 			this.splitContainer1.TabIndex = 0;
 			// 
-			// propertyGrid1
+			// propertyGridItemEditor
 			// 
-			this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
-			this.propertyGrid1.Name = "propertyGrid1";
-			this.propertyGrid1.Size = new System.Drawing.Size(250, 413);
-			this.propertyGrid1.TabIndex = 0;
+			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
+			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
+			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 413);
+			this.propertyGridItemEditor.TabIndex = 0;
 			// 
-			// listBox1
+			// listBoxItems
 			// 
-			this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.listBox1.FormattingEnabled = true;
-			this.listBox1.Location = new System.Drawing.Point(0, 0);
-			this.listBox1.Name = "listBox1";
-			this.listBox1.Size = new System.Drawing.Size(244, 413);
-			this.listBox1.TabIndex = 0;
+			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.listBoxItems.FormattingEnabled = true;
+			this.listBoxItems.Location = new System.Drawing.Point(26, 25);
+			this.listBoxItems.Name = "listBoxItems";
+			this.listBoxItems.Size = new System.Drawing.Size(218, 388);
+			this.listBoxItems.TabIndex = 0;
+			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
 			// toolStrip1
 			// 
@@ -113,8 +114,8 @@
 		#endregion
 
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private System.Windows.Forms.ListBox listBox1;
-		private System.Windows.Forms.PropertyGrid propertyGrid1;
+		private System.Windows.Forms.ListBox listBoxItems;
+		private System.Windows.Forms.PropertyGrid propertyGridItemEditor;
 		private System.Windows.Forms.ToolStrip toolStrip2;
 		private System.Windows.Forms.ToolStrip toolStrip1;
 	}

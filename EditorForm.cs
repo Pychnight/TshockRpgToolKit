@@ -13,15 +13,9 @@ namespace CustomNpcsEdit
 {
 	public partial class EditorForm : Form
 	{
-		ProjectileContext projectileContext { get; set; } 
-
 		public EditorForm()
 		{
 			InitializeComponent();
-
-			projectileContext = new ProjectileContext();
-
-
 		}
 	}
 }
