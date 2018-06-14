@@ -18,8 +18,10 @@ namespace CustomNpcsEdit.Controls
 		public ProjectileEditor()
 		{
 			InitializeComponent();
-			
-			projectileContext = ProjectileContext.CreateMockContext();
+
+			//projectileContext = ProjectileContext.CreateMockContext();
+
+			projectileContext = new ProjectileContext();
 
 			SetContext(projectileContext);
 		}
