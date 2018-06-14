@@ -1,4 +1,5 @@
-﻿using CustomNpcsEdit.Models;
+﻿using CustomNpcsEdit.Controls;
+using CustomNpcsEdit.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,6 +17,10 @@ namespace CustomNpcsEdit
 		public EditorForm()
 		{
 			InitializeComponent();
+
+			var projectilesEditor = (ObjectEditor)tabControl1.TabPages[2].Controls[0];
+			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
+			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
 			//start on projectiles page for now...
 			tabControl1.SelectedIndex = 2;

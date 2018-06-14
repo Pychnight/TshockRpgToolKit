@@ -1,162 +1,50 @@
-﻿using System;
+﻿using CustomNpcsEdit.Models;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using CustomNpcsEdit.Models;
 
 namespace CustomNpcsEdit.Controls
 {
-	public partial class ProjectileEditor : UserControl
+	public class ProjectileEditor : ObjectEditor
 	{
-		ProjectileContext projectileContext { get; set; }
-		
-		public ProjectileEditor()
+		ProjectileBindingList projectiles;
+
+		protected override void OnPostInitialize()
 		{
-			InitializeComponent();
-
-			//projectileContext = ProjectileContext.CreateMockContext();
-
-			projectileContext = new ProjectileContext();
-
-			SetContext(projectileContext);
+			projectiles = new ProjectileBindingList();
+			SetBindingCollection(projectiles);
 		}
 
-		internal void SetContext(ProjectileContext context)
+		protected override object OnCreateItem()
 		{
-			listBoxItems.DisplayMember = "Name";
-			listBoxItems.ValueMember = "Name";
-			listBoxItems.DataSource = context;
+			return new Projectile();
 		}
 
-		internal void Clear()
-		{
-			propertyGridItemEditor.SelectedObject = null;
-			listBoxItems.DataSource = null;
-		}
-		
-		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
-		{
-			Clear();
-
-			projectileContext = new ProjectileContext();
-
-			SetContext(projectileContext);
-		}
-
-		private void listBoxItems_SelectedValueChanged(object sender, EventArgs e)
-		{
-			propertyGridItemEditor.SelectedObject = listBoxItems.SelectedItem;
-		}
-
-		private void toolStripButtonAddItem_Click(object sender, EventArgs e)
-		{
-			var item = new Projectile();
-			projectileContext.Add(item);
-		}
-		
-		private void toolStripButtonCopy_Click(object sender, EventArgs e)
+		protected override object OnCopyItem(object source)
 		{
 			const string suffix = "(Copy)";
 
-			var index = listBoxItems.SelectedIndex;
+			var copy = new Projectile((Projectile)source);
 
-			if( index > -1 )
-			{
-				var copy = new Projectile((Projectile)listBoxItems.SelectedItem);
+			if( !copy.Name.EndsWith(suffix) )
+				copy.Name = copy.Name + suffix;
 
-				if(!copy.Name.EndsWith(suffix))
-					copy.Name = copy.Name + suffix;
-
-				projectileContext.Insert(++index,copy);
-			}
+			return copy;
 		}
 
-		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)
+		protected override void OnFileLoad(string fileName)
 		{
-			var index = listBoxItems.SelectedIndex;
+			projectiles.Clear();
 
-			if(index>-1)
-			{
-				projectileContext.RemoveAt(index);
-			}
+			projectiles = ProjectileBindingList.Load(fileName);
+			SetBindingCollection(projectiles);
 		}
 
-		private void toolStripButtonMoveUp_Click(object sender, EventArgs e)
+		protected override void OnFileSave(string fileName)
 		{
-			var index = listBoxItems.SelectedIndex;
-
-			if( index > 0  )
-			{
-				var item = projectileContext[index];
-
-				projectileContext.RemoveAt(index);
-				projectileContext.Insert(--index, item);
-				listBoxItems.SelectedIndex = index;
-			}
-		}
-
-		private void toolStripButtonMoveDown_Click(object sender, EventArgs e)
-		{
-			var index = listBoxItems.SelectedIndex;
-
-			var lastIndex = projectileContext.Count - 1;
-
-			if( index > -1 && index < lastIndex )
-			{
-				var item = projectileContext[index];
-
-				projectileContext.RemoveAt(index);
-
-				index++;
-
-				projectileContext.Insert(index, item);
-				listBoxItems.SelectedIndex = index;
-			}
-		}
-
-		private void toolStripButtonFileOpen_Click(object sender, EventArgs e)
-		{
-			var result = openFileDialogProjectiles.ShowDialog();
-
-			if(result== DialogResult.OK)
-			{
-				try
-				{
-					var newContext = ProjectileContext.Load(openFileDialogProjectiles.FileName);
-					
-					Clear();
-
-					projectileContext = newContext;
-
-					SetContext(projectileContext);
-				}
-				catch(Exception ex)
-				{
-					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-			}
-		}
-
-		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e)
-		{
-			var result = saveFileDialogProjectiles.ShowDialog();
-
-			if(result == DialogResult.OK)
-			{
-				try
-				{
-					projectileContext.Save(saveFileDialogProjectiles.FileName);
-				}
-				catch(Exception ex)
-				{
-					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-			}
+			projectiles.Save(fileName);
 		}
 	}
 }

@@ -49,11 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\ProjectileEditor.cs">
+    <Compile Include="Controls\ObjectEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ProjectileEditor.Designer.cs">
-      <DependentUpon>ProjectileEditor.cs</DependentUpon>
+    <Compile Include="Controls\ObjectEditor.Designer.cs">
+      <DependentUpon>ObjectEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ProjectileEditor.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="EditorForm.cs">
       <SubType>Form</SubType>
@@ -61,12 +64,12 @@
     <Compile Include="EditorForm.Designer.cs">
       <DependentUpon>EditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\Context.cs" />
+    <Compile Include="Models\ProjectileBindingList.cs" />
     <Compile Include="Models\Projectile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Controls\ProjectileEditor.resx">
-      <DependentUpon>ProjectileEditor.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ObjectEditor.resx">
+      <DependentUpon>ObjectEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
