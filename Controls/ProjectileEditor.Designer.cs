@@ -43,14 +43,15 @@
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStripButtonNewFile = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripButtonOpenFile = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonFileOpen = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonFileSaveAs = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
 			this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -181,10 +182,10 @@
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonNewFile,
             this.toolStripSeparator2,
-            this.toolStripButtonOpenFile,
+            this.toolStripButtonFileOpen,
             this.toolStripSeparator3,
             this.toolStripButton2,
-            this.toolStripButton3,
+            this.toolStripButtonFileSaveAs,
             this.toolStripSeparator4,
             this.toolStripLabel1,
             this.toolStripTextBox1});
@@ -208,14 +209,14 @@
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
 			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
-			// toolStripButtonOpenFile
+			// toolStripButtonFileOpen
 			// 
-			this.toolStripButtonOpenFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonOpenFile.Image")));
-			this.toolStripButtonOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButtonOpenFile.Name = "toolStripButtonOpenFile";
-			this.toolStripButtonOpenFile.Size = new System.Drawing.Size(62, 22);
-			this.toolStripButtonOpenFile.Text = "Open..";
-			this.toolStripButtonOpenFile.Click += new System.EventHandler(this.toolStripButtonOpenFile_Click);
+			this.toolStripButtonFileOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonFileOpen.Image")));
+			this.toolStripButtonFileOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonFileOpen.Name = "toolStripButtonFileOpen";
+			this.toolStripButtonFileOpen.Size = new System.Drawing.Size(62, 22);
+			this.toolStripButtonFileOpen.Text = "Open..";
+			this.toolStripButtonFileOpen.Click += new System.EventHandler(this.toolStripButtonFileOpen_Click);
 			// 
 			// toolStripSeparator3
 			// 
@@ -231,14 +232,14 @@
 			this.toolStripButton2.Size = new System.Drawing.Size(51, 22);
 			this.toolStripButton2.Text = "Save";
 			// 
-			// toolStripButton3
+			// toolStripButtonFileSaveAs
 			// 
-			this.toolStripButton3.Enabled = false;
-			this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
-			this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton3.Name = "toolStripButton3";
-			this.toolStripButton3.Size = new System.Drawing.Size(73, 22);
-			this.toolStripButton3.Text = "Save As..";
+			this.toolStripButtonFileSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonFileSaveAs.Image")));
+			this.toolStripButtonFileSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonFileSaveAs.Name = "toolStripButtonFileSaveAs";
+			this.toolStripButtonFileSaveAs.Size = new System.Drawing.Size(73, 22);
+			this.toolStripButtonFileSaveAs.Text = "Save As..";
+			this.toolStripButtonFileSaveAs.Click += new System.EventHandler(this.toolStripButtonFileSaveAs_Click);
 			// 
 			// toolStripSeparator4
 			// 
@@ -261,6 +262,12 @@
 			// 
 			this.openFileDialogProjectiles.Filter = "Json files|*.json|All files|*.*";
 			this.openFileDialogProjectiles.Title = "Open Custom Projectiles";
+			// 
+			// saveFileDialogProjectiles
+			// 
+			this.saveFileDialogProjectiles.Filter = "Json files|*.json|All files|*.*";
+			this.saveFileDialogProjectiles.SupportMultiDottedExtensions = true;
+			this.saveFileDialogProjectiles.Title = "Save Projectiles";
 			// 
 			// ProjectileEditor
 			// 
@@ -297,9 +304,9 @@
 		private System.Windows.Forms.ToolStripButton toolStripButtonMoveUp;
 		private System.Windows.Forms.ToolStripButton toolStripButtonMoveDown;
 		private System.Windows.Forms.ToolStrip toolStrip1;
-		private System.Windows.Forms.ToolStripButton toolStripButtonOpenFile;
+		private System.Windows.Forms.ToolStripButton toolStripButtonFileOpen;
 		private System.Windows.Forms.ToolStripButton toolStripButton2;
-		private System.Windows.Forms.ToolStripButton toolStripButton3;
+		private System.Windows.Forms.ToolStripButton toolStripButtonFileSaveAs;
 		private System.Windows.Forms.ToolStripButton toolStripButtonNewFile;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -308,5 +315,6 @@
 		private System.Windows.Forms.ToolStripLabel toolStripLabel1;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.OpenFileDialog openFileDialogProjectiles;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogProjectiles;
 	}
 }

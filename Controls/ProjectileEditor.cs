@@ -117,7 +117,7 @@ namespace CustomNpcsEdit.Controls
 			}
 		}
 
-		private void toolStripButtonOpenFile_Click(object sender, EventArgs e)
+		private void toolStripButtonFileOpen_Click(object sender, EventArgs e)
 		{
 			var result = openFileDialogProjectiles.ShowDialog();
 
@@ -132,6 +132,23 @@ namespace CustomNpcsEdit.Controls
 					projectileContext = newContext;
 
 					SetContext(projectileContext);
+				}
+				catch(Exception ex)
+				{
+					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}
+		}
+
+		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e)
+		{
+			var result = saveFileDialogProjectiles.ShowDialog();
+
+			if(result == DialogResult.OK)
+			{
+				try
+				{
+					projectileContext.Save(saveFileDialogProjectiles.FileName);
 				}
 				catch(Exception ex)
 				{

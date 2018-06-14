@@ -307,5 +307,12 @@ namespace CustomNpcsEdit.Models
 
 			return ctx;
 		}
+
+		internal void Save(string fileName)
+		{
+			var json = JsonConvert.SerializeObject(this);
+
+			File.WriteAllText(fileName, json);
+		}
 	}
 }
