@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace CustomNpcsEdit
 {
-	public partial class EditorForm : Form
+	internal partial class EditorForm : Form
 	{
 		public EditorForm()
 		{

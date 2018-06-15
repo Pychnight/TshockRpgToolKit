@@ -22,7 +22,7 @@ namespace CustomNpcsEdit {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    partial class EditorForm {
+    internal partial class EditorForm {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -81,6 +81,26 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Windows.Forms.ImageListStreamer.
+        /// </summary>
+        internal static System.Windows.Forms.ImageListStreamer imageListTabIcons_ImageStream {
+            get {
+                object obj = ResourceManager.GetObject("imageListTabIcons.ImageStream", resourceCulture);
+                return ((System.Windows.Forms.ImageListStreamer)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=353,Y=17}.
+        /// </summary>
+        internal static System.Drawing.Point imageListTabIcons_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("imageListTabIcons.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=17,Y=17}.
         /// </summary>
         internal static System.Drawing.Point menuStrip1_TrayLocation {
@@ -101,7 +121,7 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=943,Y=17}.
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=879,Y=17}.
         /// </summary>
         internal static System.Drawing.Point openFileDialogNpcs_TrayLocation {
             get {
@@ -111,7 +131,7 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=573,Y=17}.
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=505,Y=17}.
         /// </summary>
         internal static System.Drawing.Point openFileDialogProjectiles_TrayLocation {
             get {
@@ -141,7 +161,7 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=1104,Y=17}.
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=1040,Y=17}.
         /// </summary>
         internal static System.Drawing.Point saveFileDialogNpcs_TrayLocation {
             get {
@@ -151,7 +171,7 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=758,Y=17}.
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=694,Y=17}.
         /// </summary>
         internal static System.Drawing.Point saveFileDialogProjectiles_TrayLocation {
             get {

@@ -80,9 +80,9 @@
 			// 
 			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(24, 0);
+			this.listBoxItems.Location = new System.Drawing.Point(32, 0);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(220, 391);
+			this.listBoxItems.Size = new System.Drawing.Size(212, 391);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -100,7 +100,7 @@
             this.toolStripButtonMoveDown});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 0);
 			this.toolStripListControl.Name = "toolStripListControl";
-			this.toolStripListControl.Size = new System.Drawing.Size(24, 391);
+			this.toolStripListControl.Size = new System.Drawing.Size(32, 391);
 			this.toolStripListControl.TabIndex = 2;
 			this.toolStripListControl.Text = "toolStrip2";
 			// 
@@ -115,7 +115,7 @@
 			this.toolStripButtonAddItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddItem.Image")));
 			this.toolStripButtonAddItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonAddItem.Name = "toolStripButtonAddItem";
-			this.toolStripButtonAddItem.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonAddItem.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonAddItem.Text = "Add New Projectile";
 			this.toolStripButtonAddItem.ToolTipText = "Add New Item";
 			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButtonAddItem_Click);
