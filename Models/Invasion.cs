@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using System.Windows.Forms.Design;
+using System.ComponentModel;
 
 namespace CustomNpcsEdit.Models
 {
@@ -28,6 +30,7 @@ namespace CustomNpcsEdit.Models
 		///     Gets the script path.
 		/// </summary>
 		[JsonProperty(Order = 1)]
+		[Editor(typeof(FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
 		public string ScriptPath { get; set; }
 
 		/// <summary>

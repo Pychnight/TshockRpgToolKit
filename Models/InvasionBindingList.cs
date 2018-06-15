@@ -34,7 +34,7 @@ namespace CustomNpcsEdit.Models
 
 		internal void Save(string fileName)
 		{
-			throw new NotImplementedException("Saving is disabled for Invasions currently.");
+			//throw new NotImplementedException("Saving is disabled for Invasions currently.");
 
 			var json = JsonConvert.SerializeObject(this, Formatting.Indented);
 			File.WriteAllText(fileName, json);
