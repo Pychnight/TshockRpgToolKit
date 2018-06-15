@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Reflection;
 //using TShockAPI;
 using System.Diagnostics;
+using System.Windows.Forms.Design;
 
 namespace CustomNpcsEdit.Models
 {
@@ -45,6 +46,7 @@ namespace CustomNpcsEdit.Models
 		public int BaseType { get; set; }
 
 		[Category("Basic Properties")]
+		[Editor(typeof(FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
 		[JsonProperty(Order = 2)]
 		public string ScriptPath { get; set; }
 

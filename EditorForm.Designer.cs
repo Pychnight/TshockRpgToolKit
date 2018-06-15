@@ -1,6 +1,6 @@
 ﻿namespace CustomNpcsEdit
 {
-	partial class EditorForm
+	public partial class EditorForm
 	{
 		/// <summary>
 		/// Required designer variable.
