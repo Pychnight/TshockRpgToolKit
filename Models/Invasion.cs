@@ -22,7 +22,7 @@ namespace CustomNpcsEdit.Models
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		public string Name { get; set; } = "example";
+		public string Name { get; set; } = "New Invasion";
 
 		/// <summary>
 		///     Gets the script path.
@@ -40,7 +40,7 @@ namespace CustomNpcsEdit.Models
 		///     Gets the completed message.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		public string CompletedMessage { get; set; } = "The example invasion has ended!";
+		public string CompletedMessage { get; set; } = "The invasion has ended!";
 
 		/// <summary>
 		///     Gets a value indicating whether the invasion should occur at spawn only.
@@ -70,14 +70,14 @@ namespace CustomNpcsEdit.Models
 			ScriptPath = other.ScriptPath;
 
 			//make a copy function
-			//NpcPointValues = other.NpcPointValues?.ToDictionary(
+			NpcPointValues = new Dictionary<string,int>(other.NpcPointValues);
 
 			CompletedMessage = other.CompletedMessage;
 			AtSpawnOnly = other.AtSpawnOnly;
 			ScaleByPlayers = other.ScaleByPlayers;
 
 			//make better copy function
-			Waves = other.Waves?.ToList();
+			Waves = other.Waves.Select(w => new WaveDefinition(w)).ToList();
 		}
 	}
 }

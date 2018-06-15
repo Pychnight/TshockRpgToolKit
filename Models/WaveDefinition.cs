@@ -47,6 +47,20 @@ namespace CustomNpcsEdit.Models
 		[JsonProperty(Order = 5)]
 		public string Miniboss { get; set; }
 
+		public WaveDefinition()
+		{
+		}
+
+		public WaveDefinition(WaveDefinition other)
+		{
+			NpcWeights = new Dictionary<string, int>(other.NpcWeights);//we can copy this, values are valuetypes... and strings should work.
+			PointsRequired = other.PointsRequired;
+			MaxSpawns = other.MaxSpawns;
+			SpawnRate = other.SpawnRate;
+			StartMessage = other.StartMessage;
+			Miniboss = other.Miniboss;
+		}
+
 		public override string ToString()
 		{
 			return $"Wave: \"{StartMessage}\"";
