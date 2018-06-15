@@ -46,5 +46,10 @@ namespace CustomNpcsEdit.Models
 		/// </summary>
 		[JsonProperty(Order = 5)]
 		public string Miniboss { get; set; }
+
+		public override string ToString()
+		{
+			return $"Wave: \"{StartMessage}\"";
+		}
 	}
 }
