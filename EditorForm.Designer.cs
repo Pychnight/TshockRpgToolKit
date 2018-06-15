@@ -1,6 +1,6 @@
 ﻿namespace CustomNpcsEdit
 {
-	public partial class EditorForm
+	partial class EditorForm
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -54,15 +54,17 @@
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPageInvasions = new System.Windows.Forms.TabPage();
 			this.tabPageNpcs = new System.Windows.Forms.TabPage();
+			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
 			this.tabPageProjectiles = new System.Windows.Forms.TabPage();
+			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogNpcs = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
-			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
-			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
+			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
+			this.tabPageInvasions.SuspendLayout();
 			this.tabPageNpcs.SuspendLayout();
 			this.tabPageProjectiles.SuspendLayout();
 			this.SuspendLayout();
@@ -268,9 +270,9 @@
 			// 
 			// tabPageInvasions
 			// 
+			this.tabPageInvasions.Controls.Add(this.invasionEditor1);
 			this.tabPageInvasions.Location = new System.Drawing.Point(4, 22);
 			this.tabPageInvasions.Name = "tabPageInvasions";
-			this.tabPageInvasions.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPageInvasions.Size = new System.Drawing.Size(1000, 609);
 			this.tabPageInvasions.TabIndex = 0;
 			this.tabPageInvasions.Text = "Invasions";
@@ -286,6 +288,16 @@
 			this.tabPageNpcs.Text = "NPCs";
 			this.tabPageNpcs.UseVisualStyleBackColor = true;
 			// 
+			// npcEditor1
+			// 
+			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
+			this.npcEditor1.Name = "npcEditor1";
+			this.npcEditor1.OpenFileDialog = null;
+			this.npcEditor1.SaveFileDialog = null;
+			this.npcEditor1.Size = new System.Drawing.Size(1000, 609);
+			this.npcEditor1.TabIndex = 0;
+			// 
 			// tabPageProjectiles
 			// 
 			this.tabPageProjectiles.Controls.Add(this.projectileEditor1);
@@ -295,6 +307,16 @@
 			this.tabPageProjectiles.TabIndex = 2;
 			this.tabPageProjectiles.Text = "Projectiles";
 			this.tabPageProjectiles.UseVisualStyleBackColor = true;
+			// 
+			// projectileEditor1
+			// 
+			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
+			this.projectileEditor1.Name = "projectileEditor1";
+			this.projectileEditor1.OpenFileDialog = null;
+			this.projectileEditor1.SaveFileDialog = null;
+			this.projectileEditor1.Size = new System.Drawing.Size(1000, 609);
+			this.projectileEditor1.TabIndex = 0;
 			// 
 			// openFileDialogProjectiles
 			// 
@@ -318,25 +340,15 @@
 			this.saveFileDialogNpcs.SupportMultiDottedExtensions = true;
 			this.saveFileDialogNpcs.Title = "Save Custom NPCs";
 			// 
-			// npcEditor1
+			// invasionEditor1
 			// 
-			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
-			this.npcEditor1.Name = "npcEditor1";
-			this.npcEditor1.OpenFileDialog = null;
-			this.npcEditor1.SaveFileDialog = null;
-			this.npcEditor1.Size = new System.Drawing.Size(1000, 609);
-			this.npcEditor1.TabIndex = 0;
-			// 
-			// projectileEditor1
-			// 
-			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
-			this.projectileEditor1.Name = "projectileEditor1";
-			this.projectileEditor1.OpenFileDialog = null;
-			this.projectileEditor1.SaveFileDialog = null;
-			this.projectileEditor1.Size = new System.Drawing.Size(1000, 609);
-			this.projectileEditor1.TabIndex = 0;
+			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
+			this.invasionEditor1.Name = "invasionEditor1";
+			this.invasionEditor1.OpenFileDialog = null;
+			this.invasionEditor1.SaveFileDialog = null;
+			this.invasionEditor1.Size = new System.Drawing.Size(1000, 609);
+			this.invasionEditor1.TabIndex = 0;
 			// 
 			// EditorForm
 			// 
@@ -353,6 +365,7 @@
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.tabControl1.ResumeLayout(false);
+			this.tabPageInvasions.ResumeLayout(false);
 			this.tabPageNpcs.ResumeLayout(false);
 			this.tabPageProjectiles.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -394,6 +407,7 @@
 		private Controls.NpcEditor npcEditor1;
 		private System.Windows.Forms.OpenFileDialog openFileDialogNpcs;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcs;
+		private Controls.InvasionEditor invasionEditor1;
 	}
 }
 

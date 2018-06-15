@@ -18,6 +18,10 @@ namespace CustomNpcsEdit
 		{
 			InitializeComponent();
 
+			var invasionsEditor = (ObjectEditor)tabControl1.TabPages[0].Controls[0];
+			invasionsEditor.OpenFileDialog = openFileDialogNpcs;
+			invasionsEditor.SaveFileDialog = saveFileDialogNpcs;
+
 			var npcsEditor = (ObjectEditor)tabControl1.TabPages[1].Controls[0];
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;
 			npcsEditor.SaveFileDialog = saveFileDialogNpcs;

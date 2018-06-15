@@ -52,6 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\InvasionEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\NpcEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -75,11 +78,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>EditorForm.resx</DependentUpon>
     </Compile>
+    <Compile Include="Models\Invasion.cs" />
+    <Compile Include="Models\InvasionBindingList.cs" />
     <Compile Include="Models\LootEntry.cs" />
     <Compile Include="Models\Npc.cs" />
     <Compile Include="Models\NpcBindingList.cs" />
     <Compile Include="Models\ProjectileBindingList.cs" />
     <Compile Include="Models\Projectile.cs" />
+    <Compile Include="Models\WaveDefinition.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls\ObjectEditor.resx">
@@ -91,13 +97,14 @@
       <LastGenOutput>EditorForm1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
