@@ -26,6 +26,9 @@ namespace CustomNpcsEdit.Controls
 		public ObjectEditor()
 		{
 			InitializeComponent();
+
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+
 			OnPostInitialize();
 		}
 
@@ -85,8 +88,8 @@ namespace CustomNpcsEdit.Controls
 
 			if( items == null )
 				return;
-			
-			var newItem = new Projectile();
+
+			var newItem = OnCreateItem();
 			items.Add(newItem);
 		}
 		

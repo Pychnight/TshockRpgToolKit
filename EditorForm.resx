@@ -216,4 +216,25 @@
   <metadata name="saveFileDialogProjectiles.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>758, 17</value>
   </metadata>
+  <metadata name="openFileDialogNpcs.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>943, 17</value>
+  </metadata>
+  <metadata name="saveFileDialogNpcs.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>1104, 17</value>
+  </metadata>
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAHBoQAAEABABwAgAAFgAAACgAAAAcAAAANAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAADAhIAoQKGAE0mRgCEH3MAEQ39AJUwhAAzMP0AqEOXALdSpgD///8AAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAqqoiIiKqqiIiIiIiIqoAAKqqIiIiqqoiIiIiIiKqAACqqiKIdyIiIoiId3ciqgAAqqoiiHci
+        IiKIiHd3IqoAAKoimSIRiIgRIiIzMyKqAACqIpkiEYiIESIiMzMiqgAAAJkiVRGIiBFVVVUzIiIAAACZ
+        IlURiIgRVVVVMyIiAAAid4iIiBGIiBFVMyKIIgAAIneIiIgRiIgRVTMiiCIAACJ3iGaIdxGIiBERIiKq
+        AAAid4hmiHcRiIgRESIiqgAAIncARIh3VRF3dyKqqqoAACJ3AESId1URd3ciqqqqAAAid4gAAFUzIiIi
+        qqqqqgAAIneIAABVMyIiIqqqqqoAAKoid4hVMyKqqqqqqqqqAACqIneIVTMiqqqqqqqqqgAAqqoiMyIz
+        IqqqqqqqqqoAAKqqIjMiMyKqqqqqqqqqAACqqiJVIlUiqqqqqqqqqgAAqqoiVSJVIqqqqqqqqqoAAKqq
+        IogiiCKqqqqqqqqqAACqqiKIIogiqqqqqqqqqgAAqqqqIqoiqqqqqqqqqqoAAKqqqiKqIqqqqqqqqqqq
+        AADwPAAw8DwAMPAAADDwAAAwwAAAMMAAADAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAADAAAAPwAAAD8AAA
+        D/AAAA/wwAP/8MAD//DwA//w8AP/8PAD//DwA//w8AP/8PAD//D8z//w/M//8A==
+</value>
+  </data>
 </root>

@@ -72,7 +72,7 @@
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.propertyGridItemEditor);
-			this.splitContainer1.Size = new System.Drawing.Size(498, 388);
+			this.splitContainer1.Size = new System.Drawing.Size(500, 391);
 			this.splitContainer1.SplitterDistance = 244;
 			this.splitContainer1.TabIndex = 0;
 			// 
@@ -80,9 +80,9 @@
 			// 
 			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(32, 0);
+			this.listBoxItems.Location = new System.Drawing.Point(24, 0);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(212, 388);
+			this.listBoxItems.Size = new System.Drawing.Size(220, 391);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -100,14 +100,14 @@
             this.toolStripButtonMoveDown});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 0);
 			this.toolStripListControl.Name = "toolStripListControl";
-			this.toolStripListControl.Size = new System.Drawing.Size(32, 388);
+			this.toolStripListControl.Size = new System.Drawing.Size(24, 391);
 			this.toolStripListControl.TabIndex = 2;
 			this.toolStripListControl.Text = "toolStrip2";
 			// 
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(29, 6);
+			this.toolStripSeparator5.Size = new System.Drawing.Size(21, 6);
 			// 
 			// toolStripButtonAddItem
 			// 
@@ -115,7 +115,7 @@
 			this.toolStripButtonAddItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddItem.Image")));
 			this.toolStripButtonAddItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonAddItem.Name = "toolStripButtonAddItem";
-			this.toolStripButtonAddItem.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonAddItem.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonAddItem.Text = "Add New Projectile";
 			this.toolStripButtonAddItem.ToolTipText = "Add New Item";
 			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButtonAddItem_Click);
@@ -126,7 +126,7 @@
 			this.toolStripButtonCopy.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCopy.Image")));
 			this.toolStripButtonCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonCopy.Name = "toolStripButtonCopy";
-			this.toolStripButtonCopy.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonCopy.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonCopy.Text = "toolStripButton1";
 			this.toolStripButtonCopy.ToolTipText = "Copy Item";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
@@ -137,7 +137,7 @@
 			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
 			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
-			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
 			this.toolStripButtonDeleteItem.ToolTipText = "Delete Item";
 			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
@@ -145,7 +145,7 @@
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(29, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(21, 6);
 			// 
 			// toolStripButtonMoveUp
 			// 
@@ -153,7 +153,7 @@
 			this.toolStripButtonMoveUp.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveUp.Image")));
 			this.toolStripButtonMoveUp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveUp.Name = "toolStripButtonMoveUp";
-			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonMoveUp.Text = "Move Up";
 			this.toolStripButtonMoveUp.Click += new System.EventHandler(this.toolStripButtonMoveUp_Click);
 			// 
@@ -163,7 +163,7 @@
 			this.toolStripButtonMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveDown.Image")));
 			this.toolStripButtonMoveDown.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveDown.Name = "toolStripButtonMoveDown";
-			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonMoveDown.Text = "Move Down";
 			this.toolStripButtonMoveDown.Click += new System.EventHandler(this.toolStripButtonMoveDown_Click);
 			// 
@@ -172,7 +172,7 @@
 			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
 			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
-			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 388);
+			this.propertyGridItemEditor.Size = new System.Drawing.Size(252, 391);
 			this.propertyGridItemEditor.TabIndex = 0;
 			// 
 			// toolStrip1
@@ -190,7 +190,7 @@
             this.toolStripTextBox1});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(498, 25);
+			this.toolStrip1.Size = new System.Drawing.Size(500, 25);
 			this.toolStrip1.TabIndex = 1;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
@@ -259,12 +259,11 @@
 			// 
 			// ObjectEditor
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.toolStrip1);
 			this.Name = "ObjectEditor";
-			this.Size = new System.Drawing.Size(498, 413);
+			this.Size = new System.Drawing.Size(500, 416);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel1.PerformLayout();
 			this.splitContainer1.Panel2.ResumeLayout(false);

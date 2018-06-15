@@ -57,9 +57,13 @@
 			this.tabPageProjectiles = new System.Windows.Forms.TabPage();
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
+			this.openFileDialogNpcs = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
+			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
 			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
+			this.tabPageNpcs.SuspendLayout();
 			this.tabPageProjectiles.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -71,7 +75,7 @@
             this.helpToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(784, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(1008, 24);
 			this.menuStrip1.TabIndex = 0;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -244,9 +248,9 @@
 			// 
 			// statusStrip1
 			// 
-			this.statusStrip1.Location = new System.Drawing.Point(0, 539);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 659);
 			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(784, 22);
+			this.statusStrip1.Size = new System.Drawing.Size(1008, 22);
 			this.statusStrip1.TabIndex = 2;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
@@ -259,7 +263,7 @@
 			this.tabControl1.Location = new System.Drawing.Point(0, 24);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(784, 515);
+			this.tabControl1.Size = new System.Drawing.Size(1008, 635);
 			this.tabControl1.TabIndex = 3;
 			// 
 			// tabPageInvasions
@@ -267,17 +271,17 @@
 			this.tabPageInvasions.Location = new System.Drawing.Point(4, 22);
 			this.tabPageInvasions.Name = "tabPageInvasions";
 			this.tabPageInvasions.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageInvasions.Size = new System.Drawing.Size(776, 489);
+			this.tabPageInvasions.Size = new System.Drawing.Size(1000, 609);
 			this.tabPageInvasions.TabIndex = 0;
 			this.tabPageInvasions.Text = "Invasions";
 			this.tabPageInvasions.UseVisualStyleBackColor = true;
 			// 
 			// tabPageNpcs
 			// 
+			this.tabPageNpcs.Controls.Add(this.npcEditor1);
 			this.tabPageNpcs.Location = new System.Drawing.Point(4, 22);
 			this.tabPageNpcs.Name = "tabPageNpcs";
-			this.tabPageNpcs.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageNpcs.Size = new System.Drawing.Size(776, 489);
+			this.tabPageNpcs.Size = new System.Drawing.Size(1000, 609);
 			this.tabPageNpcs.TabIndex = 1;
 			this.tabPageNpcs.Text = "NPCs";
 			this.tabPageNpcs.UseVisualStyleBackColor = true;
@@ -287,7 +291,7 @@
 			this.tabPageProjectiles.Controls.Add(this.projectileEditor1);
 			this.tabPageProjectiles.Location = new System.Drawing.Point(4, 22);
 			this.tabPageProjectiles.Name = "tabPageProjectiles";
-			this.tabPageProjectiles.Size = new System.Drawing.Size(776, 489);
+			this.tabPageProjectiles.Size = new System.Drawing.Size(1000, 609);
 			this.tabPageProjectiles.TabIndex = 2;
 			this.tabPageProjectiles.Text = "Projectiles";
 			this.tabPageProjectiles.UseVisualStyleBackColor = true;
@@ -301,7 +305,28 @@
 			// 
 			this.saveFileDialogProjectiles.Filter = "Json files|*.json|All files|*.*";
 			this.saveFileDialogProjectiles.SupportMultiDottedExtensions = true;
-			this.saveFileDialogProjectiles.Title = "Save Projectiles";
+			this.saveFileDialogProjectiles.Title = "Save Custom Projectiles";
+			// 
+			// openFileDialogNpcs
+			// 
+			this.openFileDialogNpcs.Filter = "Json files|*.json|All files|*.*";
+			this.openFileDialogNpcs.Title = "Open Custom NPCs";
+			// 
+			// saveFileDialogNpcs
+			// 
+			this.saveFileDialogNpcs.Filter = "Json files|*.json|All files|*.*";
+			this.saveFileDialogNpcs.SupportMultiDottedExtensions = true;
+			this.saveFileDialogNpcs.Title = "Save Custom NPCs";
+			// 
+			// npcEditor1
+			// 
+			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
+			this.npcEditor1.Name = "npcEditor1";
+			this.npcEditor1.OpenFileDialog = null;
+			this.npcEditor1.SaveFileDialog = null;
+			this.npcEditor1.Size = new System.Drawing.Size(1000, 609);
+			this.npcEditor1.TabIndex = 0;
 			// 
 			// projectileEditor1
 			// 
@@ -310,23 +335,25 @@
 			this.projectileEditor1.Name = "projectileEditor1";
 			this.projectileEditor1.OpenFileDialog = null;
 			this.projectileEditor1.SaveFileDialog = null;
-			this.projectileEditor1.Size = new System.Drawing.Size(776, 489);
+			this.projectileEditor1.Size = new System.Drawing.Size(1000, 609);
 			this.projectileEditor1.TabIndex = 0;
 			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(784, 561);
+			this.ClientSize = new System.Drawing.Size(1008, 681);
 			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.menuStrip1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "EditorForm";
 			this.Text = "CustomNpcsEdit";
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.tabControl1.ResumeLayout(false);
+			this.tabPageNpcs.ResumeLayout(false);
 			this.tabPageProjectiles.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -364,6 +391,9 @@
 		private System.Windows.Forms.OpenFileDialog openFileDialogProjectiles;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogProjectiles;
 		private Controls.ProjectileEditor projectileEditor1;
+		private Controls.NpcEditor npcEditor1;
+		private System.Windows.Forms.OpenFileDialog openFileDialogNpcs;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcs;
 	}
 }
 

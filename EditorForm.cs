@@ -18,12 +18,16 @@ namespace CustomNpcsEdit
 		{
 			InitializeComponent();
 
+			var npcsEditor = (ObjectEditor)tabControl1.TabPages[1].Controls[0];
+			npcsEditor.OpenFileDialog = openFileDialogNpcs;
+			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
+
 			var projectilesEditor = (ObjectEditor)tabControl1.TabPages[2].Controls[0];
 			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
 			//start on projectiles page for now...
-			tabControl1.SelectedIndex = 2;
+			tabControl1.SelectedIndex = 1;
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)

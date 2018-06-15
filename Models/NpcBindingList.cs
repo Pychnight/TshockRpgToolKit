@@ -5,31 +5,31 @@ using Newtonsoft.Json;
 
 namespace CustomNpcsEdit.Models
 {
-	public class ProjectileBindingList : BindingList<Projectile>
+	public class NpcBindingList : BindingList<Npc>
 	{
-		internal static ProjectileBindingList CreateMockContext()
+		internal static NpcBindingList CreateMockContext()
 		{
-			var result = new ProjectileBindingList();
+			var result = new NpcBindingList();
 
-			for(var i =0;i<3;i++)
+			for( var i = 0; i < 3; i++ )
 			{
-				result.Add(new Projectile()
+				result.Add(new Npc()
 				{
-					Name = $"Projectile{i}",
-					ScriptPath = @"scripts/basicprojectile.boo",
+					Name = $"Npc{i}",
+					ScriptPath = @"scripts/basicnpc.boo",
 					BaseType = i
 				});
 			}
-			
+
 			return result;
 		}
 
-		public static ProjectileBindingList Load(string fileName)
+		public static NpcBindingList Load(string fileName)
 		{
 			//var ctx = CreateMockContext();
 			var json = File.ReadAllText(fileName);
-			var items = JsonConvert.DeserializeObject<ProjectileBindingList>(json);
-			
+			var items = JsonConvert.DeserializeObject<NpcBindingList>(json);
+
 			return items;
 		}
 
