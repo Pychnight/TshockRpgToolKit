@@ -107,7 +107,7 @@
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(21, 6);
+			this.toolStripSeparator5.Size = new System.Drawing.Size(29, 6);
 			// 
 			// toolStripButtonAddItem
 			// 
@@ -126,7 +126,7 @@
 			this.toolStripButtonCopy.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCopy.Image")));
 			this.toolStripButtonCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonCopy.Name = "toolStripButtonCopy";
-			this.toolStripButtonCopy.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonCopy.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonCopy.Text = "toolStripButton1";
 			this.toolStripButtonCopy.ToolTipText = "Copy Item";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
@@ -137,7 +137,7 @@
 			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
 			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
-			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
 			this.toolStripButtonDeleteItem.ToolTipText = "Delete Item";
 			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
@@ -145,7 +145,7 @@
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(21, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(29, 6);
 			// 
 			// toolStripButtonMoveUp
 			// 
@@ -153,7 +153,7 @@
 			this.toolStripButtonMoveUp.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveUp.Image")));
 			this.toolStripButtonMoveUp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveUp.Name = "toolStripButtonMoveUp";
-			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonMoveUp.Text = "Move Up";
 			this.toolStripButtonMoveUp.Click += new System.EventHandler(this.toolStripButtonMoveUp_Click);
 			// 
@@ -163,7 +163,7 @@
 			this.toolStripButtonMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveDown.Image")));
 			this.toolStripButtonMoveDown.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveDown.Name = "toolStripButtonMoveDown";
-			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonMoveDown.Text = "Move Down";
 			this.toolStripButtonMoveDown.Click += new System.EventHandler(this.toolStripButtonMoveDown_Click);
 			// 

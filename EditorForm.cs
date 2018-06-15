@@ -31,7 +31,7 @@ namespace CustomNpcsEdit
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
 			//start on projectiles page for now...
-			tabControl1.SelectedIndex = 1;
+			tabControl1.SelectedIndex = 0;
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
