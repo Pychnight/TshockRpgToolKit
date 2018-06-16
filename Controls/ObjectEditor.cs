@@ -27,6 +27,7 @@ namespace CustomNpcsEdit.Controls
 		{
 			InitializeComponent();
 
+			//removing this, really slows down file loads for some reason...
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 
 			OnPostInitialize();
@@ -47,6 +48,8 @@ namespace CustomNpcsEdit.Controls
 		{
 			propertyGridItemEditor.SelectedObject = null;
 			//listBoxItems.DataSource = null;
+
+			toolStripLabelFileName.Text = "";
 		}
 
 		protected virtual object OnCreateItem()
@@ -157,6 +160,7 @@ namespace CustomNpcsEdit.Controls
 				{
 					Clear();
 					OnFileLoad(OpenFileDialog.FileName);
+					toolStripLabelFileName.Text = OpenFileDialog.FileName;
 				}
 				catch(Exception ex)
 				{
@@ -174,6 +178,7 @@ namespace CustomNpcsEdit.Controls
 				try
 				{
 					OnFileSave(SaveFileDialog.FileName);
+					toolStripLabelFileName.Text = SaveFileDialog.FileName;
 				}
 				catch(Exception ex)
 				{
