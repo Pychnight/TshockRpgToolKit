@@ -18,13 +18,25 @@ namespace CustomNpcsEdit.Models
 	///     Represents an invasion definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class Invasion //: DefinitionBase, IDisposable
+	public sealed class Invasion : INotifyPropertyChanged
 	{
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		string name = "New Invasion";
+
 		/// <summary>
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		public string Name { get; set; } = "New Invasion";
+		public string Name
+		{
+			get { return name; }
+			set
+			{
+				name = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+			}
+		}
 
 		/// <summary>
 		///     Gets the script path.
