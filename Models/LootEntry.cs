@@ -47,80 +47,18 @@ namespace CustomNpcsEdit.Models
 		[JsonProperty(Order = 4)]
 		public double Chance { get; set; }
 
-		//[Obsolete]
-		//      internal void ThrowIfInvalid()
-		//      {
-		//          if (Name == null)
-		//          {
-		//              throw new FormatException($"{nameof(Name)} is null.");
-		//          }
-		//          if (MinStackSize < 0)
-		//          {
-		//              throw new FormatException($"{nameof(MinStackSize)} is negative.");
-		//          }
-		//          if (MaxStackSize < MinStackSize)
-		//          {
-		//              throw new FormatException($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
-		//          }
-		//          if (Chance <= 0)
-		//          {
-		//              throw new FormatException($"{nameof(Chance)} is not positive.");
-		//          }
-		//          if (Chance > 1)
-		//          {
-		//              throw new FormatException($"{nameof(Chance)} is greater than 1.");
-		//          }
-		//          if (Prefix <= -2)
-		//          {
-		//              throw new FormatException($"{nameof(Prefix)} is too small.");
-		//          }
-		//          if (Prefix >= PrefixID.Count)
-		//          {
-		//              throw new FormatException($"{nameof(Prefix)} is too large.");
-		//          }
-		//      }
+		public LootEntry()
+		{
+		}
 
-		//public ValidationResult Validate()
-		//{
-		//	var result = new ValidationResult();
-
-		//	if( Name == null )
-		//	{
-		//		//throw new FormatException($"{nameof(Name)} is null.");
-		//		result.AddError($"{nameof(Name)} is null.");
-		//	}
-		//	if( MinStackSize < 0 )
-		//	{
-		//		//throw new FormatException($"{nameof(MinStackSize)} is negative.");
-		//		result.AddError($"{nameof(MinStackSize)} is negative.");
-		//	}
-		//	if( MaxStackSize < MinStackSize )
-		//	{
-		//		//throw new FormatException($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
-		//		result.AddError($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
-		//	}
-		//	if( Chance <= 0 )
-		//	{
-		//		//throw new FormatException($"{nameof(Chance)} is not positive.");
-		//		result.AddError($"{nameof(Chance)} is not positive.");
-		//	}
-		//	if( Chance > 1 )
-		//	{
-		//		//throw new FormatException($"{nameof(Chance)} is greater than 1.");
-		//		result.AddError($"{nameof(Chance)} is greater than 1.");
-		//	}
-		//	if( Prefix <= -2 )
-		//	{
-		//		//throw new FormatException($"{nameof(Prefix)} is too small.");
-		//		result.AddError($"{nameof(Prefix)} is too small.");
-		//	}
-		//	if( Prefix >= PrefixID.Count )
-		//	{
-		//		//throw new FormatException($"{nameof(Prefix)} is too large.");
-		//		result.AddError($"{nameof(Prefix)} is too large.");
-		//	}
-
-		//	return result;
-		//}
+		public LootEntry(LootEntry other)
+		{
+			Name = other.Name;
+			MinStackSize = other.MinStackSize;
+			MaxStackSize = other.MaxStackSize;
+			Prefix = other.Prefix;
+			Chance = other.Chance;
+		}
+		
 	}
 }

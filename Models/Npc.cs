@@ -341,7 +341,7 @@ namespace CustomNpcsEdit.Models
 		{
 			TallyKills = other.TallyKills;
 			IsOverride = other.IsOverride;
-			Entries = other.Entries?.ToList();
+			Entries = other.Entries.Select(e => new LootEntry(e)).ToList();
 		}
 	}
 
