@@ -1,6 +1,6 @@
 ﻿namespace CustomNpcsEdit.Controls
 {
-	partial class ProjectileEditor
+	partial class ObjectEditor
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProjectileEditor));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ObjectEditor));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.listBoxItems = new System.Windows.Forms.ListBox();
 			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
@@ -49,9 +49,7 @@
 			this.toolStripButtonFileSaveAs = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-			this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
-			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
-			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
+			this.toolStripLabelFileName = new System.Windows.Forms.ToolStripLabel();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -74,7 +72,7 @@
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.propertyGridItemEditor);
-			this.splitContainer1.Size = new System.Drawing.Size(498, 388);
+			this.splitContainer1.Size = new System.Drawing.Size(500, 391);
 			this.splitContainer1.SplitterDistance = 244;
 			this.splitContainer1.TabIndex = 0;
 			// 
@@ -84,7 +82,7 @@
 			this.listBoxItems.FormattingEnabled = true;
 			this.listBoxItems.Location = new System.Drawing.Point(24, 0);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(220, 388);
+			this.listBoxItems.Size = new System.Drawing.Size(220, 391);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -102,7 +100,7 @@
             this.toolStripButtonMoveDown});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 0);
 			this.toolStripListControl.Name = "toolStripListControl";
-			this.toolStripListControl.Size = new System.Drawing.Size(24, 388);
+			this.toolStripListControl.Size = new System.Drawing.Size(24, 391);
 			this.toolStripListControl.TabIndex = 2;
 			this.toolStripListControl.Text = "toolStrip2";
 			// 
@@ -119,6 +117,7 @@
 			this.toolStripButtonAddItem.Name = "toolStripButtonAddItem";
 			this.toolStripButtonAddItem.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonAddItem.Text = "Add New Projectile";
+			this.toolStripButtonAddItem.ToolTipText = "Add New Item";
 			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButtonAddItem_Click);
 			// 
 			// toolStripButtonCopy
@@ -129,7 +128,7 @@
 			this.toolStripButtonCopy.Name = "toolStripButtonCopy";
 			this.toolStripButtonCopy.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonCopy.Text = "toolStripButton1";
-			this.toolStripButtonCopy.ToolTipText = "Copy Projectile";
+			this.toolStripButtonCopy.ToolTipText = "Copy Item";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
 			// 
 			// toolStripButtonDeleteItem
@@ -140,7 +139,7 @@
 			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
 			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
-			this.toolStripButtonDeleteItem.ToolTipText = "Delete Projectile";
+			this.toolStripButtonDeleteItem.ToolTipText = "Delete Item";
 			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
 			// 
 			// toolStripSeparator1
@@ -173,7 +172,7 @@
 			this.propertyGridItemEditor.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertyGridItemEditor.Location = new System.Drawing.Point(0, 0);
 			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
-			this.propertyGridItemEditor.Size = new System.Drawing.Size(250, 388);
+			this.propertyGridItemEditor.Size = new System.Drawing.Size(252, 391);
 			this.propertyGridItemEditor.TabIndex = 0;
 			// 
 			// toolStrip1
@@ -188,10 +187,10 @@
             this.toolStripButtonFileSaveAs,
             this.toolStripSeparator4,
             this.toolStripLabel1,
-            this.toolStripTextBox1});
+            this.toolStripLabelFileName});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(498, 25);
+			this.toolStrip1.Size = new System.Drawing.Size(500, 25);
 			this.toolStrip1.TabIndex = 1;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
@@ -252,31 +251,18 @@
 			this.toolStripLabel1.Size = new System.Drawing.Size(28, 22);
 			this.toolStripLabel1.Text = "File:";
 			// 
-			// toolStripTextBox1
+			// toolStripLabelFileName
 			// 
-			this.toolStripTextBox1.Enabled = false;
-			this.toolStripTextBox1.Name = "toolStripTextBox1";
-			this.toolStripTextBox1.Size = new System.Drawing.Size(100, 25);
+			this.toolStripLabelFileName.Name = "toolStripLabelFileName";
+			this.toolStripLabelFileName.Size = new System.Drawing.Size(0, 22);
 			// 
-			// openFileDialogProjectiles
+			// ObjectEditor
 			// 
-			this.openFileDialogProjectiles.Filter = "Json files|*.json|All files|*.*";
-			this.openFileDialogProjectiles.Title = "Open Custom Projectiles";
-			// 
-			// saveFileDialogProjectiles
-			// 
-			this.saveFileDialogProjectiles.Filter = "Json files|*.json|All files|*.*";
-			this.saveFileDialogProjectiles.SupportMultiDottedExtensions = true;
-			this.saveFileDialogProjectiles.Title = "Save Projectiles";
-			// 
-			// ProjectileEditor
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.toolStrip1);
-			this.Name = "ProjectileEditor";
-			this.Size = new System.Drawing.Size(498, 413);
+			this.Name = "ObjectEditor";
+			this.Size = new System.Drawing.Size(500, 416);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel1.PerformLayout();
 			this.splitContainer1.Panel2.ResumeLayout(false);
@@ -311,10 +297,8 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-		private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
 		private System.Windows.Forms.ToolStripLabel toolStripLabel1;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-		private System.Windows.Forms.OpenFileDialog openFileDialogProjectiles;
-		private System.Windows.Forms.SaveFileDialog saveFileDialogProjectiles;
+		private System.Windows.Forms.ToolStripLabel toolStripLabelFileName;
 	}
 }

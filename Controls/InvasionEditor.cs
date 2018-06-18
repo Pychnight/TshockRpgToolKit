@@ -7,26 +7,26 @@ using System.Threading.Tasks;
 
 namespace CustomNpcsEdit.Controls
 {
-	public class ProjectileEditor : ObjectEditor
+	public class InvasionEditor : ObjectEditor
 	{
-		ProjectileBindingList projectiles;
+		InvasionBindingList invasions;
 
 		protected override void OnPostInitialize()
 		{
-			projectiles = new ProjectileBindingList();
-			SetBindingCollection(projectiles);
+			invasions = new InvasionBindingList();
+			SetBindingCollection(invasions);
 		}
 
 		protected override object OnCreateItem()
 		{
-			return new Projectile();
+			return new Invasion();
 		}
 
 		protected override object OnCopyItem(object source)
 		{
 			const string suffix = "(Copy)";
 
-			var copy = new Projectile((Projectile)source);
+			var copy = new Invasion((Invasion)source);
 
 			if( !copy.Name.EndsWith(suffix) )
 				copy.Name = copy.Name + suffix;
@@ -36,15 +36,15 @@ namespace CustomNpcsEdit.Controls
 
 		protected override void OnFileLoad(string fileName)
 		{
-			projectiles.Clear();
+			invasions.Clear();
 
-			projectiles = ProjectileBindingList.Load(fileName);
-			SetBindingCollection(projectiles);
+			invasions = InvasionBindingList.Load(fileName);
+			SetBindingCollection(invasions);
 		}
 
 		protected override void OnFileSave(string fileName)
 		{
-			projectiles.Save(fileName);
+			invasions.Save(fileName);
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace CustomNpcsEdit.Models
 {
 	[DefaultProperty("Name")]
 	[JsonObject(MemberSerialization.OptIn)]
-	public class Projectile : INotifyPropertyChanged //: DefinitionBase, IDisposable
+	public class Projectile : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -40,7 +40,7 @@ namespace CustomNpcsEdit.Models
 		[Description("The Terraria Projectile type this Custom Projectile is based upon.")]
 		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }
-
+				
 		private ProjectileBaseOverride baseOverride = new ProjectileBaseOverride();
 
 		[Browsable(false)]
