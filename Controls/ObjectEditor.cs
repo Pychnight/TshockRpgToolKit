@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace CustomNpcsEdit.Controls
@@ -244,6 +245,63 @@ namespace CustomNpcsEdit.Controls
 			var selected = (BoundTreeNode)e.Node;
 
 			propertyGridItemEditor.SelectedObject = selected.BoundObject;
+		}
+
+		private void treeViewItems_ItemDrag(object sender, ItemDragEventArgs e)
+		{
+			DoDragDrop(e.Item, DragDropEffects.Move);
+		}
+
+		private void treeViewItems_DragEnter(object sender, DragEventArgs e)
+		{
+			e.Effect = DragDropEffects.Move;
+		}
+
+		private void treeViewItems_DragDrop(object sender, DragEventArgs e)
+		{
+			// Retrieve the client coordinates of the drop location.
+			Point targetPoint = treeViewItems.PointToClient(new Point(e.X, e.Y));
+
+			// Retrieve the node at the drop location.
+			BoundTreeNode targetNode = (BoundTreeNode)treeViewItems.GetNodeAt(targetPoint);
+
+			// Retrieve the node that was dragged.
+			BoundTreeNode draggedNode = (BoundTreeNode)e.Data.GetData(typeof(BoundTreeNode));
+
+			// Confirm that the node at the drop location is not 
+			// the dragged node and that target node isn't null
+			// (for example if you drag outside the control)
+			if( !draggedNode.Equals(targetNode) && targetNode != null )
+			{
+				if(targetNode.CanAcceptDraggedNode(draggedNode))
+				{
+					// Remove the node from its current 
+					// location and add it to the node at the drop location.
+					draggedNode.Remove();
+					//targetNode.Nodes.Add(draggedNode);
+
+					if(targetNode.ShouldInsertDraggedNodeAsChild(draggedNode))
+					{
+						targetNode.Nodes.Add(draggedNode);
+						// Expand the node at the location 
+						// to show the dropped node.
+						targetNode.Expand();
+					}
+					else
+					{
+						targetNode.InsertAfter(draggedNode);
+					}
+				}
+			}
+			else if(targetNode == null)
+			{
+				//were dropping at top level... ie, the treeview itself
+				if( draggedNode.BoundObject is IncludeModel )
+					return;//includes can only live within categories.
+
+				draggedNode.Remove();
+				treeViewItems.Nodes.Add(draggedNode);
+			}
 		}
 	}
 }

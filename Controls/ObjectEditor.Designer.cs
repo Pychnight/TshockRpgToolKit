@@ -82,11 +82,13 @@
 			// 
 			// listBoxItems
 			// 
-			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.listBoxItems.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.listBoxItems.Enabled = false;
 			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(24, 322);
+			this.listBoxItems.Location = new System.Drawing.Point(24, 283);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(220, 69);
+			this.listBoxItems.Size = new System.Drawing.Size(220, 108);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -262,15 +264,21 @@
 			// 
 			// treeViewItems
 			// 
-			this.treeViewItems.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.treeViewItems.AllowDrop = true;
+			this.treeViewItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.treeViewItems.ImageIndex = 0;
 			this.treeViewItems.ImageList = this.imageListTreeView;
-			this.treeViewItems.Location = new System.Drawing.Point(24, 0);
+			this.treeViewItems.Location = new System.Drawing.Point(27, 3);
 			this.treeViewItems.Name = "treeViewItems";
 			this.treeViewItems.SelectedImageIndex = 0;
-			this.treeViewItems.Size = new System.Drawing.Size(220, 322);
+			this.treeViewItems.Size = new System.Drawing.Size(214, 274);
 			this.treeViewItems.TabIndex = 3;
+			this.treeViewItems.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeViewItems_ItemDrag);
 			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
+			this.treeViewItems.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragDrop);
+			this.treeViewItems.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragEnter);
 			// 
 			// imageListTreeView
 			// 
