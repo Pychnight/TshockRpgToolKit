@@ -70,6 +70,7 @@
     <Compile Include="Controls\ProjectileEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Controls\TreeNodeExtensions.cs" />
     <Compile Include="EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>

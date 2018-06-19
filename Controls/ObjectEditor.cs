@@ -1,14 +1,9 @@
-﻿using System;
+﻿using CustomNpcsEdit.Models;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using CustomNpcsEdit.Models;
-using System.Collections;
 
 namespace CustomNpcsEdit.Controls
 {
@@ -55,6 +50,8 @@ namespace CustomNpcsEdit.Controls
 			//listBoxItems.DataSource = null;
 
 			toolStripLabelFileName.Text = "";
+
+			treeViewItems.Nodes.Clear();
 		}
 
 		protected virtual object OnCreateItem()
@@ -99,6 +96,21 @@ namespace CustomNpcsEdit.Controls
 
 			var newItem = OnCreateItem();
 			items.Add(newItem);
+
+			//treeview
+			var node = new BoundTreeNode();
+			node.BoundObject = (IModel)OnCreateItem();
+
+			var selectedNode = treeViewItems.SelectedNode;
+
+			if( selectedNode != null )
+			{
+				selectedNode.InsertAfter(node);
+			}
+			else
+			{
+				treeViewItems.Nodes.Add(node);
+			}
 		}
 		
 		private void toolStripButtonCopy_Click(object sender, EventArgs e)
@@ -111,6 +123,21 @@ namespace CustomNpcsEdit.Controls
 				
 				BoundItems.Insert(++index,copy);
 			}
+
+
+			//treeview
+			var selectedNode = treeViewItems.SelectedNode;
+
+			if(selectedNode!=null)
+			{
+				var src = ((BoundTreeNode)selectedNode).BoundObject;
+				var copy = OnCopyItem(src);
+
+				var newNode = new BoundTreeNode();
+				newNode.BoundObject = (IModel)copy;
+
+				selectedNode.InsertAfter(newNode);
+			}
 		}
 
 		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)
@@ -120,6 +147,15 @@ namespace CustomNpcsEdit.Controls
 			if(index>-1 && BoundItems!=null)
 			{
 				BoundItems.RemoveAt(index);
+			}
+			
+			//treeview
+
+			var selectedNode = treeViewItems.SelectedNode;
+
+			if(selectedNode!=null)
+			{
+				treeViewItems.Nodes.Remove(selectedNode);
 			}
 		}
 

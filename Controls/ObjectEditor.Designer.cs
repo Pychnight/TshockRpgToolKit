@@ -29,25 +29,6 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("SuperSlime");
-			System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("EvilBunny");
-			System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Skeleton Warrior");
-			System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Skeletal Mage");
-			System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Skeleton King");
-			System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Skeleton King Omega");
-			System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Category - Quest Npcs", 1, 1, new System.Windows.Forms.TreeNode[] {
-            treeNode3,
-            treeNode4,
-            treeNode5,
-            treeNode6});
-			System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Wimpy Demon");
-			System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Rabid Vulture");
-			System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Npcs.json", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode7,
-            treeNode8,
-            treeNode9});
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ObjectEditor));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.listBoxItems = new System.Windows.Forms.ListBox();
@@ -286,32 +267,6 @@
 			this.treeViewItems.ImageList = this.imageListTreeView;
 			this.treeViewItems.Location = new System.Drawing.Point(24, 0);
 			this.treeViewItems.Name = "treeViewItems";
-			treeNode1.Name = "Node1";
-			treeNode1.Text = "SuperSlime";
-			treeNode2.Name = "Node2";
-			treeNode2.Text = "EvilBunny";
-			treeNode3.Name = "Node6";
-			treeNode3.Text = "Skeleton Warrior";
-			treeNode4.Name = "Node7";
-			treeNode4.Text = "Skeletal Mage";
-			treeNode5.Name = "Node8";
-			treeNode5.Text = "Skeleton King";
-			treeNode6.Name = "Node9";
-			treeNode6.Text = "Skeleton King Omega";
-			treeNode7.ImageIndex = 1;
-			treeNode7.Name = "Node3";
-			treeNode7.SelectedImageIndex = 1;
-			treeNode7.Text = "Category - Quest Npcs";
-			treeNode7.ToolTipText = "C://User//Blah/Dungeon/dungeon-npcs.json";
-			treeNode8.Name = "Node4";
-			treeNode8.Text = "Wimpy Demon";
-			treeNode9.Name = "Node5";
-			treeNode9.Text = "Rabid Vulture";
-			treeNode10.Name = "Node0";
-			treeNode10.Text = "Npcs.json";
-			treeNode10.ToolTipText = "C://User//Blah/npcs.json";
-			this.treeViewItems.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode10});
 			this.treeViewItems.SelectedImageIndex = 0;
 			this.treeViewItems.Size = new System.Drawing.Size(220, 322);
 			this.treeViewItems.TabIndex = 3;
