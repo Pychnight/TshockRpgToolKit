@@ -12,6 +12,11 @@ using System.Collections;
 
 namespace CustomNpcsEdit.Controls
 {
+	public interface IModel : INotifyPropertyChanged
+	{
+		string Name { get; set; }
+	}
+
 	public partial class ObjectEditor : UserControl
 	{
 		public OpenFileDialog OpenFileDialog { get; set; }
@@ -185,6 +190,24 @@ namespace CustomNpcsEdit.Controls
 					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
+		}
+
+		//----
+		protected void SetTreeViewModels<T>(IList<BoundTreeNode> boundTreeNodes) where T : IModel
+		{
+			treeViewItems.Nodes.Clear();
+			
+			foreach(var bt in boundTreeNodes)
+			{
+				treeViewItems.Nodes.Add(bt);
+			}
+		}
+
+		private void treeViewItems_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			var selected = (BoundTreeNode)e.Node;
+
+			propertyGridItemEditor.SelectedObject = selected.BoundObject;
 		}
 	}
 }

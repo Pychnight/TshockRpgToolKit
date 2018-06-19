@@ -28,6 +28,26 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
+			System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("SuperSlime");
+			System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("EvilBunny");
+			System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Skeleton Warrior");
+			System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Skeletal Mage");
+			System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Skeleton King");
+			System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Skeleton King Omega");
+			System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Category - Quest Npcs", 1, 1, new System.Windows.Forms.TreeNode[] {
+            treeNode3,
+            treeNode4,
+            treeNode5,
+            treeNode6});
+			System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Wimpy Demon");
+			System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Rabid Vulture");
+			System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Npcs.json", new System.Windows.Forms.TreeNode[] {
+            treeNode1,
+            treeNode2,
+            treeNode7,
+            treeNode8,
+            treeNode9});
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ObjectEditor));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.listBoxItems = new System.Windows.Forms.ListBox();
@@ -50,6 +70,8 @@
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
 			this.toolStripLabelFileName = new System.Windows.Forms.ToolStripLabel();
+			this.treeViewItems = new System.Windows.Forms.TreeView();
+			this.imageListTreeView = new System.Windows.Forms.ImageList(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -66,6 +88,7 @@
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.treeViewItems);
 			this.splitContainer1.Panel1.Controls.Add(this.listBoxItems);
 			this.splitContainer1.Panel1.Controls.Add(this.toolStripListControl);
 			// 
@@ -78,11 +101,11 @@
 			// 
 			// listBoxItems
 			// 
-			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.listBoxItems.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(24, 0);
+			this.listBoxItems.Location = new System.Drawing.Point(24, 322);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(220, 391);
+			this.listBoxItems.Size = new System.Drawing.Size(220, 69);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -256,6 +279,52 @@
 			this.toolStripLabelFileName.Name = "toolStripLabelFileName";
 			this.toolStripLabelFileName.Size = new System.Drawing.Size(0, 22);
 			// 
+			// treeViewItems
+			// 
+			this.treeViewItems.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.treeViewItems.ImageIndex = 0;
+			this.treeViewItems.ImageList = this.imageListTreeView;
+			this.treeViewItems.Location = new System.Drawing.Point(24, 0);
+			this.treeViewItems.Name = "treeViewItems";
+			treeNode1.Name = "Node1";
+			treeNode1.Text = "SuperSlime";
+			treeNode2.Name = "Node2";
+			treeNode2.Text = "EvilBunny";
+			treeNode3.Name = "Node6";
+			treeNode3.Text = "Skeleton Warrior";
+			treeNode4.Name = "Node7";
+			treeNode4.Text = "Skeletal Mage";
+			treeNode5.Name = "Node8";
+			treeNode5.Text = "Skeleton King";
+			treeNode6.Name = "Node9";
+			treeNode6.Text = "Skeleton King Omega";
+			treeNode7.ImageIndex = 1;
+			treeNode7.Name = "Node3";
+			treeNode7.SelectedImageIndex = 1;
+			treeNode7.Text = "Category - Quest Npcs";
+			treeNode7.ToolTipText = "C://User//Blah/Dungeon/dungeon-npcs.json";
+			treeNode8.Name = "Node4";
+			treeNode8.Text = "Wimpy Demon";
+			treeNode9.Name = "Node5";
+			treeNode9.Text = "Rabid Vulture";
+			treeNode10.Name = "Node0";
+			treeNode10.Text = "Npcs.json";
+			treeNode10.ToolTipText = "C://User//Blah/npcs.json";
+			this.treeViewItems.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode10});
+			this.treeViewItems.SelectedImageIndex = 0;
+			this.treeViewItems.Size = new System.Drawing.Size(220, 322);
+			this.treeViewItems.TabIndex = 3;
+			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
+			// 
+			// imageListTreeView
+			// 
+			this.imageListTreeView.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTreeView.ImageStream")));
+			this.imageListTreeView.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListTreeView.Images.SetKeyName(0, "ellipse_blue.png");
+			this.imageListTreeView.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListTreeView.Images.SetKeyName(2, "rectangle_red.png");
+			// 
 			// ObjectEditor
 			// 
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -300,5 +369,7 @@
 		private System.Windows.Forms.ToolStripLabel toolStripLabel1;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.ToolStripLabel toolStripLabelFileName;
+		private System.Windows.Forms.TreeView treeViewItems;
+		private System.Windows.Forms.ImageList imageListTreeView;
 	}
 }

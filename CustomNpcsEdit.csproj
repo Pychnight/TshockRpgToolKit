@@ -52,6 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\CategoryModel.cs" />
+    <Compile Include="Controls\IModelConverter.cs" />
+    <Compile Include="Controls\IncludeModel.cs" />
     <Compile Include="Controls\InvasionEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -83,6 +86,8 @@
     <Compile Include="Models\LootEntry.cs" />
     <Compile Include="Models\Npc.cs" />
     <Compile Include="Models\NpcBindingList.cs" />
+    <Compile Include="Controls\BoundTreeNode.cs" />
+    <Compile Include="Models\NpcTree.cs" />
     <Compile Include="Models\ProjectileBindingList.cs" />
     <Compile Include="Models\Projectile.cs" />
     <Compile Include="Models\WaveDefinition.cs" />

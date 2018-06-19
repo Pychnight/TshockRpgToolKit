@@ -29,10 +29,10 @@ namespace CustomNpcsEdit.Models
 			//var ctx = CreateMockContext();
 			var json = File.ReadAllText(fileName);
 			var items = JsonConvert.DeserializeObject<NpcBindingList>(json);
-
+			
 			return items;
 		}
-
+		
 		internal void Save(string fileName)
 		{
 			var json = JsonConvert.SerializeObject(this,Formatting.Indented);

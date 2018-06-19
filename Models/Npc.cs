@@ -10,6 +10,7 @@ using System.Reflection;
 //using TShockAPI;
 using System.Diagnostics;
 using System.Windows.Forms.Design;
+using CustomNpcsEdit.Controls;
 
 namespace CustomNpcsEdit.Models
 {
@@ -17,7 +18,7 @@ namespace CustomNpcsEdit.Models
 	///     Represents an NPC definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class Npc : INotifyPropertyChanged
+	public sealed class Npc : IModel, INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
