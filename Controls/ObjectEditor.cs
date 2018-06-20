@@ -116,20 +116,20 @@ namespace CustomNpcsEdit.Controls
 		
 		private void toolStripButtonCopy_Click(object sender, EventArgs e)
 		{
-			var index = listBoxItems.SelectedIndex;
+			//var index = listBoxItems.SelectedIndex;
 
-			if( index > -1 && BoundItems!=null )
-			{
-				var copy = OnCopyItem(listBoxItems.SelectedItem);
+			//if( index > -1 && BoundItems!=null )
+			//{
+			//	var copy = OnCopyItem(listBoxItems.SelectedItem);
 				
-				BoundItems.Insert(++index,copy);
-			}
+			//	BoundItems.Insert(++index,copy);
+			//}
 
 
 			//treeview
-			var selectedNode = treeViewItems.SelectedNode;
+			var selectedNode = (BoundTreeNode)treeViewItems.SelectedNode;
 
-			if(selectedNode!=null)
+			if(selectedNode!=null && selectedNode.CanCopy())
 			{
 				var src = ((BoundTreeNode)selectedNode).BoundObject;
 				var copy = OnCopyItem(src);

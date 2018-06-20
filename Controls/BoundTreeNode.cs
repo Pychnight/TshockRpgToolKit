@@ -56,6 +56,14 @@ namespace CustomNpcsEdit.Controls
 			}
 		}
 
+		public bool CanCopy()
+		{
+			if( this.BoundObject is CategoryModel || this.BoundObject is IncludeModel )
+				return false;
+
+			return true;
+		}
+
 		public bool CanAcceptDraggedNode(BoundTreeNode draggedNode)
 		{
 			if( this.BoundObject is CategoryModel )

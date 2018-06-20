@@ -27,7 +27,7 @@ namespace CustomNpcsEdit.Controls
 		protected override object OnCopyItem(object source)
 		{
 			const string suffix = "(Copy)";
-
+			
 			var copy = new Npc((Npc)source);
 
 			if( !copy.Name.EndsWith(suffix) )
