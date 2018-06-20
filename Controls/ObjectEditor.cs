@@ -114,11 +114,9 @@ namespace CustomNpcsEdit.Controls
 					selectedNode.Expand();
 					return;
 				}
-				else
-				{
-					node.BoundObject = (IModel)OnCreateItem();
-				}
 			}
+
+			node.BoundObject = (IModel)OnCreateItem();
 
 			//insert or add to root?
 			if( selectedNode != null )
