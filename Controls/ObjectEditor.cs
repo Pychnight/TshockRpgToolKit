@@ -8,11 +8,6 @@ using System.Windows.Forms;
 
 namespace CustomNpcsEdit.Controls
 {
-	public interface IModel : INotifyPropertyChanged
-	{
-		string Name { get; set; }
-	}
-
 	public partial class ObjectEditor : UserControl
 	{
 		public OpenFileDialog OpenFileDialog { get; set; }
