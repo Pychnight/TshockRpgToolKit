@@ -289,7 +289,7 @@
 			this.toolStripButtonAddCategory.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddCategory.Image")));
 			this.toolStripButtonAddCategory.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonAddCategory.Name = "toolStripButtonAddCategory";
-			this.toolStripButtonAddCategory.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonAddCategory.Size = new System.Drawing.Size(21, 20);
 			this.toolStripButtonAddCategory.Text = "Add Category";
 			this.toolStripButtonAddCategory.Click += new System.EventHandler(this.toolStripButtonAddCategory_Click);
 			// 
