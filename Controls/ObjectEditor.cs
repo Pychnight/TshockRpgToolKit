@@ -64,7 +64,7 @@ namespace CustomNpcsEdit.Controls
 		{
 			throw new NotImplementedException();
 		}
-
+		
 		protected virtual void OnFileLoad(string fileName)
 		{
 			throw new NotImplementedException();
@@ -90,20 +90,46 @@ namespace CustomNpcsEdit.Controls
 
 		private void toolStripButtonAddItem_Click(object sender, EventArgs e)
 		{
-			var items = BoundItems;
+			//var items = BoundItems;
 
-			if( items == null )
-				return;
+			//if( items == null )
+			//	return;
 
-			var newItem = OnCreateItem();
-			items.Add(newItem);
+			//var newItem = OnCreateItem();
+			//items.Add(newItem);
 
 			//treeview
-			var node = new BoundTreeNode();
-			node.BoundObject = (IModel)OnCreateItem();
-
+			
 			var selectedNode = treeViewItems.SelectedNode;
+			var node = new BoundTreeNode();
 
+			//if we've already selected a node, what type of model to create, and how to add it?
+			if(selectedNode!=null)
+			{
+				var boundNode = (BoundTreeNode)selectedNode;
+				var selectedModel = boundNode.BoundObject;
+
+				if(selectedModel is CategoryModel)
+				{
+					node.BoundObject = new IncludeModel();
+					selectedNode.Nodes.Add(node);
+					selectedNode.Expand();
+					return;
+				}
+				else if(selectedModel is IncludeModel)
+				{
+					node.BoundObject = (IModel)OnCreateItem();
+					selectedNode.Nodes.Add(node);
+					selectedNode.Expand();
+					return;
+				}
+				else
+				{
+					node.BoundObject = (IModel)OnCreateItem();
+				}
+			}
+
+			//insert or add to root?
 			if( selectedNode != null )
 			{
 				selectedNode.InsertAfter(node);
@@ -302,6 +328,17 @@ namespace CustomNpcsEdit.Controls
 				draggedNode.Remove();
 				treeViewItems.Nodes.Add(draggedNode);
 			}
+		}
+
+		private void toolStripButtonAddCategory_Click(object sender, EventArgs e)
+		{
+			var categoryModel = new CategoryModel();
+			categoryModel.Name = "New Category";
+
+			var node = new BoundTreeNode();
+			node.BoundObject = categoryModel;
+
+			treeViewItems.Nodes.Add(node);
 		}
 	}
 }

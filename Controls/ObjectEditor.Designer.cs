@@ -31,6 +31,8 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ObjectEditor));
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.treeViewItems = new System.Windows.Forms.TreeView();
+			this.imageListTreeView = new System.Windows.Forms.ImageList(this.components);
 			this.listBoxItems = new System.Windows.Forms.ListBox();
 			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -51,8 +53,8 @@
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
 			this.toolStripLabelFileName = new System.Windows.Forms.ToolStripLabel();
-			this.treeViewItems = new System.Windows.Forms.TreeView();
-			this.imageListTreeView = new System.Windows.Forms.ImageList(this.components);
+			this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripButtonAddCategory = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -80,15 +82,41 @@
 			this.splitContainer1.SplitterDistance = 244;
 			this.splitContainer1.TabIndex = 0;
 			// 
+			// treeViewItems
+			// 
+			this.treeViewItems.AllowDrop = true;
+			this.treeViewItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.treeViewItems.ImageIndex = 0;
+			this.treeViewItems.ImageList = this.imageListTreeView;
+			this.treeViewItems.Location = new System.Drawing.Point(27, 3);
+			this.treeViewItems.Name = "treeViewItems";
+			this.treeViewItems.SelectedImageIndex = 0;
+			this.treeViewItems.Size = new System.Drawing.Size(214, 313);
+			this.treeViewItems.TabIndex = 3;
+			this.treeViewItems.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeViewItems_ItemDrag);
+			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
+			this.treeViewItems.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragDrop);
+			this.treeViewItems.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragEnter);
+			// 
+			// imageListTreeView
+			// 
+			this.imageListTreeView.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTreeView.ImageStream")));
+			this.imageListTreeView.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListTreeView.Images.SetKeyName(0, "ellipse_blue.png");
+			this.imageListTreeView.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListTreeView.Images.SetKeyName(2, "rectangle_red.png");
+			// 
 			// listBoxItems
 			// 
 			this.listBoxItems.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.listBoxItems.Enabled = false;
 			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(24, 283);
+			this.listBoxItems.Location = new System.Drawing.Point(24, 322);
 			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(220, 108);
+			this.listBoxItems.Size = new System.Drawing.Size(220, 69);
 			this.listBoxItems.TabIndex = 0;
 			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
@@ -103,17 +131,19 @@
             this.toolStripButtonDeleteItem,
             this.toolStripSeparator1,
             this.toolStripButtonMoveUp,
-            this.toolStripButtonMoveDown});
+            this.toolStripButtonMoveDown,
+            this.toolStripSeparator6,
+            this.toolStripButtonAddCategory});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 0);
 			this.toolStripListControl.Name = "toolStripListControl";
-			this.toolStripListControl.Size = new System.Drawing.Size(24, 391);
+			this.toolStripListControl.Size = new System.Drawing.Size(32, 391);
 			this.toolStripListControl.TabIndex = 2;
 			this.toolStripListControl.Text = "toolStrip2";
 			// 
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(21, 6);
+			this.toolStripSeparator5.Size = new System.Drawing.Size(29, 6);
 			// 
 			// toolStripButtonAddItem
 			// 
@@ -121,7 +151,7 @@
 			this.toolStripButtonAddItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddItem.Image")));
 			this.toolStripButtonAddItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonAddItem.Name = "toolStripButtonAddItem";
-			this.toolStripButtonAddItem.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonAddItem.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonAddItem.Text = "Add New Projectile";
 			this.toolStripButtonAddItem.ToolTipText = "Add New Item";
 			this.toolStripButtonAddItem.Click += new System.EventHandler(this.toolStripButtonAddItem_Click);
@@ -132,7 +162,7 @@
 			this.toolStripButtonCopy.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCopy.Image")));
 			this.toolStripButtonCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonCopy.Name = "toolStripButtonCopy";
-			this.toolStripButtonCopy.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonCopy.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonCopy.Text = "toolStripButton1";
 			this.toolStripButtonCopy.ToolTipText = "Copy Item";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
@@ -143,7 +173,7 @@
 			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
 			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
-			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
 			this.toolStripButtonDeleteItem.ToolTipText = "Delete Item";
 			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
@@ -151,7 +181,7 @@
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(21, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(29, 6);
 			// 
 			// toolStripButtonMoveUp
 			// 
@@ -159,7 +189,7 @@
 			this.toolStripButtonMoveUp.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveUp.Image")));
 			this.toolStripButtonMoveUp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveUp.Name = "toolStripButtonMoveUp";
-			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonMoveUp.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonMoveUp.Text = "Move Up";
 			this.toolStripButtonMoveUp.Click += new System.EventHandler(this.toolStripButtonMoveUp_Click);
 			// 
@@ -169,7 +199,7 @@
 			this.toolStripButtonMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveDown.Image")));
 			this.toolStripButtonMoveDown.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveDown.Name = "toolStripButtonMoveDown";
-			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(21, 20);
+			this.toolStripButtonMoveDown.Size = new System.Drawing.Size(29, 20);
 			this.toolStripButtonMoveDown.Text = "Move Down";
 			this.toolStripButtonMoveDown.Click += new System.EventHandler(this.toolStripButtonMoveDown_Click);
 			// 
@@ -262,31 +292,20 @@
 			this.toolStripLabelFileName.Name = "toolStripLabelFileName";
 			this.toolStripLabelFileName.Size = new System.Drawing.Size(0, 22);
 			// 
-			// treeViewItems
+			// toolStripSeparator6
 			// 
-			this.treeViewItems.AllowDrop = true;
-			this.treeViewItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.treeViewItems.ImageIndex = 0;
-			this.treeViewItems.ImageList = this.imageListTreeView;
-			this.treeViewItems.Location = new System.Drawing.Point(27, 3);
-			this.treeViewItems.Name = "treeViewItems";
-			this.treeViewItems.SelectedImageIndex = 0;
-			this.treeViewItems.Size = new System.Drawing.Size(214, 274);
-			this.treeViewItems.TabIndex = 3;
-			this.treeViewItems.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeViewItems_ItemDrag);
-			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
-			this.treeViewItems.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragDrop);
-			this.treeViewItems.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragEnter);
+			this.toolStripSeparator6.Name = "toolStripSeparator6";
+			this.toolStripSeparator6.Size = new System.Drawing.Size(29, 6);
 			// 
-			// imageListTreeView
+			// toolStripButtonAddCategory
 			// 
-			this.imageListTreeView.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTreeView.ImageStream")));
-			this.imageListTreeView.TransparentColor = System.Drawing.Color.Transparent;
-			this.imageListTreeView.Images.SetKeyName(0, "ellipse_blue.png");
-			this.imageListTreeView.Images.SetKeyName(1, "triangle_red.png");
-			this.imageListTreeView.Images.SetKeyName(2, "rectangle_red.png");
+			this.toolStripButtonAddCategory.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonAddCategory.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddCategory.Image")));
+			this.toolStripButtonAddCategory.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonAddCategory.Name = "toolStripButtonAddCategory";
+			this.toolStripButtonAddCategory.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonAddCategory.Text = "Add Category";
+			this.toolStripButtonAddCategory.Click += new System.EventHandler(this.toolStripButtonAddCategory_Click);
 			// 
 			// ObjectEditor
 			// 
@@ -334,5 +353,7 @@
 		private System.Windows.Forms.ToolStripLabel toolStripLabelFileName;
 		private System.Windows.Forms.TreeView treeViewItems;
 		private System.Windows.Forms.ImageList imageListTreeView;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+		private System.Windows.Forms.ToolStripButton toolStripButtonAddCategory;
 	}
 }

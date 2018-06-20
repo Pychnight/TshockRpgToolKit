@@ -43,6 +43,10 @@ namespace CustomNpcsEdit.Controls
 		[Browsable(false)]
 		public List<IModel> Items { get; set; } = new List<IModel>();
 
+		public IncludeModel() : this("","include.json")
+		{
+		}
+
 		public IncludeModel(string parentPath, string relativePath)
 		{
 			ParentPath = parentPath;
