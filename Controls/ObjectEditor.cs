@@ -105,6 +105,7 @@ namespace CustomNpcsEdit.Controls
 					node.BoundObject = new IncludeModel();
 					selectedNode.Nodes.Add(node);
 					selectedNode.Expand();
+					//treeViewItems.SelectedNode = node;
 					return;
 				}
 				else if(selectedModel is IncludeModel)
@@ -112,6 +113,7 @@ namespace CustomNpcsEdit.Controls
 					node.BoundObject = (IModel)OnCreateItem();
 					selectedNode.Nodes.Add(node);
 					selectedNode.Expand();
+					//treeViewItems.SelectedNode = node;
 					return;
 				}
 			}
@@ -127,6 +129,8 @@ namespace CustomNpcsEdit.Controls
 			{
 				treeViewItems.Nodes.Add(node);
 			}
+
+			//treeViewItems.SelectedNode = node;
 		}
 		
 		private void toolStripButtonCopy_Click(object sender, EventArgs e)

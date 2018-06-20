@@ -88,10 +88,11 @@ namespace CustomNpcsEdit.Controls
 				return false;
 			}
 
-			//if( this.Parent != null )
-			//{
-
-			//}
+			//dont allow category model drops on items that aren't top level.
+			if( this.Parent != null && draggedNode.BoundObject is CategoryModel )
+			{
+				return false;
+			}
 
 			return true;
 		}
