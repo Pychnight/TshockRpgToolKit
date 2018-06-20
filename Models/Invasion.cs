@@ -11,6 +11,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using System.Windows.Forms.Design;
 using System.ComponentModel;
+using CustomNpcsEdit.Controls;
 
 namespace CustomNpcsEdit.Models
 {
@@ -18,7 +19,7 @@ namespace CustomNpcsEdit.Models
 	///     Represents an invasion definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class Invasion : INotifyPropertyChanged
+	public sealed class Invasion : IModel, INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 		

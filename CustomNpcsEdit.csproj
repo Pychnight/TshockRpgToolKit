@@ -84,13 +84,10 @@
       <DependentUpon>EditorForm.resx</DependentUpon>
     </Compile>
     <Compile Include="Models\Invasion.cs" />
-    <Compile Include="Models\InvasionBindingList.cs" />
     <Compile Include="Models\LootEntry.cs" />
     <Compile Include="Models\Npc.cs" />
-    <Compile Include="Models\NpcBindingList.cs" />
     <Compile Include="Controls\BoundTreeNode.cs" />
     <Compile Include="Models\NpcTree.cs" />
-    <Compile Include="Models\ProjectileBindingList.cs" />
     <Compile Include="Models\Projectile.cs" />
     <Compile Include="Models\WaveDefinition.cs" />
     <Compile Include="Program.cs" />

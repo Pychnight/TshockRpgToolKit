@@ -33,7 +33,6 @@
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.treeViewItems = new System.Windows.Forms.TreeView();
 			this.imageListTreeView = new System.Windows.Forms.ImageList(this.components);
-			this.listBoxItems = new System.Windows.Forms.ListBox();
 			this.toolStripListControl = new System.Windows.Forms.ToolStrip();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButtonAddItem = new System.Windows.Forms.ToolStripButton();
@@ -72,7 +71,6 @@
 			// splitContainer1.Panel1
 			// 
 			this.splitContainer1.Panel1.Controls.Add(this.treeViewItems);
-			this.splitContainer1.Panel1.Controls.Add(this.listBoxItems);
 			this.splitContainer1.Panel1.Controls.Add(this.toolStripListControl);
 			// 
 			// splitContainer1.Panel2
@@ -85,15 +83,13 @@
 			// treeViewItems
 			// 
 			this.treeViewItems.AllowDrop = true;
-			this.treeViewItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.treeViewItems.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.treeViewItems.ImageIndex = 0;
 			this.treeViewItems.ImageList = this.imageListTreeView;
-			this.treeViewItems.Location = new System.Drawing.Point(27, 3);
+			this.treeViewItems.Location = new System.Drawing.Point(32, 0);
 			this.treeViewItems.Name = "treeViewItems";
 			this.treeViewItems.SelectedImageIndex = 0;
-			this.treeViewItems.Size = new System.Drawing.Size(214, 313);
+			this.treeViewItems.Size = new System.Drawing.Size(212, 391);
 			this.treeViewItems.TabIndex = 3;
 			this.treeViewItems.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeViewItems_ItemDrag);
 			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
@@ -107,18 +103,6 @@
 			this.imageListTreeView.Images.SetKeyName(0, "ellipse_blue.png");
 			this.imageListTreeView.Images.SetKeyName(1, "triangle_red.png");
 			this.imageListTreeView.Images.SetKeyName(2, "rectangle_red.png");
-			// 
-			// listBoxItems
-			// 
-			this.listBoxItems.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.listBoxItems.Enabled = false;
-			this.listBoxItems.FormattingEnabled = true;
-			this.listBoxItems.Location = new System.Drawing.Point(24, 322);
-			this.listBoxItems.Name = "listBoxItems";
-			this.listBoxItems.Size = new System.Drawing.Size(220, 69);
-			this.listBoxItems.TabIndex = 0;
-			this.listBoxItems.SelectedValueChanged += new System.EventHandler(this.listBoxItems_SelectedValueChanged);
 			// 
 			// toolStripListControl
 			// 
@@ -186,6 +170,7 @@
 			// toolStripButtonMoveUp
 			// 
 			this.toolStripButtonMoveUp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonMoveUp.Enabled = false;
 			this.toolStripButtonMoveUp.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveUp.Image")));
 			this.toolStripButtonMoveUp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveUp.Name = "toolStripButtonMoveUp";
@@ -196,6 +181,7 @@
 			// toolStripButtonMoveDown
 			// 
 			this.toolStripButtonMoveDown.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonMoveDown.Enabled = false;
 			this.toolStripButtonMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveDown.Image")));
 			this.toolStripButtonMoveDown.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMoveDown.Name = "toolStripButtonMoveDown";
@@ -331,7 +317,6 @@
 		#endregion
 
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private System.Windows.Forms.ListBox listBoxItems;
 		private System.Windows.Forms.PropertyGrid propertyGridItemEditor;
 		private System.Windows.Forms.ToolStrip toolStripListControl;
 		private System.Windows.Forms.ToolStripButton toolStripButtonAddItem;

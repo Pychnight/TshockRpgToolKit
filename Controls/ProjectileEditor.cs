@@ -9,14 +9,6 @@ namespace CustomNpcsEdit.Controls
 {
 	public class ProjectileEditor : ObjectEditor
 	{
-		ProjectileBindingList projectiles;
-
-		protected override void OnPostInitialize()
-		{
-			projectiles = new ProjectileBindingList();
-			SetBindingCollection(projectiles);
-		}
-
 		protected override object OnCreateItem()
 		{
 			return new Projectile();
@@ -36,15 +28,14 @@ namespace CustomNpcsEdit.Controls
 
 		protected override void OnFileLoad(string fileName)
 		{
-			projectiles.Clear();
-
-			projectiles = ProjectileBindingList.Load(fileName);
-			SetBindingCollection(projectiles);
+			var boundTreeNodes = ModelTreePersistance.LoadTree<Projectile>(fileName);
+			SetTreeViewModels<IModel>(boundTreeNodes);
 		}
 
 		protected override void OnFileSave(string fileName)
 		{
-			projectiles.Save(fileName);
+			var boundNodes = GetTreeViewModels();
+			ModelTreePersistance.SaveTree(boundNodes, fileName);
 		}
 	}
 }

@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace CustomNpcsEdit.Models
 {
-	public static class NpcTree
+	public static class ModelTreePersistance
 	{
-		public static List<IModel> Load(string fileName)
+		public static List<IModel> Load<T>(string fileName) where T : IModel, new()
 		{
 			//var ctx = CreateMockContext();
 			var json = File.ReadAllText(fileName);
-			var items = JsonConvert.DeserializeObject<List<IModel>>(json, new IModelConverter<Npc>());
+			var items = JsonConvert.DeserializeObject<List<IModel>>(json, new IModelConverter<T>());
 
 			return items;
 		}
@@ -30,7 +30,7 @@ namespace CustomNpcsEdit.Models
 		public static List<BoundTreeNode> LoadTree<TModel>(string fileName) where TModel : IModel, new()
 		{
 			var nodes = new List<BoundTreeNode>();
-			var models = Load(fileName);
+			var models = Load<TModel>(fileName);
 			
 			foreach(var m in models)
 			{

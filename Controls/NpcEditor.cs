@@ -10,14 +10,6 @@ namespace CustomNpcsEdit.Controls
 {
 	public class NpcEditor : ObjectEditor
 	{
-		NpcBindingList npcs;
-		
-		protected override void OnPostInitialize()
-		{
-			npcs = new NpcBindingList();
-			SetBindingCollection(npcs);
-		}
-
 		protected override object OnCreateItem()
 		{
 			return new Npc();
@@ -37,23 +29,15 @@ namespace CustomNpcsEdit.Controls
 
 		protected override void OnFileLoad(string fileName)
 		{
-			npcs.Clear();
-			npcs = NpcBindingList.Load(fileName);
-			SetBindingCollection(npcs);
-
-			//--------
-			var boundTreeNodes = NpcTree.LoadTree<Npc>(fileName);
+			var boundTreeNodes = ModelTreePersistance.LoadTree<Npc>(fileName);
 			SetTreeViewModels<IModel>(boundTreeNodes);
 
 		}
 
 		protected override void OnFileSave(string fileName)
 		{
-			npcs.Save(fileName);
-
-			//--------
 			var boundNodes = GetTreeViewModels();
-			NpcTree.SaveTree(boundNodes, fileName);
+			ModelTreePersistance.SaveTree(boundNodes, fileName);
 		}
 	}
 }

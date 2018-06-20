@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CustomNpcsEdit.Controls;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +12,7 @@ namespace CustomNpcsEdit.Models
 {
 	[DefaultProperty("Name")]
 	[JsonObject(MemberSerialization.OptIn)]
-	public class Projectile : INotifyPropertyChanged
+	public class Projectile : IModel, INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 

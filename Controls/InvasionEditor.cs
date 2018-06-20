@@ -9,14 +9,6 @@ namespace CustomNpcsEdit.Controls
 {
 	public class InvasionEditor : ObjectEditor
 	{
-		InvasionBindingList invasions;
-
-		protected override void OnPostInitialize()
-		{
-			invasions = new InvasionBindingList();
-			SetBindingCollection(invasions);
-		}
-
 		protected override object OnCreateItem()
 		{
 			return new Invasion();
@@ -36,15 +28,14 @@ namespace CustomNpcsEdit.Controls
 
 		protected override void OnFileLoad(string fileName)
 		{
-			invasions.Clear();
-
-			invasions = InvasionBindingList.Load(fileName);
-			SetBindingCollection(invasions);
+			var boundTreeNodes = ModelTreePersistance.LoadTree<Invasion>(fileName);
+			SetTreeViewModels<IModel>(boundTreeNodes);
 		}
 
 		protected override void OnFileSave(string fileName)
 		{
-			invasions.Save(fileName);
+			var boundNodes = GetTreeViewModels();
+			ModelTreePersistance.SaveTree(boundNodes, fileName);
 		}
 	}
 }
