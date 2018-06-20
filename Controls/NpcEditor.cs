@@ -10,7 +10,6 @@ namespace CustomNpcsEdit.Controls
 {
 	public class NpcEditor : ObjectEditor
 	{
-		//NpcTree npcTree; 
 		NpcBindingList npcs;
 		
 		protected override void OnPostInitialize()
@@ -51,6 +50,10 @@ namespace CustomNpcsEdit.Controls
 		protected override void OnFileSave(string fileName)
 		{
 			npcs.Save(fileName);
+
+			//--------
+			var boundNodes = GetTreeViewModels();
+			NpcTree.SaveTree(boundNodes, fileName);
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace CustomNpcsEdit.Controls
@@ -70,6 +71,23 @@ namespace CustomNpcsEdit.Controls
 			throw new NotImplementedException();
 		}
 				
+		protected void SetTreeViewModels<T>(IList<BoundTreeNode> boundTreeNodes) where T : IModel
+		{
+			treeViewItems.Nodes.Clear();
+
+			foreach( var bt in boundTreeNodes )
+			{
+				treeViewItems.Nodes.Add(bt);
+			}
+		}
+
+		protected IList<BoundTreeNode> GetTreeViewModels()
+		{
+			var nodes = treeViewItems.Nodes;
+			var boundTreeNodes = nodes.Cast<BoundTreeNode>().ToList();
+			return boundTreeNodes;
+		}
+
 		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
 		{
 			Clear();
@@ -249,18 +267,7 @@ namespace CustomNpcsEdit.Controls
 				}
 			}
 		}
-
-		//----
-		protected void SetTreeViewModels<T>(IList<BoundTreeNode> boundTreeNodes) where T : IModel
-		{
-			treeViewItems.Nodes.Clear();
-			
-			foreach(var bt in boundTreeNodes)
-			{
-				treeViewItems.Nodes.Add(bt);
-			}
-		}
-
+		
 		private void treeViewItems_AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			var selected = (BoundTreeNode)e.Node;

@@ -21,6 +21,12 @@ namespace CustomNpcsEdit.Models
 			return items;
 		}
 
+		public static void Save(List<IModel> models, string fileName)
+		{
+			var json = JsonConvert.SerializeObject(models,Formatting.Indented);
+			File.WriteAllText(fileName, json);
+		}
+
 		public static List<BoundTreeNode> LoadTree<TModel>(string fileName) where TModel : IModel, new()
 		{
 			var nodes = new List<BoundTreeNode>();
@@ -59,6 +65,40 @@ namespace CustomNpcsEdit.Models
 			}
 			
 			return nodes;
+		}
+
+		public static void SaveTree(IList<BoundTreeNode> nodes, string fileName)// where TModel : IModel, new()
+		{
+			var categoryNodes = nodes.Where(n => n.BoundObject is CategoryModel).Select(n => n);
+
+			//update include strings
+			foreach( var catNode in categoryNodes )
+			{
+				var model = catNode.BoundObject as CategoryModel;
+				model.RefreshIncludes(catNode);
+			}
+
+			//save direct items first
+			var models = nodes.Select(n => n.BoundObject).ToList();
+			Save(models, fileName);
+
+			//now write include files...
+			var baseDirectory = Path.GetDirectoryName(fileName);
+
+			foreach(var catNode in categoryNodes)
+			{
+				foreach( var node in catNode.Nodes)
+				{
+					var incNode = (BoundTreeNode)node;
+					var itemNodes = incNode.Nodes.Cast<BoundTreeNode>().ToList();
+					var items = itemNodes.Select(i => i.BoundObject).ToList();
+
+					var incName = ((IncludeModel)(incNode.BoundObject)).Name;
+					var incPath = Path.Combine(baseDirectory, incName);
+					var json = JsonConvert.SerializeObject(items,Formatting.Indented);
+					File.WriteAllText(incPath, json);
+				}
+			}
 		}
 	}
 }

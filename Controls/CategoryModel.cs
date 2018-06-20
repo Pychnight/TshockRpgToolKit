@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CustomNpcsEdit.Controls
 {
+	[JsonObject(MemberSerialization.OptIn)]
 	public class CategoryModel : IModel, INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -27,9 +29,11 @@ namespace CustomNpcsEdit.Controls
 		}
 
 		[Category("Basic Properties")]
+		[JsonProperty(Order = 0)]
 		public string Category { get => Name; set => Name = value; }
 
 		[Browsable(false)]
+		[JsonProperty(Order = 1)]
 		public List<string> Includes { get; set; } = new List<string>();
 
 		[Browsable(false)]
@@ -47,6 +51,18 @@ namespace CustomNpcsEdit.Controls
 
 				IncludeModels.Add(includeModel);
 			}
+		}
+
+		/// <summary>
+		/// kludge to ensure Includes list matches whats been set in the tree nodes, before serialization.
+		/// </summary>
+		internal void RefreshIncludes(BoundTreeNode node)
+		{
+			//Includes.Clear();
+			//Includes = IncludeModels.Select(im => im.Name).ToList();
+
+			var children = node.Nodes.Cast<BoundTreeNode>();
+			Includes = children.Select(c => ( (IncludeModel)c.BoundObject ).Name).ToList();
 		}
 	}
 }
