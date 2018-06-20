@@ -83,6 +83,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>EditorForm.resx</DependentUpon>
     </Compile>
+    <None Include="ItemExtract.cs" />
     <Compile Include="Models\Invasion.cs" />
     <Compile Include="Models\LootEntry.cs" />
     <Compile Include="Models\Npc.cs" />
@@ -126,6 +127,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Corrupt_Bunny.ico" />
+    <Content Include="item-names.txt" />
+    <Content Include="items.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="Models\ItemNameStringConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

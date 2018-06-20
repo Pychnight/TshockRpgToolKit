@@ -16,6 +16,7 @@ namespace CustomNpcsEdit.Models
 		///     Gets the name.
 		/// </summary>
 		[Description("Loot Entry Properties")]
+		[TypeConverter(typeof(ItemNameStringConverter))]
 		[JsonProperty(Order = 0)]
 		public string Name { get; set; } = "Dirt Block";
 
