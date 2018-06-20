@@ -71,6 +71,11 @@ namespace CustomNpcsEdit.Controls
 
 		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
 		{
+			var result = MessageBox.Show("This deletes the current tree, and cannot be undone. Continue?", "Delete Tree?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+			if( result != DialogResult.OK )
+				return;
+
 			Clear();
 		}
 		

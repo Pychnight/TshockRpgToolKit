@@ -376,6 +376,7 @@
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "EditorForm";
 			this.Text = "CustomNpcsEdit";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorForm_FormClosing);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.tabControl1.ResumeLayout(false);

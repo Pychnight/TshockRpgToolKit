@@ -33,10 +33,20 @@ namespace CustomNpcsEdit
 			//start on projectiles page for now...
 			tabControl1.SelectedIndex = 0;
 		}
-
+		
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Close();
+		}
+
+		private void EditorForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			var result = MessageBox.Show("This will delete all work, and cannot be undone. Continue?", "Continue exit?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+			if( result != DialogResult.OK )
+			{
+				e.Cancel = true;
+			}
 		}
 	}
 }
