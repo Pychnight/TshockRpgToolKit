@@ -124,6 +124,13 @@ namespace CustomNpcsEdit.Models
 		}
 
 		[Category("Override Properties")]
+		public bool? DontTakeDamageFromHostiles
+		{
+			get => baseOverride.DontTakeDamageFromHostiles;
+			set => baseOverride.DontTakeDamageFromHostiles = value;
+		}
+
+		[Category("Override Properties")]
 		public float? KnockbackMultiplier
 		{
 			get => baseOverride.KnockbackMultiplier;
@@ -298,6 +305,9 @@ namespace CustomNpcsEdit.Models
 		[JsonProperty]
 		public bool? BehindTiles { get; set; }
 
+		[JsonProperty]
+		public bool? DontTakeDamageFromHostiles { get; set; }
+
 		public NpcBaseOverride()
 		{
 		}
@@ -319,6 +329,7 @@ namespace CustomNpcsEdit.Models
 			NpcSlots = other.NpcSlots;
 			Value = other.Value;
 			BehindTiles = other.BehindTiles;
+			DontTakeDamageFromHostiles = other.DontTakeDamageFromHostiles;
 		}
 	}
 
