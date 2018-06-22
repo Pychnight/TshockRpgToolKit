@@ -176,6 +176,7 @@ namespace CustomNpcs.Npcs
             {
                 npc.SetDefaults(BaseType);
             }
+
             npc.aiStyle = _baseOverride.AiStyle ?? npc.aiStyle;
             if (_baseOverride.BuffImmunities != null)
             {
@@ -188,20 +189,28 @@ namespace CustomNpcs.Npcs
                     npc.buffImmune[i] = true;
                 }
             }
+
             npc.defense = npc.defDefense = _baseOverride.Defense ?? npc.defense;
             npc.noGravity = _baseOverride.HasNoGravity ?? npc.noGravity;
             npc.noTileCollide = _baseOverride.HasNoCollision ?? npc.noTileCollide;
-            npc.boss = _baseOverride.IsBoss ?? npc.boss;
+			npc.behindTiles = _baseOverride.BehindTiles ?? npc.behindTiles;
+			npc.boss = _baseOverride.IsBoss ?? npc.boss;
             npc.immortal = _baseOverride.IsImmortal ?? npc.immortal;
             npc.lavaImmune = _baseOverride.IsImmuneToLava ?? npc.lavaImmune;
             npc.trapImmune = _baseOverride.IsTrapImmune ?? npc.trapImmune;
-            // Don't set npc.lifeMax so that the correct life is always sent to clients.
-            npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
+			npc.dontTakeDamageFromHostiles = _baseOverride.DontTakeDamageFromHostiles ?? npc.dontTakeDamageFromHostiles;
+			// Don't set npc.lifeMax so that the correct life is always sent to clients.
+			npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
             npc.life = _baseOverride.MaxHp ?? npc.life;
             npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
-			npc.behindTiles = _baseOverride.BehindTiles ?? npc.behindTiles;
+									
+			//the following are not settable
+			//npc.HasGivenName
+			//npc.HasValidTarget
+			//npc.HasPlayerTarget
+			//npc.HasNPCTarget
 		}
 		
 		protected override bool OnLinkToScriptAssembly(Assembly ass)
@@ -374,27 +383,30 @@ namespace CustomNpcs.Npcs
 
 			[JsonProperty]
 			public bool? BehindTiles { get; private set; }
-			
+
+			[JsonProperty]
+			public bool? DontTakeDamageFromHostiles { get; private set; }
+
 			//[Obsolete]
-   //         internal void ThrowIfInvalid()
-   //         {
-   //             if (BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes))
-   //             {
-   //                 throw new FormatException($"{nameof(BuffImmunities)} must contain valid buff types.");
-   //             }
-   //             if (KnockbackMultiplier < 0)
-   //             {
-   //                 throw new FormatException($"{nameof(KnockbackMultiplier)} must be non-negative.");
-   //             }
-   //             if (MaxHp < 0)
-   //             {
-   //                 throw new FormatException($"{nameof(MaxHp)} must be non-negative.");
-   //             }
-   //             if (Value < 0)
-   //             {
-   //                 throw new FormatException($"{nameof(Value)} must be non-negative.");
-   //             }
-   //         }
+			//         internal void ThrowIfInvalid()
+			//         {
+			//             if (BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes))
+			//             {
+			//                 throw new FormatException($"{nameof(BuffImmunities)} must contain valid buff types.");
+			//             }
+			//             if (KnockbackMultiplier < 0)
+			//             {
+			//                 throw new FormatException($"{nameof(KnockbackMultiplier)} must be non-negative.");
+			//             }
+			//             if (MaxHp < 0)
+			//             {
+			//                 throw new FormatException($"{nameof(MaxHp)} must be non-negative.");
+			//             }
+			//             if (Value < 0)
+			//             {
+			//                 throw new FormatException($"{nameof(Value)} must be non-negative.");
+			//             }
+			//         }
 
 			public ValidationResult Validate()
 			{

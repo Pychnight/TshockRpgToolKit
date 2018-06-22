@@ -26,7 +26,7 @@ namespace CustomNpcs.Projectiles
 		public int BaseType { get; set; }
 
 		[JsonProperty("BaseOverride",Order = 3)]
-		internal BaseOverrideDefinition BaseOverride { get; set; } = new BaseOverrideDefinition();
+		public BaseOverrideDefinition BaseOverride { get; set; } = new BaseOverrideDefinition();
 		
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is spawned.
@@ -226,7 +226,7 @@ namespace CustomNpcs.Projectiles
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
-		internal sealed class BaseOverrideDefinition //: IValidator
+		public sealed class BaseOverrideDefinition //: IValidator
 		{
 			[JsonProperty]
 			public int? AiStyle { get; set; }
