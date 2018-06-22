@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -90,6 +91,16 @@ namespace CustomNpcsEdit
 		private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			refreshObjectEditorExternalDisplay(tabControlMain.SelectedIndex);
+		}
+
+		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var version = Assembly.GetExecutingAssembly().GetName().Version;
+			
+			MessageBox.Show($"CustomNpcsEdit {version}",
+							"About",
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Information);
 		}
 	}
 }
