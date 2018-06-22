@@ -12,7 +12,7 @@ namespace CustomNpcsEdit.Models
 
 		public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
 		{
-			return true;
+			return false;
 		}
 
 		public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
