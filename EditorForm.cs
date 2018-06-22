@@ -102,5 +102,23 @@ namespace CustomNpcsEdit
 							MessageBoxButtons.OK,
 							MessageBoxIcon.Information);
 		}
+
+		private void newToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var editor = objectEditors[tabControlMain.SelectedIndex];
+			editor.NewFile();
+		}
+
+		private void openToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var editor = objectEditors[tabControlMain.SelectedIndex];
+			editor.OpenFile();
+		}
+
+		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var editor = objectEditors[tabControlMain.SelectedIndex];
+			editor.SaveFileAs();
+		}
 	}
 }

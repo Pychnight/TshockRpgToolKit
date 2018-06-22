@@ -96,17 +96,22 @@ namespace CustomNpcsEdit.Controls
 			return boundTreeNodes;
 		}
 
-		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
+		public void NewFile()
 		{
-			if(IsTreeDirty)
+			if( IsTreeDirty )
 			{
-				var result = MessageBox.Show("There are unsaved changes present. Proceed?", "Delete Tree?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+				var result = MessageBox.Show("There are unsaved changes present. Proceed?", "Delete Items?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
 				if( result != DialogResult.OK )
 					return;
 			}
-			
+
 			Clear();
+		}
+
+		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
+		{
+			NewFile();
 		}
 		
 		private void toolStripButtonAddItem_Click(object sender, EventArgs e)
@@ -238,11 +243,11 @@ namespace CustomNpcsEdit.Controls
 			//}
 		}
 
-		private void toolStripButtonFileOpen_Click(object sender, EventArgs e)
+		public void OpenFile()
 		{
-			if(IsTreeDirty)
+			if( IsTreeDirty )
 			{
-				var confirm = MessageBox.Show("There are unsaved changes present. This will replace the current tree. Proceed?",
+				var confirm = MessageBox.Show("There are unsaved changes present. This will replace the current data. Proceed?",
 												"Unsaved Data",
 												MessageBoxButtons.OKCancel,
 												MessageBoxIcon.Warning);
@@ -253,7 +258,7 @@ namespace CustomNpcsEdit.Controls
 
 			var result = OpenFileDialog.ShowDialog();
 
-			if(result== DialogResult.OK)
+			if( result == DialogResult.OK )
 			{
 				try
 				{
@@ -263,18 +268,23 @@ namespace CustomNpcsEdit.Controls
 					IsTreeDirty = false;
 					CurrentFilePath = OpenFileDialog.FileName;
 				}
-				catch(Exception ex)
+				catch( Exception ex )
 				{
 					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 		}
 
-		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e)
+		private void toolStripButtonFileOpen_Click(object sender, EventArgs e)
+		{
+			OpenFile();
+		}
+
+		public void SaveFileAs()
 		{
 			var result = SaveFileDialog.ShowDialog();
 
-			if(result == DialogResult.OK)
+			if( result == DialogResult.OK )
 			{
 				try
 				{
@@ -283,11 +293,16 @@ namespace CustomNpcsEdit.Controls
 					IsTreeDirty = false;
 					CurrentFilePath = SaveFileDialog.FileName;
 				}
-				catch(Exception ex)
+				catch( Exception ex )
 				{
 					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
+		}
+
+		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e)
+		{
+			SaveFileAs();
 		}
 		
 		private void treeViewItems_AfterSelect(object sender, TreeViewEventArgs e)
