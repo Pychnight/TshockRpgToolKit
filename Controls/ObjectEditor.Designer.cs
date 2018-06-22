@@ -52,7 +52,6 @@
 			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonFileSaveAs = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
 			this.toolStripLabelFileName = new System.Windows.Forms.ToolStripLabel();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -211,6 +210,7 @@
 			this.propertyGridItemEditor.Name = "propertyGridItemEditor";
 			this.propertyGridItemEditor.Size = new System.Drawing.Size(252, 391);
 			this.propertyGridItemEditor.TabIndex = 0;
+			this.propertyGridItemEditor.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGridItemEditor_PropertyValueChanged);
 			// 
 			// toolStrip1
 			// 
@@ -223,7 +223,6 @@
             this.toolStripButton2,
             this.toolStripButtonFileSaveAs,
             this.toolStripSeparator4,
-            this.toolStripLabel1,
             this.toolStripLabelFileName});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip1.Name = "toolStrip1";
@@ -282,12 +281,6 @@
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
 			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
 			// 
-			// toolStripLabel1
-			// 
-			this.toolStripLabel1.Name = "toolStripLabel1";
-			this.toolStripLabel1.Size = new System.Drawing.Size(28, 22);
-			this.toolStripLabel1.Text = "File:";
-			// 
 			// toolStripLabelFileName
 			// 
 			this.toolStripLabelFileName.Name = "toolStripLabelFileName";
@@ -333,7 +326,6 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-		private System.Windows.Forms.ToolStripLabel toolStripLabel1;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.ToolStripLabel toolStripLabelFileName;
 		private System.Windows.Forms.TreeView treeViewItems;

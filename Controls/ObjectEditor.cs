@@ -9,11 +9,36 @@ using System.Windows.Forms;
 
 namespace CustomNpcsEdit.Controls
 {
-	public partial class ObjectEditor : UserControl
+	public partial class ObjectEditor : UserControl, INotifyPropertyChanged
 	{
+		string currentFilePath = "";
+		public string CurrentFilePath
+		{
+			get => currentFilePath;
+			set
+			{
+				currentFilePath = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentFilePath)));
+			}
+		}
+
+		bool isTreeDirty;
+		public bool IsTreeDirty
+		{
+			get => isTreeDirty;
+			set 
+			{
+				isTreeDirty = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTreeDirty)));
+			}
+		}
+		
+		public string Caption => CurrentFilePath + ( IsTreeDirty ? "*" : "" );
 		public OpenFileDialog OpenFileDialog { get; set; }
 		public SaveFileDialog SaveFileDialog { get; set; }
-										
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
 		public ObjectEditor()
 		{
 			InitializeComponent();
@@ -27,9 +52,11 @@ namespace CustomNpcsEdit.Controls
 			propertyGridItemEditor.SelectedObject = null;
 			//listBoxItems.DataSource = null;
 
-			toolStripLabelFileName.Text = "";
-
 			treeViewItems.Nodes.Clear();
+
+			IsTreeDirty = false;
+			//toolStripLabelFileName.Text = "";
+			CurrentFilePath = "";
 		}
 
 		protected virtual object OnCreateItem()
@@ -71,11 +98,14 @@ namespace CustomNpcsEdit.Controls
 
 		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
 		{
-			var result = MessageBox.Show("This deletes the current tree, and cannot be undone. Continue?", "Delete Tree?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+			if(IsTreeDirty)
+			{
+				var result = MessageBox.Show("There are unsaved changes present. Proceed?", "Delete Tree?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
-			if( result != DialogResult.OK )
-				return;
-
+				if( result != DialogResult.OK )
+					return;
+			}
+			
 			Clear();
 		}
 		
@@ -106,6 +136,7 @@ namespace CustomNpcsEdit.Controls
 					selectedNode.Nodes.Add(node);
 					selectedNode.Expand();
 					//treeViewItems.SelectedNode = node;
+					IsTreeDirty = true;
 					return;
 				}
 				else if(selectedModel is IncludeModel)
@@ -114,6 +145,7 @@ namespace CustomNpcsEdit.Controls
 					selectedNode.Nodes.Add(node);
 					selectedNode.Expand();
 					//treeViewItems.SelectedNode = node;
+					IsTreeDirty = true;
 					return;
 				}
 			}
@@ -124,10 +156,12 @@ namespace CustomNpcsEdit.Controls
 			if( selectedNode != null )
 			{
 				selectedNode.InsertAfter(node);
+				IsTreeDirty = true;
 			}
 			else
 			{
 				treeViewItems.Nodes.Add(node);
+				IsTreeDirty = true;
 			}
 
 			//treeViewItems.SelectedNode = node;
@@ -157,6 +191,7 @@ namespace CustomNpcsEdit.Controls
 				newNode.BoundObject = (IModel)copy;
 
 				selectedNode.InsertAfter(newNode);
+				IsTreeDirty = true;
 			}
 		}
 
@@ -167,6 +202,7 @@ namespace CustomNpcsEdit.Controls
 			if(selectedNode!=null)
 			{
 				treeViewItems.Nodes.Remove(selectedNode);
+				IsTreeDirty = true;
 			}
 		}
 
@@ -204,6 +240,17 @@ namespace CustomNpcsEdit.Controls
 
 		private void toolStripButtonFileOpen_Click(object sender, EventArgs e)
 		{
+			if(IsTreeDirty)
+			{
+				var confirm = MessageBox.Show("There are unsaved changes present. This will replace the current tree. Proceed?",
+												"Unsaved Data",
+												MessageBoxButtons.OKCancel,
+												MessageBoxIcon.Warning);
+
+				if( confirm == DialogResult.Cancel )
+					return;
+			}
+
 			var result = OpenFileDialog.ShowDialog();
 
 			if(result== DialogResult.OK)
@@ -212,7 +259,9 @@ namespace CustomNpcsEdit.Controls
 				{
 					Clear();
 					OnFileLoad(OpenFileDialog.FileName);
-					toolStripLabelFileName.Text = OpenFileDialog.FileName;
+					//toolStripLabelFileName.Text = OpenFileDialog.FileName;
+					IsTreeDirty = false;
+					CurrentFilePath = OpenFileDialog.FileName;
 				}
 				catch(Exception ex)
 				{
@@ -230,7 +279,9 @@ namespace CustomNpcsEdit.Controls
 				try
 				{
 					OnFileSave(SaveFileDialog.FileName);
-					toolStripLabelFileName.Text = SaveFileDialog.FileName;
+					//toolStripLabelFileName.Text = SaveFileDialog.FileName;
+					IsTreeDirty = false;
+					CurrentFilePath = SaveFileDialog.FileName;
 				}
 				catch(Exception ex)
 				{
@@ -285,10 +336,12 @@ namespace CustomNpcsEdit.Controls
 						// Expand the node at the location 
 						// to show the dropped node.
 						targetNode.Expand();
+						IsTreeDirty = true;
 					}
 					else
 					{
 						targetNode.InsertAfter(draggedNode);
+						IsTreeDirty = true;
 					}
 				}
 			}
@@ -300,6 +353,7 @@ namespace CustomNpcsEdit.Controls
 
 				draggedNode.Remove();
 				treeViewItems.Nodes.Add(draggedNode);
+				IsTreeDirty = true;
 			}
 		}
 
@@ -312,6 +366,12 @@ namespace CustomNpcsEdit.Controls
 			node.BoundObject = categoryModel;
 
 			treeViewItems.Nodes.Add(node);
+			IsTreeDirty = true;
+		}
+
+		private void propertyGridItemEditor_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+		{
+			IsTreeDirty = true;
 		}
 	}
 }

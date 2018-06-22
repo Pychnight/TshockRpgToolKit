@@ -14,24 +14,49 @@ namespace CustomNpcsEdit
 {
 	internal partial class EditorForm : Form
 	{
+		List<ObjectEditor> objectEditors;
+		InvasionEditor invasionsEditor;
+		NpcEditor npcsEditor;
+		ProjectileEditor projectilesEditor;
+
 		public EditorForm()
 		{
 			InitializeComponent();
-
-			var invasionsEditor = (ObjectEditor)tabControl1.TabPages[0].Controls[0];
+			
+			invasionsEditor = (InvasionEditor)tabControlMain.TabPages[0].Controls[0];
 			invasionsEditor.OpenFileDialog = openFileDialogNpcs;
 			invasionsEditor.SaveFileDialog = saveFileDialogNpcs;
-
-			var npcsEditor = (ObjectEditor)tabControl1.TabPages[1].Controls[0];
+			
+			npcsEditor = (NpcEditor)tabControlMain.TabPages[1].Controls[0];
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;
 			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
-
-			var projectilesEditor = (ObjectEditor)tabControl1.TabPages[2].Controls[0];
+			
+			projectilesEditor = (ProjectileEditor)tabControlMain.TabPages[2].Controls[0];
 			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
+			objectEditors = new List<ObjectEditor>()
+			{
+				invasionsEditor,
+				npcsEditor,
+				projectilesEditor
+			};
+
+			foreach( var editor in objectEditors )
+			{
+				//refresh on property change
+				editor.PropertyChanged += (s, a) =>
+				{
+					//...but only if its the currently selected tab.
+					var selectedIndex = tabControlMain.SelectedIndex;
+
+					if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
+						refreshObjectEditorExternalDisplay(selectedIndex);
+				};
+			}
+			
 			//start on projectiles page for now...
-			tabControl1.SelectedIndex = 0;
+			//tabControl1.SelectedIndex = 0;
 		}
 		
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -41,12 +66,30 @@ namespace CustomNpcsEdit
 
 		private void EditorForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			var result = MessageBox.Show("This will delete all work, and cannot be undone. Continue?", "Continue exit?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+			var unsavedData = objectEditors.FirstOrDefault(ed => ed.IsTreeDirty) != null;
 
-			if( result != DialogResult.OK )
+			if(unsavedData)
 			{
-				e.Cancel = true;
+				var result = MessageBox.Show("There are unsaved changes present. Are you sure you want to exit?", "Unsaved Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+				if( result != DialogResult.OK )
+				{
+					e.Cancel = true;
+				}
 			}
+		}
+
+		private void refreshObjectEditorExternalDisplay(int selectedIndex)
+		{
+			var editor = objectEditors[selectedIndex];
+			var value = editor.Caption;
+
+			Text = $"CustomNpcsEdit - {value}";
+		}
+
+		private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			refreshObjectEditorExternalDisplay(tabControlMain.SelectedIndex);
 		}
 	}
 }

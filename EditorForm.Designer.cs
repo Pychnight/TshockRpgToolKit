@@ -52,7 +52,7 @@
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageInvasions = new System.Windows.Forms.TabPage();
 			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
 			this.tabPageNpcs = new System.Windows.Forms.TabPage();
@@ -65,7 +65,7 @@
 			this.openFileDialogNpcs = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
 			this.menuStrip1.SuspendLayout();
-			this.tabControl1.SuspendLayout();
+			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
 			this.tabPageNpcs.SuspendLayout();
 			this.tabPageProjectiles.SuspendLayout();
@@ -258,18 +258,20 @@
 			this.statusStrip1.TabIndex = 2;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
-			// tabControl1
+			// tabControlMain
 			// 
-			this.tabControl1.Controls.Add(this.tabPageInvasions);
-			this.tabControl1.Controls.Add(this.tabPageNpcs);
-			this.tabControl1.Controls.Add(this.tabPageProjectiles);
-			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tabControl1.ImageList = this.imageListTabIcons;
-			this.tabControl1.Location = new System.Drawing.Point(0, 24);
-			this.tabControl1.Name = "tabControl1";
-			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(1008, 635);
-			this.tabControl1.TabIndex = 3;
+			this.tabControlMain.Controls.Add(this.tabPageInvasions);
+			this.tabControlMain.Controls.Add(this.tabPageNpcs);
+			this.tabControlMain.Controls.Add(this.tabPageProjectiles);
+			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControlMain.ImageList = this.imageListTabIcons;
+			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
+			this.tabControlMain.Name = "tabControlMain";
+			this.tabControlMain.SelectedIndex = 0;
+			this.tabControlMain.Size = new System.Drawing.Size(1008, 635);
+			this.tabControlMain.TabIndex = 3;
+			this.tabControlMain.SelectedIndexChanged += new System.EventHandler(this.tabControlMain_SelectedIndexChanged);
+			this.tabControlMain.TabIndexChanged += new System.EventHandler(this.tabControlMain_SelectedIndexChanged);
 			// 
 			// tabPageInvasions
 			// 
@@ -284,7 +286,9 @@
 			// 
 			// invasionEditor1
 			// 
+			this.invasionEditor1.CurrentFilePath = "";
 			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.invasionEditor1.IsTreeDirty = false;
 			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
 			this.invasionEditor1.Name = "invasionEditor1";
 			this.invasionEditor1.OpenFileDialog = null;
@@ -305,7 +309,9 @@
 			// 
 			// npcEditor1
 			// 
+			this.npcEditor1.CurrentFilePath = "";
 			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcEditor1.IsTreeDirty = false;
 			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
 			this.npcEditor1.Name = "npcEditor1";
 			this.npcEditor1.OpenFileDialog = null;
@@ -326,7 +332,9 @@
 			// 
 			// projectileEditor1
 			// 
+			this.projectileEditor1.CurrentFilePath = "";
 			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.projectileEditor1.IsTreeDirty = false;
 			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
 			this.projectileEditor1.Name = "projectileEditor1";
 			this.projectileEditor1.OpenFileDialog = null;
@@ -369,7 +377,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1008, 681);
-			this.Controls.Add(this.tabControl1);
+			this.Controls.Add(this.tabControlMain);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.menuStrip1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -379,7 +387,7 @@
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorForm_FormClosing);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
-			this.tabControl1.ResumeLayout(false);
+			this.tabControlMain.ResumeLayout(false);
 			this.tabPageInvasions.ResumeLayout(false);
 			this.tabPageNpcs.ResumeLayout(false);
 			this.tabPageProjectiles.ResumeLayout(false);
@@ -412,7 +420,7 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
 		private System.Windows.Forms.StatusStrip statusStrip1;
-		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.TabControl tabControlMain;
 		private System.Windows.Forms.TabPage tabPageInvasions;
 		private System.Windows.Forms.TabPage tabPageNpcs;
 		private System.Windows.Forms.TabPage tabPageProjectiles;
