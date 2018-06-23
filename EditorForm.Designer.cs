@@ -54,24 +54,24 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageInvasions = new System.Windows.Forms.TabPage();
+			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
 			this.tabPageNpcs = new System.Windows.Forms.TabPage();
+			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
 			this.tabPageProjectiles = new System.Windows.Forms.TabPage();
+			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
+			this.tabPageNpcShops = new System.Windows.Forms.TabPage();
+			this.npcShopsEditor1 = new CustomNpcsEdit.Controls.NpcShopsEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogNpcs = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
-			this.tabPage1 = new System.Windows.Forms.TabPage();
-			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
-			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
-			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
-			this.npcShopsEditor1 = new CustomNpcsEdit.Controls.NpcShopsEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
 			this.tabPageNpcs.SuspendLayout();
 			this.tabPageProjectiles.SuspendLayout();
-			this.tabPage1.SuspendLayout();
+			this.tabPageNpcShops.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -266,7 +266,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageInvasions);
 			this.tabControlMain.Controls.Add(this.tabPageNpcs);
 			this.tabControlMain.Controls.Add(this.tabPageProjectiles);
-			this.tabControlMain.Controls.Add(this.tabPage1);
+			this.tabControlMain.Controls.Add(this.tabPageNpcShops);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -288,6 +288,20 @@
 			this.tabPageInvasions.Text = "Invasions";
 			this.tabPageInvasions.UseVisualStyleBackColor = true;
 			// 
+			// invasionEditor1
+			// 
+			this.invasionEditor1.CanAddCategory = true;
+			this.invasionEditor1.CurrentFilePath = "";
+			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.invasionEditor1.IsTreeDirty = false;
+			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
+			this.invasionEditor1.Name = "invasionEditor1";
+			this.invasionEditor1.OpenFileDialog = null;
+			this.invasionEditor1.SaveFileDialog = null;
+			this.invasionEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.invasionEditor1.SupportMultipleItems = true;
+			this.invasionEditor1.TabIndex = 0;
+			// 
 			// tabPageNpcs
 			// 
 			this.tabPageNpcs.Controls.Add(this.npcEditor1);
@@ -298,6 +312,20 @@
 			this.tabPageNpcs.TabIndex = 1;
 			this.tabPageNpcs.Text = "NPCs";
 			this.tabPageNpcs.UseVisualStyleBackColor = true;
+			// 
+			// npcEditor1
+			// 
+			this.npcEditor1.CanAddCategory = true;
+			this.npcEditor1.CurrentFilePath = "";
+			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcEditor1.IsTreeDirty = false;
+			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
+			this.npcEditor1.Name = "npcEditor1";
+			this.npcEditor1.OpenFileDialog = null;
+			this.npcEditor1.SaveFileDialog = null;
+			this.npcEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.npcEditor1.SupportMultipleItems = true;
+			this.npcEditor1.TabIndex = 0;
 			// 
 			// tabPageProjectiles
 			// 
@@ -310,6 +338,45 @@
 			this.tabPageProjectiles.Text = "Projectiles";
 			this.tabPageProjectiles.UseVisualStyleBackColor = true;
 			// 
+			// projectileEditor1
+			// 
+			this.projectileEditor1.CanAddCategory = true;
+			this.projectileEditor1.CurrentFilePath = "";
+			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.projectileEditor1.IsTreeDirty = false;
+			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
+			this.projectileEditor1.Name = "projectileEditor1";
+			this.projectileEditor1.OpenFileDialog = null;
+			this.projectileEditor1.SaveFileDialog = null;
+			this.projectileEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.projectileEditor1.SupportMultipleItems = true;
+			this.projectileEditor1.TabIndex = 0;
+			// 
+			// tabPageNpcShops
+			// 
+			this.tabPageNpcShops.Controls.Add(this.npcShopsEditor1);
+			this.tabPageNpcShops.ImageIndex = 3;
+			this.tabPageNpcShops.Location = new System.Drawing.Point(4, 23);
+			this.tabPageNpcShops.Name = "tabPageNpcShops";
+			this.tabPageNpcShops.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageNpcShops.TabIndex = 3;
+			this.tabPageNpcShops.Text = "NpcShops";
+			this.tabPageNpcShops.UseVisualStyleBackColor = true;
+			// 
+			// npcShopsEditor1
+			// 
+			this.npcShopsEditor1.CanAddCategory = true;
+			this.npcShopsEditor1.CurrentFilePath = "";
+			this.npcShopsEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcShopsEditor1.IsTreeDirty = false;
+			this.npcShopsEditor1.Location = new System.Drawing.Point(0, 0);
+			this.npcShopsEditor1.Name = "npcShopsEditor1";
+			this.npcShopsEditor1.OpenFileDialog = null;
+			this.npcShopsEditor1.SaveFileDialog = null;
+			this.npcShopsEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.npcShopsEditor1.SupportMultipleItems = true;
+			this.npcShopsEditor1.TabIndex = 0;
+			// 
 			// imageListTabIcons
 			// 
 			this.imageListTabIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTabIcons.ImageStream")));
@@ -317,6 +384,7 @@
 			this.imageListTabIcons.Images.SetKeyName(0, "Goblin-16.png");
 			this.imageListTabIcons.Images.SetKeyName(1, "Green_Slime-16.png");
 			this.imageListTabIcons.Images.SetKeyName(2, "Shuriken.png");
+			this.imageListTabIcons.Images.SetKeyName(3, "Merchant-16.png");
 			// 
 			// openFileDialogProjectiles
 			// 
@@ -340,69 +408,6 @@
 			this.saveFileDialogNpcs.SupportMultiDottedExtensions = true;
 			this.saveFileDialogNpcs.Title = "Save Custom NPCs";
 			// 
-			// tabPage1
-			// 
-			this.tabPage1.Controls.Add(this.npcShopsEditor1);
-			this.tabPage1.Location = new System.Drawing.Point(4, 23);
-			this.tabPage1.Name = "tabPage1";
-			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(1000, 608);
-			this.tabPage1.TabIndex = 3;
-			this.tabPage1.Text = "NpcShops";
-			this.tabPage1.UseVisualStyleBackColor = true;
-			// 
-			// invasionEditor1
-			// 
-			this.invasionEditor1.CanAddCategory = true;
-			this.invasionEditor1.CurrentFilePath = "";
-			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.invasionEditor1.IsTreeDirty = false;
-			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
-			this.invasionEditor1.Name = "invasionEditor1";
-			this.invasionEditor1.OpenFileDialog = null;
-			this.invasionEditor1.SaveFileDialog = null;
-			this.invasionEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.invasionEditor1.TabIndex = 0;
-			// 
-			// npcEditor1
-			// 
-			this.npcEditor1.CanAddCategory = true;
-			this.npcEditor1.CurrentFilePath = "";
-			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.npcEditor1.IsTreeDirty = false;
-			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
-			this.npcEditor1.Name = "npcEditor1";
-			this.npcEditor1.OpenFileDialog = null;
-			this.npcEditor1.SaveFileDialog = null;
-			this.npcEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.npcEditor1.TabIndex = 0;
-			// 
-			// projectileEditor1
-			// 
-			this.projectileEditor1.CanAddCategory = true;
-			this.projectileEditor1.CurrentFilePath = "";
-			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectileEditor1.IsTreeDirty = false;
-			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
-			this.projectileEditor1.Name = "projectileEditor1";
-			this.projectileEditor1.OpenFileDialog = null;
-			this.projectileEditor1.SaveFileDialog = null;
-			this.projectileEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.projectileEditor1.TabIndex = 0;
-			// 
-			// npcShopsEditor1
-			// 
-			this.npcShopsEditor1.CanAddCategory = true;
-			this.npcShopsEditor1.CurrentFilePath = "";
-			this.npcShopsEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.npcShopsEditor1.IsTreeDirty = false;
-			this.npcShopsEditor1.Location = new System.Drawing.Point(3, 3);
-			this.npcShopsEditor1.Name = "npcShopsEditor1";
-			this.npcShopsEditor1.OpenFileDialog = null;
-			this.npcShopsEditor1.SaveFileDialog = null;
-			this.npcShopsEditor1.Size = new System.Drawing.Size(994, 602);
-			this.npcShopsEditor1.TabIndex = 0;
-			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -422,7 +427,7 @@
 			this.tabPageInvasions.ResumeLayout(false);
 			this.tabPageNpcs.ResumeLayout(false);
 			this.tabPageProjectiles.ResumeLayout(false);
-			this.tabPage1.ResumeLayout(false);
+			this.tabPageNpcShops.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -464,7 +469,7 @@
 		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcs;
 		private Controls.InvasionEditor invasionEditor1;
 		private System.Windows.Forms.ImageList imageListTabIcons;
-		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabPage tabPageNpcShops;
 		private Controls.NpcShopsEditor npcShopsEditor1;
 	}
 }

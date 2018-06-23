@@ -85,10 +85,10 @@
 			this.treeViewItems.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.treeViewItems.ImageIndex = 0;
 			this.treeViewItems.ImageList = this.imageListTreeView;
-			this.treeViewItems.Location = new System.Drawing.Point(32, 0);
+			this.treeViewItems.Location = new System.Drawing.Point(24, 0);
 			this.treeViewItems.Name = "treeViewItems";
 			this.treeViewItems.SelectedImageIndex = 0;
-			this.treeViewItems.Size = new System.Drawing.Size(212, 391);
+			this.treeViewItems.Size = new System.Drawing.Size(220, 391);
 			this.treeViewItems.TabIndex = 3;
 			this.treeViewItems.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeViewItems_ItemDrag);
 			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
@@ -119,7 +119,7 @@
             this.toolStripButtonAddCategory});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 0);
 			this.toolStripListControl.Name = "toolStripListControl";
-			this.toolStripListControl.Size = new System.Drawing.Size(32, 391);
+			this.toolStripListControl.Size = new System.Drawing.Size(24, 391);
 			this.toolStripListControl.TabIndex = 2;
 			this.toolStripListControl.Text = "toolStrip2";
 			// 
