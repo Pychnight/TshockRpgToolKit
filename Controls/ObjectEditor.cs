@@ -32,10 +32,35 @@ namespace CustomNpcsEdit.Controls
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTreeDirty)));
 			}
 		}
-		
+				
 		public string Caption => CurrentFilePath + ( IsTreeDirty ? "*" : "" );
+
+		bool canAddCategory = true;
+		public bool CanAddCategory
+		{
+			get => canAddCategory;
+			set 
+			{
+				canAddCategory = value;
+				toolStripButtonAddCategory.Enabled = canAddCategory;
+			}
+		}
+
+		bool supportMultipleItems = true;
+		public bool SupportMultipleItems
+		{
+			get => supportMultipleItems;
+			set
+			{
+				supportMultipleItems = value;
+				toolStripButtonAddItem.Enabled = toolStripButtonCopy.Enabled = toolStripButtonDeleteItem.Enabled = value;
+			}
+		}
+				
 		public OpenFileDialog OpenFileDialog { get; set; }
 		public SaveFileDialog SaveFileDialog { get; set; }
+
+		protected PropertyGrid PropertyGrid => propertyGridItemEditor;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -95,7 +120,7 @@ namespace CustomNpcsEdit.Controls
 			var boundTreeNodes = nodes.Cast<BoundTreeNode>().ToList();
 			return boundTreeNodes;
 		}
-
+		
 		public void NewFile()
 		{
 			if( IsTreeDirty )
@@ -107,6 +132,13 @@ namespace CustomNpcsEdit.Controls
 			}
 
 			Clear();
+			
+			if(!SupportMultipleItems)
+			{
+				//we're in single item mode, so create a default item...
+				var item = OnCreateItem();
+				propertyGridItemEditor.SelectedObject = item;
+			}
 		}
 
 		private void toolStripButtonNewFile_Click(object sender, EventArgs e)

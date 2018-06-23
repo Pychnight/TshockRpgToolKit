@@ -20,6 +20,8 @@ namespace CustomNpcsEdit
 		NpcEditor npcsEditor;
 		ProjectileEditor projectilesEditor;
 
+		NpcShopsEditor npcShopsEditor;
+
 		public EditorForm()
 		{
 			InitializeComponent();
@@ -36,11 +38,18 @@ namespace CustomNpcsEdit
 			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
+			npcShopsEditor = (NpcShopsEditor)tabControlMain.TabPages[3].Controls[0];
+			npcShopsEditor.OpenFileDialog = openFileDialogProjectiles;
+			npcShopsEditor.SaveFileDialog = saveFileDialogProjectiles;
+			npcShopsEditor.CanAddCategory = false;
+			npcShopsEditor.SupportMultipleItems = false;
+			
 			objectEditors = new List<ObjectEditor>()
 			{
 				invasionsEditor,
 				npcsEditor,
-				projectilesEditor
+				projectilesEditor,
+				npcShopsEditor
 			};
 
 			foreach( var editor in objectEditors )
@@ -57,7 +66,7 @@ namespace CustomNpcsEdit
 			}
 			
 			//start on projectiles page for now...
-			//tabControl1.SelectedIndex = 0;
+			tabControlMain.SelectedIndex = 3;
 		}
 		
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)

@@ -54,21 +54,24 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageInvasions = new System.Windows.Forms.TabPage();
-			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
 			this.tabPageNpcs = new System.Windows.Forms.TabPage();
-			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
 			this.tabPageProjectiles = new System.Windows.Forms.TabPage();
-			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogNpcs = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
+			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
+			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
+			this.npcShopsEditor1 = new CustomNpcsEdit.Controls.NpcShopsEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
 			this.tabPageNpcs.SuspendLayout();
 			this.tabPageProjectiles.SuspendLayout();
+			this.tabPage1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -103,7 +106,7 @@
 			this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
 			this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.newToolStripMenuItem.Text = "&New";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
@@ -113,14 +116,14 @@
 			this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
 			this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.openToolStripMenuItem.Text = "&Open";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator
 			// 
 			this.toolStripSeparator.Name = "toolStripSeparator";
-			this.toolStripSeparator.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
 			// 
 			// saveToolStripMenuItem
 			// 
@@ -129,25 +132,25 @@
 			this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
 			this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.saveToolStripMenuItem.Text = "&Save";
 			// 
 			// saveAsToolStripMenuItem
 			// 
 			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.saveAsToolStripMenuItem.Text = "Save &As";
 			this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(143, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.exitToolStripMenuItem.Text = "E&xit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -241,12 +244,12 @@
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator5.Size = new System.Drawing.Size(113, 6);
 			// 
 			// aboutToolStripMenuItem
 			// 
 			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
 			this.aboutToolStripMenuItem.Text = "&About...";
 			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
 			// 
@@ -263,6 +266,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageInvasions);
 			this.tabControlMain.Controls.Add(this.tabPageNpcs);
 			this.tabControlMain.Controls.Add(this.tabPageProjectiles);
+			this.tabControlMain.Controls.Add(this.tabPage1);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -284,18 +288,6 @@
 			this.tabPageInvasions.Text = "Invasions";
 			this.tabPageInvasions.UseVisualStyleBackColor = true;
 			// 
-			// invasionEditor1
-			// 
-			this.invasionEditor1.CurrentFilePath = "";
-			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.invasionEditor1.IsTreeDirty = false;
-			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
-			this.invasionEditor1.Name = "invasionEditor1";
-			this.invasionEditor1.OpenFileDialog = null;
-			this.invasionEditor1.SaveFileDialog = null;
-			this.invasionEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.invasionEditor1.TabIndex = 0;
-			// 
 			// tabPageNpcs
 			// 
 			this.tabPageNpcs.Controls.Add(this.npcEditor1);
@@ -307,18 +299,6 @@
 			this.tabPageNpcs.Text = "NPCs";
 			this.tabPageNpcs.UseVisualStyleBackColor = true;
 			// 
-			// npcEditor1
-			// 
-			this.npcEditor1.CurrentFilePath = "";
-			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.npcEditor1.IsTreeDirty = false;
-			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
-			this.npcEditor1.Name = "npcEditor1";
-			this.npcEditor1.OpenFileDialog = null;
-			this.npcEditor1.SaveFileDialog = null;
-			this.npcEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.npcEditor1.TabIndex = 0;
-			// 
 			// tabPageProjectiles
 			// 
 			this.tabPageProjectiles.Controls.Add(this.projectileEditor1);
@@ -329,18 +309,6 @@
 			this.tabPageProjectiles.TabIndex = 2;
 			this.tabPageProjectiles.Text = "Projectiles";
 			this.tabPageProjectiles.UseVisualStyleBackColor = true;
-			// 
-			// projectileEditor1
-			// 
-			this.projectileEditor1.CurrentFilePath = "";
-			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.projectileEditor1.IsTreeDirty = false;
-			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
-			this.projectileEditor1.Name = "projectileEditor1";
-			this.projectileEditor1.OpenFileDialog = null;
-			this.projectileEditor1.SaveFileDialog = null;
-			this.projectileEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.projectileEditor1.TabIndex = 0;
 			// 
 			// imageListTabIcons
 			// 
@@ -372,6 +340,69 @@
 			this.saveFileDialogNpcs.SupportMultiDottedExtensions = true;
 			this.saveFileDialogNpcs.Title = "Save Custom NPCs";
 			// 
+			// tabPage1
+			// 
+			this.tabPage1.Controls.Add(this.npcShopsEditor1);
+			this.tabPage1.Location = new System.Drawing.Point(4, 23);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage1.Size = new System.Drawing.Size(1000, 608);
+			this.tabPage1.TabIndex = 3;
+			this.tabPage1.Text = "NpcShops";
+			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// invasionEditor1
+			// 
+			this.invasionEditor1.CanAddCategory = true;
+			this.invasionEditor1.CurrentFilePath = "";
+			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.invasionEditor1.IsTreeDirty = false;
+			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
+			this.invasionEditor1.Name = "invasionEditor1";
+			this.invasionEditor1.OpenFileDialog = null;
+			this.invasionEditor1.SaveFileDialog = null;
+			this.invasionEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.invasionEditor1.TabIndex = 0;
+			// 
+			// npcEditor1
+			// 
+			this.npcEditor1.CanAddCategory = true;
+			this.npcEditor1.CurrentFilePath = "";
+			this.npcEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcEditor1.IsTreeDirty = false;
+			this.npcEditor1.Location = new System.Drawing.Point(0, 0);
+			this.npcEditor1.Name = "npcEditor1";
+			this.npcEditor1.OpenFileDialog = null;
+			this.npcEditor1.SaveFileDialog = null;
+			this.npcEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.npcEditor1.TabIndex = 0;
+			// 
+			// projectileEditor1
+			// 
+			this.projectileEditor1.CanAddCategory = true;
+			this.projectileEditor1.CurrentFilePath = "";
+			this.projectileEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.projectileEditor1.IsTreeDirty = false;
+			this.projectileEditor1.Location = new System.Drawing.Point(0, 0);
+			this.projectileEditor1.Name = "projectileEditor1";
+			this.projectileEditor1.OpenFileDialog = null;
+			this.projectileEditor1.SaveFileDialog = null;
+			this.projectileEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.projectileEditor1.TabIndex = 0;
+			// 
+			// npcShopsEditor1
+			// 
+			this.npcShopsEditor1.CanAddCategory = true;
+			this.npcShopsEditor1.CurrentFilePath = "";
+			this.npcShopsEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.npcShopsEditor1.IsTreeDirty = false;
+			this.npcShopsEditor1.Location = new System.Drawing.Point(3, 3);
+			this.npcShopsEditor1.Name = "npcShopsEditor1";
+			this.npcShopsEditor1.OpenFileDialog = null;
+			this.npcShopsEditor1.SaveFileDialog = null;
+			this.npcShopsEditor1.Size = new System.Drawing.Size(994, 602);
+			this.npcShopsEditor1.TabIndex = 0;
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -391,6 +422,7 @@
 			this.tabPageInvasions.ResumeLayout(false);
 			this.tabPageNpcs.ResumeLayout(false);
 			this.tabPageProjectiles.ResumeLayout(false);
+			this.tabPage1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -432,6 +464,8 @@
 		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcs;
 		private Controls.InvasionEditor invasionEditor1;
 		private System.Windows.Forms.ImageList imageListTabIcons;
+		private System.Windows.Forms.TabPage tabPage1;
+		private Controls.NpcShopsEditor npcShopsEditor1;
 	}
 }
 

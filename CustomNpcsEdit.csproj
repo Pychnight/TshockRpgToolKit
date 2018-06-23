@@ -62,6 +62,9 @@
     <Compile Include="Controls\NpcEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Controls\NpcShopsEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\ObjectEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -88,8 +91,12 @@
     <Compile Include="Models\LootEntry.cs" />
     <Compile Include="Models\Npc.cs" />
     <Compile Include="Controls\BoundTreeNode.cs" />
+    <Compile Include="Models\NpcShops\NpcShopDefinition.cs" />
+    <Compile Include="Models\NpcShops\RequiredItemDefinition.cs" />
     <Compile Include="Models\NpcTree.cs" />
     <Compile Include="Models\Projectile.cs" />
+    <Compile Include="Models\NpcShops\ShopCommandDefinition.cs" />
+    <Compile Include="Models\NpcShops\ShopItemDefinition.cs" />
     <Compile Include="Models\WaveDefinition.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
