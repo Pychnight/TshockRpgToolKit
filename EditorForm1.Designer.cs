@@ -131,6 +131,16 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=17,Y=41}.
+        /// </summary>
+        internal static System.Drawing.Point openFileDialogNpcShop_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("openFileDialogNpcShop.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=505,Y=17}.
         /// </summary>
         internal static System.Drawing.Point openFileDialogProjectiles_TrayLocation {
@@ -166,6 +176,16 @@ namespace CustomNpcsEdit {
         internal static System.Drawing.Point saveFileDialogNpcs_TrayLocation {
             get {
                 object obj = ResourceManager.GetObject("saveFileDialogNpcs.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=206,Y=41}.
+        /// </summary>
+        internal static System.Drawing.Point saveFileDialogNpcShop_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("saveFileDialogNpcShop.TrayLocation", resourceCulture);
                 return ((System.Drawing.Point)(obj));
             }
         }

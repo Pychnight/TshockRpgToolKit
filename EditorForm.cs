@@ -39,8 +39,8 @@ namespace CustomNpcsEdit
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
 			npcShopsEditor = (NpcShopsEditor)tabControlMain.TabPages[3].Controls[0];
-			npcShopsEditor.OpenFileDialog = openFileDialogProjectiles;
-			npcShopsEditor.SaveFileDialog = saveFileDialogProjectiles;
+			npcShopsEditor.OpenFileDialog = openFileDialogNpcShop;
+			npcShopsEditor.SaveFileDialog = saveFileDialogNpcShop;
 			npcShopsEditor.CanAddCategory = false;
 			npcShopsEditor.SupportMultipleItems = false;
 			

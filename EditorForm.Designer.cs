@@ -66,6 +66,8 @@
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogNpcs = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
+			this.openFileDialogNpcShop = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogNpcShop = new System.Windows.Forms.SaveFileDialog();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -408,6 +410,17 @@
 			this.saveFileDialogNpcs.SupportMultiDottedExtensions = true;
 			this.saveFileDialogNpcs.Title = "Save Custom NPCs";
 			// 
+			// openFileDialogNpcShop
+			// 
+			this.openFileDialogNpcShop.Filter = "Shop files|*.shop|Json files|*.json|All files|*.*";
+			this.openFileDialogNpcShop.Title = "Open Npc Shop";
+			// 
+			// saveFileDialogNpcShop
+			// 
+			this.saveFileDialogNpcShop.Filter = "Shop files|*.shop|Json files|*.json|All files|*.*";
+			this.saveFileDialogNpcShop.SupportMultiDottedExtensions = true;
+			this.saveFileDialogNpcShop.Title = "Save Npc Shop";
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -471,6 +484,8 @@
 		private System.Windows.Forms.ImageList imageListTabIcons;
 		private System.Windows.Forms.TabPage tabPageNpcShops;
 		private Controls.NpcShopsEditor npcShopsEditor1;
+		private System.Windows.Forms.OpenFileDialog openFileDialogNpcShop;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcShop;
 	}
 }
 

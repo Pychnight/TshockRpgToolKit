@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 namespace CustomNpcsEdit.Models
 {
 	[JsonObject(MemberSerialization.OptIn)]
-	public class ShopCommandDefinition : IModel
+	public class ShopCommandDefinition //: IModel
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
+		//public event PropertyChangedEventHandler PropertyChanged;
 
 		string name = "New ShopCommand";
 
@@ -24,7 +24,7 @@ namespace CustomNpcsEdit.Models
 			{
 				name = value;
 
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+				//PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
 		
@@ -91,9 +91,9 @@ namespace CustomNpcsEdit.Models
 		public override string ToString()
 		{
 			if( string.IsNullOrWhiteSpace(Name) )
-				return "Unamed ShopCommand";
+				return $"Unamed ShopCommand @ {UnitPrice}";
 			else
-				return Name;
+				return $"{Name} @ {UnitPrice}";
 		}
 
 		public ShopCommandDefinition()

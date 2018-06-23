@@ -54,6 +54,7 @@ namespace CustomNpcsEdit.Controls
 			{
 				supportMultipleItems = value;
 				toolStripButtonAddItem.Enabled = toolStripButtonCopy.Enabled = toolStripButtonDeleteItem.Enabled = value;
+				//treeViewItems.Visible = value;
 			}
 		}
 				
