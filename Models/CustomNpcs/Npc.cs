@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Windows.Forms.Design;
 using CustomNpcsEdit.Controls;
 
-namespace CustomNpcsEdit.Models
+namespace CustomNpcsEdit.Models.CustomNpcs
 {
 	/// <summary>
 	///     Represents an NPC definition.

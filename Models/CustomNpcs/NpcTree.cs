@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Models
+namespace CustomNpcsEdit.Models.CustomNpcs
 {
 	public static class ModelTreePersistance
 	{

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 
-namespace CustomNpcsEdit.Models
+namespace CustomNpcsEdit.Models.CustomNpcs
 {
 	[DefaultProperty("Name")]
 	[JsonObject(MemberSerialization.OptIn)]

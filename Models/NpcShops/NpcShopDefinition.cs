@@ -7,7 +7,7 @@ using System.Linq;
 using CustomNpcsEdit.Controls;
 using Newtonsoft.Json;
 
-namespace CustomNpcsEdit.Models
+namespace CustomNpcsEdit.Models.NpcShops
 {
 	/// <summary>
 	///     Represents an NPC shop definition.

@@ -13,7 +13,7 @@ using System.Windows.Forms.Design;
 using System.ComponentModel;
 using CustomNpcsEdit.Controls;
 
-namespace CustomNpcsEdit.Models
+namespace CustomNpcsEdit.Models.CustomNpcs
 {
 	/// <summary>
 	///     Represents an invasion definition.
