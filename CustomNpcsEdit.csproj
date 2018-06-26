@@ -77,7 +77,6 @@
     <Compile Include="Controls\ProjectileEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Models\Leveling\StringHashSetCollectionEditor.cs" />
     <Compile Include="Models\StringHolder.cs" />
     <Compile Include="Controls\TreeNodeExtensions.cs" />
     <Compile Include="EditorForm.cs">
