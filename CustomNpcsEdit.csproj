@@ -59,6 +59,9 @@
     <Compile Include="Controls\InvasionEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Controls\LevelingEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\NpcEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -74,6 +77,8 @@
     <Compile Include="Controls\ProjectileEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Models\Leveling\StringHashSetCollectionEditor.cs" />
+    <Compile Include="Models\StringHolder.cs" />
     <Compile Include="Controls\TreeNodeExtensions.cs" />
     <Compile Include="EditorForm.cs">
       <SubType>Form</SubType>
@@ -86,11 +91,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>EditorForm.resx</DependentUpon>
     </Compile>
-    <None Include="ItemExtract.cs" />
+    <None Include="Etc\ItemExtract.cs" />
     <Compile Include="Models\CustomNpcs\Invasion.cs" />
     <Compile Include="Models\CustomNpcs\LootEntry.cs" />
     <Compile Include="Models\CustomNpcs\Npc.cs" />
     <Compile Include="Controls\BoundTreeNode.cs" />
+    <Compile Include="Models\Leveling\ClassDefinition.cs" />
+    <Compile Include="Models\Leveling\LevelDefinition.cs" />
     <Compile Include="Models\NpcShops\NpcShopDefinition.cs" />
     <Compile Include="Models\NpcShops\RequiredItemDefinition.cs" />
     <Compile Include="Models\CustomNpcs\NpcTree.cs" />
@@ -98,6 +105,7 @@
     <Compile Include="Models\NpcShops\ShopCommandDefinition.cs" />
     <Compile Include="Models\NpcShops\ShopItemDefinition.cs" />
     <Compile Include="Models\CustomNpcs\WaveDefinition.cs" />
+    <Compile Include="Models\StringHolderJsonConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls\ObjectEditor.resx">
@@ -135,11 +143,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Corrupt_Bunny.ico" />
-    <Content Include="item-names.txt" />
-    <Content Include="items.txt">
+    <Content Include="Etc\item-names.txt" />
+    <Content Include="Etc\items.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="Models\ItemNameStringConverter.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

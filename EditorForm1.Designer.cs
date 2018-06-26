@@ -121,6 +121,16 @@ namespace CustomNpcsEdit {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=386,Y=41}.
+        /// </summary>
+        internal static System.Drawing.Point openFileDialogLeveling_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("openFileDialogLeveling.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=879,Y=17}.
         /// </summary>
         internal static System.Drawing.Point openFileDialogNpcs_TrayLocation {
@@ -167,6 +177,16 @@ namespace CustomNpcsEdit {
             get {
                 object obj = ResourceManager.GetObject("pasteToolStripMenuItem.Image", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=564,Y=41}.
+        /// </summary>
+        internal static System.Drawing.Point saveFileDialogLeveling_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("saveFileDialogLeveling.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
             }
         }
         

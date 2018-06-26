@@ -19,8 +19,8 @@ namespace CustomNpcsEdit
 		InvasionEditor invasionsEditor;
 		NpcEditor npcsEditor;
 		ProjectileEditor projectilesEditor;
-
 		NpcShopsEditor npcShopsEditor;
+		LevelingEditor levelingEditor;
 
 		public EditorForm()
 		{
@@ -44,12 +44,19 @@ namespace CustomNpcsEdit
 			npcShopsEditor.CanAddCategory = false;
 			npcShopsEditor.SupportMultipleItems = false;
 			
+			levelingEditor = (LevelingEditor)tabControlMain.TabPages[4].Controls[0];
+			levelingEditor.OpenFileDialog = openFileDialogLeveling;
+			levelingEditor.SaveFileDialog = saveFileDialogLeveling;
+			levelingEditor.CanAddCategory = false;
+			levelingEditor.SupportMultipleItems = false;
+
 			objectEditors = new List<ObjectEditor>()
 			{
 				invasionsEditor,
 				npcsEditor,
 				projectilesEditor,
-				npcShopsEditor
+				npcShopsEditor,
+				levelingEditor
 			};
 
 			foreach( var editor in objectEditors )
@@ -66,7 +73,7 @@ namespace CustomNpcsEdit
 			}
 			
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 3;
+			tabControlMain.SelectedIndex = 4;
 		}
 		
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)

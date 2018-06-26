@@ -61,6 +61,8 @@
 			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
 			this.tabPageNpcShops = new System.Windows.Forms.TabPage();
 			this.npcShopsEditor1 = new CustomNpcsEdit.Controls.NpcShopsEditor();
+			this.tabPageLeveling = new System.Windows.Forms.TabPage();
+			this.levelingEditor1 = new CustomNpcsEdit.Controls.LevelingEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
@@ -68,12 +70,15 @@
 			this.saveFileDialogNpcs = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogNpcShop = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogNpcShop = new System.Windows.Forms.SaveFileDialog();
+			this.openFileDialogLeveling = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogLeveling = new System.Windows.Forms.SaveFileDialog();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
 			this.tabPageNpcs.SuspendLayout();
 			this.tabPageProjectiles.SuspendLayout();
 			this.tabPageNpcShops.SuspendLayout();
+			this.tabPageLeveling.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -269,6 +274,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageNpcs);
 			this.tabControlMain.Controls.Add(this.tabPageProjectiles);
 			this.tabControlMain.Controls.Add(this.tabPageNpcShops);
+			this.tabControlMain.Controls.Add(this.tabPageLeveling);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -379,6 +385,31 @@
 			this.npcShopsEditor1.SupportMultipleItems = true;
 			this.npcShopsEditor1.TabIndex = 0;
 			// 
+			// tabPageLeveling
+			// 
+			this.tabPageLeveling.Controls.Add(this.levelingEditor1);
+			this.tabPageLeveling.Location = new System.Drawing.Point(4, 23);
+			this.tabPageLeveling.Margin = new System.Windows.Forms.Padding(0);
+			this.tabPageLeveling.Name = "tabPageLeveling";
+			this.tabPageLeveling.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageLeveling.TabIndex = 4;
+			this.tabPageLeveling.Text = "Leveling";
+			this.tabPageLeveling.UseVisualStyleBackColor = true;
+			// 
+			// levelingEditor1
+			// 
+			this.levelingEditor1.CanAddCategory = true;
+			this.levelingEditor1.CurrentFilePath = "";
+			this.levelingEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.levelingEditor1.IsTreeDirty = false;
+			this.levelingEditor1.Location = new System.Drawing.Point(0, 0);
+			this.levelingEditor1.Name = "levelingEditor1";
+			this.levelingEditor1.OpenFileDialog = null;
+			this.levelingEditor1.SaveFileDialog = null;
+			this.levelingEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.levelingEditor1.SupportMultipleItems = true;
+			this.levelingEditor1.TabIndex = 0;
+			// 
 			// imageListTabIcons
 			// 
 			this.imageListTabIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTabIcons.ImageStream")));
@@ -421,6 +452,17 @@
 			this.saveFileDialogNpcShop.SupportMultiDottedExtensions = true;
 			this.saveFileDialogNpcShop.Title = "Save Npc Shop";
 			// 
+			// openFileDialogLeveling
+			// 
+			this.openFileDialogLeveling.Filter = "Class files|*.class|Json files|*.json|All files|*.*";
+			this.openFileDialogLeveling.Title = "Open Class";
+			// 
+			// saveFileDialogLeveling
+			// 
+			this.saveFileDialogLeveling.Filter = "Class files|*.class|Json files|*.json|All files|*.*";
+			this.saveFileDialogLeveling.SupportMultiDottedExtensions = true;
+			this.saveFileDialogLeveling.Title = "Save Class";
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -441,6 +483,7 @@
 			this.tabPageNpcs.ResumeLayout(false);
 			this.tabPageProjectiles.ResumeLayout(false);
 			this.tabPageNpcShops.ResumeLayout(false);
+			this.tabPageLeveling.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -486,6 +529,10 @@
 		private Controls.NpcShopsEditor npcShopsEditor1;
 		private System.Windows.Forms.OpenFileDialog openFileDialogNpcShop;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcShop;
+		private System.Windows.Forms.TabPage tabPageLeveling;
+		private Controls.LevelingEditor levelingEditor1;
+		private System.Windows.Forms.OpenFileDialog openFileDialogLeveling;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogLeveling;
 	}
 }
 
