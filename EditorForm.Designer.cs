@@ -388,6 +388,7 @@
 			// tabPageLeveling
 			// 
 			this.tabPageLeveling.Controls.Add(this.levelingEditor1);
+			this.tabPageLeveling.ImageIndex = 4;
 			this.tabPageLeveling.Location = new System.Drawing.Point(4, 23);
 			this.tabPageLeveling.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPageLeveling.Name = "tabPageLeveling";
@@ -418,6 +419,7 @@
 			this.imageListTabIcons.Images.SetKeyName(1, "Green_Slime-16.png");
 			this.imageListTabIcons.Images.SetKeyName(2, "Shuriken.png");
 			this.imageListTabIcons.Images.SetKeyName(3, "Merchant-16.png");
+			this.imageListTabIcons.Images.SetKeyName(4, "Wooden_Sword-16.png");
 			// 
 			// openFileDialogProjectiles
 			// 
