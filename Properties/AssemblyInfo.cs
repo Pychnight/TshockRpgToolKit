@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CustomNpcsEdit")]
-[assembly: AssemblyDescription("Editor for CustomNpcs plugin data.")]
+[assembly: AssemblyTitle("RPG Tools Editor")]
+[assembly: AssemblyDescription("Editor for TShock RPG plugins data.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CustomNpcsEdit")]
+[assembly: AssemblyProduct("RPG Tools Editor")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B61502A6-8CF5-4EE4-B236-6C451799DDB1}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>CustomNpcsEdit</RootNamespace>
-    <AssemblyName>CustomNpcsEdit</AssemblyName>
+    <RootNamespace>RpgToolsEditor</RootNamespace>
+    <AssemblyName>RpgToolsEditor</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
