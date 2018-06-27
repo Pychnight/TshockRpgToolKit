@@ -54,8 +54,8 @@ namespace RpgToolsEditor
 			levelingEditor.SupportMultipleItems = false;
 
 			questsEditor = (QuestsEditor)tabControlMain.TabPages[5].Controls[0];
-			questsEditor.OpenFileDialog = openFileDialogLeveling;
-			questsEditor.SaveFileDialog = saveFileDialogLeveling;
+			questsEditor.OpenFileDialog = openFileDialogQuests;
+			questsEditor.SaveFileDialog = saveFileDialogQuests;
 			questsEditor.CanAddCategory = false;
 			questsEditor.SupportMultipleItems = true;
 

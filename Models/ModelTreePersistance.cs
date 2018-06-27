@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RpgToolsEditor.Models.CustomNpcs
+namespace RpgToolsEditor.Models
 {
 	public static class ModelTreePersistance
 	{

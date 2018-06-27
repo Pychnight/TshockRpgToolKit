@@ -103,7 +103,7 @@
     <Compile Include="Models\Leveling\LevelDefinition.cs" />
     <Compile Include="Models\NpcShops\NpcShopDefinition.cs" />
     <Compile Include="Models\NpcShops\RequiredItemDefinition.cs" />
-    <Compile Include="Models\CustomNpcs\NpcTree.cs" />
+    <Compile Include="Models\ModelTreePersistance.cs" />
     <Compile Include="Models\CustomNpcs\Projectile.cs" />
     <Compile Include="Models\NpcShops\ShopCommandDefinition.cs" />
     <Compile Include="Models\NpcShops\ShopItemDefinition.cs" />

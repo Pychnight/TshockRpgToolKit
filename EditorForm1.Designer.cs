@@ -161,6 +161,16 @@ namespace RpgToolsEditor {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=738,Y=41}.
+        /// </summary>
+        internal static System.Drawing.Point openFileDialogQuests_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("openFileDialogQuests.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap openToolStripMenuItem_Image {
@@ -216,6 +226,16 @@ namespace RpgToolsEditor {
         internal static System.Drawing.Point saveFileDialogProjectiles_TrayLocation {
             get {
                 object obj = ResourceManager.GetObject("saveFileDialogProjectiles.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=909,Y=41}.
+        /// </summary>
+        internal static System.Drawing.Point saveFileDialogQuests_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("saveFileDialogQuests.TrayLocation", resourceCulture);
                 return ((System.Drawing.Point)(obj));
             }
         }

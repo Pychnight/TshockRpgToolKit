@@ -1,4 +1,5 @@
-﻿using RpgToolsEditor.Models.CustomQuests;
+﻿using RpgToolsEditor.Models;
+using RpgToolsEditor.Models.CustomQuests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,15 +29,15 @@ namespace RpgToolsEditor.Controls
 
 		protected override void OnFileLoad(string fileName)
 		{
-			//var boundTreeNodes = ModelTreePersistance.LoadTree<Npc>(fileName);
-			//SetTreeViewModels<IModel>(boundTreeNodes);
+			var boundTreeNodes = ModelTreePersistance.LoadTree<QuestInfo>(fileName);
+			SetTreeViewModels<IModel>(boundTreeNodes);
 
 		}
 
 		protected override void OnFileSave(string fileName)
 		{
-			//var boundNodes = GetTreeViewModels();
-			//ModelTreePersistance.SaveTree(boundNodes, fileName);
+			var boundNodes = GetTreeViewModels();
+			ModelTreePersistance.SaveTree(boundNodes, fileName);
 		}
 		
 	}

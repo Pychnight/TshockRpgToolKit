@@ -64,6 +64,7 @@
 			this.tabPageLeveling = new System.Windows.Forms.TabPage();
 			this.levelingEditor1 = new RpgToolsEditor.Controls.LevelingEditor();
 			this.tabPageQuests = new System.Windows.Forms.TabPage();
+			this.questsEditor1 = new RpgToolsEditor.Controls.QuestsEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
@@ -73,7 +74,8 @@
 			this.saveFileDialogNpcShop = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogLeveling = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogLeveling = new System.Windows.Forms.SaveFileDialog();
-			this.questsEditor1 = new RpgToolsEditor.Controls.QuestsEditor();
+			this.openFileDialogQuests = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogQuests = new System.Windows.Forms.SaveFileDialog();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -425,6 +427,20 @@
 			this.tabPageQuests.Text = "Quests";
 			this.tabPageQuests.UseVisualStyleBackColor = true;
 			// 
+			// questsEditor1
+			// 
+			this.questsEditor1.CanAddCategory = true;
+			this.questsEditor1.CurrentFilePath = "";
+			this.questsEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.questsEditor1.IsTreeDirty = false;
+			this.questsEditor1.Location = new System.Drawing.Point(0, 0);
+			this.questsEditor1.Name = "questsEditor1";
+			this.questsEditor1.OpenFileDialog = null;
+			this.questsEditor1.SaveFileDialog = null;
+			this.questsEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.questsEditor1.SupportMultipleItems = true;
+			this.questsEditor1.TabIndex = 0;
+			// 
 			// imageListTabIcons
 			// 
 			this.imageListTabIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTabIcons.ImageStream")));
@@ -479,19 +495,16 @@
 			this.saveFileDialogLeveling.SupportMultiDottedExtensions = true;
 			this.saveFileDialogLeveling.Title = "Save Class";
 			// 
-			// questsEditor1
+			// openFileDialogQuests
 			// 
-			this.questsEditor1.CanAddCategory = true;
-			this.questsEditor1.CurrentFilePath = "";
-			this.questsEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.questsEditor1.IsTreeDirty = false;
-			this.questsEditor1.Location = new System.Drawing.Point(0, 0);
-			this.questsEditor1.Name = "questsEditor1";
-			this.questsEditor1.OpenFileDialog = null;
-			this.questsEditor1.SaveFileDialog = null;
-			this.questsEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.questsEditor1.SupportMultipleItems = true;
-			this.questsEditor1.TabIndex = 0;
+			this.openFileDialogQuests.Filter = "Json files|*.json|All files|*.*";
+			this.openFileDialogQuests.Title = "Open Quests";
+			// 
+			// saveFileDialogQuests
+			// 
+			this.saveFileDialogQuests.Filter = "Json files|*.json|All files|*.*";
+			this.saveFileDialogQuests.SupportMultiDottedExtensions = true;
+			this.saveFileDialogQuests.Title = "Save Quests";
 			// 
 			// EditorForm
 			// 
@@ -566,6 +579,8 @@
 		private System.Windows.Forms.SaveFileDialog saveFileDialogLeveling;
 		private System.Windows.Forms.TabPage tabPageQuests;
 		private Controls.QuestsEditor questsEditor1;
+		private System.Windows.Forms.OpenFileDialog openFileDialogQuests;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogQuests;
 	}
 }
 
