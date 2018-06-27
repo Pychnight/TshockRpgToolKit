@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -313,24 +314,41 @@ namespace RpgToolsEditor.Controls
 			OpenFile();
 		}
 
+		public void SaveFileAsImpl(string fileName)
+		{
+			try
+			{
+				OnFileSave(fileName);
+				IsTreeDirty = false;
+				CurrentFilePath = fileName; // SaveFileDialog.FileName;
+			}
+			catch( Exception ex )
+			{
+				MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
 		public void SaveFileAs()
 		{
 			var result = SaveFileDialog.ShowDialog();
 
 			if( result == DialogResult.OK )
 			{
-				try
-				{
-					OnFileSave(SaveFileDialog.FileName);
-					//toolStripLabelFileName.Text = SaveFileDialog.FileName;
-					IsTreeDirty = false;
-					CurrentFilePath = SaveFileDialog.FileName;
-				}
-				catch( Exception ex )
-				{
-					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
+				SaveFileAsImpl(SaveFileDialog.FileName);
 			}
+		}
+
+		public void SaveFile()
+		{
+			if( string.IsNullOrWhiteSpace(CurrentFilePath) )
+				SaveFileAs();
+			else
+				SaveFileAsImpl(CurrentFilePath);
+		}
+
+		private void toolStripButtonFileSave_Click(object sender, EventArgs e)
+		{
+			SaveFile();
 		}
 
 		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e)

@@ -77,6 +77,12 @@ namespace RpgToolsEditor
 			//start on projectiles page for now...
 			tabControlMain.SelectedIndex = 4;
 		}
+
+		private ObjectEditor getSelectedEditor()
+		{
+			var editor = objectEditors[tabControlMain.SelectedIndex];
+			return editor;
+		}
 		
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -126,19 +132,25 @@ namespace RpgToolsEditor
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = objectEditors[tabControlMain.SelectedIndex];
+			var editor = getSelectedEditor();
 			editor.NewFile();
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = objectEditors[tabControlMain.SelectedIndex];
+			var editor = getSelectedEditor();
 			editor.OpenFile();
+		}
+
+		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var editor = getSelectedEditor();
+			editor.SaveFile();
 		}
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = objectEditors[tabControlMain.SelectedIndex];
+			var editor = getSelectedEditor();
 			editor.SaveFileAs();
 		}
 	}
