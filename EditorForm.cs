@@ -23,6 +23,7 @@ namespace RpgToolsEditor
 		ProjectileEditor projectilesEditor;
 		NpcShopsEditor npcShopsEditor;
 		LevelingEditor levelingEditor;
+		QuestsEditor questsEditor;
 
 		public EditorForm()
 		{
@@ -52,13 +53,20 @@ namespace RpgToolsEditor
 			levelingEditor.CanAddCategory = false;
 			levelingEditor.SupportMultipleItems = false;
 
+			questsEditor = (QuestsEditor)tabControlMain.TabPages[5].Controls[0];
+			questsEditor.OpenFileDialog = openFileDialogLeveling;
+			questsEditor.SaveFileDialog = saveFileDialogLeveling;
+			questsEditor.CanAddCategory = false;
+			questsEditor.SupportMultipleItems = true;
+
 			objectEditors = new List<ObjectEditor>()
 			{
 				invasionsEditor,
 				npcsEditor,
 				projectilesEditor,
 				npcShopsEditor,
-				levelingEditor
+				levelingEditor,
+				questsEditor
 			};
 
 			foreach( var editor in objectEditors )
@@ -78,7 +86,7 @@ namespace RpgToolsEditor
 			}
 			
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 4;
+			tabControlMain.SelectedIndex = 5;
 		}
 
 		private ObjectEditor getSelectedEditor()

@@ -63,6 +63,7 @@
 			this.npcShopsEditor1 = new RpgToolsEditor.Controls.NpcShopsEditor();
 			this.tabPageLeveling = new System.Windows.Forms.TabPage();
 			this.levelingEditor1 = new RpgToolsEditor.Controls.LevelingEditor();
+			this.tabPageQuests = new System.Windows.Forms.TabPage();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
@@ -72,6 +73,7 @@
 			this.saveFileDialogNpcShop = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogLeveling = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogLeveling = new System.Windows.Forms.SaveFileDialog();
+			this.questsEditor1 = new RpgToolsEditor.Controls.QuestsEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -79,6 +81,7 @@
 			this.tabPageProjectiles.SuspendLayout();
 			this.tabPageNpcShops.SuspendLayout();
 			this.tabPageLeveling.SuspendLayout();
+			this.tabPageQuests.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -113,7 +116,7 @@
 			this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
 			this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.newToolStripMenuItem.Text = "&New";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
@@ -123,14 +126,14 @@
 			this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
 			this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.openToolStripMenuItem.Text = "&Open";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator
 			// 
 			this.toolStripSeparator.Name = "toolStripSeparator";
-			this.toolStripSeparator.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
 			// 
 			// saveToolStripMenuItem
 			// 
@@ -138,26 +141,26 @@
 			this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
 			this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.saveToolStripMenuItem.Text = "&Save";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
 			// 
 			// saveAsToolStripMenuItem
 			// 
 			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.saveAsToolStripMenuItem.Text = "Save &As";
 			this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(143, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.exitToolStripMenuItem.Text = "E&xit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -275,6 +278,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageProjectiles);
 			this.tabControlMain.Controls.Add(this.tabPageNpcShops);
 			this.tabControlMain.Controls.Add(this.tabPageLeveling);
+			this.tabControlMain.Controls.Add(this.tabPageQuests);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -411,6 +415,16 @@
 			this.levelingEditor1.SupportMultipleItems = true;
 			this.levelingEditor1.TabIndex = 0;
 			// 
+			// tabPageQuests
+			// 
+			this.tabPageQuests.Controls.Add(this.questsEditor1);
+			this.tabPageQuests.Location = new System.Drawing.Point(4, 23);
+			this.tabPageQuests.Name = "tabPageQuests";
+			this.tabPageQuests.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageQuests.TabIndex = 5;
+			this.tabPageQuests.Text = "Quests";
+			this.tabPageQuests.UseVisualStyleBackColor = true;
+			// 
 			// imageListTabIcons
 			// 
 			this.imageListTabIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTabIcons.ImageStream")));
@@ -465,6 +479,20 @@
 			this.saveFileDialogLeveling.SupportMultiDottedExtensions = true;
 			this.saveFileDialogLeveling.Title = "Save Class";
 			// 
+			// questsEditor1
+			// 
+			this.questsEditor1.CanAddCategory = true;
+			this.questsEditor1.CurrentFilePath = "";
+			this.questsEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.questsEditor1.IsTreeDirty = false;
+			this.questsEditor1.Location = new System.Drawing.Point(0, 0);
+			this.questsEditor1.Name = "questsEditor1";
+			this.questsEditor1.OpenFileDialog = null;
+			this.questsEditor1.SaveFileDialog = null;
+			this.questsEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.questsEditor1.SupportMultipleItems = true;
+			this.questsEditor1.TabIndex = 0;
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -486,6 +514,7 @@
 			this.tabPageProjectiles.ResumeLayout(false);
 			this.tabPageNpcShops.ResumeLayout(false);
 			this.tabPageLeveling.ResumeLayout(false);
+			this.tabPageQuests.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -535,6 +564,8 @@
 		private Controls.LevelingEditor levelingEditor1;
 		private System.Windows.Forms.OpenFileDialog openFileDialogLeveling;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogLeveling;
+		private System.Windows.Forms.TabPage tabPageQuests;
+		private Controls.QuestsEditor questsEditor1;
 	}
 }
 
