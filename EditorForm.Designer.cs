@@ -422,6 +422,7 @@
 			// tabPageQuests
 			// 
 			this.tabPageQuests.Controls.Add(this.questsEditor1);
+			this.tabPageQuests.ImageIndex = 5;
 			this.tabPageQuests.Location = new System.Drawing.Point(4, 23);
 			this.tabPageQuests.Name = "tabPageQuests";
 			this.tabPageQuests.Size = new System.Drawing.Size(1000, 608);
@@ -452,6 +453,7 @@
 			this.imageListTabIcons.Images.SetKeyName(2, "Shuriken.png");
 			this.imageListTabIcons.Images.SetKeyName(3, "Merchant-16.png");
 			this.imageListTabIcons.Images.SetKeyName(4, "Wooden_Sword-16.png");
+			this.imageListTabIcons.Images.SetKeyName(5, "Skeletron_Head-16.png");
 			// 
 			// openFileDialogProjectiles
 			// 
