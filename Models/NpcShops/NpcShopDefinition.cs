@@ -33,28 +33,28 @@ namespace RpgToolsEditor.Models.NpcShops
 		/// <summary>
 		///     Gets the closing time.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Operations")]
 		[JsonProperty(Order = 2)]
 		public string ClosingTime { get; set; }
 
 		/// <summary>
 		///     Gets the message.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Operations")]
 		[JsonProperty(Order = 3)]
 		public string Message { get; set; }
 
 		/// <summary>
 		///     Gets the closed message.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Operations")]
 		[JsonProperty(Order = 9)]
 		public string ClosedMessage { get; set; }
 
 		/// <summary>
 		///     Gets the opening time.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Operations")]
 		[JsonProperty(Order = 1)]
 		public string OpeningTime { get; set; }
 
@@ -75,28 +75,28 @@ namespace RpgToolsEditor.Models.NpcShops
 		/// <summary>
 		///     Gets the restock time.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Operations")]
 		[JsonProperty(Order = 6)]
 		public TimeSpan RestockTime { get; set; } = TimeSpan.FromMinutes(1);
 
 		/// <summary>
 		///     Gets the sales tax rate.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Operations")]
 		[JsonProperty(Order = 7)]
 		public double SalesTaxRate { get; set; } = 0.07;
 
 		/// <summary>
 		///     Gets the list of shop items.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Inventory")]
 		[JsonProperty(Order = 5)]
 		public List<ShopCommandDefinition> ShopCommands { get; set; } = new List<ShopCommandDefinition>();
 
 		/// <summary>
 		///     Gets the list of shop items.
 		/// </summary>
-		[Category("Basic Properties")]
+		[Category("Inventory")]
 		[JsonProperty(Order = 4)]
 		public List<ShopItemDefinition> ShopItems { get; set; } = new List<ShopItemDefinition>();
 
