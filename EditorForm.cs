@@ -30,8 +30,8 @@ namespace RpgToolsEditor
 			InitializeComponent();
 			
 			invasionsEditor = (InvasionEditor)tabControlMain.TabPages[0].Controls[0];
-			invasionsEditor.OpenFileDialog = openFileDialogNpcs;
-			invasionsEditor.SaveFileDialog = saveFileDialogNpcs;
+			invasionsEditor.OpenFileDialog = openFileDialogInvasions;
+			invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
 			
 			npcsEditor = (NpcEditor)tabControlMain.TabPages[1].Controls[0];
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;

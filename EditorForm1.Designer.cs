@@ -121,6 +121,16 @@ namespace RpgToolsEditor {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=17,Y=80}.
+        /// </summary>
+        internal static System.Drawing.Point openFileDialogInvasions_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("openFileDialogInvasions.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Point similar to {X=386,Y=41}.
         /// </summary>
         internal static System.Drawing.Point openFileDialogLeveling_TrayLocation {
@@ -187,6 +197,16 @@ namespace RpgToolsEditor {
             get {
                 object obj = ResourceManager.GetObject("pasteToolStripMenuItem.Image", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=157,Y=80}.
+        /// </summary>
+        internal static System.Drawing.Point saveFileDialogInvasions_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("saveFileDialogInvasions.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
             }
         }
         

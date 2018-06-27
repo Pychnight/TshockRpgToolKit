@@ -76,6 +76,8 @@
 			this.saveFileDialogLeveling = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogQuests = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogQuests = new System.Windows.Forms.SaveFileDialog();
+			this.openFileDialogInvasions = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogInvasions = new System.Windows.Forms.SaveFileDialog();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -506,6 +508,17 @@
 			this.saveFileDialogQuests.SupportMultiDottedExtensions = true;
 			this.saveFileDialogQuests.Title = "Save Quests";
 			// 
+			// openFileDialogInvasions
+			// 
+			this.openFileDialogInvasions.Filter = "Json files|*.json|All files|*.*";
+			this.openFileDialogInvasions.Title = "Open Invasions";
+			// 
+			// saveFileDialogInvasions
+			// 
+			this.saveFileDialogInvasions.Filter = "Json files|*.json|All files|*.*";
+			this.saveFileDialogInvasions.SupportMultiDottedExtensions = true;
+			this.saveFileDialogInvasions.Title = "Save Invasions";
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -581,6 +594,8 @@
 		private Controls.QuestsEditor questsEditor1;
 		private System.Windows.Forms.OpenFileDialog openFileDialogQuests;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogQuests;
+		private System.Windows.Forms.OpenFileDialog openFileDialogInvasions;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogInvasions;
 	}
 }
 
