@@ -23,6 +23,8 @@ namespace RpgToolsEditor.Controls
 			}
 		}
 
+		public bool HasCurrentFilePath => !string.IsNullOrWhiteSpace(CurrentFilePath);
+
 		bool isTreeDirty;
 		public bool IsTreeDirty
 		{
@@ -33,8 +35,8 @@ namespace RpgToolsEditor.Controls
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTreeDirty)));
 			}
 		}
-				
-		public string Caption => CurrentFilePath + ( IsTreeDirty ? "*" : "" );
+
+		public string Caption => CurrentFilePath;// + ( IsTreeDirty ? "*" : "" );
 
 		bool canAddCategory = true;
 		public bool CanAddCategory

@@ -70,7 +70,10 @@ namespace RpgToolsEditor
 					var selectedIndex = tabControlMain.SelectedIndex;
 
 					if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
+					{
 						refreshObjectEditorExternalDisplay(selectedIndex);
+						refreshObjectEditorExternalControls(selectedIndex);
+					}
 				};
 			}
 			
@@ -108,16 +111,29 @@ namespace RpgToolsEditor
 		{
 			var editor = objectEditors[selectedIndex];
 			var value = editor.Caption;
+			var hasFilePath = string.IsNullOrWhiteSpace(value);
+			var dirty = editor.IsTreeDirty ? "*" : "";
 
-			if( string.IsNullOrWhiteSpace(value) )
+			if( hasFilePath )
 				Text = $"{AppName}";
 			else
-				Text = $"{AppName} - {value}"; 
+				Text = $"{AppName} - {value}{dirty}"; 
+		}
+
+		private void refreshObjectEditorExternalControls(int selectedIndex)
+		{
+			var editor = objectEditors[selectedIndex];
+			
+			//Making this a no-op now, it makes no sense. Save will always fallback to SaveAs if needed...
+			//saveToolStripMenuItem.Enabled = editor.HasCurrentFilePath;
 		}
 
 		private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			refreshObjectEditorExternalDisplay(tabControlMain.SelectedIndex);
+			var selectedIndex = tabControlMain.SelectedIndex;
+
+			refreshObjectEditorExternalDisplay(selectedIndex);
+			refreshObjectEditorExternalControls(selectedIndex);
 		}
 
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
