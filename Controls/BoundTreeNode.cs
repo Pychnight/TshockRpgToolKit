@@ -1,4 +1,4 @@
-﻿using CustomNpcsEdit.Models;
+﻿using RpgToolsEditor.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public class BoundTreeNode : TreeNode // where T : IModel, INotifyPropertyChanged
 	{

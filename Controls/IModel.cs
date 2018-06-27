@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public interface IModel : INotifyPropertyChanged
 	{

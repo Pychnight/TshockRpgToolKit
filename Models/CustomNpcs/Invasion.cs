@@ -11,9 +11,9 @@ using System.Reflection;
 using Newtonsoft.Json;
 using System.Windows.Forms.Design;
 using System.ComponentModel;
-using CustomNpcsEdit.Controls;
+using RpgToolsEditor.Controls;
 
-namespace CustomNpcsEdit.Models.CustomNpcs
+namespace RpgToolsEditor.Models.CustomNpcs
 {
 	/// <summary>
 	///     Represents an invasion definition.

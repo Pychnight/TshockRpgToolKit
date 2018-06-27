@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using CustomNpcsEdit.Models.Leveling;
+using RpgToolsEditor.Models.Leveling;
 using Newtonsoft.Json;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public class LevelingEditor : ObjectEditor
 	{

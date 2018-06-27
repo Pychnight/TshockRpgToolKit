@@ -1,4 +1,4 @@
-﻿using CustomNpcsEdit.Controls;
+﻿using RpgToolsEditor.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Models
+namespace RpgToolsEditor.Models
 {
 	[JsonObject(MemberSerialization.OptIn)]
 	public class ShopCommandDefinition //: IModel

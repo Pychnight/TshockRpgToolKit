@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows.Forms.Design;
 using Newtonsoft.Json;
 
-namespace CustomNpcsEdit.Models.Leveling
+namespace RpgToolsEditor.Models.Leveling
 {
 	/// <summary>
 	///     Represents a level definition.

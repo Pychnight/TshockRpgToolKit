@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace CustomNpcsEdit.Models.CustomNpcs
+namespace RpgToolsEditor.Models.CustomNpcs
 { 
 	/// <summary>
 	///     Represents a wave definition.

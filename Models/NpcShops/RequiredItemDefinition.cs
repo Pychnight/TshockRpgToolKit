@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Models
+namespace RpgToolsEditor.Models
 {
 	/// <summary>
 	/// Represents a materials requirement for purchase of a ShopProduct.

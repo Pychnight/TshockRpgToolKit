@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CustomNpcsEdit {
+namespace RpgToolsEditor {
     using System;
     
     

@@ -1,5 +1,5 @@
-﻿using CustomNpcsEdit.Controls;
-using CustomNpcsEdit.Models;
+﻿using RpgToolsEditor.Controls;
+using RpgToolsEditor.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,10 +11,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CustomNpcsEdit
+namespace RpgToolsEditor
 {
 	internal partial class EditorForm : Form
 	{
+		readonly string AppName = "RPG Tools Editor";
+
 		List<ObjectEditor> objectEditors;
 		InvasionEditor invasionsEditor;
 		NpcEditor npcsEditor;
@@ -101,7 +103,10 @@ namespace CustomNpcsEdit
 			var editor = objectEditors[selectedIndex];
 			var value = editor.Caption;
 
-			Text = $"CustomNpcsEdit - {value}";
+			if( string.IsNullOrWhiteSpace(value) )
+				Text = $"{AppName}";
+			else
+				Text = $"{AppName} - {value}"; 
 		}
 
 		private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
@@ -113,7 +118,7 @@ namespace CustomNpcsEdit
 		{
 			var version = Assembly.GetExecutingAssembly().GetName().Version;
 			
-			MessageBox.Show($"CustomNpcsEdit {version}",
+			MessageBox.Show($"{AppName} v{version}",
 							"About",
 							MessageBoxButtons.OK,
 							MessageBoxIcon.Information);

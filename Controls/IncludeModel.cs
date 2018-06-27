@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public class IncludeModel : IModel
 	{

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Models
+namespace RpgToolsEditor.Models
 {
 	/// <summary>
 	/// PropertyGrid's collection editor fails on Add, since String doesn't have a default, parameterless ctor. So we have this.

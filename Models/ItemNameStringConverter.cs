@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace CustomNpcsEdit.Models
+namespace RpgToolsEditor.Models
 {
 	public sealed class ItemNameStringConverter : StringConverter
 	{

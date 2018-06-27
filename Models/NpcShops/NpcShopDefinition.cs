@@ -4,10 +4,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using CustomNpcsEdit.Controls;
+using RpgToolsEditor.Controls;
 using Newtonsoft.Json;
 
-namespace CustomNpcsEdit.Models.NpcShops
+namespace RpgToolsEditor.Models.NpcShops
 {
 	/// <summary>
 	///     Represents an NPC shop definition.

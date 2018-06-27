@@ -1,4 +1,4 @@
-﻿namespace CustomNpcsEdit.Controls
+﻿namespace RpgToolsEditor.Controls
 {
 	partial class ObjectEditor
 	{

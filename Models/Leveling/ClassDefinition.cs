@@ -8,7 +8,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 //using TerrariaApi.Server;
 
-namespace CustomNpcsEdit.Models.Leveling
+namespace RpgToolsEditor.Models.Leveling
 {
 	/// <summary>
 	///     Represents a class definition.

@@ -1,4 +1,4 @@
-﻿using CustomNpcsEdit.Models;
+﻿using RpgToolsEditor.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public partial class ObjectEditor : UserControl, INotifyPropertyChanged
 	{

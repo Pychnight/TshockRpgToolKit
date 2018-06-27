@@ -10,9 +10,9 @@ using System.Reflection;
 //using TShockAPI;
 using System.Diagnostics;
 using System.Windows.Forms.Design;
-using CustomNpcsEdit.Controls;
+using RpgToolsEditor.Controls;
 
-namespace CustomNpcsEdit.Models.CustomNpcs
+namespace RpgToolsEditor.Models.CustomNpcs
 {
 	/// <summary>
 	///     Represents an NPC definition.

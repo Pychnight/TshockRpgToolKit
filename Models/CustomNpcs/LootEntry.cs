@@ -4,7 +4,7 @@ using System.ComponentModel;
 using Newtonsoft.Json;
 //using Terraria.ID;
 
-namespace CustomNpcsEdit.Models.CustomNpcs
+namespace RpgToolsEditor.Models.CustomNpcs
 {
 	/// <summary>
 	///     Represents a loot entry definition.

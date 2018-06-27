@@ -1,4 +1,4 @@
-﻿using CustomNpcsEdit.Controls;
+﻿using RpgToolsEditor.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 
-namespace CustomNpcsEdit.Models.CustomNpcs
+namespace RpgToolsEditor.Models.CustomNpcs
 {
 	[DefaultProperty("Name")]
 	[JsonObject(MemberSerialization.OptIn)]

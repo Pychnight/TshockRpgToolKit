@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CustomNpcsEdit.Properties {
+namespace RpgToolsEditor.Properties {
     using System;
     
     

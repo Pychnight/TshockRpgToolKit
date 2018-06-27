@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CategoryModel : IModel, INotifyPropertyChanged

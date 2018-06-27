@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using CustomNpcsEdit.Models.NpcShops;
+using RpgToolsEditor.Models.NpcShops;
 using Newtonsoft.Json;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public class NpcShopsEditor : ObjectEditor
 	{

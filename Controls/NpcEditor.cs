@@ -1,5 +1,5 @@
-﻿using CustomNpcsEdit.Models;
-using CustomNpcsEdit.Models.CustomNpcs;
+﻿using RpgToolsEditor.Models;
+using RpgToolsEditor.Models.CustomNpcs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Controls
+namespace RpgToolsEditor.Controls
 {
 	public class NpcEditor : ObjectEditor
 	{

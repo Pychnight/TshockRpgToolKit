@@ -1,4 +1,4 @@
-﻿namespace CustomNpcsEdit
+﻿namespace RpgToolsEditor
 {
 	partial class EditorForm
 	{
@@ -54,15 +54,15 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageInvasions = new System.Windows.Forms.TabPage();
-			this.invasionEditor1 = new CustomNpcsEdit.Controls.InvasionEditor();
+			this.invasionEditor1 = new RpgToolsEditor.Controls.InvasionEditor();
 			this.tabPageNpcs = new System.Windows.Forms.TabPage();
-			this.npcEditor1 = new CustomNpcsEdit.Controls.NpcEditor();
+			this.npcEditor1 = new RpgToolsEditor.Controls.NpcEditor();
 			this.tabPageProjectiles = new System.Windows.Forms.TabPage();
-			this.projectileEditor1 = new CustomNpcsEdit.Controls.ProjectileEditor();
+			this.projectileEditor1 = new RpgToolsEditor.Controls.ProjectileEditor();
 			this.tabPageNpcShops = new System.Windows.Forms.TabPage();
-			this.npcShopsEditor1 = new CustomNpcsEdit.Controls.NpcShopsEditor();
+			this.npcShopsEditor1 = new RpgToolsEditor.Controls.NpcShopsEditor();
 			this.tabPageLeveling = new System.Windows.Forms.TabPage();
-			this.levelingEditor1 = new CustomNpcsEdit.Controls.LevelingEditor();
+			this.levelingEditor1 = new RpgToolsEditor.Controls.LevelingEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
@@ -476,7 +476,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "EditorForm";
-			this.Text = "CustomNpcsEdit";
+			this.Text = "RPG Tools Editor";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorForm_FormClosing);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();

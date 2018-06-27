@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomNpcsEdit.Models
+namespace RpgToolsEditor.Models
 {
 	public class StringHolderJsonConverter : JsonConverter
 	{
