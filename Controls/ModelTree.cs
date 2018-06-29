@@ -10,9 +10,9 @@ namespace RpgToolsEditor.Controls
 {
 	public abstract class ModelTree
 	{
-		public abstract List<ModelTreeNode> CreateTree();
-		public abstract List<ModelTreeNode> LoadTree(string path);
-		public abstract void SaveTree(List<ModelTreeNode> tree, string path);
+		public abstract IList<ModelTreeNode> CreateTree();
+		public abstract IList<ModelTreeNode> LoadTree(string path);
+		public abstract void SaveTree(IList<ModelTreeNode> tree, string path);
 		
 		/// <summary>
 		/// Called when the user Adds an item when no node is selected.

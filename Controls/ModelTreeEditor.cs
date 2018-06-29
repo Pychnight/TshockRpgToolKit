@@ -125,7 +125,8 @@ namespace RpgToolsEditor.Controls
 
 		protected virtual void OnFileSave(string fileName)
 		{
-			throw new NotImplementedException();
+			var nodes = GetTreeViewModels();
+			ModelTree.SaveTree(nodes, fileName);
 		}
 				
 		protected void SetTreeViewModels<T>(IList<T> boundTreeNodes) where T : ModelTreeNode

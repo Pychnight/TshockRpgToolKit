@@ -11,7 +11,7 @@ namespace RpgToolsEditor.Models.CustomQuests
 {
 	public class QuestInfoModelTree : ModelTree
 	{
-		public override List<ModelTreeNode> CreateTree()
+		public override IList<ModelTreeNode> CreateTree()
 		{
 			var nodes = new List<ModelTreeNode>(1);
 			var item = new QuestInfo();
@@ -22,7 +22,7 @@ namespace RpgToolsEditor.Models.CustomQuests
 			return nodes;
 		}
 
-		public override List<ModelTreeNode> LoadTree(string path)
+		public override IList<ModelTreeNode> LoadTree(string path)
 		{
 			var json = File.ReadAllText(path);
 			var items = JsonConvert.DeserializeObject<List<QuestInfo>>(json);
@@ -32,9 +32,12 @@ namespace RpgToolsEditor.Models.CustomQuests
 			return nodes;
 		}
 
-		public override void SaveTree(List<ModelTreeNode> tree, string path)
+		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			throw new NotImplementedException();
+			var items = tree.Select(n => (QuestInfo)n.Model).ToList();
+
+			var json = JsonConvert.SerializeObject(items,Formatting.Indented);
+			File.WriteAllText(path, json);
 		}
 
 		public override ModelTreeNode CreateDefaultItem()

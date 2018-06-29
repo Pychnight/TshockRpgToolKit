@@ -87,6 +87,8 @@ namespace RpgToolsEditor
 			}
 
 			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
+			questTreeEditor.OpenFileDialog = openFileDialogQuests;
+			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
 
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
 
