@@ -11,4 +11,22 @@ namespace RpgToolsEditor.Controls
 	{
 		string Name { get; set; }
 	}
+
+	//public interface IModelX : INotifyPropertyChanged
+	//{
+	//	string DesignName { get; set; }
+	//}
+
+	public static class IModelExtensions
+	{
+		public static void TryAddCopySuffix(this IModel model)
+		{
+			const string suffix = "(Copy)";
+
+			if(	!model.Name.EndsWith(suffix))
+			{
+				model.Name = model.Name + suffix;
+			}
+		}
+	}
 }

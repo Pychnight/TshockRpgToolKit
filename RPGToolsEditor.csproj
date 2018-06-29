@@ -62,11 +62,18 @@
     <Compile Include="Controls\LevelingEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Controls\ModelTree.cs" />
     <Compile Include="Controls\NpcEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\NpcShopsEditor.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ModelTreeEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ModelTreeEditor.Designer.cs">
+      <DependentUpon>ModelTreeEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\ObjectEditor.cs">
       <SubType>UserControl</SubType>
@@ -81,6 +88,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Models\CustomQuests\QuestInfo.cs" />
+    <Compile Include="Models\CustomQuests\QuestInfoModelTree.cs" />
     <Compile Include="Models\StringHolder.cs" />
     <Compile Include="Controls\TreeNodeExtensions.cs" />
     <Compile Include="EditorForm.cs">
@@ -111,6 +119,9 @@
     <Compile Include="Models\StringHolderJsonConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\ModelTreeEditor.resx">
+      <DependentUpon>ModelTreeEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\ObjectEditor.resx">
       <DependentUpon>ObjectEditor.cs</DependentUpon>
     </EmbeddedResource>

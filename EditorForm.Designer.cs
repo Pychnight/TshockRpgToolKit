@@ -78,6 +78,8 @@
 			this.saveFileDialogQuests = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogInvasions = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogInvasions = new System.Windows.Forms.SaveFileDialog();
+			this.tabPageQuestsX = new System.Windows.Forms.TabPage();
+			this.modelTreeEditor1 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -86,6 +88,7 @@
 			this.tabPageNpcShops.SuspendLayout();
 			this.tabPageLeveling.SuspendLayout();
 			this.tabPageQuests.SuspendLayout();
+			this.tabPageQuestsX.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -283,6 +286,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageNpcShops);
 			this.tabControlMain.Controls.Add(this.tabPageLeveling);
 			this.tabControlMain.Controls.Add(this.tabPageQuests);
+			this.tabControlMain.Controls.Add(this.tabPageQuestsX);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -521,6 +525,29 @@
 			this.saveFileDialogInvasions.SupportMultiDottedExtensions = true;
 			this.saveFileDialogInvasions.Title = "Save Invasions";
 			// 
+			// tabPageQuestsX
+			// 
+			this.tabPageQuestsX.Controls.Add(this.modelTreeEditor1);
+			this.tabPageQuestsX.Location = new System.Drawing.Point(4, 23);
+			this.tabPageQuestsX.Name = "tabPageQuestsX";
+			this.tabPageQuestsX.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageQuestsX.TabIndex = 6;
+			this.tabPageQuestsX.Text = "QuestsX";
+			this.tabPageQuestsX.UseVisualStyleBackColor = true;
+			// 
+			// modelTreeEditor1
+			// 
+			this.modelTreeEditor1.CurrentFilePath = "";
+			this.modelTreeEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTreeEditor1.IsTreeDirty = false;
+			this.modelTreeEditor1.Location = new System.Drawing.Point(0, 0);
+			this.modelTreeEditor1.ModelTree = null;
+			this.modelTreeEditor1.Name = "modelTreeEditor1";
+			this.modelTreeEditor1.OpenFileDialog = null;
+			this.modelTreeEditor1.SaveFileDialog = null;
+			this.modelTreeEditor1.Size = new System.Drawing.Size(1000, 608);
+			this.modelTreeEditor1.TabIndex = 0;
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -543,6 +570,7 @@
 			this.tabPageNpcShops.ResumeLayout(false);
 			this.tabPageLeveling.ResumeLayout(false);
 			this.tabPageQuests.ResumeLayout(false);
+			this.tabPageQuestsX.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -598,6 +626,8 @@
 		private System.Windows.Forms.SaveFileDialog saveFileDialogQuests;
 		private System.Windows.Forms.OpenFileDialog openFileDialogInvasions;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogInvasions;
+		private System.Windows.Forms.TabPage tabPageQuestsX;
+		private Controls.ModelTreeEditor modelTreeEditor1;
 	}
 }
 

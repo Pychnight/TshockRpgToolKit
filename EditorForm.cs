@@ -1,5 +1,6 @@
 ﻿using RpgToolsEditor.Controls;
 using RpgToolsEditor.Models;
+using RpgToolsEditor.Models.CustomQuests;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -84,9 +85,14 @@ namespace RpgToolsEditor
 					}
 				};
 			}
-			
+
+			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
+
+			questTreeEditor.ModelTree = new QuestInfoModelTree();
+
+
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 5;
+			tabControlMain.SelectedIndex = 6;
 		}
 
 		private ObjectEditor getSelectedEditor()
@@ -117,6 +123,9 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalDisplay(int selectedIndex)
 		{
+			if( selectedIndex == 6 )
+				return;
+
 			var editor = objectEditors[selectedIndex];
 			var value = editor.Caption;
 			var hasFilePath = string.IsNullOrWhiteSpace(value);
@@ -130,6 +139,9 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalControls(int selectedIndex)
 		{
+			if( selectedIndex == 6 )
+				return;
+
 			var editor = objectEditors[selectedIndex];
 			
 			//Making this a no-op now, it makes no sense. Save will always fallback to SaveAs if needed...
