@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -15,7 +16,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		public override IList<ModelTreeNode> CreateTree()
 		{
 			var nodes = new List<ModelTreeNode>(1);
-			var item = new NpcShopDefinition();
+			var item = new NpcShop();
 			var node = new NpcShopTreeNode(item);
 
 			nodes.Add(node);
@@ -26,7 +27,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
 			var json = File.ReadAllText(path);
-			var item = JsonConvert.DeserializeObject<NpcShopDefinition>(json);
+			var item = JsonConvert.DeserializeObject<NpcShop>(json);
 
 			//var nodes = items.Select(i => (ModelTreeNode)new NpcShopTreeNode(i)).ToList();
 
@@ -40,7 +41,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var items = tree.Select(n => (NpcShopDefinition)n.Model).FirstOrDefault();
+			var items = tree.Select(n => (NpcShop)n.Model).FirstOrDefault();
 
 			var json = JsonConvert.SerializeObject(items, Formatting.Indented);
 			File.WriteAllText(path, json);
@@ -48,7 +49,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public override ModelTreeNode CreateDefaultItem()
 		{
-			var item = new NpcShopDefinition();
+			var item = new NpcShop();
 			return new NpcShopTreeNode(item);
 		}
 	}
@@ -58,7 +59,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		public NpcShopTreeNode() : base()
 		{
 			CanEditModel = true;
-			CanAddChild = false;
+			CanAdd = false;
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;
@@ -68,7 +69,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			//Nodes.Add(new NpcShopItemsContainerTreeNode());
 		}
 
-		public NpcShopTreeNode(NpcShopDefinition model) : this()
+		public NpcShopTreeNode(NpcShop model) : this()
 		{
 			Model = model;
 
@@ -90,6 +91,23 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		//	return dstNode;
 		//}
+
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			return node is NpcShopTreeNode;
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if(CanAcceptDraggedNode(draggedNode))
+			{
+				AddSibling(draggedNode);
+
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	public class NpcShopCommandsContainerTreeNode : ModelTreeStaticContainerNode
@@ -97,6 +115,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		public NpcShopCommandsContainerTreeNode()
 		{
 			Text = "ShopCommands";
+			ImageIndex = SelectedImageIndex = 1;
 		}
 
 		public override ModelTreeNode AddItem()
@@ -111,6 +130,21 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			return node;
 		}
+
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			var result = node is NpcShopCommandTreeNode;
+			return result;
+		}
+
+		//public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		//{
+		//	if( !CanAcceptDraggedNode(draggedNode) )
+		//		return false;
+
+		//	return true;
+		//}
+
 	}
 
 	public class NpcShopItemsContainerTreeNode : ModelTreeStaticContainerNode
@@ -118,6 +152,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		public NpcShopItemsContainerTreeNode() : base()
 		{
 			Text = "ShopItems";
+			ImageIndex = SelectedImageIndex = 1;
 		}
 
 		public override ModelTreeNode AddItem()
@@ -132,51 +167,98 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			return node;
 		}
+
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			var result = node is NpcShopItemTreeNode;
+			return result;
+		}
 	}
 
-	public class NpcShopCommandTreeNode : ModelTreeNode
+	public abstract class NpcShopProductTreeNode : ModelTreeNode
 	{
-		public NpcShopCommandTreeNode()
+		public NpcShopProductTreeNode()
 		{
 			CanEditModel = true;
-			CanAddChild = false;
+			CanAdd = true;
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;
 		}
+		
+		public override void TryDropWithNoTarget(TreeView treeView)
+		{
+			//do nothing, this is not allowed for shop products.
+		}
+	}
 
-		//public override ModelTreeNode Copy()
-		//{
-		//	var item = new ShopCommand((ShopCommand)Model);
-		//	var node = new NpcShopCommandTreeNode()
-		//	{
-		//		Model = item
-		//	};
+	public class NpcShopCommandTreeNode : NpcShopProductTreeNode
+	{
+		public NpcShopCommandTreeNode() : base()
+		{
+		}
+
+		public override ModelTreeNode AddItem()
+		{
+			var model = new ShopCommand();
+			var node = new NpcShopCommandTreeNode();
+			node.Model = model;
 			
-		//	return node;
-		//}
-	}
-
-	public class NpcShopItemTreeNode : ModelTreeNode
-	{
-		public NpcShopItemTreeNode()
-		{
-			CanEditModel = true;
-			CanAddChild = false;
-			CanCopy = true;
-			CanDelete = true;
-			CanDrag = true;
-		}
-
-		public override ModelTreeNode Copy()
-		{
-			var item = new ShopItem((ShopItem)Model);
-			var node = new NpcShopItemTreeNode()
-			{
-				Model = item
-			};
+			AddSibling(node);
 
 			return node;
+		}
+
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			var result = node is NpcShopCommandTreeNode;
+			return result;
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if( !CanAcceptDraggedNode(draggedNode) )
+				return false;
+
+			draggedNode.Remove();
+			AddSibling(draggedNode);
+
+			return true;
+		}
+	}
+
+	public class NpcShopItemTreeNode : NpcShopProductTreeNode
+	{
+		public NpcShopItemTreeNode() : base()
+		{
+		}
+
+		public override ModelTreeNode AddItem()
+		{
+			var model = new ShopItem();
+			var node = new NpcShopItemTreeNode();
+			node.Model = model;
+
+			AddSibling(node);
+
+			return node;
+		}
+
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			var result = node is NpcShopItemTreeNode;
+			return result;
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if( !CanAcceptDraggedNode(draggedNode) )
+				return false;
+
+			draggedNode.Remove();
+			AddSibling(draggedNode);
+
+			return true;
 		}
 	}
 }

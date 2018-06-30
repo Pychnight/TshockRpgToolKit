@@ -11,7 +11,7 @@ namespace RpgToolsEditor.Controls
 		public ModelTreeStaticContainerNode(string text = "Container")
 		{
 			CanEditModel = false;
-			CanAddChild = true;
+			CanAdd = true;
 			CanCopy = false;
 			CanDelete = false;
 			CanDrag = false;
@@ -19,8 +19,8 @@ namespace RpgToolsEditor.Controls
 			Text = text;
 		}
 
-		public virtual void SetChildModels(IList<IModel> models)
-		{
-		}
+		//public virtual void SetChildModels(IList<IModel> models)
+		//{
+		//}
 	}
 }

@@ -52,7 +52,7 @@ namespace RpgToolsEditor.Models.CustomQuests
 		public QuestInfoTreeNode() : base()
 		{
 			CanEditModel = true;
-			CanAddChild = false;
+			CanAdd = false;
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;

@@ -13,13 +13,15 @@ namespace RpgToolsEditor.Models.NpcShops
 	///     Represents an NPC shop definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class NpcShopDefinition : IModel
+	public sealed class NpcShop : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		string name = "New NpcShop";
 
-		[Browsable(false)]
+		//[Browsable(false)]
+		[Category("Design")]
+		[Description("Used to identify shops during editing. This is not saved, or used by the NpcShops plugin in anyway.")]
 		public string Name
 		{
 			get => name;
@@ -102,11 +104,11 @@ namespace RpgToolsEditor.Models.NpcShops
 		[JsonProperty(Order = 4)]
 		public List<ShopItem> ShopItems { get; set; } = new List<ShopItem>();
 
-		public NpcShopDefinition()
+		public NpcShop()
 		{
 		}
 
-		public NpcShopDefinition(NpcShopDefinition other)
+		public NpcShop(NpcShop other)
 		{
 			Name = other.Name;
 			ClosingTime = other.ClosingTime;
@@ -123,7 +125,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		
 		object ICloneable.Clone()
 		{
-			return new NpcShopDefinition(this);
+			return new NpcShop(this);
 		}
 	}
 }

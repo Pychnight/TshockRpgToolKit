@@ -112,7 +112,7 @@
     <Compile Include="Controls\BoundTreeNode.cs" />
     <Compile Include="Models\Leveling\ClassDefinition.cs" />
     <Compile Include="Models\Leveling\LevelDefinition.cs" />
-    <Compile Include="Models\NpcShops\NpcShopDefinition.cs" />
+    <Compile Include="Models\NpcShops\NpcShop.cs" />
     <Compile Include="Models\NpcShops\RequiredItem.cs" />
     <Compile Include="Models\ModelTreePersistance.cs" />
     <Compile Include="Models\CustomNpcs\Projectile.cs" />

@@ -72,7 +72,7 @@ namespace RpgToolsEditor.Controls
 
 			if(selectedNode!=null)
 			{
-				if( selectedNode.CanAddChild )
+				if( selectedNode.CanAdd )
 				{
 					selectedNode.AddItem();
 					selectedNode.Expand();
@@ -378,64 +378,47 @@ namespace RpgToolsEditor.Controls
 
 		private void treeViewItems_ItemDrag(object sender, ItemDragEventArgs e)
 		{
-			DoDragDrop(e.Item, DragDropEffects.Move);
+			var node = e.Item as ModelTreeNode;
+
+			if(node!=null && node.CanDrag)
+			{
+				DoDragDrop(e.Item, DragDropEffects.Move);
+			}
 		}
 
 		private void treeViewItems_DragEnter(object sender, DragEventArgs e)
 		{
 			e.Effect = DragDropEffects.Move;
 		}
-
+		
 		private void treeViewItems_DragDrop(object sender, DragEventArgs e)
 		{
 			// Retrieve the client coordinates of the drop location.
 			Point targetPoint = treeViewItems.PointToClient(new Point(e.X, e.Y));
 
 			// Retrieve the node at the drop location.
-			BoundTreeNode targetNode = (BoundTreeNode)treeViewItems.GetNodeAt(targetPoint);
+			var targetNode = (ModelTreeNode)treeViewItems.GetNodeAt(targetPoint);
 
 			// Retrieve the node that was dragged.
-			BoundTreeNode draggedNode = (BoundTreeNode)e.Data.GetData(typeof(BoundTreeNode));
+			var draggedNode = e.Data.GetData(e.Data.GetFormats()[0]) as ModelTreeNode;
+			
+			if( draggedNode == null )
+				return;
 
 			// Confirm that the node at the drop location is not 
 			// the dragged node and that target node isn't null
 			// (for example if you drag outside the control)
 			if( !draggedNode.Equals(targetNode) && targetNode != null )
 			{
-				if(targetNode.CanAcceptDraggedNode(draggedNode))
-				{
-					// Remove the node from its current 
-					// location and add it to the node at the drop location.
-					draggedNode.Remove();
-					//targetNode.Nodes.Add(draggedNode);
-
-					if(targetNode.ShouldInsertDraggedNodeAsChild(draggedNode))
-					{
-						targetNode.Nodes.Add(draggedNode);
-						// Expand the node at the location 
-						// to show the dropped node.
-						targetNode.Expand();
-						IsTreeDirty = true;
-					}
-					else
-					{
-						targetNode.InsertAfter(draggedNode);
-						IsTreeDirty = true;
-					}
-				}
+				//if( targetNode.CanAcceptDraggedNode(draggedNode) )
+				targetNode.TryAcceptDraggedNode(draggedNode);
 			}
-			else if(targetNode == null)
+			else if( targetNode == null )
 			{
-				//were dropping at top level... ie, the treeview itself
-				if( draggedNode.BoundObject is IncludeModel )
-					return;//includes can only live within categories.
-
-				draggedNode.Remove();
-				treeViewItems.Nodes.Add(draggedNode);
-				IsTreeDirty = true;
+				draggedNode.TryDropWithNoTarget(treeViewItems);
 			}
 		}
-		
+
 		private void propertyGridItemEditor_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
 		{
 			IsTreeDirty = true;

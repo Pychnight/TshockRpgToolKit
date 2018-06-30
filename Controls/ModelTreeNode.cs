@@ -21,7 +21,8 @@ namespace RpgToolsEditor.Controls
 		}
 
 		public bool CanEditModel { get; protected set; }
-		public bool CanAddChild { get; protected set; }
+		//public bool CanAddSibling { get; protected set; }
+		public bool CanAdd { get; protected set; }
 		public bool CanCopy { get; protected set; }
 		public bool CanDelete { get; protected set; }
 		public bool CanDrag { get; protected set; }
@@ -32,7 +33,7 @@ namespace RpgToolsEditor.Controls
 			var dst = (ModelTreeNode)base.Clone();
 
 			dst.CanEditModel = src.CanEditModel;
-			dst.CanAddChild = src.CanAddChild;
+			dst.CanAdd = src.CanAdd;
 			dst.CanCopy = src.CanCopy;
 			dst.CanDelete = src.CanDelete;
 			dst.CanDrag = src.CanDrag;
@@ -95,5 +96,46 @@ namespace RpgToolsEditor.Controls
 		//{
 		//	throw new NotImplementedException();
 		//}
+
+		public virtual void AddChild(ModelTreeNode node)
+		{
+			node.Remove();
+			Nodes.Add(node);
+		}
+
+		public virtual void AddSibling(ModelTreeNode node)
+		{
+			node.Remove();
+			this.InsertAfter(node);
+		}
+
+		public virtual bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			return true;
+		}
+
+		public virtual bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if( !CanAcceptDraggedNode(draggedNode) )
+				return false;
+
+			draggedNode.Remove();
+
+			Nodes.Add(draggedNode);
+			
+			return true;
+		}
+
+		//use when no node was found as a drop target... ie, dropping on the TreeView itself. 
+		public virtual void TryDropWithNoTarget(TreeView treeView)
+		{
+			//var parent = this.Parent;
+
+			this.Remove();
+			treeView.Nodes.Add(this);
+			
+			//not sure how to resolve updating dirty status for now...
+			//IsTreeDirty = true;
+		}
 	}
 }

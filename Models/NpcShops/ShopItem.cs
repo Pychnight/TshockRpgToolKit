@@ -16,14 +16,14 @@ namespace RpgToolsEditor.Models
 
 		string name = "New ShopItem";
 
-		//[Browsable(false)]
+		[Browsable(false)]
 		public string Name
 		{
 			get => name;
 			set
 			{
 				name = value;
-				//PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
 
@@ -34,7 +34,7 @@ namespace RpgToolsEditor.Models
 		[DisplayName("Item")]
 		[JsonProperty("Item", Order = 0)]
 		//public string ItemName { get => Name; set => Name = value; }
-		public string ItemName { get; set; } = "New ShopItem";
+		public string ItemName { get => Name; set => Name = value; } //= "New ShopItem";
 
 		/// <summary>
 		///     Gets the stack size. A value of -1 indicates unlimited.
