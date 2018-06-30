@@ -12,7 +12,7 @@ namespace RpgToolsEditor.Models
 	/// Represents a materials requirement for purchase of a ShopProduct.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public class RequiredItemDefinition : IEquatable<RequiredItemDefinition>
+	public class RequiredItem : IEquatable<RequiredItem>
 	{
 		/// <summary>
 		///     Gets the item name.
@@ -33,16 +33,16 @@ namespace RpgToolsEditor.Models
 		[JsonProperty("Prefix", Order = 2)]
 		public byte PrefixId { get; set; }
 
-		public bool Equals(RequiredItemDefinition other)
+		public bool Equals(RequiredItem other)
 		{
 			return ItemName == other.ItemName && PrefixId == other.PrefixId;
 		}
 
-		public RequiredItemDefinition()
+		public RequiredItem()
 		{
 		}
 
-		public RequiredItemDefinition(RequiredItemDefinition other)
+		public RequiredItem(RequiredItem other)
 		{
 			ItemName = other.ItemName;
 			StackSize = other.StackSize;

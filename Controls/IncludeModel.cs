@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -51,6 +52,12 @@ namespace RpgToolsEditor.Controls
 		{
 			ParentPath = parentPath;
 			RelativePath = relativePath;
+		}
+		
+		object ICloneable.Clone()
+		{
+			throw new NotImplementedException("Clone() is only a compiler pacifier.");
+			return new IncludeModel();
 		}
 
 		public void Load<TModel>() where TModel : IModel, new()

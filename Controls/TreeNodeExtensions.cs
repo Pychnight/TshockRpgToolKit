@@ -25,6 +25,7 @@ namespace RpgToolsEditor.Controls
 			{
 				var targetIndex = target.Index + 1;
 				target.TreeView.Nodes.Insert(targetIndex, source);
+				//target.TreeView.Nodes.Add(source);
 			}
 		}
 	}

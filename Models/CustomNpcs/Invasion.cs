@@ -19,7 +19,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 	///     Represents an invasion definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class Invasion : IModel, INotifyPropertyChanged
+	public sealed class Invasion : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 		
@@ -101,6 +101,11 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 			//make better copy function
 			Waves = other.Waves.Select(w => new WaveDefinition(w)).ToList();
+		}
+		
+		object ICloneable.Clone()
+		{
+			return new Invasion(this);
 		}
 	}
 }

@@ -116,6 +116,11 @@ namespace RpgToolsEditor.Models.CustomQuests
 			RequiredRegionName = other.RequiredRegionName;
 			AllowRejoin = other.AllowRejoin;
 		}
+
+		object ICloneable.Clone()
+		{
+			return new QuestInfo(this);
+		}
 		
 		public override string ToString()
 		{

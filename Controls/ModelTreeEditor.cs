@@ -75,6 +75,7 @@ namespace RpgToolsEditor.Controls
 				if( selectedNode.CanAddChild )
 				{
 					selectedNode.AddItem();
+					selectedNode.Expand();
 					IsTreeDirty = true;
 					return;
 				}
@@ -96,8 +97,9 @@ namespace RpgToolsEditor.Controls
 					var copy = selectedNode.Copy();
 
 					copy.Model.TryAddCopySuffix();
-					
+
 					selectedNode.InsertAfter(copy);
+					
 					IsTreeDirty = true;
 				}
 			}
@@ -112,8 +114,22 @@ namespace RpgToolsEditor.Controls
 				if( selectedNode.CanDelete )
 				{
 					selectedNode.Remove();
+					tryUpdateNoSelectedNodeState();
 					IsTreeDirty = true;
 				}
+			}
+		}
+
+		/// <summary>
+		/// PropertyGrid doesn't send event when last node is removed, we must check manually, and update any state. This is the place.
+		/// </summary>
+		private void tryUpdateNoSelectedNodeState()
+		{
+			if( treeViewItems.SelectedNode == null )
+			{
+				toolStripButtonCopy.Enabled = false;
+				toolStripButtonDelete.Enabled = false;
+				propertyGridItemEditor.SelectedObject = null;
 			}
 		}
 		
@@ -254,13 +270,7 @@ namespace RpgToolsEditor.Controls
 
 		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)
 		{
-			var selectedNode = treeViewItems.SelectedNode;
-
-			if(selectedNode!=null)
-			{
-				treeViewItems.Nodes.Remove(selectedNode);
-				IsTreeDirty = true;
-			}
+			DeleteSelectedItem();
 		}
 
 		public void OpenFile()
@@ -347,6 +357,17 @@ namespace RpgToolsEditor.Controls
 			var selected = (ModelTreeNode)e.Node;
 			object target;
 
+			if(selected!=null)
+			{
+				toolStripButtonCopy.Enabled = selected.CanCopy;
+				toolStripButtonDelete.Enabled = selected.CanDelete;
+			}
+			else
+			{
+				toolStripButtonCopy.Enabled = false;
+				toolStripButtonDelete.Enabled = false;
+			}
+			
 			if( selected.CanEditModel )
 				target = selected.Model;
 			else

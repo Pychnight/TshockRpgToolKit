@@ -1,6 +1,7 @@
 ﻿using RpgToolsEditor.Controls;
 using RpgToolsEditor.Models;
 using RpgToolsEditor.Models.CustomQuests;
+using RpgToolsEditor.Models.NpcShops;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -89,12 +90,17 @@ namespace RpgToolsEditor
 			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
 			questTreeEditor.OpenFileDialog = openFileDialogQuests;
 			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
-
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
+
+			var npcShopsTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[7].Controls[0];
+			npcShopsTreeEditor.OpenFileDialog = openFileDialogNpcShop;
+			npcShopsTreeEditor.SaveFileDialog = saveFileDialogNpcShop;
+			npcShopsTreeEditor.ModelTree = new NpcShopsModelTree();
+
 
 
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 6;
+			tabControlMain.SelectedIndex = 7;
 		}
 
 		private ObjectEditor getSelectedEditor()
@@ -125,7 +131,7 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalDisplay(int selectedIndex)
 		{
-			if( selectedIndex == 6 )
+			if( selectedIndex >= 6 )
 				return;
 
 			var editor = objectEditors[selectedIndex];
@@ -141,7 +147,7 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalControls(int selectedIndex)
 		{
-			if( selectedIndex == 6 )
+			if( selectedIndex >= 6 )
 				return;
 
 			var editor = objectEditors[selectedIndex];

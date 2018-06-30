@@ -63,12 +63,12 @@ namespace RpgToolsEditor.Models.CustomQuests
 			Model = model;
 		}
 
-		public override ModelTreeNode Copy()
-		{
-			var dstItem = new QuestInfo((QuestInfo)Model);
-			var dstNode = new QuestInfoTreeNode(dstItem);
+		//public override ModelTreeNode Copy()
+		//{
+		//	var dstItem = new QuestInfo((QuestInfo)Model);
+		//	var dstNode = new QuestInfoTreeNode(dstItem);
 			
-			return dstNode;
-		}
+		//	return dstNode;
+		//}
 	}
 }

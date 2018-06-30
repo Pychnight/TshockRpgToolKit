@@ -10,22 +10,22 @@ using System.Threading.Tasks;
 namespace RpgToolsEditor.Models
 {
 	[JsonObject(MemberSerialization.OptIn)]
-	public class ShopItemDefinition //: IModel
+	public class ShopItem : IModel
 	{
-		//public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
-		//string name = "New ShopItem";
+		string name = "New ShopItem";
 
 		//[Browsable(false)]
-		//public string Name
-		//{
-		//	get => name;
-		//	set
-		//	{
-		//		name = value;
-		//		//PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
-		//	}
-		//}
+		public string Name
+		{
+			get => name;
+			set
+			{
+				name = value;
+				//PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+			}
+		}
 
 		/// <summary>
 		///     Gets the item name.
@@ -88,7 +88,26 @@ namespace RpgToolsEditor.Models
 		///		Gets the required items for purchase.
 		/// </summary>
 		[JsonProperty(Order = 5)]
-		public List<RequiredItemDefinition> RequiredItems { get; set; } = new List<RequiredItemDefinition>();
+		public List<RequiredItem> RequiredItems { get; set; } = new List<RequiredItem>();
+		
+		public ShopItem()
+		{
+		}
+
+		public ShopItem(ShopItem other)
+		{
+			ItemName = other.ItemName;
+			StackSize = other.StackSize;
+			PrefixId = other.PrefixId;
+			UnitPrice = other.UnitPrice;
+			PermissionRequired = other.PermissionRequired;
+			RequiredItems = other.RequiredItems.Select(r => new RequiredItem(r)).ToList();
+		}
+
+		object ICloneable.Clone()
+		{
+			return new ShopItem(this);
+		}
 
 		public override string ToString()
 		{
@@ -96,20 +115,6 @@ namespace RpgToolsEditor.Models
 				return $"<No Item> @ {UnitPrice}";
 			else
 				return $"{ItemName} @ {UnitPrice}";
-		}
-
-		public ShopItemDefinition()
-		{
-		}
-
-		public ShopItemDefinition(ShopItemDefinition other)
-		{
-			ItemName = other.ItemName;
-			StackSize = other.StackSize;
-			PrefixId = other.PrefixId;
-			UnitPrice = other.UnitPrice;
-			PermissionRequired = other.PermissionRequired;
-			RequiredItems = other.RequiredItems.Select(r => new RequiredItemDefinition(r)).ToList();
 		}
 	}
 }

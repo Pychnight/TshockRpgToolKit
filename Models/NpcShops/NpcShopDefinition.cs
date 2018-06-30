@@ -89,16 +89,18 @@ namespace RpgToolsEditor.Models.NpcShops
 		/// <summary>
 		///     Gets the list of shop items.
 		/// </summary>
-		[Category("Inventory")]
+		//[Category("Inventory")] // for new editor
+		[Browsable(false)]
 		[JsonProperty(Order = 5)]
-		public List<ShopCommandDefinition> ShopCommands { get; set; } = new List<ShopCommandDefinition>();
+		public List<ShopCommand> ShopCommands { get; set; } = new List<ShopCommand>();
 
 		/// <summary>
 		///     Gets the list of shop items.
 		/// </summary>
-		[Category("Inventory")]
+		//[Category("Inventory")] // for new editor
+		[Browsable(false)]
 		[JsonProperty(Order = 4)]
-		public List<ShopItemDefinition> ShopItems { get; set; } = new List<ShopItemDefinition>();
+		public List<ShopItem> ShopItems { get; set; } = new List<ShopItem>();
 
 		public NpcShopDefinition()
 		{
@@ -115,8 +117,13 @@ namespace RpgToolsEditor.Models.NpcShops
 			OverrideNpcTypes = new List<int>(other.OverrideNpcTypes);
 			RestockTime = other.RestockTime;
 			SalesTaxRate = other.SalesTaxRate;
-			ShopCommands = other.ShopCommands.Select(s => new ShopCommandDefinition(s)).ToList();
-			ShopItems = other.ShopItems.Select(s => new ShopItemDefinition(s)).ToList();
+			ShopCommands = other.ShopCommands.Select(s => new ShopCommand(s)).ToList();
+			ShopItems = other.ShopItems.Select(s => new ShopItem(s)).ToList();
+		}
+		
+		object ICloneable.Clone()
+		{
+			return new NpcShopDefinition(this);
 		}
 	}
 }

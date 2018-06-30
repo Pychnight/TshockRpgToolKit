@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace RpgToolsEditor.Controls
 {
 	[JsonObject(MemberSerialization.OptIn)]
-	public class CategoryModel : IModel, INotifyPropertyChanged
+	public class CategoryModel : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -63,6 +63,13 @@ namespace RpgToolsEditor.Controls
 
 			var children = node.Nodes.Cast<BoundTreeNode>();
 			Includes = children.Select(c => ( (IncludeModel)c.BoundObject ).Name).ToList();
+		}
+
+
+		object ICloneable.Clone()
+		{
+			throw new NotImplementedException("CategoryModel.Clone() is only a compiler pacifier.");
+			return new CategoryModel();
 		}
 	}
 }

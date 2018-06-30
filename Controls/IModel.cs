@@ -7,15 +7,10 @@ using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Controls
 {
-	public interface IModel : INotifyPropertyChanged
+	public interface IModel : INotifyPropertyChanged, ICloneable
 	{
 		string Name { get; set; }
 	}
-
-	//public interface IModelX : INotifyPropertyChanged
-	//{
-	//	string DesignName { get; set; }
-	//}
 
 	public static class IModelExtensions
 	{

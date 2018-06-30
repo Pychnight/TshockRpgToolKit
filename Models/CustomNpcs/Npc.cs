@@ -18,7 +18,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 	///     Represents an NPC definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class Npc : IModel, INotifyPropertyChanged
+	public sealed class Npc : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -254,6 +254,11 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			baseOverride = new NpcBaseOverride(other.baseOverride);
 			loot = new LootDefinition(other.loot);
 			spawning = new SpawningDefinition(other.spawning);
+		}
+		
+		object ICloneable.Clone()
+		{
+			return new Npc(this);
 		}
 	}
 

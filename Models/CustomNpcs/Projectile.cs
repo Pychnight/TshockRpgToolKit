@@ -12,7 +12,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 {
 	[DefaultProperty("Name")]
 	[JsonObject(MemberSerialization.OptIn)]
-	public class Projectile : IModel, INotifyPropertyChanged
+	public class Projectile : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -174,6 +174,11 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			ScriptPath = other.ScriptPath;
 			ProjectileBaseOverride = new ProjectileBaseOverride(other.ProjectileBaseOverride);
 		}
+		
+		object ICloneable.Clone()
+		{
+			return new Projectile(this);
+		}
 	}
 
 	//[TypeConverter(typeof(ExpandableObjectConverter))]
@@ -265,7 +270,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			TileCollide = other.TileCollide;
 			IgnoreWater = other.IgnoreWater;
 		}
-
+		
 		//public override string ToString()
 		//{
 		//	return "";

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 namespace RpgToolsEditor.Models
 {
 	[JsonObject(MemberSerialization.OptIn)]
-	public class ShopCommandDefinition //: IModel
+	public class ShopCommand : IModel
 	{
-		//public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		string name = "New ShopCommand";
 
@@ -23,8 +23,7 @@ namespace RpgToolsEditor.Models
 			set
 			{
 				name = value;
-
-				//PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
 		
@@ -86,7 +85,25 @@ namespace RpgToolsEditor.Models
 		///		Gets the required items for purchase.
 		/// </summary>
 		[JsonProperty(Order = 5)]
-		public List<RequiredItemDefinition> RequiredItems { get; private set; } = new List<RequiredItemDefinition>();
+		public List<RequiredItem> RequiredItems { get; private set; } = new List<RequiredItem>();
+				
+		public ShopCommand()
+		{
+		}
+
+		public ShopCommand(ShopCommand other)
+		{
+			Name = other.Name;
+			Command = other.Command;
+			StackSize = other.StackSize;
+			UnitPrice = other.UnitPrice;
+			RequiredItems = other.RequiredItems.Select(r => new RequiredItem(r)).ToList();
+		}
+
+		object ICloneable.Clone()
+		{
+			return new ShopCommand(this);
+		}
 
 		public override string ToString()
 		{
@@ -94,19 +111,6 @@ namespace RpgToolsEditor.Models
 				return $"Unamed ShopCommand @ {UnitPrice}";
 			else
 				return $"{Name} @ {UnitPrice}";
-		}
-
-		public ShopCommandDefinition()
-		{
-		}
-
-		public ShopCommandDefinition(ShopCommandDefinition other)
-		{
-			Name = other.Name;
-			Command = other.Command;
-			StackSize = other.StackSize;
-			UnitPrice = other.UnitPrice;
-			RequiredItems = other.RequiredItems.Select(r => new RequiredItemDefinition(r)).ToList();
 		}
 	}
 }

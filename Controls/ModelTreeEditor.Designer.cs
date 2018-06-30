@@ -37,7 +37,7 @@
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButtonAddItem = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonCopy = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButtonDeleteItem = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonDelete = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.propertyGridItemEditor = new System.Windows.Forms.PropertyGrid();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -107,7 +107,7 @@
             this.toolStripSeparator5,
             this.toolStripButtonAddItem,
             this.toolStripButtonCopy,
-            this.toolStripButtonDeleteItem,
+            this.toolStripButtonDelete,
             this.toolStripSeparator1});
 			this.toolStripListControl.Location = new System.Drawing.Point(0, 0);
 			this.toolStripListControl.Name = "toolStripListControl";
@@ -134,6 +134,7 @@
 			// toolStripButtonCopy
 			// 
 			this.toolStripButtonCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonCopy.Enabled = false;
 			this.toolStripButtonCopy.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCopy.Image")));
 			this.toolStripButtonCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonCopy.Name = "toolStripButtonCopy";
@@ -142,16 +143,17 @@
 			this.toolStripButtonCopy.ToolTipText = "Copy Item";
 			this.toolStripButtonCopy.Click += new System.EventHandler(this.toolStripButtonCopy_Click);
 			// 
-			// toolStripButtonDeleteItem
+			// toolStripButtonDelete
 			// 
-			this.toolStripButtonDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteItem.Image")));
-			this.toolStripButtonDeleteItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButtonDeleteItem.Name = "toolStripButtonDeleteItem";
-			this.toolStripButtonDeleteItem.Size = new System.Drawing.Size(29, 20);
-			this.toolStripButtonDeleteItem.Text = "toolStripButton1";
-			this.toolStripButtonDeleteItem.ToolTipText = "Delete Item";
-			this.toolStripButtonDeleteItem.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
+			this.toolStripButtonDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonDelete.Enabled = false;
+			this.toolStripButtonDelete.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDelete.Image")));
+			this.toolStripButtonDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonDelete.Name = "toolStripButtonDelete";
+			this.toolStripButtonDelete.Size = new System.Drawing.Size(29, 20);
+			this.toolStripButtonDelete.Text = "toolStripButton1";
+			this.toolStripButtonDelete.ToolTipText = "Delete Item";
+			this.toolStripButtonDelete.Click += new System.EventHandler(this.toolStripButtonDeleteItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -268,7 +270,7 @@
 		private System.Windows.Forms.PropertyGrid propertyGridItemEditor;
 		private System.Windows.Forms.ToolStrip toolStripListControl;
 		private System.Windows.Forms.ToolStripButton toolStripButtonAddItem;
-		private System.Windows.Forms.ToolStripButton toolStripButtonDeleteItem;
+		private System.Windows.Forms.ToolStripButton toolStripButtonDelete;
 		private System.Windows.Forms.ToolStripButton toolStripButtonCopy;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStrip toolStrip1;
