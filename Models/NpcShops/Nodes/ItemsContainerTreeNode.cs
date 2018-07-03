@@ -23,6 +23,12 @@ namespace RpgToolsEditor.Models.NpcShops
 			};
 
 			node.AddRequiredItemsContainerTreeNodeHack();
+
+			//set child models
+			var shopItem = (ShopItem)model;
+			node.RequiredItemsTreeNode.AddChildModels(shopItem.RequiredItems.Cast<IModel>().ToList());
+
+			//add to tree
 			Nodes.Add(node);
 		}
 

@@ -43,19 +43,60 @@ namespace RpgToolsEditor.Models.NpcShops
 		{
 			var node = tree.FirstOrDefault() as NpcShopTreeNode;
 
-			var commandModels = node.ShopCommandNodes.GetChildModels().Cast<ShopCommand>();
-			var itemModels = node.ShopItemNodes.GetChildModels().Cast<ShopItem>();
-
 			var shopModel = (NpcShop)node.Model;
+			var shopCommands = getCommandModels(node);
+			var shopItems = getItemModels(node);
 
-			shopModel.ShopCommands.Clear();
-			shopModel.ShopCommands.AddRange(commandModels);
-
-			shopModel.ShopItems.Clear();
-			shopModel.ShopItems.AddRange(itemModels);
-			
+			shopModel.ShopCommands = shopCommands;
+			shopModel.ShopItems = shopItems;
+						
 			var json = JsonConvert.SerializeObject(shopModel, Formatting.Indented);
 			File.WriteAllText(path, json);
+		}
+		
+		private List<ShopCommand> getCommandModels(NpcShopTreeNode root)
+		{
+			var result = new List<ShopCommand>();
+			var commandNodes = root.ShopCommandNodes.Nodes.Cast<CommandTreeNode>();
+
+			foreach( var commandNode in commandNodes )
+			{
+				var command = (ShopCommand)commandNode.Model;
+
+				command.RequiredItems.Clear();
+
+				var requiredItems = commandNode.RequiredItemsTreeNode.Nodes.Cast<RequiredItemTreeNode>()
+																			.Select(n => (RequiredItem)n.Model);
+
+
+				command.RequiredItems.AddRange(requiredItems);
+
+				result.Add(command);
+			}
+
+			return result;
+		}
+
+		private List<ShopItem> getItemModels(NpcShopTreeNode root)
+		{
+			var result = new List<ShopItem>();
+			var itemNodes = root.ShopItemNodes.Nodes.Cast<ItemTreeNode>();
+
+			foreach( var itemNode in itemNodes )
+			{
+				var command = (ShopItem)itemNode.Model;
+
+				command.RequiredItems.Clear();
+
+				var requiredItems = itemNode.RequiredItemsTreeNode.Nodes.Cast<RequiredItemTreeNode>()
+																			.Select(n => (RequiredItem)n.Model);
+
+				command.RequiredItems.AddRange(requiredItems);
+
+				result.Add(command);
+			}
+
+			return result;
 		}
 
 		public override ModelTreeNode CreateDefaultItem()

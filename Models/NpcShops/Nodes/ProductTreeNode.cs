@@ -31,7 +31,8 @@ namespace RpgToolsEditor.Models.NpcShops
 		public void AddRequiredItemsContainerTreeNodeHack()
 		{
 			//Cant create node in default ctor, it fails on insert(during a copy)
-			Nodes.Add(new RequiredItemsContainerTreeNode());
+			var node = new RequiredItemsContainerTreeNode();
+			Nodes.Add(node);
 		}
 
 		public override object Clone()
