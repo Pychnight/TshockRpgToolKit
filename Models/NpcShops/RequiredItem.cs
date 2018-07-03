@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,14 +13,29 @@ namespace RpgToolsEditor.Models
 	/// Represents a materials requirement for purchase of a ShopProduct.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public class RequiredItem : IEquatable<RequiredItem>
+	public class RequiredItem : IEquatable<RequiredItem>, IModel
 	{
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		string name = "New Item";
+		
+		[Browsable(false)]
+		public string Name
+		{
+			get => name;
+			set
+			{
+				name = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+			} 
+		}
+		
 		/// <summary>
 		///     Gets the item name.
 		/// </summary>
 		[TypeConverter(typeof(ItemNameStringConverter))]
 		[JsonProperty("Item", Order = 0)]
-		public string ItemName { get; set; }
+		public string ItemName { get => Name; set => Name = value; }
 
 		/// <summary>
 		///     Gets the stack size. 
@@ -32,12 +48,7 @@ namespace RpgToolsEditor.Models
 		/// </summary>
 		[JsonProperty("Prefix", Order = 2)]
 		public byte PrefixId { get; set; }
-
-		public bool Equals(RequiredItem other)
-		{
-			return ItemName == other.ItemName && PrefixId == other.PrefixId;
-		}
-
+		
 		public RequiredItem()
 		{
 		}
@@ -47,6 +58,16 @@ namespace RpgToolsEditor.Models
 			ItemName = other.ItemName;
 			StackSize = other.StackSize;
 			PrefixId = other.PrefixId;
+		}
+
+		public object Clone()
+		{
+			return new RequiredItem(this);
+		}
+
+		public bool Equals(RequiredItem other)
+		{
+			return ItemName == other.ItemName && PrefixId == other.PrefixId;
 		}
 
 		public override string ToString()

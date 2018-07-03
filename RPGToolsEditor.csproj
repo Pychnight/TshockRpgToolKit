@@ -91,7 +91,15 @@
     </Compile>
     <Compile Include="Models\CustomQuests\QuestInfo.cs" />
     <Compile Include="Models\CustomQuests\QuestInfoModelTree.cs" />
-    <Compile Include="Models\NpcShops\NpcShopsModelTree.cs" />
+    <Compile Include="Models\NpcShops\Nodes\CommandsContainerTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\CommandTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\ItemsContainerTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\ItemTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\ProductTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\NpcShopsModelTree.cs" />
+    <Compile Include="Models\NpcShops\Nodes\NpcShopTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\RequiredItemsContainerTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\RequiredItemTreeNode.cs" />
     <Compile Include="Models\StringHolder.cs" />
     <Compile Include="Controls\TreeNodeExtensions.cs" />
     <Compile Include="EditorForm.cs">

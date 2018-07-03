@@ -84,6 +84,7 @@ namespace RpgToolsEditor.Models
 		/// <summary>
 		///		Gets the required items for purchase.
 		/// </summary>
+		[Browsable(false)]
 		[JsonProperty(Order = 5)]
 		public List<RequiredItem> RequiredItems { get; private set; } = new List<RequiredItem>();
 				
