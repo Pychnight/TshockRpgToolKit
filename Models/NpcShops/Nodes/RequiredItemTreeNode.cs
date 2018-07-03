@@ -32,5 +32,23 @@ namespace RpgToolsEditor.Models.NpcShops
 		{
 			//do nothing, this is not allowed for shop products.
 		}
+
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			return node is RequiredItemTreeNode;
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if( CanAcceptDraggedNode(draggedNode) )
+			{
+				draggedNode.Remove();
+				AddSibling(draggedNode);
+
+				return true;
+			}
+
+			return false;
+		}
 	}
 }

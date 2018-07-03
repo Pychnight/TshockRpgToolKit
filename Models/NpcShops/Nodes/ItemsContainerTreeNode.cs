@@ -22,6 +22,7 @@ namespace RpgToolsEditor.Models.NpcShops
 				Model = model
 			};
 
+			node.AddRequiredItemsContainerTreeNodeHack();
 			Nodes.Add(node);
 		}
 
@@ -33,6 +34,7 @@ namespace RpgToolsEditor.Models.NpcShops
 				Model = item
 			};
 
+			node.AddRequiredItemsContainerTreeNodeHack();
 			Nodes.Add(node);
 
 			return node;

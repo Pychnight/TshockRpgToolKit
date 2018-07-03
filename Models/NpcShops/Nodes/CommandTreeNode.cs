@@ -17,6 +17,8 @@ namespace RpgToolsEditor.Models.NpcShops
 		{
 			var model = new ShopCommand();
 			var node = new CommandTreeNode();
+			node.AddRequiredItemsContainerTreeNodeHack();
+			
 			node.Model = model;
 
 			AddSibling(node);

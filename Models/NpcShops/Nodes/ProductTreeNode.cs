@@ -20,18 +20,36 @@ namespace RpgToolsEditor.Models.NpcShops
 			CanDelete = true;
 			CanDrag = true;
 
-			//RequiredItemsTreeNode = new RequiredItemsContainerTreeNode();
+			//Cant create node in default ctor, it fails on insert(during a copy)
+			//Nodes.Add(new RequiredItemsContainerTreeNode());
+		}
 
+		/// <summary>
+		/// HACK to let copying work. Unsure of cause, but we get a pattern of [null,<SomeNodeTypeHere>] in the Nodes collection.
+		/// This causes Insert() to fail with a null ref exception. This lets us add the RequiredItemsContainerTreeNode() on our terms.
+		/// </summary>
+		public void AddRequiredItemsContainerTreeNodeHack()
+		{
+			//Cant create node in default ctor, it fails on insert(during a copy)
 			Nodes.Add(new RequiredItemsContainerTreeNode());
 		}
 
-		//public override object Clone()
-		//{
-		//	var clone = (NpcShopProductTreeNode)base.Clone();
+		public override object Clone()
+		{
+			var clone = (ProductTreeNode)base.Clone();
 
-		//	clone.RequiredItemsTreeNode = 
+			//clone.RequiredItemsTreeNode =
 
-		//}
+			//HACK - this lets copying work. Unsure of cause, but we get a pattern of [null,<SomeNodeTypeHere>] in the Nodes collection.
+			//This causes Insert() to fail with a null ref exception. This tries to defeat it by removing the null
+			//if(clone.Nodes.Count>1 && clone.Nodes[0]==null)
+			//{
+			//	//clone.Nodes.RemoveAt(0);
+			//	clone.Nodes.Clear();
+			//}
+			
+			return clone;
+		}
 
 		public override void TryDropWithNoTarget(TreeView treeView)
 		{
