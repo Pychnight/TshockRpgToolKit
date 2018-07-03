@@ -67,6 +67,8 @@
 			this.questsEditor1 = new RpgToolsEditor.Controls.QuestsEditor();
 			this.tabPageQuestsX = new System.Windows.Forms.TabPage();
 			this.modelTreeEditor1 = new RpgToolsEditor.Controls.ModelTreeEditor();
+			this.tabPageNpcShopsX = new System.Windows.Forms.TabPage();
+			this.modelTreeEditor2 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
@@ -80,8 +82,6 @@
 			this.saveFileDialogQuests = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogInvasions = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogInvasions = new System.Windows.Forms.SaveFileDialog();
-			this.tabPageNpcShopsX = new System.Windows.Forms.TabPage();
-			this.modelTreeEditor2 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -289,8 +289,8 @@
 			this.tabControlMain.Controls.Add(this.tabPageNpcShops);
 			this.tabControlMain.Controls.Add(this.tabPageLeveling);
 			this.tabControlMain.Controls.Add(this.tabPageQuests);
-			this.tabControlMain.Controls.Add(this.tabPageQuestsX);
 			this.tabControlMain.Controls.Add(this.tabPageNpcShopsX);
+			this.tabControlMain.Controls.Add(this.tabPageQuestsX);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -455,6 +455,7 @@
 			// tabPageQuestsX
 			// 
 			this.tabPageQuestsX.Controls.Add(this.modelTreeEditor1);
+			this.tabPageQuestsX.ImageIndex = 5;
 			this.tabPageQuestsX.Location = new System.Drawing.Point(4, 23);
 			this.tabPageQuestsX.Name = "tabPageQuestsX";
 			this.tabPageQuestsX.Size = new System.Drawing.Size(1000, 608);
@@ -474,6 +475,30 @@
 			this.modelTreeEditor1.SaveFileDialog = null;
 			this.modelTreeEditor1.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor1.TabIndex = 0;
+			// 
+			// tabPageNpcShopsX
+			// 
+			this.tabPageNpcShopsX.Controls.Add(this.modelTreeEditor2);
+			this.tabPageNpcShopsX.ImageIndex = 3;
+			this.tabPageNpcShopsX.Location = new System.Drawing.Point(4, 23);
+			this.tabPageNpcShopsX.Name = "tabPageNpcShopsX";
+			this.tabPageNpcShopsX.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageNpcShopsX.TabIndex = 7;
+			this.tabPageNpcShopsX.Text = "NpcShopsX";
+			this.tabPageNpcShopsX.UseVisualStyleBackColor = true;
+			// 
+			// modelTreeEditor2
+			// 
+			this.modelTreeEditor2.CurrentFilePath = "";
+			this.modelTreeEditor2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTreeEditor2.IsTreeDirty = false;
+			this.modelTreeEditor2.Location = new System.Drawing.Point(0, 0);
+			this.modelTreeEditor2.ModelTree = null;
+			this.modelTreeEditor2.Name = "modelTreeEditor2";
+			this.modelTreeEditor2.OpenFileDialog = null;
+			this.modelTreeEditor2.SaveFileDialog = null;
+			this.modelTreeEditor2.Size = new System.Drawing.Size(1000, 608);
+			this.modelTreeEditor2.TabIndex = 0;
 			// 
 			// imageListTabIcons
 			// 
@@ -551,29 +576,6 @@
 			this.saveFileDialogInvasions.Filter = "Json files|*.json|All files|*.*";
 			this.saveFileDialogInvasions.SupportMultiDottedExtensions = true;
 			this.saveFileDialogInvasions.Title = "Save Invasions";
-			// 
-			// tabPageNpcShopsX
-			// 
-			this.tabPageNpcShopsX.Controls.Add(this.modelTreeEditor2);
-			this.tabPageNpcShopsX.Location = new System.Drawing.Point(4, 23);
-			this.tabPageNpcShopsX.Name = "tabPageNpcShopsX";
-			this.tabPageNpcShopsX.Size = new System.Drawing.Size(1000, 608);
-			this.tabPageNpcShopsX.TabIndex = 7;
-			this.tabPageNpcShopsX.Text = "NpcShopsX";
-			this.tabPageNpcShopsX.UseVisualStyleBackColor = true;
-			// 
-			// modelTreeEditor2
-			// 
-			this.modelTreeEditor2.CurrentFilePath = "";
-			this.modelTreeEditor2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.modelTreeEditor2.IsTreeDirty = false;
-			this.modelTreeEditor2.Location = new System.Drawing.Point(0, 0);
-			this.modelTreeEditor2.ModelTree = null;
-			this.modelTreeEditor2.Name = "modelTreeEditor2";
-			this.modelTreeEditor2.OpenFileDialog = null;
-			this.modelTreeEditor2.SaveFileDialog = null;
-			this.modelTreeEditor2.Size = new System.Drawing.Size(1000, 608);
-			this.modelTreeEditor2.TabIndex = 0;
 			// 
 			// EditorForm
 			// 

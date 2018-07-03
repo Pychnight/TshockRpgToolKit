@@ -87,18 +87,17 @@ namespace RpgToolsEditor
 				};
 			}
 
-			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
-			questTreeEditor.OpenFileDialog = openFileDialogQuests;
-			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
-			questTreeEditor.ModelTree = new QuestInfoModelTree();
 
-			var npcShopsTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[7].Controls[0];
+			var npcShopsTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
 			npcShopsTreeEditor.OpenFileDialog = openFileDialogNpcShop;
 			npcShopsTreeEditor.SaveFileDialog = saveFileDialogNpcShop;
 			npcShopsTreeEditor.ModelTree = new NpcShopsModelTree();
 
-
-
+			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[7].Controls[0];
+			questTreeEditor.OpenFileDialog = openFileDialogQuests;
+			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
+			questTreeEditor.ModelTree = new QuestInfoModelTree();
+			
 			//start on projectiles page for now...
 			tabControlMain.SelectedIndex = 7;
 		}
