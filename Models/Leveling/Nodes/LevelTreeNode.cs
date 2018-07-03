@@ -5,20 +5,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RpgToolsEditor.Models.NpcShops
+namespace RpgToolsEditor.Models.Leveling
 {
-	public class CommandTreeNode : ProductTreeNode
+	public class LevelTreeNode : ModelTreeNode
 	{
-		public CommandTreeNode() : base()
+		public LevelTreeNode() : base()
 		{
+			CanEditModel = true;
+			CanAdd = true;
+			CanCopy = true;
+			CanDelete = true;
+			CanDrag = true;
+		}
+
+		public LevelTreeNode(Level model) : this()
+		{
+			Model = model;
 		}
 
 		public override ModelTreeNode AddItem()
 		{
-			var model = new ShopCommand();
-			var node = new CommandTreeNode();
+			var model = new Level();
+			var node = new LevelTreeNode();
 			node.AddDefaultChildNodesHack();
-			
 			node.Model = model;
 
 			AddSibling(node);
@@ -28,7 +37,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
-			var result = node is CommandTreeNode;
+			var result = node is LevelTreeNode;
 			return result;
 		}
 
@@ -39,7 +48,6 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			draggedNode.Remove();
 			AddSibling(draggedNode);
-			this.Expand();
 
 			return true;
 		}

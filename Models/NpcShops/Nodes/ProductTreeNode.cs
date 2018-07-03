@@ -28,7 +28,7 @@ namespace RpgToolsEditor.Models.NpcShops
 		/// HACK to let copying work. Unsure of cause, but we get a pattern of [null,<SomeNodeTypeHere>] in the Nodes collection.
 		/// This causes Insert() to fail with a null ref exception. This lets us add the RequiredItemsContainerTreeNode() on our terms.
 		/// </summary>
-		public void AddRequiredItemsContainerTreeNodeHack()
+		public override void AddDefaultChildNodesHack()
 		{
 			//Cant create node in default ctor, it fails on insert(during a copy)
 			var node = new RequiredItemsContainerTreeNode();

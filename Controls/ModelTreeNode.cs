@@ -97,6 +97,14 @@ namespace RpgToolsEditor.Controls
 		//	throw new NotImplementedException();
 		//}
 
+		/// <summary>
+		/// HACK to let copying work. Unsure of cause, but we get a pattern of [null,<SomeNodeTypeHere>] in the Nodes collection.
+		/// This causes Insert() to fail with a null ref exception. This lets us add the RequiredItemsContainerTreeNode() on our terms.
+		/// </summary>
+		public virtual void AddDefaultChildNodesHack()
+		{
+		}
+
 		public virtual void AddChild(ModelTreeNode node)
 		{
 			node.Remove();

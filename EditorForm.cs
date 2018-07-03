@@ -1,6 +1,7 @@
 ﻿using RpgToolsEditor.Controls;
 using RpgToolsEditor.Models;
 using RpgToolsEditor.Models.CustomQuests;
+using RpgToolsEditor.Models.Leveling;
 using RpgToolsEditor.Models.NpcShops;
 using System;
 using System.Collections.Generic;
@@ -93,7 +94,12 @@ namespace RpgToolsEditor
 			npcShopsTreeEditor.SaveFileDialog = saveFileDialogNpcShop;
 			npcShopsTreeEditor.ModelTree = new NpcShopsModelTree();
 
-			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[7].Controls[0];
+			var levelingTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[7].Controls[0];
+			levelingTreeEditor.OpenFileDialog = openFileDialogLeveling;
+			levelingTreeEditor.SaveFileDialog = saveFileDialogLeveling;
+			levelingTreeEditor.ModelTree = new ClassModelTree();
+
+			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[8].Controls[0];
 			questTreeEditor.OpenFileDialog = openFileDialogQuests;
 			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
 			questTreeEditor.ModelTree = new QuestInfoModelTree();

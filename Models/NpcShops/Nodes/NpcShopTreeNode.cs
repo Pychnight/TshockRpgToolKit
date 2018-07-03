@@ -48,7 +48,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public NpcShopTreeNode(NpcShopTreeNode other)
 		{
-
+			throw new NotImplementedException();
 		}
 
 		//public override ModelTreeNode Copy()

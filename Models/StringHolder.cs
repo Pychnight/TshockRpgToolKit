@@ -14,7 +14,7 @@ namespace RpgToolsEditor.Models
 	/// .. sigh.
 	/// </summary>
 	[JsonConverter(typeof(StringHolderJsonConverter))]
-	public class StringHolder : IStringHolder
+	public class StringHolder : IStringHolder, ICloneable
 	{
 		public string Value { get; set; }
 
@@ -29,6 +29,11 @@ namespace RpgToolsEditor.Models
 		{
 			return !string.IsNullOrWhiteSpace(Value) ? Value : "<Empty String>";
 		}
+
+		public object Clone()
+		{
+			return this.MemberwiseClone();
+		}
 	}
 
 	/// <summary>
@@ -36,7 +41,7 @@ namespace RpgToolsEditor.Models
 	/// This version provides design time support for drop downs with known Terraria Item Names.
 	/// </summary>
 	[JsonConverter(typeof(TerrariaItemStringHolderJsonConverter))]
-	public class TerrariaItemStringHolder : IStringHolder
+	public class TerrariaItemStringHolder : IStringHolder, ICloneable
 	{
 		[TypeConverter(typeof(ItemNameStringConverter))]
 		public string Value { get; set; }
@@ -51,6 +56,11 @@ namespace RpgToolsEditor.Models
 		public override string ToString()
 		{
 			return !string.IsNullOrWhiteSpace(Value) ? Value : "<Empty Item String>";
+		}
+
+		public object Clone()
+		{
+			return this.MemberwiseClone();
 		}
 	}
 

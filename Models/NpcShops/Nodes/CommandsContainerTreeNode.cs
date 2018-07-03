@@ -22,7 +22,7 @@ namespace RpgToolsEditor.Models.NpcShops
 				Model = model
 			};
 
-			node.AddRequiredItemsContainerTreeNodeHack();
+			node.AddDefaultChildNodesHack();
 
 			//set child models
 			var shopCommand = (ShopCommand)model;
@@ -40,7 +40,7 @@ namespace RpgToolsEditor.Models.NpcShops
 				Model = item
 			};
 
-			node.AddRequiredItemsContainerTreeNodeHack();
+			node.AddDefaultChildNodesHack();
 			Nodes.Add(node);
 
 			return node;

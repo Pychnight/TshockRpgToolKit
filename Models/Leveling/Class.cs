@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 //using Banking;
 //using Leveling.Levels;
 //using Leveling.Sessions;
 using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 //using TerrariaApi.Server;
 
 namespace RpgToolsEditor.Models.Leveling
@@ -14,14 +16,26 @@ namespace RpgToolsEditor.Models.Leveling
 	///     Represents a class definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class ClassDefinition
+	public sealed class Class : IModel
 	{
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		string name = "New Class";
+
 		/// <summary>
 		///     Gets the name.
 		/// </summary>
 		[Category("Basic Properties")]
 		[JsonProperty("Name", Order = 0)]
-		public string Name { get; set; }
+		public string Name
+		{
+			get => name;
+			set
+			{
+				name = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+			}
+		}
 
 		/// <summary>
 		///     Gets the display name.
@@ -113,8 +127,9 @@ namespace RpgToolsEditor.Models.Leveling
 		///     Gets the list of level definitions.
 		/// </summary>
 		[JsonProperty("Levels", Order = 12)]
+		[Browsable(false)]
 		[Category("Basic Properties")]
-		public List<LevelDefinition> LevelDefinitions { get; set; } = new List<LevelDefinition>();
+		public List<Level> LevelDefinitions { get; set; } = new List<Level>();
 
 		/// <summary>
 		///     Gets the mapping of NPC names to EXP rewards.
@@ -134,52 +149,58 @@ namespace RpgToolsEditor.Models.Leveling
 
 		////--- new stuff
 		//public string DisplayInfo { get; internal set; }
-		
+
+		public Class()
+		{
+		}
+
+		public Class(Class other)
+		{
+			Name = other.Name;
+			DisplayName = other.DisplayName;
+			PrerequisiteLevelNames = other.PrerequisiteLevelNames.DeepClone();
+			PrerequisitePermissions = other.PrerequisitePermissions.DeepClone();
+			SEconomyCost = other.SEconomyCost;
+			CurrencyType = other.CurrencyType;
+			CurrencyCost = other.CurrencyCost;
+			AllowSwitching = other.AllowSwitching;
+			AllowSwitchingBeforeMastery = other.AllowSwitchingBeforeMastery;
+			ExpMultiplierOverride = other.ExpMultiplierOverride;
+			DeathPenaltyMultiplierOverride = other.DeathPenaltyMultiplierOverride;
+			CommandsOnClassChangeOnce = other.CommandsOnClassChangeOnce.DeepClone();
+			LevelDefinitions = other.LevelDefinitions.Select(ld => new Level(ld)).ToList();
+			NpcNameToExpReward = new Dictionary<string,string>(other.NpcNameToExpReward);
+						
+			//throw new NotImplementedException();
+		}
+
 		public override string ToString()
 		{
 			return $"[ClassDefinition '{Name}']";
 		}
 
-		///// <summary>
-		/////		Preparse Reward strings to numeric values.
-		///// </summary>
-		///// <param name="currency">Banking.Currency used for Experience.</param>
-		//internal void PreParseRewardValues(CurrencyDefinition currency)
-		//{
-		//	ParsedNpcNameToExpValues.Clear();
+		public object Clone()
+		{
+			return new Class(this);
+		}
+	}
 
-		//	foreach( var kvp in NpcNameToExpReward )
-		//	{
-		//		decimal unitValue;
+	public static class BindingListExtensions
+	{
+		public static BindingList<StringHolder> DeepClone(this BindingList<StringHolder> src)
+		{
+			var cloned = new BindingList<StringHolder>(src.Select(sh => (StringHolder)sh.Clone())
+															.ToList());
 
-		//		if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
-		//		{
-		//			ParsedNpcNameToExpValues.Add(kvp.Key, unitValue);
-		//		}
-		//		else
-		//		{
-		//			Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
-		//		}
-		//	}
-		//}
+			return cloned;
+		}
 
-		//internal void ValidateAndFix()
-		//{
-		//	var plugin = LevelingPlugin.Instance;
-		//	var levelNames = new HashSet<string>();
-		//	var duplicateLevelDefinitions = new List<LevelDefinition>();
+		public static BindingList<TerrariaItemStringHolder> DeepClone(this BindingList<TerrariaItemStringHolder> src)
+		{
+			var cloned = new BindingList<TerrariaItemStringHolder>(src.Select(sh => (TerrariaItemStringHolder)sh.Clone())
+																		.ToList());
 
-		//	foreach( var def in LevelDefinitions )
-		//	{
-		//		if( !levelNames.Add(def.Name) )
-		//		{
-		//			ServerApi.LogWriter.PluginWriteLine(plugin, $"Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
-		//			duplicateLevelDefinitions.Add(def);
-		//		}
-		//	}
-
-		//	foreach( var dupDef in duplicateLevelDefinitions )
-		//		LevelDefinitions.Remove(dupDef);
-		//}
+			return cloned;
+		}
 	}
 }

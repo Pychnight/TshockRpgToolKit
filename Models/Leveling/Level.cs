@@ -7,6 +7,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms.Design;
 using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.Leveling
 {
@@ -14,8 +15,26 @@ namespace RpgToolsEditor.Models.Leveling
 	///     Represents a level definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class LevelDefinition
+	public sealed class Level : IModel
 	{
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		string name = "New Level";
+
+		/// <summary>
+		///     Gets the name.
+		/// </summary>
+		[JsonProperty("Name", Order = 0)]
+		public string Name
+		{
+			get => name;
+			set
+			{
+				name = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+			}
+		}
+		
 		/// <summary>
 		///     Gets the list of commands to execute on leveling up.
 		/// </summary>
@@ -52,13 +71,7 @@ namespace RpgToolsEditor.Models.Leveling
 		/// </summary>
 		[JsonProperty("ItemsAllowed", Order = 4)]
 		public BindingList<TerrariaItemStringHolder> ItemNamesAllowed { get; set; } = new BindingList<TerrariaItemStringHolder>();
-
-		/// <summary>
-		///     Gets the name.
-		/// </summary>
-		[JsonProperty("Name", Order = 0)]
-		public string Name { get; set; } = "New Level";
-
+			
 		/// <summary>
 		///     Gets the set of permissions granted.
 		/// </summary>
@@ -70,5 +83,29 @@ namespace RpgToolsEditor.Models.Leveling
 		/// </summary>
 		[JsonProperty("Prefix", Order = 3)]
 		public string Prefix { get; set; } = "";
+
+		public Level()
+		{
+		}
+
+		public Level(Level other)
+		{
+			Name = other.Name;
+			DisplayName = other.DisplayName;
+			ExpRequired = other.ExpRequired;
+			Prefix = other.Prefix;
+			ItemNamesAllowed = other.ItemNamesAllowed.DeepClone();
+			PermissionsGranted = other.PermissionsGranted.DeepClone();
+			CommandsOnLevelUp = other.CommandsOnLevelUp.DeepClone();
+			CommandsOnLevelUpOnce = other.CommandsOnLevelUpOnce.DeepClone();
+			CommandsOnLevelDown = other.CommandsOnLevelDown.DeepClone();
+			
+			//throw new NotImplementedException();
+		}
+
+		public object Clone()
+		{
+			return new Level(this);
+		}
 	}
 }

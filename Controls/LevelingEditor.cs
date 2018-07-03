@@ -13,7 +13,7 @@ namespace RpgToolsEditor.Controls
 
 		protected override object OnCreateItem()
 		{
-			return new ClassDefinition();
+			return new Class();
 		}
 
 		//we should never, ever call this, since NpcShopEditor is in single item mode.
@@ -32,7 +32,7 @@ namespace RpgToolsEditor.Controls
 		protected override void OnFileLoad(string fileName)
 		{
 			var txt = File.ReadAllText(fileName);
-			var classDef = JsonConvert.DeserializeObject<ClassDefinition>(txt);
+			var classDef = JsonConvert.DeserializeObject<Class>(txt);
 
 			PropertyGrid.SelectedObject = classDef;
 		}

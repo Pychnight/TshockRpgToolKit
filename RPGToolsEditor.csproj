@@ -91,6 +91,10 @@
     </Compile>
     <Compile Include="Models\CustomQuests\QuestInfo.cs" />
     <Compile Include="Models\CustomQuests\QuestInfoModelTree.cs" />
+    <Compile Include="Models\Leveling\Nodes\ClassModelTree.cs" />
+    <Compile Include="Models\Leveling\Nodes\ClassTreeNode.cs" />
+    <Compile Include="Models\Leveling\Nodes\LevelsContainerTreeNode.cs" />
+    <Compile Include="Models\Leveling\Nodes\LevelTreeNode.cs" />
     <Compile Include="Models\NpcShops\Nodes\CommandsContainerTreeNode.cs" />
     <Compile Include="Models\NpcShops\Nodes\CommandTreeNode.cs" />
     <Compile Include="Models\NpcShops\Nodes\ItemsContainerTreeNode.cs" />
@@ -118,8 +122,8 @@
     <Compile Include="Models\CustomNpcs\LootEntry.cs" />
     <Compile Include="Models\CustomNpcs\Npc.cs" />
     <Compile Include="Controls\BoundTreeNode.cs" />
-    <Compile Include="Models\Leveling\ClassDefinition.cs" />
-    <Compile Include="Models\Leveling\LevelDefinition.cs" />
+    <Compile Include="Models\Leveling\Class.cs" />
+    <Compile Include="Models\Leveling\Level.cs" />
     <Compile Include="Models\NpcShops\NpcShop.cs" />
     <Compile Include="Models\NpcShops\RequiredItem.cs" />
     <Compile Include="Models\ModelTreePersistance.cs" />
