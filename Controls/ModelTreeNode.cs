@@ -101,12 +101,22 @@ namespace RpgToolsEditor.Controls
 		{
 			node.Remove();
 			Nodes.Add(node);
+
+			if( this.Parent != null )
+			{
+				Parent.Expand();
+			}
 		}
 
 		public virtual void AddSibling(ModelTreeNode node)
 		{
 			node.Remove();
 			this.InsertAfter(node);
+
+			if(this.Parent!=null)
+			{
+				Parent.Expand();
+			}
 		}
 
 		public virtual bool CanAcceptDraggedNode(ModelTreeNode node)

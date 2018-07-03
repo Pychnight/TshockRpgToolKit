@@ -41,9 +41,20 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var items = tree.Select(n => (NpcShop)n.Model).FirstOrDefault();
+			var node = tree.FirstOrDefault() as NpcShopTreeNode;
 
-			var json = JsonConvert.SerializeObject(items, Formatting.Indented);
+			var commandModels = node.ShopCommandNodes.GetChildModels().Cast<ShopCommand>();
+			var itemModels = node.ShopItemNodes.GetChildModels().Cast<ShopItem>();
+
+			var shopModel = (NpcShop)node.Model;
+
+			shopModel.ShopCommands.Clear();
+			shopModel.ShopCommands.AddRange(commandModels);
+
+			shopModel.ShopItems.Clear();
+			shopModel.ShopItems.AddRange(itemModels);
+			
+			var json = JsonConvert.SerializeObject(shopModel, Formatting.Indented);
 			File.WriteAllText(path, json);
 		}
 
@@ -56,6 +67,9 @@ namespace RpgToolsEditor.Models.NpcShops
 
 	public class NpcShopTreeNode : ModelTreeNode
 	{
+		public NpcShopCommandsContainerTreeNode ShopCommandNodes => Nodes[0] as NpcShopCommandsContainerTreeNode;
+		public NpcShopItemsContainerTreeNode ShopItemNodes => Nodes[1] as NpcShopItemsContainerTreeNode;
+
 		public NpcShopTreeNode() : base()
 		{
 			CanEditModel = true;
@@ -73,10 +87,17 @@ namespace RpgToolsEditor.Models.NpcShops
 		{
 			Model = model;
 
+			var commandsNode = new NpcShopCommandsContainerTreeNode();
+			var itemsNode = new NpcShopItemsContainerTreeNode();
+
 			//NpcShopCommandsContainerNode.Model = model.ShopCommands;
 			//NpcShopItemsContainerNode.Model = model.ShopItems;
-			Nodes.Add(new NpcShopCommandsContainerTreeNode());
-			Nodes.Add(new NpcShopItemsContainerTreeNode());
+			Nodes.Add(commandsNode);
+			Nodes.Add(itemsNode);
+			
+			commandsNode.AddChildModels(model.ShopCommands.Cast<IModel>().ToList());
+			itemsNode.AddChildModels(model.ShopItems.Cast<IModel>().ToList());
+
 		}
 
 		public NpcShopTreeNode(NpcShopTreeNode other)
@@ -118,6 +139,16 @@ namespace RpgToolsEditor.Models.NpcShops
 			ImageIndex = SelectedImageIndex = 1;
 		}
 
+		public override void AddChildModel(IModel model)
+		{
+			var node = new NpcShopCommandTreeNode()
+			{
+				Model = model
+			};
+
+			Nodes.Add(node);
+		}
+
 		public override ModelTreeNode AddItem()
 		{
 			var item = new ShopCommand();
@@ -153,6 +184,16 @@ namespace RpgToolsEditor.Models.NpcShops
 		{
 			Text = "ShopItems";
 			ImageIndex = SelectedImageIndex = 1;
+		}
+
+		public override void AddChildModel(IModel model)
+		{
+			var node = new NpcShopItemTreeNode()
+			{
+				Model = model
+			};
+
+			Nodes.Add(node);
 		}
 
 		public override ModelTreeNode AddItem()
@@ -222,6 +263,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			draggedNode.Remove();
 			AddSibling(draggedNode);
+			this.Expand();
 
 			return true;
 		}
@@ -257,6 +299,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			draggedNode.Remove();
 			AddSibling(draggedNode);
+			
 
 			return true;
 		}

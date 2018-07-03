@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Controls
 {
-	public class ModelTreeStaticContainerNode : ModelTreeNode
+	public abstract class ModelTreeStaticContainerNode : ModelTreeNode
 	{
 		public ModelTreeStaticContainerNode(string text = "Container")
 		{
@@ -19,8 +19,31 @@ namespace RpgToolsEditor.Controls
 			Text = text;
 		}
 
-		//public virtual void SetChildModels(IList<IModel> models)
-		//{
-		//}
+		public virtual void AddChildModels(IList<IModel> models)
+		{
+			foreach( var m in models )
+			{
+				AddChildModel(m);
+			}
+		}
+
+		public abstract void AddChildModel(IModel model);
+
+		public virtual IList<IModel> GetChildModels()
+		{
+			var models = new List<IModel>();
+
+			foreach(var n in Nodes)
+			{
+				var modelTreeNode = n as ModelTreeNode;
+
+				if(modelTreeNode!=null && modelTreeNode.Model!=null)
+				{
+					models.Add(modelTreeNode.Model);	
+				}
+			}
+
+			return models;
+		}
 	}
 }

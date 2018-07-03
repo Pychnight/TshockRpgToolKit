@@ -142,6 +142,9 @@ namespace RpgToolsEditor.Controls
 		protected virtual void OnFileSave(string fileName)
 		{
 			var nodes = GetTreeViewModels();
+
+			//throw new NotImplementedException("Saving is disabled currently.");
+
 			ModelTree.SaveTree(nodes, fileName);
 		}
 				

@@ -63,12 +63,23 @@ namespace RpgToolsEditor.Models.CustomQuests
 			Model = model;
 		}
 
-		//public override ModelTreeNode Copy()
-		//{
-		//	var dstItem = new QuestInfo((QuestInfo)Model);
-		//	var dstNode = new QuestInfoTreeNode(dstItem);
-			
-		//	return dstNode;
-		//}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			return node is QuestInfoTreeNode;
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if(CanAcceptDraggedNode(draggedNode))
+			{
+				draggedNode.Remove();
+				AddSibling(draggedNode);
+
+				return true;
+			}
+
+			return false;
+		}
+
 	}
 }
