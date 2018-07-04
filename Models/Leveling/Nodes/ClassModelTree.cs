@@ -42,7 +42,16 @@ namespace RpgToolsEditor.Models.Leveling
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			throw new NotImplementedException();
+			var classTreeNode = (ClassTreeNode)tree.FirstOrDefault();
+			var levelContainer = classTreeNode.Nodes[0];
+
+			var classModel = (Class)classTreeNode.Model;
+			var levelModels = levelContainer.Nodes.Cast<LevelTreeNode>().Select(n => (Level)n.Model).ToList();
+
+			classModel.LevelDefinitions = levelModels;
+									
+			var json = JsonConvert.SerializeObject(classModel);
+			File.WriteAllText(path,json);
 		}
 	}
 }
