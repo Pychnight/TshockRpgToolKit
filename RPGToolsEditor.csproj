@@ -89,6 +89,7 @@
     <Compile Include="Controls\QuestsEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Models\CustomNpcs\Nodes\ProjectileTreeNode.cs" />
     <Compile Include="Models\CustomQuests\QuestInfo.cs" />
     <Compile Include="Models\CustomQuests\QuestInfoModelTree.cs" />
     <Compile Include="Models\Leveling\Nodes\ClassModelTree.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Models\CustomNpcs\WaveDefinition.cs" />
     <Compile Include="Models\StringHolderJsonConverter.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\ProjectilesModelTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls\ModelTreeEditor.resx">
       <DependentUpon>ModelTreeEditor.cs</DependentUpon>

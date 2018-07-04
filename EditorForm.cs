@@ -1,5 +1,6 @@
 ﻿using RpgToolsEditor.Controls;
 using RpgToolsEditor.Models;
+using RpgToolsEditor.Models.CustomNpcs;
 using RpgToolsEditor.Models.CustomQuests;
 using RpgToolsEditor.Models.Leveling;
 using RpgToolsEditor.Models.NpcShops;
@@ -23,10 +24,10 @@ namespace RpgToolsEditor
 		List<ObjectEditor> objectEditors;
 		InvasionEditor invasionsEditor;
 		NpcEditor npcsEditor;
-		ProjectileEditor projectilesEditor;
-		NpcShopsEditor npcShopsEditor;
-		LevelingEditor levelingEditor;
-		QuestsEditor questsEditor;
+		//ProjectileEditor projectilesEditor;
+		//NpcShopsEditor npcShopsEditor;
+		//LevelingEditor levelingEditor;
+		//QuestsEditor questsEditor;
 
 		public EditorForm()
 		{
@@ -40,36 +41,36 @@ namespace RpgToolsEditor
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;
 			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
 			
-			projectilesEditor = (ProjectileEditor)tabControlMain.TabPages[2].Controls[0];
-			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
-			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
+			//projectilesEditor = (ProjectileEditor)tabControlMain.TabPages[2].Controls[0];
+			//projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
+			//projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 
-			npcShopsEditor = (NpcShopsEditor)tabControlMain.TabPages[3].Controls[0];
-			npcShopsEditor.OpenFileDialog = openFileDialogNpcShop;
-			npcShopsEditor.SaveFileDialog = saveFileDialogNpcShop;
-			npcShopsEditor.CanAddCategory = false;
-			npcShopsEditor.SupportMultipleItems = false;
+			//npcShopsEditor = (NpcShopsEditor)tabControlMain.TabPages[3].Controls[0];
+			//npcShopsEditor.OpenFileDialog = openFileDialogNpcShop;
+			//npcShopsEditor.SaveFileDialog = saveFileDialogNpcShop;
+			//npcShopsEditor.CanAddCategory = false;
+			//npcShopsEditor.SupportMultipleItems = false;
 			
-			levelingEditor = (LevelingEditor)tabControlMain.TabPages[4].Controls[0];
-			levelingEditor.OpenFileDialog = openFileDialogLeveling;
-			levelingEditor.SaveFileDialog = saveFileDialogLeveling;
-			levelingEditor.CanAddCategory = false;
-			levelingEditor.SupportMultipleItems = false;
+			//levelingEditor = (LevelingEditor)tabControlMain.TabPages[4].Controls[0];
+			//levelingEditor.OpenFileDialog = openFileDialogLeveling;
+			//levelingEditor.SaveFileDialog = saveFileDialogLeveling;
+			//levelingEditor.CanAddCategory = false;
+			//levelingEditor.SupportMultipleItems = false;
 
-			questsEditor = (QuestsEditor)tabControlMain.TabPages[5].Controls[0];
-			questsEditor.OpenFileDialog = openFileDialogQuests;
-			questsEditor.SaveFileDialog = saveFileDialogQuests;
-			questsEditor.CanAddCategory = false;
-			questsEditor.SupportMultipleItems = true;
+			//questsEditor = (QuestsEditor)tabControlMain.TabPages[5].Controls[0];
+			//questsEditor.OpenFileDialog = openFileDialogQuests;
+			//questsEditor.SaveFileDialog = saveFileDialogQuests;
+			//questsEditor.CanAddCategory = false;
+			//questsEditor.SupportMultipleItems = true;
 
 			objectEditors = new List<ObjectEditor>()
 			{
 				invasionsEditor,
-				npcsEditor,
-				projectilesEditor,
-				npcShopsEditor,
-				levelingEditor,
-				questsEditor
+				npcsEditor
+				//projectilesEditor
+				//npcShopsEditor,
+				//levelingEditor,
+				//questsEditor
 			};
 
 			foreach( var editor in objectEditors )
@@ -88,24 +89,28 @@ namespace RpgToolsEditor
 				};
 			}
 
-
-			var npcShopsTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
+			var projectilesEditor = (ModelTreeEditor)tabControlMain.TabPages[2].Controls[0];
+			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
+			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
+			projectilesEditor.ModelTree = new ProjectilesModelTree();
+			
+			var npcShopsTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[3].Controls[0];
 			npcShopsTreeEditor.OpenFileDialog = openFileDialogNpcShop;
 			npcShopsTreeEditor.SaveFileDialog = saveFileDialogNpcShop;
 			npcShopsTreeEditor.ModelTree = new NpcShopsModelTree();
 
-			var levelingTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[7].Controls[0];
+			var levelingTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[4].Controls[0];
 			levelingTreeEditor.OpenFileDialog = openFileDialogLeveling;
 			levelingTreeEditor.SaveFileDialog = saveFileDialogLeveling;
 			levelingTreeEditor.ModelTree = new ClassModelTree();
 
-			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[8].Controls[0];
+			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[5].Controls[0];
 			questTreeEditor.OpenFileDialog = openFileDialogQuests;
 			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
 			
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 7;
+			tabControlMain.SelectedIndex = 2;
 		}
 
 		private ObjectEditor getSelectedEditor()
@@ -136,7 +141,7 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalDisplay(int selectedIndex)
 		{
-			if( selectedIndex >= 6 )
+			if( selectedIndex >= 2 )
 				return;
 
 			var editor = objectEditors[selectedIndex];
@@ -152,7 +157,7 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalControls(int selectedIndex)
 		{
-			if( selectedIndex >= 6 )
+			if( selectedIndex >= 2 )
 				return;
 
 			var editor = objectEditors[selectedIndex];
