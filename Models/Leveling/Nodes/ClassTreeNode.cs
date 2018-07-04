@@ -24,14 +24,12 @@ namespace RpgToolsEditor.Models.Leveling
 			Model = model;
 
 			var levelsNode = new LevelsContainerTreeNode();
-			//var itemsNode = new ItemsContainerTreeNode();
-
+			
 			//NpcShopCommandsContainerNode.Model = model.ShopCommands;
 			//NpcShopItemsContainerNode.Model = model.ShopItems;
 			Nodes.Add(levelsNode);
-			//Nodes.Add(itemsNode);
-
-			//commandsNode.AddChildModels(model.ShopCommands.Cast<IModel>().ToList());
+			
+			levelsNode.AddChildModels(model.LevelDefinitions.Cast<IModel>().ToList());
 			//itemsNode.AddChildModels(model.ShopItems.Cast<IModel>().ToList());
 		}
 

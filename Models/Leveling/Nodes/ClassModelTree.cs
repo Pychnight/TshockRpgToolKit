@@ -1,6 +1,8 @@
-﻿using RpgToolsEditor.Controls;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +29,15 @@ namespace RpgToolsEditor.Models.Leveling
 
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
-			throw new NotImplementedException();
+			var json = File.ReadAllText(path);
+			var item = JsonConvert.DeserializeObject<Class>(json);
+			
+			var node = new List<ModelTreeNode>()
+			{
+				(ModelTreeNode)new ClassTreeNode(item)
+			};
+
+			return node;
 		}
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
