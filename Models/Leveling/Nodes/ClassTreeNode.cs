@@ -50,10 +50,22 @@ namespace RpgToolsEditor.Models.Leveling
 		//	base.AddSibling(node);
 		//}
 
-		//public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		//{
-		//	return base.CanAcceptDraggedNode(node);
-		//}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node)
+		{
+			return node is ClassTreeNode;
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if( CanAcceptDraggedNode(draggedNode) )
+			{
+				AddSibling(draggedNode);
+
+				return true;
+			}
+
+			return false;
+		}
 
 		//public override object Clone()
 		//{
@@ -64,12 +76,7 @@ namespace RpgToolsEditor.Models.Leveling
 		//{
 		//	return base.Copy();
 		//}
-
-		//public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
-		//{
-		//	return base.TryAcceptDraggedNode(draggedNode);
-		//}
-
+		
 		//public override void TryDropWithNoTarget(TreeView treeView)
 		//{
 		//	base.TryDropWithNoTarget(treeView);
