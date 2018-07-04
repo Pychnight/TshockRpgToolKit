@@ -23,7 +23,7 @@ namespace RpgToolsEditor
 
 		List<ObjectEditor> objectEditors;
 		InvasionEditor invasionsEditor;
-		NpcEditor npcsEditor;
+		//NpcEditor npcsEditor;
 		//ProjectileEditor projectilesEditor;
 		//NpcShopsEditor npcShopsEditor;
 		//LevelingEditor levelingEditor;
@@ -37,9 +37,9 @@ namespace RpgToolsEditor
 			invasionsEditor.OpenFileDialog = openFileDialogInvasions;
 			invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
 			
-			npcsEditor = (NpcEditor)tabControlMain.TabPages[1].Controls[0];
-			npcsEditor.OpenFileDialog = openFileDialogNpcs;
-			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
+			//npcsEditor = (NpcEditor)tabControlMain.TabPages[1].Controls[0];
+			//npcsEditor.OpenFileDialog = openFileDialogNpcs;
+			//npcsEditor.SaveFileDialog = saveFileDialogNpcs;
 			
 			//projectilesEditor = (ProjectileEditor)tabControlMain.TabPages[2].Controls[0];
 			//projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
@@ -65,8 +65,8 @@ namespace RpgToolsEditor
 
 			objectEditors = new List<ObjectEditor>()
 			{
-				invasionsEditor,
-				npcsEditor
+				invasionsEditor
+				//npcsEditor
 				//projectilesEditor
 				//npcShopsEditor,
 				//levelingEditor,
@@ -89,6 +89,11 @@ namespace RpgToolsEditor
 				};
 			}
 
+			var npcsEditor = (ModelTreeEditor)tabControlMain.TabPages[1].Controls[0];
+			npcsEditor.OpenFileDialog = openFileDialogNpcs;
+			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
+			npcsEditor.ModelTree = new NpcsModelTree();
+
 			var projectilesEditor = (ModelTreeEditor)tabControlMain.TabPages[2].Controls[0];
 			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
@@ -110,7 +115,7 @@ namespace RpgToolsEditor
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
 			
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 2;
+			tabControlMain.SelectedIndex = 1;
 		}
 
 		private ObjectEditor getSelectedEditor()
@@ -141,7 +146,7 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalDisplay(int selectedIndex)
 		{
-			if( selectedIndex >= 2 )
+			if( selectedIndex >= 1 )
 				return;
 
 			var editor = objectEditors[selectedIndex];
@@ -157,7 +162,7 @@ namespace RpgToolsEditor
 
 		private void refreshObjectEditorExternalControls(int selectedIndex)
 		{
-			if( selectedIndex >= 2 )
+			if( selectedIndex >= 1 )
 				return;
 
 			var editor = objectEditors[selectedIndex];

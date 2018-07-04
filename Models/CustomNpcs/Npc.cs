@@ -176,10 +176,14 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		/// <summary>
 		///     Gets the loot entries.
 		/// </summary>
+		[Browsable(false)]
 		[Category("Loot")]
-		public List<LootEntry> LootEntries => loot.Entries;
-
-
+		public List<LootEntry> LootEntries
+		{
+			get => loot.Entries;
+			set => loot.Entries = value;
+		}
+		
 		///// <summary>
 		/////     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
 		///// </summary>

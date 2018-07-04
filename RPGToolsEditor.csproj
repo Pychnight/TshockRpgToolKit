@@ -89,6 +89,9 @@
     <Compile Include="Controls\QuestsEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Models\CustomNpcs\Nodes\LootEntryContainerTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\LootEntryTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\NpcTreeNode.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\ProjectileTreeNode.cs" />
     <Compile Include="Models\CustomQuests\QuestInfo.cs" />
     <Compile Include="Models\CustomQuests\QuestInfoModelTree.cs" />
@@ -133,6 +136,7 @@
     <Compile Include="Models\NpcShops\ShopItem.cs" />
     <Compile Include="Models\CustomNpcs\WaveDefinition.cs" />
     <Compile Include="Models\StringHolderJsonConverter.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\NpcsModelTree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\ProjectilesModelTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

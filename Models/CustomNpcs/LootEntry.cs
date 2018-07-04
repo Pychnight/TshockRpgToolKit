@@ -2,6 +2,7 @@
 using System.ComponentModel;
 //using Corruption.PluginSupport;
 using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 //using Terraria.ID;
 
 namespace RpgToolsEditor.Models.CustomNpcs
@@ -10,15 +11,27 @@ namespace RpgToolsEditor.Models.CustomNpcs
 	///     Represents a loot entry definition.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class LootEntry //: IValidator
+	public sealed class LootEntry : IModel //: IValidator
 	{
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		private string name = "Dirt Block";
+
 		/// <summary>
 		///     Gets the name.
 		/// </summary>
 		[Description("Loot Entry Properties")]
 		[TypeConverter(typeof(ItemNameStringConverter))]
 		[JsonProperty(Order = 0)]
-		public string Name { get; set; } = "Dirt Block";
+		public string Name
+		{
+			get => name;
+			set
+			{
+				name = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+			}
+		}
 
 		/// <summary>
 		///     Gets the minimum stack size.
@@ -61,5 +74,9 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			Chance = other.Chance;
 		}
 		
+		public object Clone()
+		{
+			return new LootEntry(this);
+		}
 	}
 }
