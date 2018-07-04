@@ -44,21 +44,21 @@ namespace RpgToolsEditor.Models
 					cm.LoadIncludes<TModel>(fileName);
 
 					//create tree nodes for includes...
-					foreach( var inc in cm.IncludeModels)
-					{
-						var includeNode = new BoundTreeNode();
-						node.Nodes.Add(includeNode);
-						includeNode.BoundObject = inc;
+					//foreach( var inc in cm.IncludeModels)
+					//{
+					//	var includeNode = new BoundTreeNode();
+					//	node.Nodes.Add(includeNode);
+					//	includeNode.BoundObject = inc;
 
-						//create tree nodes for Npcs...
-						foreach( var item in inc.Items )
-						{
-							var childNode = new BoundTreeNode();
+					//	//create tree nodes for Npcs...
+					//	foreach( var item in inc.Items )
+					//	{
+					//		var childNode = new BoundTreeNode();
 
-							childNode.BoundObject = item;
-							includeNode.Nodes.Add(childNode);
-						}
-					}
+					//		childNode.BoundObject = item;
+					//		includeNode.Nodes.Add(childNode);
+					//	}
+					//}
 				}
 				
 				nodes.Add(node);

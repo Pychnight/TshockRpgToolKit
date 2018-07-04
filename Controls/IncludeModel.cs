@@ -60,12 +60,12 @@ namespace RpgToolsEditor.Controls
 			return new IncludeModel();
 		}
 
-		public void Load<TModel>() where TModel : IModel, new()
+		public List<TModel> Load<TModel>() where TModel : IModel, new()
 		{
 			var path = Path.Combine(ParentDirectory, RelativePath);
 
 			if( !File.Exists(path) )
-				return;
+				return new List<TModel>();
 
 			var json = File.ReadAllText(path);
 			var items = JsonConvert.DeserializeObject<List<TModel>>(json);//, new IModelConverter<TModel>());
@@ -73,6 +73,8 @@ namespace RpgToolsEditor.Controls
 			var imodels = items.Cast<IModel>().ToList();
 
 			Items = imodels;
+
+			return items;
 		}
 	}
 }

@@ -39,7 +39,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
-			return node is NpcTreeNode;
+			return node is NpcTreeNode ||
+					( node is CategoryTreeNode<Npc,NpcTreeNode> && Parent == null );//dont accept CategoryTreeNodes, if were not in the root treeview( else bad things happen ).
 		}
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)

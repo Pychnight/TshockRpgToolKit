@@ -89,6 +89,8 @@
     <Compile Include="Controls\QuestsEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Models\CustomNpcs\Nodes\CategoryTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\IncludeTreeNode.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\InvasionModelTree.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\InvasionTreeNode.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\LootEntryContainerTreeNode.cs" />
