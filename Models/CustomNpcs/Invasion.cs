@@ -79,9 +79,10 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		/// <summary>
 		///     Gets the waves.
 		/// </summary>
+		[Browsable(false)]
 		[Category("Basic Properties")]
 		[JsonProperty(Order = 6)]
-		public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
+		public List<Wave> Waves { get; set; } = new List<Wave>();
 
 		public Invasion()
 		{
@@ -100,7 +101,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			ScaleByPlayers = other.ScaleByPlayers;
 
 			//make better copy function
-			Waves = other.Waves.Select(w => new WaveDefinition(w)).ToList();
+			Waves = other.Waves.Select(w => new Wave(w)).ToList();
 		}
 		
 		object ICloneable.Clone()

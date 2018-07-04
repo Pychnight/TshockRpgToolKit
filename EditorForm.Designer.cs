@@ -54,8 +54,8 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageInvasions = new System.Windows.Forms.TabPage();
-			this.invasionEditor1 = new RpgToolsEditor.Controls.InvasionEditor();
 			this.tabPageNpcs = new System.Windows.Forms.TabPage();
+			this.modelTreeEditor5 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.tabPageProjectiles = new System.Windows.Forms.TabPage();
 			this.modelTreeEditor4 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.tabPageNpcShopsX = new System.Windows.Forms.TabPage();
@@ -77,7 +77,7 @@
 			this.saveFileDialogQuests = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogInvasions = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogInvasions = new System.Windows.Forms.SaveFileDialog();
-			this.modelTreeEditor5 = new RpgToolsEditor.Controls.ModelTreeEditor();
+			this.modelTreeEditor6 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -295,28 +295,14 @@
 			// 
 			// tabPageInvasions
 			// 
-			this.tabPageInvasions.Controls.Add(this.invasionEditor1);
+			this.tabPageInvasions.Controls.Add(this.modelTreeEditor6);
 			this.tabPageInvasions.ImageIndex = 0;
 			this.tabPageInvasions.Location = new System.Drawing.Point(4, 23);
 			this.tabPageInvasions.Name = "tabPageInvasions";
 			this.tabPageInvasions.Size = new System.Drawing.Size(1000, 608);
 			this.tabPageInvasions.TabIndex = 0;
-			this.tabPageInvasions.Text = "Invasions";
+			this.tabPageInvasions.Text = "InvasionsX";
 			this.tabPageInvasions.UseVisualStyleBackColor = true;
-			// 
-			// invasionEditor1
-			// 
-			this.invasionEditor1.CanAddCategory = true;
-			this.invasionEditor1.CurrentFilePath = "";
-			this.invasionEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.invasionEditor1.IsTreeDirty = false;
-			this.invasionEditor1.Location = new System.Drawing.Point(0, 0);
-			this.invasionEditor1.Name = "invasionEditor1";
-			this.invasionEditor1.OpenFileDialog = null;
-			this.invasionEditor1.SaveFileDialog = null;
-			this.invasionEditor1.Size = new System.Drawing.Size(1000, 608);
-			this.invasionEditor1.SupportMultipleItems = true;
-			this.invasionEditor1.TabIndex = 0;
 			// 
 			// tabPageNpcs
 			// 
@@ -328,6 +314,19 @@
 			this.tabPageNpcs.TabIndex = 1;
 			this.tabPageNpcs.Text = "NPCsX";
 			this.tabPageNpcs.UseVisualStyleBackColor = true;
+			// 
+			// modelTreeEditor5
+			// 
+			this.modelTreeEditor5.CurrentFilePath = "";
+			this.modelTreeEditor5.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTreeEditor5.IsTreeDirty = false;
+			this.modelTreeEditor5.Location = new System.Drawing.Point(0, 0);
+			this.modelTreeEditor5.ModelTree = null;
+			this.modelTreeEditor5.Name = "modelTreeEditor5";
+			this.modelTreeEditor5.OpenFileDialog = null;
+			this.modelTreeEditor5.SaveFileDialog = null;
+			this.modelTreeEditor5.Size = new System.Drawing.Size(1000, 608);
+			this.modelTreeEditor5.TabIndex = 0;
 			// 
 			// tabPageProjectiles
 			// 
@@ -502,18 +501,18 @@
 			this.saveFileDialogInvasions.SupportMultiDottedExtensions = true;
 			this.saveFileDialogInvasions.Title = "Save Invasions";
 			// 
-			// modelTreeEditor5
+			// modelTreeEditor6
 			// 
-			this.modelTreeEditor5.CurrentFilePath = "";
-			this.modelTreeEditor5.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.modelTreeEditor5.IsTreeDirty = false;
-			this.modelTreeEditor5.Location = new System.Drawing.Point(0, 0);
-			this.modelTreeEditor5.ModelTree = null;
-			this.modelTreeEditor5.Name = "modelTreeEditor5";
-			this.modelTreeEditor5.OpenFileDialog = null;
-			this.modelTreeEditor5.SaveFileDialog = null;
-			this.modelTreeEditor5.Size = new System.Drawing.Size(1000, 608);
-			this.modelTreeEditor5.TabIndex = 0;
+			this.modelTreeEditor6.CurrentFilePath = "";
+			this.modelTreeEditor6.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTreeEditor6.IsTreeDirty = false;
+			this.modelTreeEditor6.Location = new System.Drawing.Point(0, 0);
+			this.modelTreeEditor6.ModelTree = null;
+			this.modelTreeEditor6.Name = "modelTreeEditor6";
+			this.modelTreeEditor6.OpenFileDialog = null;
+			this.modelTreeEditor6.SaveFileDialog = null;
+			this.modelTreeEditor6.Size = new System.Drawing.Size(1000, 608);
+			this.modelTreeEditor6.TabIndex = 0;
 			// 
 			// EditorForm
 			// 
@@ -574,7 +573,6 @@
 		private System.Windows.Forms.SaveFileDialog saveFileDialogProjectiles;
 		private System.Windows.Forms.OpenFileDialog openFileDialogNpcs;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcs;
-		private Controls.InvasionEditor invasionEditor1;
 		private System.Windows.Forms.ImageList imageListTabIcons;
 		private System.Windows.Forms.OpenFileDialog openFileDialogNpcShop;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogNpcShop;
@@ -592,6 +590,7 @@
 		private Controls.ModelTreeEditor modelTreeEditor3;
 		private Controls.ModelTreeEditor modelTreeEditor4;
 		private Controls.ModelTreeEditor modelTreeEditor5;
+		private Controls.ModelTreeEditor modelTreeEditor6;
 	}
 }
 
