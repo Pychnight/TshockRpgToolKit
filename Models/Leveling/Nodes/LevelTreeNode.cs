@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.Leveling
 {
@@ -50,6 +51,11 @@ namespace RpgToolsEditor.Models.Leveling
 			AddSibling(draggedNode);
 
 			return true;
+		}
+
+		public override void TryDropWithNoTarget(TreeView treeView)
+		{
+			//not allowed
 		}
 	}
 }
