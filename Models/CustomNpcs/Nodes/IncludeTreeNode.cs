@@ -56,8 +56,10 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			var node = new TNode();
 
 			node.Model = model;
+			node.AddDefaultChildNodesHack();
 
-			AddSibling(node);
+			//AddSibling(node);
+			AddChild(node);
 
 			return node;
 		}

@@ -27,6 +27,15 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			Nodes.Add(container);
 		}
 
+		public override void AddDefaultChildNodesHack()
+		{
+			var container = new LootEntrysContainerTreeNode();
+
+			container.AddChildModels(((Npc)Model).LootEntries.Cast<IModel>().ToList());
+
+			Nodes.Add(container);
+		}
+
 		public override ModelTreeNode AddItem()
 		{
 			var model = new Npc();
