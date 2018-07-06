@@ -35,8 +35,8 @@
     <ApplicationIcon>Corrupt_Bunny.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,10 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\CategoryItemControls.cs" />
+    <Compile Include="Controls\CategoryLoader.cs" />
     <Compile Include="Controls\CategoryModel.cs" />
     <Compile Include="Controls\IExtendedControlItems.cs" />
     <Compile Include="Controls\IModel.cs" />
-    <Compile Include="Controls\IModelConverter.cs" />
     <Compile Include="Controls\IncludeModel.cs" />
     <Compile Include="Controls\InvasionEditor.cs">
       <SubType>UserControl</SubType>

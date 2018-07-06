@@ -16,8 +16,9 @@ namespace RpgToolsEditor.Models
 		{
 			//var ctx = CreateMockContext();
 			var json = File.ReadAllText(fileName);
-			var items = JsonConvert.DeserializeObject<List<IModel>>(json, new IModelConverter<T>());
-
+			//var items = JsonConvert.DeserializeObject<List<IModel>>(json, new IModelConverter<T>());
+			List<IModel> items = null;
+			
 			return items;
 		}
 

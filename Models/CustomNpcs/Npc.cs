@@ -184,6 +184,20 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			set => loot.Entries = value;
 		}
 
+		[Category("Loot")]
+		public bool IsOverride
+		{
+			get => loot.IsOverride;
+			set => loot.IsOverride = value;
+		}
+
+		[Category("Loot")]
+		public bool TallyKills
+		{
+			get => loot.TallyKills;
+			set => loot.TallyKills = value;
+		}
+
 		///// <summary>
 		/////     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
 		///// </summary>
@@ -223,21 +237,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		//public bool ShouldUpdateOnHit =>
 		//	_baseOverride.Defense != null || _baseOverride.IsImmortal != null ||
 		//	_baseOverride.KnockbackMultiplier != null;
-
-		[Category("Loot")]
-		public bool IsOverride
-		{
-			get => loot.IsOverride;
-			set => loot.IsOverride = value;
-		}
-
-		[Category("Loot")]
-		public bool TallyKills
-		{
-			get => loot.TallyKills;
-			set => loot.TallyKills = value;
-		}
-		
+				
 		[Category("Spawning")]
 		public bool ShouldReplace
 		{
