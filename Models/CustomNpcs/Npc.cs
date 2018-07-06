@@ -183,7 +183,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			get => loot.Entries;
 			set => loot.Entries = value;
 		}
-		
+
 		///// <summary>
 		/////     Gets a value indicating whether the NPC should aggressively update due to unsynced changes with clients.
 		///// </summary>
@@ -224,6 +224,20 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		//	_baseOverride.Defense != null || _baseOverride.IsImmortal != null ||
 		//	_baseOverride.KnockbackMultiplier != null;
 
+		[Category("Loot")]
+		public bool IsOverride
+		{
+			get => loot.IsOverride;
+			set => loot.IsOverride = value;
+		}
+
+		[Category("Loot")]
+		public bool TallyKills
+		{
+			get => loot.TallyKills;
+			set => loot.TallyKills = value;
+		}
+		
 		[Category("Spawning")]
 		public bool ShouldReplace
 		{
@@ -343,8 +357,23 @@ namespace RpgToolsEditor.Models.CustomNpcs
 	}
 
 	[JsonObject(MemberSerialization.OptIn)]
-	public sealed class LootDefinition //: IValidator
+	public sealed class LootDefinition //: IModel ...we cant currently make LootDefinition an IModel-- it completely breaks custom json serialization
 	{
+		//public event PropertyChangedEventHandler PropertyChanged;
+
+		//string name = "Loot Definition";
+
+		//[Browsable(false)]
+		//public string Name
+		//{
+		//	get => name;
+		//	set
+		//	{
+		//		name = value;
+		//		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+		//	}
+		//}
+		
 		[JsonProperty(Order = 2)]
 		public List<LootEntry> Entries { get; set; } = new List<LootEntry>();
 
@@ -353,7 +382,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		[JsonProperty(Order = 0)]
 		public bool TallyKills { get; set; }
-
+		
 		public LootDefinition()
 		{
 		}
@@ -363,6 +392,11 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			TallyKills = other.TallyKills;
 			IsOverride = other.IsOverride;
 			Entries = other.Entries.Select(e => new LootEntry(e)).ToList();
+		}
+		
+		public object Clone()
+		{
+			return new LootDefinition(this);
 		}
 	}
 

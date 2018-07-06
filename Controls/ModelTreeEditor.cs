@@ -311,7 +311,7 @@ namespace RpgToolsEditor.Controls
 
 			if( result == DialogResult.OK )
 			{
-				try
+				//try
 				{
 					Clear();
 					OnFileLoad(OpenFileDialog.FileName);
@@ -319,10 +319,10 @@ namespace RpgToolsEditor.Controls
 					IsTreeDirty = false;
 					CurrentFilePath = OpenFileDialog.FileName;
 				}
-				catch( Exception ex )
-				{
-					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
+				//catch( Exception ex )
+				//{
+				//	MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				//}
 			}
 		}
 

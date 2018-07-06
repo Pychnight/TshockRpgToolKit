@@ -1,4 +1,5 @@
 ﻿using RpgToolsEditor.Controls;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RpgToolsEditor.Models.CustomNpcs
@@ -20,6 +21,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		{
 			Model = model;
 
+			//var container = new LootEntrysContainerTreeNode(model.loot);
 			var container = new LootEntrysContainerTreeNode();
 
 			container.AddChildModels(model.LootEntries.Cast<IModel>().ToList());
@@ -29,6 +31,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override void AddDefaultChildNodesHack()
 		{
+			//var model = new LootDefinition();
+			//var container = new LootEntrysContainerTreeNode(model);
 			var container = new LootEntrysContainerTreeNode();
 
 			container.AddChildModels(((Npc)Model).LootEntries.Cast<IModel>().ToList());

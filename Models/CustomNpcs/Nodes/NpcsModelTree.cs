@@ -63,7 +63,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var models = new List<Npc>();
+			var models = new List<IModel>();
 			
 			foreach(var node in tree)
 			{
@@ -78,13 +78,30 @@ namespace RpgToolsEditor.Models.CustomNpcs
 					npc.LootEntries = lootEntries;
 					models.Add(npc);
 				}
-				//else if(node is CategoryTreeNode)
-				//{
+				else if( node is CategoryTreeNode<Npc,NpcTreeNode> )
+				{
+					var catTreeNode = (CategoryTreeNode<Npc, NpcTreeNode>)node;
+					var cat = catTreeNode.Model as CategoryModel;
+					var childModels = catTreeNode.GetChildModels();
 
-				//}
+					cat.Includes.Clear();
+
+					foreach(var child in childModels)
+					{
+						var includeModel = (IncludeModel)child;
+
+						cat.Includes.Add(includeModel.RelativePath);
+
+						//save the includes...
+						includeModel.Save();
+					}
+
+					//write this category and include information.
+					models.Add(cat);
+				}
 			}
 			
-			var json = JsonConvert.SerializeObject(models);
+			var json = JsonConvert.SerializeObject(models, Formatting.Indented);
 			File.WriteAllText(path, json);
 		}
 	}

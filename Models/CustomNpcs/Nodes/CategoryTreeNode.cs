@@ -1,4 +1,5 @@
 ﻿using RpgToolsEditor.Controls;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RpgToolsEditor.Models.CustomNpcs
@@ -28,24 +29,51 @@ namespace RpgToolsEditor.Models.CustomNpcs
 										.ToList();
 
 			AddChildModels(includeModels);
-
-
 			//model.LoadIncludes<TModel>(basePath);
 		}
 
 		public override void AddChildModel(IModel model)
 		{
-			//should be typed to something more specific
+			var incModel = (IncludeModel)model;
+			var childModels = incModel.Load<TModel>();
+						
 			var node = new IncludeTreeNode<TModel,TNode>()
 			{
 				Model = model
 			};
 
 			node.AddDefaultChildNodesHack();
-
+			node.AddChildModels(childModels.Cast<IModel>().ToList());
+			
 			//add to tree
 			Nodes.Add(node);
 		}
+
+		public override IList<IModel> GetChildModels()
+		{
+			var models = new List<IModel>();
+
+			foreach( var n in Nodes )
+			{
+				var includeTreeNode = n as IncludeTreeNode<TModel,TNode>;
+				var includeModel = includeTreeNode.Model as IncludeModel;
+				
+				includeModel.Items.Clear();
+				
+				if( includeTreeNode != null && includeTreeNode.Model != null )
+				{
+					//var childModels = includeTreeNode.Nodes.Cast<TNode>().Select(tn => tn.Model);
+					var childModels = includeTreeNode.GetChildModels();
+
+					includeModel.Items.AddRange(childModels);
+					models.Add(includeModel);
+					//models.AddRange(childModels);
+				}
+			}
+
+			return models;
+		}
+
 
 		public override ModelTreeNode AddItem()
 		{

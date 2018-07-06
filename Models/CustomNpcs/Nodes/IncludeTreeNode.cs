@@ -28,22 +28,37 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override void AddChildModel(IModel model)
 		{
-			////should be typed to something more specific
-			//var node = new IncludeTreeNode<TModel>()
-			//{
-			//	Model = model
-			//};
+			var node = new TNode()
+			{
+				Model = model
+			};
 
-			//node.AddDefaultChildNodesHack();
+			node.AddDefaultChildNodesHack();
 
-			////add to tree
-			//Nodes.Add(node);
+			Nodes.Add(node);
 		}
 
-		//public override void AddChildModels(IList<IModel> models)
-		//{
-		//	base.AddChildModels(models);
-		//}
+		public override IList<IModel> GetChildModels()
+		{
+			var models = new List<IModel>();
+
+			foreach( var n in Nodes )
+			{
+				var modelTreeNode = n as TNode;
+
+				if( modelTreeNode != null && modelTreeNode.Model != null )
+				{
+					//get loot.
+					var lootNode = modelTreeNode.Nodes[0] as LootEntrysContainerTreeNode;
+					var lootEntryModels = lootNode.GetChildModels();
+
+
+					models.Add(modelTreeNode.Model);
+				}
+			}
+
+			return models;
+		}
 
 		//public override void AddDefaultChildNodesHack()
 		//{

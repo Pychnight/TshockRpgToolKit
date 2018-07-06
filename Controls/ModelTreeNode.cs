@@ -105,6 +105,27 @@ namespace RpgToolsEditor.Controls
 		{
 		}
 
+		/// <summary>
+		/// Last minute hack, so that we can grab current loot entries for serialization. This is stolen from ModelTreeStaticContainerNode.
+		/// </summary>
+		/// <returns></returns>
+		public IList<IModel> GetChildModelsHack()
+		{
+			var models = new List<IModel>();
+
+			foreach( var n in Nodes )
+			{
+				var modelTreeNode = n as ModelTreeNode;
+
+				if( modelTreeNode != null && modelTreeNode.Model != null )
+				{
+					models.Add(modelTreeNode.Model);
+				}
+			}
+
+			return models;
+		}
+
 		public virtual void AddChild(ModelTreeNode node)
 		{
 			node.Remove();

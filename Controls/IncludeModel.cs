@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace RpgToolsEditor.Controls
 {
+	//[JsonObject(MemberSerialization.OptIn)]
 	public class IncludeModel : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -82,6 +83,17 @@ namespace RpgToolsEditor.Controls
 			Items = imodels;
 
 			return items;
+		}
+
+		public void Save()
+		{
+			var path = Path.Combine(ParentDirectory, RelativePath);
+			var dirName = Path.GetDirectoryName(path);
+			
+			Directory.CreateDirectory(dirName);
+						
+			var json = JsonConvert.SerializeObject(Items,Formatting.Indented);//, new IModelConverter<TModel>());
+			File.WriteAllText(path, json);
 		}
 	}
 }

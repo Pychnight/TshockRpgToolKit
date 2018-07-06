@@ -1,14 +1,22 @@
-﻿using RpgToolsEditor.Controls;
+﻿using System.Collections.Generic;
+using System.Linq;
+using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
 	public class LootEntrysContainerTreeNode : ModelTreeStaticContainerNode
 	{
-		public LootEntrysContainerTreeNode()
+		public LootEntrysContainerTreeNode() : base()
 		{
 			Text = "Loot";
 			ImageIndex = SelectedImageIndex = 1;
+			//CanEditModel = true;
 		}
+
+		//public LootEntrysContainerTreeNode(LootDefinition model) : this()
+		//{
+		//	Model = model;
+		//}
 		
 		public override void AddChildModel(IModel model)
 		{
@@ -21,6 +29,16 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 			//add to tree
 			Nodes.Add(node);
+		}
+
+		public override IList<IModel> GetChildModels()
+		{
+			var models = new List<IModel>();
+			var lootEntries = Nodes.Cast<LootEntryTreeNode>().Select( n => (LootEntry)n.Model);
+
+			models.AddRange(lootEntries);
+
+			return models;
 		}
 
 		public override ModelTreeNode AddItem()
