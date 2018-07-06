@@ -48,11 +48,11 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 				if( modelTreeNode != null && modelTreeNode.Model != null )
 				{
-					//get loot.
-					var lootNode = modelTreeNode.Nodes[0] as LootEntrysContainerTreeNode;
-					var lootEntryModels = lootNode.GetChildModels();
-
-
+					//get loot.... this has been disabled, as its specific to npcs/loot, and causes failures for other types.
+					//and its doing nothing, it seems.
+					//var lootNode = modelTreeNode.Nodes[0] as LootEntrysContainerTreeNode;
+					//var lootEntryModels = lootNode.GetChildModels();
+					
 					models.Add(modelTreeNode.Model);
 				}
 			}

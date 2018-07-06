@@ -29,15 +29,20 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
 			var json = File.ReadAllText(path);
-			var projectiles = JsonConvert.DeserializeObject<List<Invasion>>(json);
-			var nodes = projectiles.Select(p => (ModelTreeNode)new InvasionTreeNode(p)).ToList();
+			var loader = new CategoryLoader<Invasion>();
+			var models = loader.ParseCategorysAndModels(json);
+
+			//try to load in either npcs or categories, and create corresponding nodes for each.
+			var nodes = models.Select(m => m is CategoryModel ? (ModelTreeNode)new CategoryTreeNode<Invasion, InvasionTreeNode>((CategoryModel)m, path) :
+																(ModelTreeNode)new InvasionTreeNode((Invasion)m))
+							   .ToList();
 
 			return nodes;
 		}
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var models = new List<Invasion>();
+			var models = new List<IModel>();
 
 			foreach( var node in tree )
 			{
@@ -52,13 +57,32 @@ namespace RpgToolsEditor.Models.CustomNpcs
 					invasion.Waves = waves;
 					models.Add(invasion);
 				}
-				//else if(node is CategoryTreeNode)
-				//{
+				else if( node is CategoryTreeNode<Invasion, InvasionTreeNode> )
+				{
+					var catTreeNode = (CategoryTreeNode<Invasion, InvasionTreeNode>)node;
+					var cat = catTreeNode.Model as CategoryModel;
+					var childModels = catTreeNode.GetChildModels();
 
-				//}
+					cat.Includes.Clear();
+
+					foreach( var child in childModels )
+					{
+						var includeModel = (IncludeModel)child;
+
+						includeModel.ParentPath = path;
+
+						cat.Includes.Add(includeModel.RelativePath);
+
+						//save the includes...
+						includeModel.Save();
+					}
+
+					//write this category and include information.
+					models.Add(cat);
+				}
 			}
 
-			var json = JsonConvert.SerializeObject(models);
+			var json = JsonConvert.SerializeObject(models,Formatting.Indented);
 			File.WriteAllText(path, json);
 		}
 	}

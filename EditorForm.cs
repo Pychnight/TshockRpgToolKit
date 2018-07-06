@@ -22,46 +22,10 @@ namespace RpgToolsEditor
 		readonly string AppName = "RPG Tools Editor";
 
 		List<ObjectEditor> objectEditors;
-		//InvasionEditor invasionsEditor;
-		//NpcEditor npcsEditor;
-		//ProjectileEditor projectilesEditor;
-		//NpcShopsEditor npcShopsEditor;
-		//LevelingEditor levelingEditor;
-		//QuestsEditor questsEditor;
-
+		
 		public EditorForm()
 		{
 			InitializeComponent();
-			
-			//invasionsEditor = (InvasionEditor)tabControlMain.TabPages[0].Controls[0];
-			//invasionsEditor.OpenFileDialog = openFileDialogInvasions;
-			//invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
-			
-			//npcsEditor = (NpcEditor)tabControlMain.TabPages[1].Controls[0];
-			//npcsEditor.OpenFileDialog = openFileDialogNpcs;
-			//npcsEditor.SaveFileDialog = saveFileDialogNpcs;
-			
-			//projectilesEditor = (ProjectileEditor)tabControlMain.TabPages[2].Controls[0];
-			//projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
-			//projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
-
-			//npcShopsEditor = (NpcShopsEditor)tabControlMain.TabPages[3].Controls[0];
-			//npcShopsEditor.OpenFileDialog = openFileDialogNpcShop;
-			//npcShopsEditor.SaveFileDialog = saveFileDialogNpcShop;
-			//npcShopsEditor.CanAddCategory = false;
-			//npcShopsEditor.SupportMultipleItems = false;
-			
-			//levelingEditor = (LevelingEditor)tabControlMain.TabPages[4].Controls[0];
-			//levelingEditor.OpenFileDialog = openFileDialogLeveling;
-			//levelingEditor.SaveFileDialog = saveFileDialogLeveling;
-			//levelingEditor.CanAddCategory = false;
-			//levelingEditor.SupportMultipleItems = false;
-
-			//questsEditor = (QuestsEditor)tabControlMain.TabPages[5].Controls[0];
-			//questsEditor.OpenFileDialog = openFileDialogQuests;
-			//questsEditor.SaveFileDialog = saveFileDialogQuests;
-			//questsEditor.CanAddCategory = false;
-			//questsEditor.SupportMultipleItems = true;
 
 			objectEditors = new List<ObjectEditor>()
 			{
@@ -73,26 +37,27 @@ namespace RpgToolsEditor
 				//questsEditor
 			};
 
-			foreach( var editor in objectEditors )
-			{
-				//refresh on property change
-				editor.PropertyChanged += (s, a) =>
-				{
-					//...but only if its the currently selected tab.
-					var selectedIndex = tabControlMain.SelectedIndex;
+			//foreach( var editor in objectEditors )
+			//{
+			//	//refresh on property change
+			//	editor.PropertyChanged += (s, a) =>
+			//	{
+			//		//...but only if its the currently selected tab.
+			//		var selectedIndex = tabControlMain.SelectedIndex;
 
-					if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
-					{
-						refreshObjectEditorExternalDisplay(selectedIndex);
-						refreshObjectEditorExternalControls(selectedIndex);
-					}
-				};
-			}
+			//		if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
+			//		{
+			//			refreshObjectEditorExternalDisplay(selectedIndex);
+			//			refreshObjectEditorExternalControls(selectedIndex);
+			//		}
+			//	};
+			//}
 
 			var invasionsEditor = (ModelTreeEditor)tabControlMain.TabPages[0].Controls[0];
 			invasionsEditor.OpenFileDialog = openFileDialogInvasions;
 			invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
 			invasionsEditor.ModelTree = new InvasionModelTree();
+			invasionsEditor.AddExtendedItemControls(new CategoryItemControls<Invasion, InvasionTreeNode>());
 
 			var npcsEditor = (ModelTreeEditor)tabControlMain.TabPages[1].Controls[0];
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;
