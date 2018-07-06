@@ -12,6 +12,8 @@ namespace RpgToolsEditor.Controls
 {
 	public partial class ModelTreeEditor : UserControl, INotifyPropertyChanged
 	{
+		public IExtendedItemControls ExtendedItemControls { get; protected set; }
+
 		string currentFilePath = "";
 		public string CurrentFilePath
 		{
@@ -53,7 +55,23 @@ namespace RpgToolsEditor.Controls
 			//removing this, really slows down file loads for some reason...
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 		}
-		
+
+		public void AddExtendedItemControls(IExtendedItemControls itemControls)
+		{
+			ExtendedItemControls = itemControls;
+
+			var toolStrip = itemControls.CreateToolStrip(this.treeViewItems);
+			
+			toolStripContainerItems.LeftToolStripPanel.Controls.Add(toolStrip);
+			
+			//lets jump through hoops... ordering is broken(?) in ToolStripContainer. We copy to a list, and re-add controls to defeat.  
+			var controls = toolStripContainerItems.LeftToolStripPanel.Controls;
+			var controlsList = controls.Cast<Control>().ToList();
+
+			controls.Clear();
+			controls.AddRange(controlsList.ToArray());
+		}
+
 		public void Clear()
 		{
 			propertyGridItemEditor.SelectedObject = null;
@@ -376,6 +394,12 @@ namespace RpgToolsEditor.Controls
 			else
 				target = null;
 
+			//if(ExtendedItemControls!=null)
+			//{
+			//	onExtendedItemControls_AfterSelect(this, e);
+			//}
+
+						
 			propertyGridItemEditor.SelectedObject = target;
 		}
 

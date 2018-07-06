@@ -52,7 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\CategoryItemControls.cs" />
     <Compile Include="Controls\CategoryModel.cs" />
+    <Compile Include="Controls\IExtendedControlItems.cs" />
     <Compile Include="Controls\IModel.cs" />
     <Compile Include="Controls\IModelConverter.cs" />
     <Compile Include="Controls\IncludeModel.cs" />
