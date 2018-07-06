@@ -53,11 +53,18 @@ namespace RpgToolsEditor.Controls
 			ParentPath = parentPath;
 			RelativePath = relativePath;
 		}
+
+		public IncludeModel(IncludeModel other)
+		{
+			ParentPath = other.ParentPath;
+			RelativePath = other.RelativePath;
+			
+			Items = other.Items.Select(i => (IModel)i.Clone()).ToList();
+		}
 		
 		object ICloneable.Clone()
 		{
-			throw new NotImplementedException("Clone() is only a compiler pacifier.");
-			return new IncludeModel();
+			return new IncludeModel(this);
 		}
 
 		public List<TModel> Load<TModel>() where TModel : IModel, new()

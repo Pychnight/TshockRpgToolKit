@@ -12,6 +12,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			ImageIndex = SelectedImageIndex = 1;
 
 			CanEditModel = true;
+			CanCopy = true;
+			CanDelete = true;
 			CanDrag = true;
 		}
 

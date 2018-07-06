@@ -42,6 +42,17 @@ namespace RpgToolsEditor.Controls
 		[Browsable(false)]
 		public string BasePath { get; set; }
 
+		public CategoryModel()
+		{
+		}
+
+		public CategoryModel(CategoryModel other)
+		{
+			Name = other.Name;
+			BasePath = other.BasePath;
+			Includes = other.Includes.ToList();
+		}
+
 		//originally was void, but we're updating this for ModelTreeEditor...and need the loaded models.
 		public List<TModel> LoadIncludes<TModel>(string basePath) where TModel : IModel, new()
 		{
@@ -74,8 +85,7 @@ namespace RpgToolsEditor.Controls
 
 		object ICloneable.Clone()
 		{
-			throw new NotImplementedException("CategoryModel.Clone() is only a compiler pacifier.");
-			return new CategoryModel();
+			return new CategoryModel(this);
 		}
 	}
 }
