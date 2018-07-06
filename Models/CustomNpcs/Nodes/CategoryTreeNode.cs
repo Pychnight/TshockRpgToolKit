@@ -59,12 +59,27 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 			return node;
 		}
-
+		
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
-			//should be typed to something more specific
-			var result = node is IncludeTreeNode<TModel,TNode>;
-			return result;
+			return node is NpcTreeNode || //make sibling
+					( node is CategoryTreeNode<Npc, NpcTreeNode> && Parent == null ) || //make sibling
+					( node is IncludeTreeNode<TModel, TNode>); //make child
+		}
+
+		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
+		{
+			if( CanAcceptDraggedNode(draggedNode) )
+			{
+				if( draggedNode is IncludeTreeNode<TModel, TNode> )
+					AddChild(draggedNode);
+				else
+					AddSibling(draggedNode);
+
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
