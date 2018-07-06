@@ -26,20 +26,80 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			return nodes;
 		}
 
+		//public override IList<ModelTreeNode> LoadTree(string path)
+		//{
+		//	var json = File.ReadAllText(path);
+		//	var projectiles = JsonConvert.DeserializeObject<List<Projectile>>(json);
+		//	var nodes = projectiles.Select(p => (ModelTreeNode)new ProjectileTreeNode(p)).ToList();
+
+		//	return nodes;
+		//}
+
+		//public override void SaveTree(IList<ModelTreeNode> tree, string path)
+		//{
+		//	var models = tree.Select(n => (Projectile)n.Model).ToList();	
+			
+		//	var json = JsonConvert.SerializeObject(models);
+		//	File.WriteAllText(path, json);
+		//}
+
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
 			var json = File.ReadAllText(path);
-			var projectiles = JsonConvert.DeserializeObject<List<Projectile>>(json);
-			var nodes = projectiles.Select(p => (ModelTreeNode)new ProjectileTreeNode(p)).ToList();
+			var loader = new CategoryLoader<Projectile>();
+			var models = loader.ParseCategorysAndModels(json);
+
+			//try to load in either npcs or categories, and create corresponding nodes for each.
+			var nodes = models.Select(m => m is CategoryModel ? (ModelTreeNode)new CategoryTreeNode<Projectile, ProjectileTreeNode>((CategoryModel)m, path) :
+																(ModelTreeNode)new ProjectileTreeNode((Projectile)m))
+							   .ToList();
 
 			return nodes;
 		}
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var models = tree.Select(n => (Projectile)n.Model).ToList();	
-			
-			var json = JsonConvert.SerializeObject(models);
+			var models = new List<IModel>();
+
+			foreach( var node in tree )
+			{
+				if( node is ProjectileTreeNode )
+				{
+					var projectileTreeNode = (ProjectileTreeNode)node;
+					var projectile = projectileTreeNode.Model as Projectile;
+					//var waves = invasionTreeNode.WavesContainerNode.GetChildModels()
+					//												.Cast<Wave>()
+					//												.ToList();
+
+					//invasion.Waves = waves;
+					models.Add(projectile);
+				}
+				else if( node is CategoryTreeNode<Projectile, ProjectileTreeNode> )
+				{
+					var catTreeNode = (CategoryTreeNode<Projectile, ProjectileTreeNode>)node;
+					var cat = catTreeNode.Model as CategoryModel;
+					var childModels = catTreeNode.GetChildModels();
+
+					cat.Includes.Clear();
+
+					foreach( var child in childModels )
+					{
+						var includeModel = (IncludeModel)child;
+
+						includeModel.ParentPath = path;
+
+						cat.Includes.Add(includeModel.RelativePath);
+
+						//save the includes...
+						includeModel.Save();
+					}
+
+					//write this category and include information.
+					models.Add(cat);
+				}
+			}
+
+			var json = JsonConvert.SerializeObject(models, Formatting.Indented);
 			File.WriteAllText(path, json);
 		}
 	}
