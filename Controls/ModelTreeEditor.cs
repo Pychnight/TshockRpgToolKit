@@ -43,9 +43,12 @@ namespace RpgToolsEditor.Controls
 		public OpenFileDialog OpenFileDialog { get; set; }
 		public SaveFileDialog SaveFileDialog { get; set; }
 		public ModelTree ModelTree { get; set; }
-
 		protected PropertyGrid PropertyGrid => propertyGridItemEditor;
 
+		//if treeview loses focus, this is set so that we don't perform a check to see if a valid treenode has been selected
+		//on the first click back into the treeview. This avoids frustrating deselection for the end user. 
+		bool skipCheckForSelectedTreeNode = false;
+		
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public ModelTreeEditor()
@@ -401,6 +404,33 @@ namespace RpgToolsEditor.Controls
 
 						
 			propertyGridItemEditor.SelectedObject = target;
+		}
+
+		private void treeViewItems_Leave(object sender, EventArgs e)
+		{
+			skipCheckForSelectedTreeNode = true;
+		}
+
+		private void treeViewItems_MouseUp(object sender, MouseEventArgs e)
+		{
+			//we use this to deselect nodes when the user clicks on empty area. 
+			//this is especially important since ModelTreeEditor is context sensitive via the selected node.
+
+			//if(!treeViewItems.Focused)
+			if(skipCheckForSelectedTreeNode)
+			{
+				//...but if the user has move to another control, and reclicked inside DO NOT deselect. 
+				skipCheckForSelectedTreeNode = false;
+				return;
+			}
+
+			var clickedNode = treeViewItems.GetNodeAt(treeViewItems.PointToClient(MousePosition));
+			
+			if(clickedNode == null)
+			{
+				treeViewItems.SelectedNode = null;
+				propertyGridItemEditor.SelectedObject = null;
+			}
 		}
 
 		private void treeViewItems_ItemDrag(object sender, ItemDragEventArgs e)

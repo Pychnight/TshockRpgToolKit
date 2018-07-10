@@ -114,6 +114,8 @@
 			this.treeViewItems.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewItems_AfterSelect);
 			this.treeViewItems.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragDrop);
 			this.treeViewItems.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeViewItems_DragEnter);
+			this.treeViewItems.Leave += new System.EventHandler(this.treeViewItems_Leave);
+			this.treeViewItems.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeViewItems_MouseUp);
 			// 
 			// imageListModelTreeEditorDefaultItems
 			// 
