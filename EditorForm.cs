@@ -87,7 +87,7 @@ namespace RpgToolsEditor
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
 			
 			//start on projectiles page for now...
-			tabControlMain.SelectedIndex = 0;
+			//tabControlMain.SelectedIndex = 0;
 		}
 
 		private ObjectEditor getSelectedEditor()

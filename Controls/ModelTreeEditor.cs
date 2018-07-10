@@ -59,6 +59,11 @@ namespace RpgToolsEditor.Controls
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 		}
 
+		/// <summary>
+		/// Provides a means to add an additional ToolStrip containing controls specific to the editor.
+		/// </summary>
+		/// <remarks>Not fully fleshed out, needs more work to be general purpose.</remarks>
+		/// <param name="itemControls"></param>
 		public void AddExtendedItemControls(IExtendedItemControls itemControls)
 		{
 			ExtendedItemControls = itemControls;
@@ -163,9 +168,6 @@ namespace RpgToolsEditor.Controls
 		protected virtual void OnFileSave(string fileName)
 		{
 			var nodes = GetTreeViewModels();
-
-			//throw new NotImplementedException("Saving is disabled currently.");
-
 			ModelTree.SaveTree(nodes, fileName);
 		}
 				
@@ -213,83 +215,12 @@ namespace RpgToolsEditor.Controls
 		
 		private void toolStripButtonAddItem_Click(object sender, EventArgs e)
 		{
-			//var selectedNode = treeViewItems.SelectedNode as ModelTreeNode;
 			CreateItem();
-
-
-			//var node = new BoundTreeNode();
-
-			//if we've already selected a node, what type of model to create, and how to add it?
-			//if(selectedNode!=null)
-			//{
-			//	var boundNode = (BoundTreeNode)selectedNode;
-			//	var selectedModel = boundNode.BoundObject;
-
-			//	if(selectedModel is CategoryModel)
-			//	{
-			//		node.BoundObject = new IncludeModel();
-			//		selectedNode.Nodes.Add(node);
-			//		selectedNode.Expand();
-			//		//treeViewItems.SelectedNode = node;
-			//		IsTreeDirty = true;
-			//		return;
-			//	}
-			//	else if(selectedModel is IncludeModel)
-			//	{
-			//		node.BoundObject = (IModel)OnCreateItem();
-			//		selectedNode.Nodes.Add(node);
-			//		selectedNode.Expand();
-			//		//treeViewItems.SelectedNode = node;
-			//		IsTreeDirty = true;
-			//		return;
-			//	}
-			//}
-
-			//node.BoundObject = (IModel)OnCreateItem();
-
-			////insert or add to root?
-			//if( selectedNode != null )
-			//{
-			//	selectedNode.InsertAfter(node);
-			//	IsTreeDirty = true;
-			//}
-			//else
-			//{
-			//	treeViewItems.Nodes.Add(node);
-			//	IsTreeDirty = true;
-			//}
-
-			//treeViewItems.SelectedNode = node;
 		}
 		
 		private void toolStripButtonCopy_Click(object sender, EventArgs e)
 		{
-			//var index = listBoxItems.SelectedIndex;
-
-			//if( index > -1 && BoundItems!=null )
-			//{
-			//	var copy = OnCopyItem(listBoxItems.SelectedItem);
-
-			//	BoundItems.Insert(++index,copy);
-			//}
-
 			CopySelectedItem();
-
-
-			//treeview
-			//var selectedNode = (BoundTreeNode)treeViewItems.SelectedNode;
-
-			//if(selectedNode!=null && selectedNode.CanCopy())
-			//{
-			//	var src = ((BoundTreeNode)selectedNode).BoundObject;
-			//	var copy = OnCopyItem(src);
-
-			//	var newNode = new BoundTreeNode();
-			//	newNode.BoundObject = (IModel)copy;
-
-			//	selectedNode.InsertAfter(newNode);
-			//	IsTreeDirty = true;
-			//}
 		}
 
 		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)

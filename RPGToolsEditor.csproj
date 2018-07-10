@@ -58,19 +58,10 @@
     <Compile Include="Controls\IExtendedControlItems.cs" />
     <Compile Include="Controls\IModel.cs" />
     <Compile Include="Controls\IncludeModel.cs" />
-    <Compile Include="Controls\InvasionEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\LevelingEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Controls\ModelTree.cs" />
     <Compile Include="Controls\ModelTreeNode.cs" />
     <Compile Include="Controls\ModelTreeStaticContainerNode.cs" />
     <Compile Include="Controls\NpcEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\NpcShopsEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\ModelTreeEditor.cs">
@@ -84,12 +75,6 @@
     </Compile>
     <Compile Include="Controls\ObjectEditor.Designer.cs">
       <DependentUpon>ObjectEditor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ProjectileEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\QuestsEditor.cs">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Models\CustomNpcs\Nodes\CategoryTreeNode.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\IncludeTreeNode.cs" />
