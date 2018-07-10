@@ -70,19 +70,6 @@ namespace RpgToolsEditor.Controls
 			return models;
 		}
 
-		/// <summary>
-		/// kludge to ensure Includes list matches whats been set in the tree nodes, before serialization.
-		/// </summary>
-		internal void RefreshIncludes(BoundTreeNode node)
-		{
-			//Includes.Clear();
-			//Includes = IncludeModels.Select(im => im.Name).ToList();
-
-			var children = node.Nodes.Cast<BoundTreeNode>();
-			Includes = children.Select(c => ( (IncludeModel)c.BoundObject ).Name).ToList();
-		}
-
-
 		object ICloneable.Clone()
 		{
 			return new CategoryModel(this);
