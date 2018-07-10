@@ -26,32 +26,47 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
-			var json = File.ReadAllText(path);
-			var item = JsonConvert.DeserializeObject<NpcShop>(json);
+			var directory = Path.GetDirectoryName(path);
+			var folderTreeNode = new FolderTreeNode();
+			var shopPaths = Directory.EnumerateFiles(directory, "*.shop");
 
-			//var nodes = items.Select(i => (ModelTreeNode)new NpcShopTreeNode(i)).ToList();
+			folderTreeNode.Text = directory;
 
-			var node = new List<ModelTreeNode>()
+			foreach(var filePath in shopPaths)
 			{
-				(ModelTreeNode)new NpcShopTreeNode(item)
-			};
+				var json = File.ReadAllText(filePath);
+				var item = JsonConvert.DeserializeObject<NpcShop>(json);
+				item.Filename = Path.GetFileName(filePath);
+				var node = new NpcShopTreeNode(item);
+				
+				folderTreeNode.Nodes.Add(node);
+			}
 
-			return node;
+			folderTreeNode.Expand();
+			
+			return new List<ModelTreeNode>() { folderTreeNode };
 		}
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var node = tree.FirstOrDefault() as NpcShopTreeNode;
+			var directory = Path.GetDirectoryName(path);
+			var folderNode = tree.FirstOrDefault() as FolderTreeNode;
 
-			var shopModel = (NpcShop)node.Model;
-			var shopCommands = getCommandModels(node);
-			var shopItems = getItemModels(node);
+			foreach(var node in folderNode.Nodes)
+			{
+				var shopNode = (NpcShopTreeNode)node;
+				var shopModel = (NpcShop)shopNode.Model;
+				var shopCommands = getCommandModels(shopNode);
+				var shopItems = getItemModels(shopNode);
 
-			shopModel.ShopCommands = shopCommands;
-			shopModel.ShopItems = shopItems;
-						
-			var json = JsonConvert.SerializeObject(shopModel, Formatting.Indented);
-			File.WriteAllText(path, json);
+				shopModel.ShopCommands = shopCommands;
+				shopModel.ShopItems = shopItems;
+
+				var shopPath = Path.Combine(directory,shopModel.Filename);
+				
+				var json = JsonConvert.SerializeObject(shopModel, Formatting.Indented);
+				File.WriteAllText(shopPath, json);
+			}
 		}
 		
 		private List<ShopCommand> getCommandModels(NpcShopTreeNode root)

@@ -47,6 +47,11 @@ namespace RpgToolsEditor.Controls
 		public ImageList ItemImageList { get => treeViewItems.ImageList;
 		set => treeViewItems.ImageList = value; }
 
+		/// <summary>
+		/// Gets or sets whether to put this ModelTreeEditor into a special mode, where it relies on a single root node of type FolderTreeNode.
+		/// </summary>
+		public bool UseSingleFolderTreeNode { get; set; }
+
 		//if treeview loses focus, this is set so that we don't perform a check to see if a valid treenode has been selected
 		//on the first click back into the treeview. This avoids frustrating deselection for the end user. 
 		bool skipCheckForSelectedTreeNode = false;
@@ -98,7 +103,7 @@ namespace RpgToolsEditor.Controls
 		{
 			var selectedNode = treeViewItems.SelectedNode as ModelTreeNode;
 
-			if(selectedNode!=null)
+			if( selectedNode != null )
 			{
 				if( selectedNode.CanAdd )
 				{
@@ -108,10 +113,37 @@ namespace RpgToolsEditor.Controls
 					return;
 				}
 			}
-			
-			var defaultNode = ModelTree.CreateDefaultItem();
-			treeViewItems.Nodes.Add(defaultNode);
-			IsTreeDirty = true;
+
+			if( UseSingleFolderTreeNode )
+			{
+				//special mode
+
+				//ensure we have root folder
+				FolderTreeNode rootFolderNode = null;
+				
+				if(treeViewItems.Nodes.Count<1)
+				{
+					rootFolderNode = new FolderTreeNode();
+					treeViewItems.Nodes.Add(rootFolderNode);
+				}
+				else
+				{
+					rootFolderNode = (FolderTreeNode)treeViewItems.Nodes[0];
+				}
+				
+				//add default item to root folder..
+				var defaultNode = ModelTree.CreateDefaultItem();
+				rootFolderNode.Nodes.Add(defaultNode);
+				IsTreeDirty = true;
+
+				rootFolderNode.Expand();
+			}
+			else
+			{
+				var defaultNode = ModelTree.CreateDefaultItem();
+				treeViewItems.Nodes.Add(defaultNode);
+				IsTreeDirty = true;
+			}
 		}
 
 		public void CopySelectedItem()
@@ -273,6 +305,14 @@ namespace RpgToolsEditor.Controls
 			{
 				OnFileSave(fileName);
 				IsTreeDirty = false;
+
+				//if( UseSingleFolderTreeNode )
+				//{
+				//	//clean output path, since it will get displayed. However-- we have to be careful since Path.GetDirectoryName()
+				//	//will now truncate the bottom most directory... hmmm. this is ugly.
+				//	fileName =
+				//}
+
 				CurrentFilePath = fileName; // SaveFileDialog.FileName;
 			}
 			catch( Exception ex )
@@ -283,6 +323,13 @@ namespace RpgToolsEditor.Controls
 
 		public void SaveFileAs()
 		{
+			if( UseSingleFolderTreeNode )
+			{
+				//we dont use the folderbrowserdialog, because it sucks badly. SaveFileDialog expects files though, so..
+				//we set a path placeholder to keep it happy.
+				SaveFileDialog.FileName = Path.GetFileName(CurrentFilePath); //"__folder_goes_here__";
+			}
+			
 			var result = SaveFileDialog.ShowDialog();
 
 			if( result == DialogResult.OK )

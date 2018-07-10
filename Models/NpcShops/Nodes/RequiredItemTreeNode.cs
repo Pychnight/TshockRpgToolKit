@@ -17,6 +17,8 @@ namespace RpgToolsEditor.Models.NpcShops
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;
+
+			ImageIndex = SelectedImageIndex = 5;
 		}
 
 		public override object Clone()

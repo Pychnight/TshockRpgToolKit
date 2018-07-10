@@ -11,6 +11,7 @@ namespace RpgToolsEditor.Models.NpcShops
 	{
 		public ItemTreeNode() : base()
 		{
+			ImageIndex = SelectedImageIndex = 3;
 		}
 
 		public override ModelTreeNode AddItem()

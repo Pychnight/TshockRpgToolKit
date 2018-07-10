@@ -75,5 +75,21 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			return false;
 		}
+
+		//use when no node was found as a drop target... ie, dropping on the TreeView itself. 
+		public override void TryDropWithNoTarget(TreeView treeView)
+		{
+			//var parent = this.Parent;
+
+			this.Remove();
+			treeView.Nodes.Add(this);
+
+			var folderNode = (FolderTreeNode)treeView.Nodes[0];
+
+			folderNode.AddChild(this);
+			
+			//not sure how to resolve updating dirty status for now...
+			//IsTreeDirty = true;
+		}
 	}
 }

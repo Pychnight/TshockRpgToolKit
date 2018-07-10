@@ -82,6 +82,7 @@
 			this.imageListNpcs = new System.Windows.Forms.ImageList(this.components);
 			this.imageListProjectiles = new System.Windows.Forms.ImageList(this.components);
 			this.imageListQuests = new System.Windows.Forms.ImageList(this.components);
+			this.imageListNpcShops = new System.Windows.Forms.ImageList(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -320,6 +321,7 @@
 			this.modelTreeEditor6.SaveFileDialog = null;
 			this.modelTreeEditor6.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor6.TabIndex = 0;
+			this.modelTreeEditor6.UseSingleFolderTreeNode = false;
 			// 
 			// tabPageNpcs
 			// 
@@ -344,6 +346,7 @@
 			this.modelTreeEditor5.SaveFileDialog = null;
 			this.modelTreeEditor5.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor5.TabIndex = 0;
+			this.modelTreeEditor5.UseSingleFolderTreeNode = false;
 			// 
 			// tabPageProjectiles
 			// 
@@ -368,6 +371,7 @@
 			this.modelTreeEditor4.SaveFileDialog = null;
 			this.modelTreeEditor4.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor4.TabIndex = 0;
+			this.modelTreeEditor4.UseSingleFolderTreeNode = false;
 			// 
 			// tabPageNpcShops
 			// 
@@ -392,6 +396,7 @@
 			this.modelTreeEditor2.SaveFileDialog = null;
 			this.modelTreeEditor2.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor2.TabIndex = 0;
+			this.modelTreeEditor2.UseSingleFolderTreeNode = false;
 			// 
 			// tabPageLeveling
 			// 
@@ -416,6 +421,7 @@
 			this.modelTreeEditor3.SaveFileDialog = null;
 			this.modelTreeEditor3.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor3.TabIndex = 0;
+			this.modelTreeEditor3.UseSingleFolderTreeNode = false;
 			// 
 			// tabPageQuests
 			// 
@@ -440,6 +446,7 @@
 			this.modelTreeEditor1.SaveFileDialog = null;
 			this.modelTreeEditor1.Size = new System.Drawing.Size(1000, 608);
 			this.modelTreeEditor1.TabIndex = 0;
+			this.modelTreeEditor1.UseSingleFolderTreeNode = false;
 			// 
 			// imageListTabIcons
 			// 
@@ -476,14 +483,19 @@
 			// 
 			// openFileDialogNpcShop
 			// 
+			this.openFileDialogNpcShop.CheckFileExists = false;
+			this.openFileDialogNpcShop.CheckPathExists = false;
 			this.openFileDialogNpcShop.Filter = "Shop files|*.shop|Json files|*.json|All files|*.*";
 			this.openFileDialogNpcShop.Title = "Open Npc Shop";
 			// 
 			// saveFileDialogNpcShop
 			// 
+			this.saveFileDialogNpcShop.AddExtension = false;
+			this.saveFileDialogNpcShop.CheckPathExists = false;
 			this.saveFileDialogNpcShop.Filter = "Shop files|*.shop|Json files|*.json|All files|*.*";
 			this.saveFileDialogNpcShop.SupportMultiDottedExtensions = true;
 			this.saveFileDialogNpcShop.Title = "Save Npc Shop";
+			this.saveFileDialogNpcShop.ValidateNames = false;
 			// 
 			// openFileDialogLeveling
 			// 
@@ -556,6 +568,17 @@
 			this.imageListQuests.Images.SetKeyName(1, "triangle_red.png");
 			this.imageListQuests.Images.SetKeyName(2, "floppy_35inch_blue.png");
 			this.imageListQuests.Images.SetKeyName(3, "ellipse_blue.png");
+			// 
+			// imageListNpcShops
+			// 
+			this.imageListNpcShops.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListNpcShops.ImageStream")));
+			this.imageListNpcShops.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListNpcShops.Images.SetKeyName(0, "Merchant-16.png");
+			this.imageListNpcShops.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListNpcShops.Images.SetKeyName(2, "directory_closed.png");
+			this.imageListNpcShops.Images.SetKeyName(3, "tag_blue.png");
+			this.imageListNpcShops.Images.SetKeyName(4, "tag_red.png");
+			this.imageListNpcShops.Images.SetKeyName(5, "CO2_add_blue.png");
 			// 
 			// EditorForm
 			// 
@@ -638,6 +661,7 @@
 		private System.Windows.Forms.ImageList imageListNpcs;
 		private System.Windows.Forms.ImageList imageListProjectiles;
 		private System.Windows.Forms.ImageList imageListQuests;
+		private System.Windows.Forms.ImageList imageListNpcShops;
 	}
 }
 

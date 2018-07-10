@@ -19,9 +19,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		string name = "New NpcShop";
 
-		//[Browsable(false)]
-		[Category("Design")]
-		[Description("Used to identify shops during editing. This is not saved, or used by the NpcShops plugin in anyway.")]
+		[Browsable(false)]
 		public string Name
 		{
 			get => name;
@@ -31,6 +29,10 @@ namespace RpgToolsEditor.Models.NpcShops
 				PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
+
+		[Category("Filesystem")]
+		[Description("The file name of this shop within the folder.")]
+		public string Filename { get => Name; set => Name = value; }
 		
 		/// <summary>
 		///     Gets the closing time.

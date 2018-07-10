@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -50,6 +51,8 @@ namespace RpgToolsEditor
 			npcShopsTreeEditor.OpenFileDialog = openFileDialogNpcShop;
 			npcShopsTreeEditor.SaveFileDialog = saveFileDialogNpcShop;
 			npcShopsTreeEditor.ModelTree = new NpcShopsModelTree();
+			npcShopsTreeEditor.ItemImageList = imageListNpcShops;
+			npcShopsTreeEditor.UseSingleFolderTreeNode = true;//force special mode with root folder.
 
 			var levelingTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[4].Controls[0];
 			levelingTreeEditor.OpenFileDialog = openFileDialogLeveling;
@@ -130,6 +133,17 @@ namespace RpgToolsEditor
 			var value = editor.Caption;
 			var hasFilePath = string.IsNullOrWhiteSpace(value);
 			var dirty = editor.IsTreeDirty ? "*" : "";
+
+			//HACK! try to clean up the display text, since its really using a folder path,
+			//not a file path( lets chop off any file parts ) 
+			if( editor.UseSingleFolderTreeNode)
+			{
+				if(!string.IsNullOrWhiteSpace(value) && !Directory.Exists(value))
+				{
+					//lets assume this is file path then, so get the directory name
+					value = Path.GetDirectoryName(value);
+				}
+			}
 
 			if( hasFilePath )
 				Text = $"{AppName}";
