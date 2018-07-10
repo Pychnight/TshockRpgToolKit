@@ -21,38 +21,10 @@ namespace RpgToolsEditor
 	{
 		readonly string AppName = "RPG Tools Editor";
 
-		List<ObjectEditor> objectEditors;
-		
 		public EditorForm()
 		{
 			InitializeComponent();
-
-			objectEditors = new List<ObjectEditor>()
-			{
-				//invasionsEditor
-				//npcsEditor
-				//projectilesEditor
-				//npcShopsEditor,
-				//levelingEditor,
-				//questsEditor
-			};
-
-			//foreach( var editor in objectEditors )
-			//{
-			//	//refresh on property change
-			//	editor.PropertyChanged += (s, a) =>
-			//	{
-			//		//...but only if its the currently selected tab.
-			//		var selectedIndex = tabControlMain.SelectedIndex;
-
-			//		if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
-			//		{
-			//			refreshObjectEditorExternalDisplay(selectedIndex);
-			//			refreshObjectEditorExternalControls(selectedIndex);
-			//		}
-			//	};
-			//}
-
+			
 			var invasionsEditor = (ModelTreeEditor)tabControlMain.TabPages[0].Controls[0];
 			invasionsEditor.OpenFileDialog = openFileDialogInvasions;
 			invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
@@ -88,17 +60,48 @@ namespace RpgToolsEditor
 			questTreeEditor.OpenFileDialog = openFileDialogQuests;
 			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
-			
-			//start on projectiles page for now...
+
+			//start on this page during development...
 			//tabControlMain.SelectedIndex = 0;
+
+			//handle property changed, in order to update filepath and dirty status...
+			foreach( var editor in enumerateModelTreeEditors() )
+			{
+				//refresh on property change
+				editor.PropertyChanged += (s, a) =>
+				{
+					//...but only if its the currently selected tab.
+					var selectedIndex = tabControlMain.SelectedIndex;
+
+					if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
+					{
+						refreshObjectEditorExternalDisplay(selectedIndex);
+					}
+				};
+			}
 		}
 
-		private ObjectEditor getSelectedEditor()
+		private ModelTreeEditor getModelTreeEditor(int index)
 		{
-			var editor = objectEditors[tabControlMain.SelectedIndex];
+			var page = tabControlMain.TabPages[index];
+			var editor = page.Controls[0] as ModelTreeEditor;
 			return editor;
 		}
-		
+
+		private ModelTreeEditor getSelectedModelTreeEditor()
+		{
+			var editor = getModelTreeEditor(tabControlMain.SelectedIndex);
+			return editor;
+		}
+
+		private IList<ModelTreeEditor> enumerateModelTreeEditors()
+		{
+			var editors = tabControlMain.TabPages.Cast<TabPage>()
+												.Select(p => (ModelTreeEditor)p.Controls[0])
+												.ToList();
+			return editors;
+		}
+
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Close();
@@ -106,7 +109,8 @@ namespace RpgToolsEditor
 
 		private void EditorForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			var unsavedData = objectEditors.FirstOrDefault(ed => ed.IsTreeDirty) != null;
+			var editors = enumerateModelTreeEditors();
+			var unsavedData = editors.FirstOrDefault(ed => ed.IsTreeDirty) != null;
 
 			if(unsavedData)
 			{
@@ -118,13 +122,10 @@ namespace RpgToolsEditor
 				}
 			}
 		}
-
+		
 		private void refreshObjectEditorExternalDisplay(int selectedIndex)
 		{
-			if( selectedIndex >= 0 )
-				return;
-
-			var editor = objectEditors[selectedIndex];
+			var editor = getModelTreeEditor(selectedIndex);
 			var value = editor.Caption;
 			var hasFilePath = string.IsNullOrWhiteSpace(value);
 			var dirty = editor.IsTreeDirty ? "*" : "";
@@ -135,23 +136,11 @@ namespace RpgToolsEditor
 				Text = $"{AppName} - {value}{dirty}"; 
 		}
 
-		private void refreshObjectEditorExternalControls(int selectedIndex)
-		{
-			if( selectedIndex >= 0 )
-				return;
-
-			var editor = objectEditors[selectedIndex];
-			
-			//Making this a no-op now, it makes no sense. Save will always fallback to SaveAs if needed...
-			//saveToolStripMenuItem.Enabled = editor.HasCurrentFilePath;
-		}
-
 		private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			var selectedIndex = tabControlMain.SelectedIndex;
 
 			refreshObjectEditorExternalDisplay(selectedIndex);
-			refreshObjectEditorExternalControls(selectedIndex);
 		}
 
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -166,25 +155,25 @@ namespace RpgToolsEditor
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = getSelectedEditor();
+			var editor = getSelectedModelTreeEditor();
 			editor.NewFile();
 		}
 
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = getSelectedEditor();
+			var editor = getSelectedModelTreeEditor();
 			editor.OpenFile();
 		}
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = getSelectedEditor();
+			var editor = getSelectedModelTreeEditor();
 			editor.SaveFile();
 		}
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var editor = getSelectedEditor();
+			var editor = getSelectedModelTreeEditor();
 			editor.SaveFileAs();
 		}
 	}
