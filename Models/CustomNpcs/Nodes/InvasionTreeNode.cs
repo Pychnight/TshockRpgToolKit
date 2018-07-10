@@ -50,7 +50,10 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
-			return node is InvasionTreeNode;
+			var result = node is InvasionTreeNode ||
+							node is CategoryTreeNode<Invasion, InvasionTreeNode>;
+
+			return result;
 		}
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)

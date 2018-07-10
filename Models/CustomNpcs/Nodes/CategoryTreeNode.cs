@@ -92,7 +92,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
-			return node is NpcTreeNode || //make sibling
+			return node is TNode || //make sibling
 					( node is CategoryTreeNode<TModel, TNode> && Parent == null ) || //make sibling
 					( node is IncludeTreeNode<TModel, TNode>); //make child
 		}

@@ -32,10 +32,13 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 			return node;
 		}
-
+		
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
-			return node is ProjectileTreeNode;
+			var result = node is ProjectileTreeNode ||
+							node is CategoryTreeNode<Projectile, ProjectileTreeNode>;
+
+			return result;
 		}
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
