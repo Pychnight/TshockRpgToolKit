@@ -5,7 +5,6 @@ namespace RpgToolsEditor.Models.CustomNpcs
 {
 	public class InvasionTreeNode : ModelTreeNode
 	{
-		//public LootEntrysContainerTreeNode LootEntryContainerNode => Nodes[0] as LootEntrysContainerTreeNode;
 		public WavesContainerTreeNode WavesContainerNode => Nodes[0] as WavesContainerTreeNode;
 
 		public InvasionTreeNode() : base()
@@ -24,6 +23,15 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			var container = new WavesContainerTreeNode();
 
 			container.AddChildModels(model.Waves.Cast<IModel>().ToList());
+
+			Nodes.Add(container);
+		}
+
+		public override void AddDefaultChildNodesHack()
+		{
+			var container = new WavesContainerTreeNode();
+
+			container.AddChildModels(( (Invasion)Model ).Waves.Cast<IModel>().ToList());
 
 			Nodes.Add(container);
 		}
