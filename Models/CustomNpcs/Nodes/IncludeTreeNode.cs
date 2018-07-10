@@ -19,6 +19,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			CanAdd = true;
 			CanDelete = true;
 			CanDrag = true;
+
+			ImageIndex = SelectedImageIndex = 2;
 		}
 
 		//public override void AddChild(ModelTreeNode node)

@@ -12,6 +12,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;
+
+			ImageIndex = SelectedImageIndex = 3;
 		}
 
 		public WaveTreeNode(LootEntry model) : this()

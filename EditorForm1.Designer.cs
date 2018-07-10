@@ -83,6 +83,26 @@ namespace RpgToolsEditor {
         /// <summary>
         ///   Looks up a localized resource of type System.Windows.Forms.ImageListStreamer.
         /// </summary>
+        internal static System.Windows.Forms.ImageListStreamer imageListInvasions_ImageStream {
+            get {
+                object obj = ResourceManager.GetObject("imageListInvasions.ImageStream", resourceCulture);
+                return ((System.Windows.Forms.ImageListStreamer)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Point similar to {X=337,Y=80}.
+        /// </summary>
+        internal static System.Drawing.Point imageListInvasions_TrayLocation {
+            get {
+                object obj = ResourceManager.GetObject("imageListInvasions.TrayLocation", resourceCulture);
+                return ((System.Drawing.Point)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Windows.Forms.ImageListStreamer.
+        /// </summary>
         internal static System.Windows.Forms.ImageListStreamer imageListTabIcons_ImageStream {
             get {
                 object obj = ResourceManager.GetObject("imageListTabIcons.ImageStream", resourceCulture);

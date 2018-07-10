@@ -44,6 +44,8 @@ namespace RpgToolsEditor.Controls
 		public SaveFileDialog SaveFileDialog { get; set; }
 		public ModelTree ModelTree { get; set; }
 		protected PropertyGrid PropertyGrid => propertyGridItemEditor;
+		public ImageList ItemImageList { get => treeViewItems.ImageList;
+		set => treeViewItems.ImageList = value; }
 
 		//if treeview loses focus, this is set so that we don't perform a check to see if a valid treenode has been selected
 		//on the first click back into the treeview. This avoids frustrating deselection for the end user. 

@@ -58,6 +58,7 @@ namespace RpgToolsEditor
 			invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
 			invasionsEditor.ModelTree = new InvasionModelTree();
 			invasionsEditor.AddExtendedItemControls(new CategoryItemControls<Invasion, InvasionTreeNode>());
+			invasionsEditor.ItemImageList = imageListInvasions;
 
 			var npcsEditor = (ModelTreeEditor)tabControlMain.TabPages[1].Controls[0];
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;
@@ -70,7 +71,7 @@ namespace RpgToolsEditor
 			projectilesEditor.SaveFileDialog = saveFileDialogProjectiles;
 			projectilesEditor.ModelTree = new ProjectilesModelTree();
 			projectilesEditor.AddExtendedItemControls(new CategoryItemControls<Projectile, ProjectileTreeNode>());
-
+			
 			var npcShopsTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[3].Controls[0];
 			npcShopsTreeEditor.OpenFileDialog = openFileDialogNpcShop;
 			npcShopsTreeEditor.SaveFileDialog = saveFileDialogNpcShop;

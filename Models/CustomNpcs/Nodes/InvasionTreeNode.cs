@@ -14,6 +14,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;
+
+			ImageIndex = 0;
 		}
 
 		public InvasionTreeNode(Invasion model) : this()

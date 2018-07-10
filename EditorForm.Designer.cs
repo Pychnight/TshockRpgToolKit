@@ -78,6 +78,7 @@
 			this.saveFileDialogQuests = new System.Windows.Forms.SaveFileDialog();
 			this.openFileDialogInvasions = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogInvasions = new System.Windows.Forms.SaveFileDialog();
+			this.imageListInvasions = new System.Windows.Forms.ImageList(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -514,6 +515,16 @@
 			this.saveFileDialogInvasions.SupportMultiDottedExtensions = true;
 			this.saveFileDialogInvasions.Title = "Save Invasions";
 			// 
+			// imageListInvasions
+			// 
+			this.imageListInvasions.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListInvasions.ImageStream")));
+			this.imageListInvasions.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListInvasions.Images.SetKeyName(0, "Goblin-16.png");
+			this.imageListInvasions.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListInvasions.Images.SetKeyName(2, "floppy_35inch_blue.png");
+			this.imageListInvasions.Images.SetKeyName(3, "select_none.png");
+			this.imageListInvasions.Images.SetKeyName(4, "ellipse_blue.png");
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -591,6 +602,7 @@
 		private Controls.ModelTreeEditor modelTreeEditor4;
 		private Controls.ModelTreeEditor modelTreeEditor5;
 		private Controls.ModelTreeEditor modelTreeEditor6;
+		private System.Windows.Forms.ImageList imageListInvasions;
 	}
 }
 
