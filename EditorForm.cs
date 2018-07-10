@@ -60,6 +60,7 @@ namespace RpgToolsEditor
 			questTreeEditor.OpenFileDialog = openFileDialogQuests;
 			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
+			questTreeEditor.ItemImageList = imageListQuests;
 
 			//start on this page during development...
 			//tabControlMain.SelectedIndex = 0;

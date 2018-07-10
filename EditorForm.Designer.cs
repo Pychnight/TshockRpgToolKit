@@ -81,6 +81,7 @@
 			this.imageListInvasions = new System.Windows.Forms.ImageList(this.components);
 			this.imageListNpcs = new System.Windows.Forms.ImageList(this.components);
 			this.imageListProjectiles = new System.Windows.Forms.ImageList(this.components);
+			this.imageListQuests = new System.Windows.Forms.ImageList(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -547,6 +548,15 @@
 			this.imageListProjectiles.Images.SetKeyName(2, "floppy_35inch_blue.png");
 			this.imageListProjectiles.Images.SetKeyName(3, "ellipse_blue.png");
 			// 
+			// imageListQuests
+			// 
+			this.imageListQuests.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListQuests.ImageStream")));
+			this.imageListQuests.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListQuests.Images.SetKeyName(0, "Skeletron_Head-16.png");
+			this.imageListQuests.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListQuests.Images.SetKeyName(2, "floppy_35inch_blue.png");
+			this.imageListQuests.Images.SetKeyName(3, "ellipse_blue.png");
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -627,6 +637,7 @@
 		private System.Windows.Forms.ImageList imageListInvasions;
 		private System.Windows.Forms.ImageList imageListNpcs;
 		private System.Windows.Forms.ImageList imageListProjectiles;
+		private System.Windows.Forms.ImageList imageListQuests;
 	}
 }
 
