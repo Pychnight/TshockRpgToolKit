@@ -17,6 +17,8 @@ namespace RpgToolsEditor.Models.Leveling
 			CanCopy = true;
 			CanDelete = true;
 			CanDrag = true;
+
+			ImageIndex = SelectedImageIndex = 3;
 		}
 
 		public LevelTreeNode(Level model) : this()

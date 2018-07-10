@@ -29,29 +29,42 @@ namespace RpgToolsEditor.Models.Leveling
 
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
-			var json = File.ReadAllText(path);
-			var item = JsonConvert.DeserializeObject<Class>(json);
-			
-			var node = new List<ModelTreeNode>()
-			{
-				(ModelTreeNode)new ClassTreeNode(item)
-			};
+			var folderTreeNode = new FolderTreeNode();
+			var directory = Path.GetDirectoryName(path);
+			var classPaths = Directory.EnumerateFiles(directory, "*.class");
 
-			return node;
+			folderTreeNode.Text = directory;
+
+			foreach(var classPath in classPaths)
+			{
+				var json = File.ReadAllText(classPath);
+				var item = JsonConvert.DeserializeObject<Class>(json);
+				var classNode = new ClassTreeNode(item);
+
+				folderTreeNode.AddChild(classNode);
+			}
+			
+			return new List<ModelTreeNode>() { folderTreeNode };
 		}
 
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
-			var classTreeNode = (ClassTreeNode)tree.FirstOrDefault();
-			var levelContainer = classTreeNode.Nodes[0];
+			var folderTreeNode = (FolderTreeNode)tree.FirstOrDefault();
+			var directory = Path.GetDirectoryName(path);
 
-			var classModel = (Class)classTreeNode.Model;
-			var levelModels = levelContainer.Nodes.Cast<LevelTreeNode>().Select(n => (Level)n.Model).ToList();
+			foreach(var classTreeNode in folderTreeNode.Nodes.Cast<ModelTreeNode>().Select( n => (ClassTreeNode)n))
+			{
+				var levelContainer = classTreeNode.Nodes[0];
+				var classModel = (Class)classTreeNode.Model;
+				var levelModels = levelContainer.Nodes.Cast<LevelTreeNode>().Select(n => (Level)n.Model).ToList();
 
-			classModel.LevelDefinitions = levelModels;
-									
-			var json = JsonConvert.SerializeObject(classModel);
-			File.WriteAllText(path,json);
+				classModel.LevelDefinitions = levelModels;
+
+				var classPath = Path.Combine(directory, classModel.Name + ".class");
+
+				var json = JsonConvert.SerializeObject(classModel);
+				File.WriteAllText(classPath, json);
+			}
 		}
 	}
 }

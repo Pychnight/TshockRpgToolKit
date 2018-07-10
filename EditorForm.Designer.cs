@@ -83,6 +83,7 @@
 			this.imageListProjectiles = new System.Windows.Forms.ImageList(this.components);
 			this.imageListQuests = new System.Windows.Forms.ImageList(this.components);
 			this.imageListNpcShops = new System.Windows.Forms.ImageList(this.components);
+			this.imageListLeveling = new System.Windows.Forms.ImageList(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -580,6 +581,15 @@
 			this.imageListNpcShops.Images.SetKeyName(4, "tag_red.png");
 			this.imageListNpcShops.Images.SetKeyName(5, "CO2_add_blue.png");
 			// 
+			// imageListLeveling
+			// 
+			this.imageListLeveling.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListLeveling.ImageStream")));
+			this.imageListLeveling.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListLeveling.Images.SetKeyName(0, "Wooden_Sword-16.png");
+			this.imageListLeveling.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListLeveling.Images.SetKeyName(2, "directory_closed.png");
+			this.imageListLeveling.Images.SetKeyName(3, "shield_blue.png");
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -662,6 +672,7 @@
 		private System.Windows.Forms.ImageList imageListProjectiles;
 		private System.Windows.Forms.ImageList imageListQuests;
 		private System.Windows.Forms.ImageList imageListNpcShops;
+		private System.Windows.Forms.ImageList imageListLeveling;
 	}
 }
 

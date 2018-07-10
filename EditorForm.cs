@@ -58,6 +58,8 @@ namespace RpgToolsEditor
 			levelingTreeEditor.OpenFileDialog = openFileDialogLeveling;
 			levelingTreeEditor.SaveFileDialog = saveFileDialogLeveling;
 			levelingTreeEditor.ModelTree = new ClassModelTree();
+			levelingTreeEditor.ItemImageList = imageListLeveling;
+			levelingTreeEditor.UseSingleFolderTreeNode = true;//force special mode with root folder.
 
 			var questTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[5].Controls[0];
 			questTreeEditor.OpenFileDialog = openFileDialogQuests;
