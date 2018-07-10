@@ -80,6 +80,7 @@
 			this.saveFileDialogInvasions = new System.Windows.Forms.SaveFileDialog();
 			this.imageListInvasions = new System.Windows.Forms.ImageList(this.components);
 			this.imageListNpcs = new System.Windows.Forms.ImageList(this.components);
+			this.imageListProjectiles = new System.Windows.Forms.ImageList(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -537,6 +538,15 @@
 			this.imageListNpcs.Images.SetKeyName(4, "ellipse_blue.png");
 			this.imageListNpcs.Images.SetKeyName(5, "select_none.png");
 			// 
+			// imageListProjectiles
+			// 
+			this.imageListProjectiles.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListProjectiles.ImageStream")));
+			this.imageListProjectiles.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListProjectiles.Images.SetKeyName(0, "Shuriken-16.png");
+			this.imageListProjectiles.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListProjectiles.Images.SetKeyName(2, "floppy_35inch_blue.png");
+			this.imageListProjectiles.Images.SetKeyName(3, "ellipse_blue.png");
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -616,6 +626,7 @@
 		private Controls.ModelTreeEditor modelTreeEditor6;
 		private System.Windows.Forms.ImageList imageListInvasions;
 		private System.Windows.Forms.ImageList imageListNpcs;
+		private System.Windows.Forms.ImageList imageListProjectiles;
 	}
 }
 
