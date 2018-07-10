@@ -65,6 +65,7 @@ namespace RpgToolsEditor
 			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
 			npcsEditor.ModelTree = new NpcsModelTree();
 			npcsEditor.AddExtendedItemControls(new CategoryItemControls<Npc,NpcTreeNode>());
+			npcsEditor.ItemImageList = imageListNpcs;
 
 			var projectilesEditor = (ModelTreeEditor)tabControlMain.TabPages[2].Controls[0];
 			projectilesEditor.OpenFileDialog = openFileDialogProjectiles;
