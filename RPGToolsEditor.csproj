@@ -58,6 +58,7 @@
     <Compile Include="Controls\FolderTreeNode.cs" />
     <Compile Include="Controls\IExtendedControlItems.cs" />
     <Compile Include="Controls\IModel.cs" />
+    <Compile Include="Controls\IModelExtensions.cs" />
     <Compile Include="Controls\IncludeModel.cs" />
     <Compile Include="Controls\ModelTree.cs" />
     <Compile Include="Controls\ModelTreeNode.cs" />

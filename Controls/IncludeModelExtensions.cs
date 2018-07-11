@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RpgToolsEditor.Models.CustomNpcs
+namespace RpgToolsEditor.Controls
 {
 	public static class IncludeModelExtensions
 	{

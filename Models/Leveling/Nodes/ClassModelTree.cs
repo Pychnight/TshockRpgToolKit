@@ -52,6 +52,12 @@ namespace RpgToolsEditor.Models.Leveling
 			var folderTreeNode = (FolderTreeNode)tree.FirstOrDefault();
 			var directory = Path.GetDirectoryName(path);
 
+			//safe guard against duplicate class names
+			var classModels = folderTreeNode.Nodes.Cast<ClassTreeNode>().Select(n => n.Model);
+
+			classModels.ThrowOnDuplicateNames();
+
+			//save
 			foreach(var classTreeNode in folderTreeNode.Nodes.Cast<ModelTreeNode>().Select( n => (ClassTreeNode)n))
 			{
 				var levelContainer = classTreeNode.Nodes[0];

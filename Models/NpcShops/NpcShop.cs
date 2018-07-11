@@ -17,7 +17,7 @@ namespace RpgToolsEditor.Models.NpcShops
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		string name = "New NpcShop";
+		string name = "NewNpcShop.shop";
 
 		[Browsable(false)]
 		public string Name

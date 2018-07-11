@@ -52,6 +52,12 @@ namespace RpgToolsEditor.Models.NpcShops
 			var directory = Path.GetDirectoryName(path);
 			var folderNode = tree.FirstOrDefault() as FolderTreeNode;
 
+			//duplicate name safeguard
+			var shopModels = folderNode.Nodes.Cast<NpcShopTreeNode>().Select(n => ( (NpcShop)n.Model ));
+
+			shopModels.ThrowOnDuplicateNames();
+			
+			//save
 			foreach(var node in folderNode.Nodes)
 			{
 				var shopNode = (NpcShopTreeNode)node;
