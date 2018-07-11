@@ -69,6 +69,7 @@
       <DependentUpon>ModelTreeEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\CustomNpcs\Nodes\CategoryTreeNode.cs" />
+    <Compile Include="Controls\IncludeModelExtensions.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\IncludeTreeNode.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\InvasionModelTree.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\InvasionTreeNode.cs" />

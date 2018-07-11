@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -43,7 +44,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
 			var models = new List<IModel>();
-
+			var includeModels = new List<IncludeModel>();
+			
 			foreach( var node in tree )
 			{
 				if( node is InvasionTreeNode )
@@ -73,15 +75,20 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 						cat.Includes.Add(includeModel.RelativePath);
 
-						//save the includes...
-						includeModel.Save();
+						includeModels.Add(includeModel);
 					}
 
 					//write this category and include information.
 					models.Add(cat);
 				}
 			}
+			
+			includeModels.ThrowOnDuplicateIncludes();
 
+			//save includes
+			foreach( var im in includeModels )
+				im.Save();
+		
 			var json = JsonConvert.SerializeObject(models,Formatting.Indented);
 			File.WriteAllText(path, json);
 		}

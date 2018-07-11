@@ -35,6 +35,9 @@ namespace RpgToolsEditor.Controls
 
 		[Browsable(false)]
 		public string RelativePath { get; set; }
+
+		[Browsable(false)]
+		public string FullPath => Path.Combine(ParentDirectory, RelativePath);
 		
 		//public string FilePath
 		//{
@@ -70,7 +73,8 @@ namespace RpgToolsEditor.Controls
 
 		public List<TModel> Load<TModel>() where TModel : IModel, new()
 		{
-			var path = Path.Combine(ParentDirectory, RelativePath);
+			//var path = Path.Combine(ParentDirectory, RelativePath);
+			var path = FullPath;
 
 			if( !File.Exists(path) )
 				return new List<TModel>();

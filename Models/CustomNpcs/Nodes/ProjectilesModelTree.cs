@@ -26,23 +26,6 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			return nodes;
 		}
 
-		//public override IList<ModelTreeNode> LoadTree(string path)
-		//{
-		//	var json = File.ReadAllText(path);
-		//	var projectiles = JsonConvert.DeserializeObject<List<Projectile>>(json);
-		//	var nodes = projectiles.Select(p => (ModelTreeNode)new ProjectileTreeNode(p)).ToList();
-
-		//	return nodes;
-		//}
-
-		//public override void SaveTree(IList<ModelTreeNode> tree, string path)
-		//{
-		//	var models = tree.Select(n => (Projectile)n.Model).ToList();	
-			
-		//	var json = JsonConvert.SerializeObject(models);
-		//	File.WriteAllText(path, json);
-		//}
-
 		public override IList<ModelTreeNode> LoadTree(string path)
 		{
 			var json = File.ReadAllText(path);
@@ -60,6 +43,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		public override void SaveTree(IList<ModelTreeNode> tree, string path)
 		{
 			var models = new List<IModel>();
+			var includeModels = new List<IncludeModel>();
 
 			foreach( var node in tree )
 			{
@@ -90,14 +74,19 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 						cat.Includes.Add(includeModel.RelativePath);
 
-						//save the includes...
-						includeModel.Save();
+						includeModels.Add(includeModel);
 					}
 
 					//write this category and include information.
 					models.Add(cat);
 				}
 			}
+
+			includeModels.ThrowOnDuplicateIncludes();
+
+			//save includes
+			foreach( var im in includeModels )
+				im.Save();
 
 			var json = JsonConvert.SerializeObject(models, Formatting.Indented);
 			File.WriteAllText(path, json);
