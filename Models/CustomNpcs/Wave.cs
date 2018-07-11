@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
+using Wexman.Design;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 { 
@@ -33,6 +34,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		/// <summary>
 		///     Gets the NPC weights.
 		/// </summary>
+		[Editor(typeof(GenericDictionaryEditor<string,int>), typeof(System.Drawing.Design.UITypeEditor))]
 		[JsonProperty(Order = 1)]
 		public Dictionary<string, int> NpcWeights { get; set; } = new Dictionary<string, int>();
 
