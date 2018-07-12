@@ -96,13 +96,13 @@ namespace Banking
 			return false;
 		}
 
-		public string ToString(decimal value)
+		public string ToString(decimal value, QuadDisplayFormat displayFormat = QuadDisplayFormat.Abbreviation, bool useCommas = false)
 		{
 			Color color = Color.White;
-			return ToStringAndColor(value,ref color);
+			return ToStringAndColor(value, ref color, displayFormat, useCommas);
 		}
 
-		public string ToStringAndColor(decimal value, ref Color color)
+		public string ToStringAndColor(decimal value, ref Color color, QuadDisplayFormat quadDisplayFormat = QuadDisplayFormat.Abbreviation, bool useCommas = false, bool isCombatText = false)
 		{
 			string result = null;
 			var choseColor = false;
@@ -115,6 +115,8 @@ namespace Banking
 				sb.Append('-');
 			}
 
+			var i = 0;
+
 			foreach( var quad in sortedQuadrants )
 			{
 				var quadValue = (long)value / quad.BaseUnitMultiplier;
@@ -122,7 +124,21 @@ namespace Banking
 				if( quadValue != 0 )
 				{
 					sb.Append(quadValue);
-					sb.Append(quad.CombatText ?? quad.Abbreviation);
+
+					if( quadDisplayFormat == QuadDisplayFormat.FullName )
+						sb.Append(" ");
+
+					if(isCombatText)
+					{
+						sb.Append(!string.IsNullOrWhiteSpace(quad.CombatText) ? quad.CombatText : quad.GetNameString(quadDisplayFormat));
+					}
+					else
+					{
+						sb.Append(quad.GetNameString(quadDisplayFormat));
+					}
+										
+					if( useCommas && i < sortedQuadrants.Count-1 )//dont emit comma on last quad
+						sb.Append(", ");
 
 					value = value - ( quadValue * quad.BaseUnitMultiplier );
 
@@ -132,6 +148,8 @@ namespace Banking
 						choseColor = true;
 					}
 				}
+
+				i++;
 			}
 
 			if( sb.Length < 1 )
@@ -140,7 +158,18 @@ namespace Banking
 				var quad = sortedQuadrants.Last();
 
 				sb.Append((long)value);
-				sb.Append(quad.CombatText ?? quad.Abbreviation);
+
+				if( quadDisplayFormat == QuadDisplayFormat.FullName )
+					sb.Append(" ");
+
+				if( isCombatText )
+				{
+					sb.Append(!string.IsNullOrWhiteSpace(quad.CombatText) ? quad.CombatText : quad.GetNameString(quadDisplayFormat));
+				}
+				else
+				{
+					sb.Append(quad.GetNameString(quadDisplayFormat));
+				}
 
 				color = quad.CombatTextColor;
 			}

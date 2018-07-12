@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
+	public enum QuadDisplayFormat
+	{
+		FullName,
+		ShortName,
+		Abbreviation
+	}
+
 	/// <summary>
 	/// Provides configuration and internal support for a quadrant of a Currency.
 	/// </summary>
@@ -52,6 +59,20 @@ namespace Banking
 		public override string ToString()
 		{
 			return $"{FullName} ('{Abbreviation}')";
+		}
+
+		public string GetNameString(QuadDisplayFormat displayFormat)
+		{
+			switch( displayFormat)
+			{
+				case QuadDisplayFormat.Abbreviation:
+					return Abbreviation ?? "?";
+				case QuadDisplayFormat.ShortName:
+					return ShortName ?? "?";
+				case QuadDisplayFormat.FullName:
+				default:
+					return FullName ?? "?";
+			}
 		}
 	}
 }

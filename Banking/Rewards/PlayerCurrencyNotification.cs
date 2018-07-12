@@ -38,7 +38,7 @@ namespace Banking
 		private string createCurrencyText()
 		{
 			Color color = Color.White;
-			var money = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref color);
+			var money = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref color, QuadDisplayFormat.Abbreviation, useCommas: false, isCombatText: true);
 			var text = $"{money}";
 
 			Color = color;
