@@ -84,6 +84,8 @@
     <Compile Include="BankAccount.cs" />
     <Compile Include="Bank.cs" />
     <Compile Include="Configuration\VotingConfig.cs" />
+    <Compile Include="Rewards\PlayerCurrencyNotification.cs" />
+    <Compile Include="Rewards\PlayerCurrencyNotificationDistributor.cs" />
     <Compile Include="TileTracking\PlayerTileTracker.cs" />
     <Compile Include="TileTracking\TileAccessMap.cs" />
     <Compile Include="VoteChecker.cs" />
@@ -100,7 +102,6 @@
     <Compile Include="Rewards\RewardEvaluatorMap.cs" />
     <Compile Include="Rewards\RewardReason.cs" />
     <Compile Include="TileChangedEventArgs.cs" />
-    <Compile Include="CombatTextDistributor.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\DatabaseConfig.cs" />
     <Compile Include="Currency\CurrencyConverter.cs" />

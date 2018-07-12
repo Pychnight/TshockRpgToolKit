@@ -296,13 +296,14 @@ namespace Banking.Rewards
 
 			if( player != null )
 			{
-				var color = Color.White;
-				var money = currency.GetCurrencyConverter().ToStringAndColor(value, ref color);
-				var combatText = $"{money}";
+				var notification = new PlayerCurrencyNotification()
+				{
+					Player = player,
+					Value = value,
+					CurrencyDefinition = currency
+				};
 
-				Debug.Print($"{playerName} gained {value} {currency.InternalName}.");
-				
-				BankingPlugin.Instance.CombatTextDistributor.AddCombatText(combatText, player, color);
+				BankingPlugin.Instance.PlayerCurrencyNotificationDistributor.Add(notification);
 			}
 		}
 		

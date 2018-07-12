@@ -36,7 +36,7 @@ namespace Banking
 				
 		//public event EventHandler RewardDepositing;
 
-		internal CombatTextDistributor CombatTextDistributor;
+		internal PlayerCurrencyNotificationDistributor PlayerCurrencyNotificationDistributor;
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerTileTracker PlayerTileTracker;
@@ -125,7 +125,7 @@ namespace Banking
 				
 				if( Bank == null )
 				{
-					CombatTextDistributor = new CombatTextDistributor();
+					PlayerCurrencyNotificationDistributor = new PlayerCurrencyNotificationDistributor();
 					Bank = new Bank();
 					NpcStrikeTracker = new NpcStrikeTracker();
 					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
@@ -269,7 +269,8 @@ namespace Banking
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
-			CombatTextDistributor.Send(400);
+			//CombatTextDistributor.Send(400);
+			PlayerCurrencyNotificationDistributor.Send(400);
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
