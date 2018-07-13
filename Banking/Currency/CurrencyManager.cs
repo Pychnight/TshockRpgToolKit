@@ -52,10 +52,7 @@ namespace Banking
 
 		public IEnumerator<CurrencyDefinition> GetEnumerator()
 		{
-			foreach(var def in DefinitionsByName.Values)
-			{
-				yield return def;
-			}
+			return definitions.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

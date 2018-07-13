@@ -1,4 +1,6 @@
 ﻿using Banking.Configuration;
+using Corruption.PluginSupport;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,13 +31,30 @@ namespace Banking
 				switch( subcommand )
 				{
 					case "bal":
-						if( parameters.Count == 2 )
+
+						var pageNumber = 1;
+
+						if(parameters.Count==2)
 						{
-							viewBalance(player, parameters[1]);
-							return;
+							var param = parameters[1];
+
+							if(int.TryParse(param, out pageNumber))
+							{
+								viewBalance(player, pageNumber);
+							}
+							else
+							{
+								viewBalance(player, param );
+							}
+						}
+						else
+						{
+							viewBalance(player, pageNumber);
 						}
 
-						viewBankHelp(player);
+						return;
+
+						//viewBankHelp(player);
 						break;
 
 					case "pay":
@@ -179,6 +198,43 @@ namespace Banking
 
 			var balance = currency.GetCurrencyConverter().ToString(account.Balance, true);
 			client.SendInfoMessage($"Current Balance: {balance}");
+		}
+
+		private static void viewBalance(TSPlayer client, int pageNumber)
+		{
+			const int itemsPerPage = 4;
+			var lines = new List<string>(BankingPlugin.Instance.Bank.CurrencyManager.Count);
+
+			foreach(var currency in BankingPlugin.Instance.Bank.CurrencyManager)
+			{
+				var account = BankingPlugin.Instance.GetBankAccount(client.Name, currency.InternalName);
+				
+				if( account == null )
+				{
+					client.SendErrorMessage($"Unable to find account for currency '{currency.InternalName}'.");
+					return;
+				}
+
+				var balance = currency.GetCurrencyConverter().ToString(account.Balance, true);
+				
+				lines.Add($"{currency.InternalName} - {balance}");
+			}
+
+			var pageCount = lines.PageCount(itemsPerPage);
+
+			if( pageNumber < 1 || pageNumber > pageCount )
+				pageNumber = 1;
+
+			var page = lines.GetPage(pageNumber-1, itemsPerPage);//we display based off of 1
+			
+			client.SendMessage($"Page #{pageNumber} of {pageCount}.", Color.Green);
+
+			foreach(var l in page)
+			{
+				client.SendInfoMessage(l);
+			}
+
+			client.SendMessage("Use /bank bal <page> or /bank bal <currency> to see more.", Color.Green);
 		}
 
 		private static void payPlayer(TSPlayer client, string currencyType, string targetName, string money)
