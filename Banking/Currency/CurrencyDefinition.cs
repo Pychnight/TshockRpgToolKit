@@ -16,6 +16,9 @@ namespace Banking
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyDefinition
 	{
+		//used internally, at runtime -- do not cache or save this.
+		public int Id { get; set; }
+
 		[JsonProperty(Order=0)]
 		public string InternalName { get; set; }
 
@@ -111,32 +114,32 @@ namespace Banking
 
 			var q = new CurrencyQuadrantDefinition();
 			q.BaseUnitMultiplier = 1;
-			q.FullName = "Copper Coin";
-			q.ShortName = "Copper";
+			q.FullName = "Copper";
+			q.ShortName = "copper";
 			q.Abbreviation = "c";
 
 			result.Quadrants.Add(q);
 
 			q = new CurrencyQuadrantDefinition();
 			q.BaseUnitMultiplier = 100;
-			q.FullName = "Silver Coin";
-			q.ShortName = "Silver";
+			q.FullName = "Silver";
+			q.ShortName = "silver";
 			q.Abbreviation = "s";
 
 			result.Quadrants.Add(q);
 
 			q = new CurrencyQuadrantDefinition();
 			q.BaseUnitMultiplier = 10_000;
-			q.FullName = "Gold Coin";
-			q.ShortName = "Gold";
+			q.FullName = "Gold";
+			q.ShortName = "gold";
 			q.Abbreviation = "g";
 
 			result.Quadrants.Add(q);
 
 			q = new CurrencyQuadrantDefinition();
 			q.BaseUnitMultiplier = 1_000_000;
-			q.FullName = "Platinum Coin";
-			q.ShortName = "Platinum";
+			q.FullName = "Platinum";
+			q.ShortName = "platinum";
 			q.Abbreviation = "p";
 
 			result.Quadrants.Add(q);

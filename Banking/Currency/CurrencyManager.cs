@@ -13,36 +13,46 @@ namespace Banking
 	/// </summary>
 	public class CurrencyManager : IEnumerable<CurrencyDefinition>
 	{
-		internal Dictionary<string, CurrencyDefinition> Definitions;
+		List<CurrencyDefinition> definitions;
+		internal Dictionary<string, CurrencyDefinition> DefinitionsByName;
+
+		public int Count => definitions.Count;
+
+		public CurrencyDefinition this[int id] => definitions[id];
 
 		public CurrencyDefinition this[string name]
 		{
 			get
 			{
-				Definitions.TryGetValue(name, out var result);
+				DefinitionsByName.TryGetValue(name, out var result);
 				return result;
 			}
 		}
 
 		internal CurrencyManager(IEnumerable<CurrencyDefinition> currencies)
 		{
-			Definitions = new Dictionary<string, CurrencyDefinition>();
+			var count = currencies.Count();
+			var nextId = 0;
+
+			definitions = new List<CurrencyDefinition>(count);
+			DefinitionsByName = new Dictionary<string, CurrencyDefinition>(count);
 
 			foreach(var cur in currencies)
 			{
 				//we do this to avoid string parsing on every look up
 				//foreach(var kvp in cur.Rewards)
 				//	kvp.Value.PreParseValues(cur);
-				
+				cur.Id = nextId++;
 				cur.UpdateInfoString();
-								
-				Definitions.Add(cur.InternalName, cur);
+				
+				definitions.Add(cur);
+				DefinitionsByName.Add(cur.InternalName, cur);
 			}
 		}
 
 		public IEnumerator<CurrencyDefinition> GetEnumerator()
 		{
-			foreach(var def in Definitions.Values)
+			foreach(var def in DefinitionsByName.Values)
 			{
 				yield return def;
 			}

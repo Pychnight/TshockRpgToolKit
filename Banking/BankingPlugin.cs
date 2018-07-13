@@ -391,7 +391,7 @@ namespace Banking
 
 		public bool TryGetCurrency(string currencyType, out CurrencyDefinition result)
 		{
-			return Bank.CurrencyManager.Definitions.TryGetValue(currencyType, out result);
+			return Bank.CurrencyManager.DefinitionsByName.TryGetValue(currencyType, out result);
 		}
 	}
 }

@@ -136,7 +136,7 @@ namespace Banking
 				playerAccountMaps.Add(playerName, playerAccountMap);
 			}
 			
-			var currencyNames = CurrencyManager.Definitions.Values.Select(v => v.InternalName);
+			var currencyNames = CurrencyManager.DefinitionsByName.Values.Select(v => v.InternalName);
 			playerAccountMap.EnsureBankAccountNamesExist(currencyNames);
 			
 			//lets set/reset a default mapping from currency's to bank accounts for reward purposes. Anything subscribed to EnsuringPlayerAccounts event
