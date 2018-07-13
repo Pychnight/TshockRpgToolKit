@@ -15,7 +15,8 @@ namespace Banking.Rewards
 	{
 		ConcurrentQueue<PlayerCurrencyNotification> incomingNotificationsQueue;
 		Dictionary<NotificationKey, PlayerCurrencyNotification> accumulatingNotifications;
-		DateTime lastSendTime = DateTime.Now;
+		DateTime lastSendTime;
+		TimeSpan accumulateDuration; 
 
 		internal PlayerCurrencyNotificationDistributor()
 		{
@@ -23,6 +24,9 @@ namespace Banking.Rewards
 
 			incomingNotificationsQueue = new ConcurrentQueue<PlayerCurrencyNotification>();
 			accumulatingNotifications = new Dictionary<NotificationKey, PlayerCurrencyNotification>(startingCapacity);
+
+			DateTime lastSendTime = DateTime.Now;
+			accumulateDuration = TimeSpan.FromMilliseconds(650);
 		}
 
 		internal void Add(PlayerCurrencyNotification notification)
@@ -37,7 +41,7 @@ namespace Banking.Rewards
 			const int maxIterations = 64;//keep the looping bounded
 			int counter = 0;
 			var now = DateTime.Now;
-			var volleySpan = TimeSpan.FromMilliseconds(100);//if another matching notification is accumulated within this time frame,
+			var volleySpan = TimeSpan.FromMilliseconds(900);//if another matching notification is accumulated within this time frame,
 															//we "extend" the life of the accumulated notification, in case more
 															// matching notifications are coming. This volley effect in essence,
 															// keeps the accumulation rolling.
@@ -58,7 +62,7 @@ namespace Banking.Rewards
 						//should we extend the lifetime of this notification?
 						if( now - accumulatingNotification.TimeStamp > volleySpan )
 						{
-							accumulatingNotification.TimeStamp = now;
+							accumulatingNotification.TimeStamp = now + volleySpan;
 						}
 
 						accumulatingNotification.Accumulate(notification);
@@ -67,36 +71,40 @@ namespace Banking.Rewards
 			}
 		}
 
-		private void dispatchNotifications(int delayMS)
+		private void dispatchNotifications(int dispatchIntervalMS)
 		{
-			var delaySpan = new TimeSpan(0, 0, 0, 0, delayMS);
+			var dispatchInterval = new TimeSpan(0, 0, 0, 0, dispatchIntervalMS);
 			var now = DateTime.Now;
-			NotificationKey key = new NotificationKey();
-			PlayerCurrencyNotification notification = null;
-			bool removeNotification = false;
-
-			foreach( var kvp in accumulatingNotifications )
+			
+			if( ( now - lastSendTime ) >= dispatchInterval )
 			{
-				key = kvp.Key;
-				notification = kvp.Value;
-
-				if( ( now - notification.TimeStamp ) >= delaySpan )
+				var key = new NotificationKey();
+				PlayerCurrencyNotification notification = null;
+				var removeNotification = false;
+				
+				foreach( var kvp in accumulatingNotifications )
 				{
-					lastSendTime = now;
-					notification.Send();
-					removeNotification = true;
-					break;
-				}
-			}
+					key = kvp.Key;
+					notification = kvp.Value;
 
-			//remove
-			if( removeNotification )
-			{
-				accumulatingNotifications.Remove(key);
+					if( ( now - notification.TimeStamp ) >= accumulateDuration )
+					{
+						lastSendTime = now;
+						notification.Send();
+						removeNotification = true;
+						break;
+					}
+				}
+
+				//remove
+				if( removeNotification )
+				{
+					accumulatingNotifications.Remove(key);
+				}
 			}
 		}
 
-		public void Send(int delayMS = 400)
+		public void Send(int delayMS = 200)
 		{
 			accumulateNotifications();
 			dispatchNotifications(delayMS);
