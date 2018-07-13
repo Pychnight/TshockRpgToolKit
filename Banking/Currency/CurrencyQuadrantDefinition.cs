@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Corruption.PluginSupport;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,6 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
-	public enum QuadDisplayFormat
-	{
-		FullName,
-		ShortName,
-		Abbreviation
-	}
-
 	/// <summary>
 	/// Provides configuration and internal support for a quadrant of a Currency.
 	/// </summary>
@@ -36,43 +30,28 @@ namespace Banking
 		[JsonProperty(Order = 4)]
 		public string CombatText { get; set; }
 
-		[JsonProperty(Order = 5, PropertyName = "CombatTextColor")]
-		public string CombatTextColorString
+		//formerly "CombatTextColor"
+		[JsonProperty(Order = 5, PropertyName = "GainColor")]
+		public string GainColorString
 		{
-			get { return CombatTextColor.PackedValue.ToString("x8"); }
-			set
-			{
-				try
-				{
-					var packed = Convert.ToUInt32(value, 16);
-					CombatTextColor = new Color(packed);
-				}
-				catch
-				{
-					CombatTextColor = Color.White;
-				}
-			}
+			get { return GainColor.PackedValue.ToString("x8"); }
+			set { GainColor = ColorHelpers.FromHexString(value); }
 		}
 
-		public Color CombatTextColor { get; set; } = Color.White;
-		
+		public Color GainColor { get; set; } = Color.White;
+
+		[JsonProperty(Order = 6, PropertyName = "LossColor")]
+		public string LossColorString
+		{
+			get { return LossColor.PackedValue.ToString("x8"); }
+			set { LossColor = ColorHelpers.FromHexString(value); }
+		}
+
+		public Color LossColor { get; set; } = Color.Red;
+
 		public override string ToString()
 		{
-			return $"{FullName} ('{Abbreviation}')";
-		}
-
-		public string GetNameString(QuadDisplayFormat displayFormat)
-		{
-			switch( displayFormat)
-			{
-				case QuadDisplayFormat.Abbreviation:
-					return Abbreviation ?? "?";
-				case QuadDisplayFormat.ShortName:
-					return ShortName ?? "?";
-				case QuadDisplayFormat.FullName:
-				default:
-					return FullName ?? "?";
-			}
+			return $"{FullName}";// ('{Abbreviation}')";
 		}
 	}
 }

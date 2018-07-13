@@ -177,7 +177,7 @@ namespace Banking
 				return;
 			}
 
-			var balance = currency.GetCurrencyConverter().ToString(account.Balance, QuadDisplayFormat.FullName, true);
+			var balance = currency.GetCurrencyConverter().ToString(account.Balance, true);
 			client.SendInfoMessage($"Current Balance: {balance}");
 		}
 

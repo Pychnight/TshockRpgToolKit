@@ -96,84 +96,56 @@ namespace Banking
 			return false;
 		}
 
-		public string ToString(decimal value, QuadDisplayFormat displayFormat = QuadDisplayFormat.Abbreviation, bool useCommas = false)
+		public string ToString(decimal value, bool useCommas = false)
 		{
 			Color color = Color.White;
-			return ToStringAndColor(value, ref color, displayFormat, useCommas);
+			return ToStringAndColor(value, ref color, useCommas);
 		}
-
-		public string ToStringAndColor(decimal value, ref Color color, QuadDisplayFormat quadDisplayFormat = QuadDisplayFormat.Abbreviation, bool useCommas = false, bool isCombatText = false)
+		
+		public string ToStringAndColor(decimal value, ref Color color, bool useCommas = false)
 		{
 			string result = null;
-			var choseColor = false;
-			var sb = new StringBuilder();
+			var colorSelected = false; // we find the first non zero quad, to determine color.
+			var emitSpace = false;
+			var lastQuad = sortedQuadrants[sortedQuadrants.Count - 1];
+			var sb = new StringBuilder(64);
 			var sign = Math.Sign(value);
 			value = Math.Abs(value);
-			
-			if( sign < 0 && value>=1.0m )
+
+			if( sign < 0 && value >= 1.0m )
 			{
 				sb.Append('-');
 			}
-
-			var i = 0;
 
 			foreach( var quad in sortedQuadrants )
 			{
 				var quadValue = (long)value / quad.BaseUnitMultiplier;
 
-				if( quadValue != 0 )
+				if( quadValue != 0 ||
+						quad == lastQuad && sb.Length < 1 )//we must emit a 0 value if no previous quads emitted anything 
 				{
-					sb.Append(quadValue);
-
-					if( quadDisplayFormat == QuadDisplayFormat.FullName )
+					if( emitSpace )
 						sb.Append(" ");
 
-					if(isCombatText)
-					{
-						sb.Append(!string.IsNullOrWhiteSpace(quad.CombatText) ? quad.CombatText : quad.GetNameString(quadDisplayFormat));
-					}
-					else
-					{
-						sb.Append(quad.GetNameString(quadDisplayFormat));
-					}
-										
-					if( useCommas && i < sortedQuadrants.Count-1 )//dont emit comma on last quad
-						sb.Append(", ");
+					sb.Append(quadValue);
+					sb.Append(" ");
+					sb.Append(quad.FullName);
+					
+					//if( useCommas && i < sortedQuadrants.Count - 1 )//dont emit comma on last quad
+					//	sb.Append(", ");
+					
+					emitSpace = true;
 
 					value = value - ( quadValue * quad.BaseUnitMultiplier );
 
-					if(!choseColor)
+					if( !colorSelected )
 					{
-						color = quad.CombatTextColor;
-						choseColor = true;
+						color = sign < 0 ? quad.LossColor : quad.GainColor;
+						colorSelected = true;
 					}
 				}
-
-				i++;
 			}
-
-			if( sb.Length < 1 )
-			{
-				//ensure we output at least a 0 value.
-				var quad = sortedQuadrants.Last();
-
-				sb.Append((long)value);
-
-				if( quadDisplayFormat == QuadDisplayFormat.FullName )
-					sb.Append(" ");
-
-				if( isCombatText )
-				{
-					sb.Append(!string.IsNullOrWhiteSpace(quad.CombatText) ? quad.CombatText : quad.GetNameString(quadDisplayFormat));
-				}
-				else
-				{
-					sb.Append(quad.GetNameString(quadDisplayFormat));
-				}
-
-				color = quad.CombatTextColor;
-			}
-
+			
 			result = sb.ToString();
 			//Debug.Print($"{Currency} - {result}");
 			//Debug.Print("Color:{0:x8}", color.PackedValue);
