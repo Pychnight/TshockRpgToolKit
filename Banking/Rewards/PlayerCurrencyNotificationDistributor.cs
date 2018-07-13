@@ -16,7 +16,10 @@ namespace Banking.Rewards
 		ConcurrentQueue<PlayerCurrencyNotification> incomingNotificationsQueue;
 		Dictionary<NotificationKey, PlayerCurrencyNotification> accumulatingNotifications;
 		DateTime lastSendTime;
-		TimeSpan accumulateDuration; 
+		TimeSpan accumulateDuration;
+
+		int yOffsetTicker;// used to displace the y offset of sent notifications. Its set to a number, and ticked down on each send, eventually reaching 0 and resetting.
+		Random xOffsetRandom; // used to randomize the x offset of sent notifications 
 
 		internal PlayerCurrencyNotificationDistributor()
 		{
@@ -27,7 +30,20 @@ namespace Banking.Rewards
 
 			DateTime lastSendTime = DateTime.Now;
 			accumulateDuration = TimeSpan.FromMilliseconds(650);
+
+			xOffsetRandom = new Random();
 		}
+
+		//looks like we dont need this currently, since onLoad() always rebuilds everything anew.
+		//internal void Clear()
+		//{
+		//	accumulatingNotifications.Clear();
+
+		//	while( incomingNotificationsQueue.Count > 0 )
+		//		incomingNotificationsQueue.TryDequeue(out var unused);
+			
+		//	DateTime lastSendTime = DateTime.Now;
+		//}
 
 		internal void Add(PlayerCurrencyNotification notification)
 		{
@@ -41,7 +57,7 @@ namespace Banking.Rewards
 			const int maxIterations = 64;//keep the looping bounded
 			int counter = 0;
 			var now = DateTime.Now;
-			var volleySpan = TimeSpan.FromMilliseconds(900);//if another matching notification is accumulated within this time frame,
+			var volleySpan = TimeSpan.FromMilliseconds(1000);//if another matching notification is accumulated within this time frame,
 															//we "extend" the life of the accumulated notification, in case more
 															// matching notifications are coming. This volley effect in essence,
 															// keeps the accumulation rolling.
@@ -90,7 +106,8 @@ namespace Banking.Rewards
 					if( ( now - notification.TimeStamp ) >= accumulateDuration )
 					{
 						lastSendTime = now;
-						notification.Send();
+						getCombatTextOffsets(out var xOffset, out var yOffset);
+						notification.Send(xOffset, yOffset);
 						removeNotification = true;
 						break;
 					}
@@ -104,7 +121,19 @@ namespace Banking.Rewards
 			}
 		}
 
-		public void Send(int delayMS = 200)
+		//used to minimize combat text's obscuring each other on the same player
+		private void getCombatTextOffsets(out float xOffset, out float yOffset)
+		{
+			yOffsetTicker--;
+
+			if( yOffsetTicker < 0 )
+				yOffsetTicker = 3;
+
+			xOffset = xOffsetRandom.Next(-1,1) * xOffsetRandom.Next(1,2) * 16;
+			yOffset = -(yOffsetTicker * 16);
+		}
+
+		public void Send(int delayMS = 125)
 		{
 			accumulateNotifications();
 			dispatchNotifications(delayMS);

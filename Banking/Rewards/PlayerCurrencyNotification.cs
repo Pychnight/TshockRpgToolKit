@@ -54,7 +54,7 @@ namespace Banking
 			}
 		}
 
-		internal void Send()
+		internal void Send(float xOffset = 0f, float yOffset = 0f)
 		{
 			var tplayer = Player.TPlayer;
 			var text = createCurrencyText();
@@ -64,9 +64,9 @@ namespace Banking
 				return;
 
 			if( IsGlobal )
-				TSPlayer.All.SendData(PacketTypes.CreateCombatTextExtended, text, (int)Color.PackedValue, tplayer.Center.X, tplayer.Center.Y);
+				TSPlayer.All.SendData(PacketTypes.CreateCombatTextExtended, text, (int)Color.PackedValue, tplayer.Center.X + xOffset, tplayer.Center.Y + yOffset);
 			else
-				Player.SendData(PacketTypes.CreateCombatTextExtended, text, (int)Color.PackedValue, tplayer.Center.X, tplayer.Center.Y);
+				Player.SendData(PacketTypes.CreateCombatTextExtended, text, (int)Color.PackedValue, tplayer.Center.X + xOffset, tplayer.Center.Y + yOffset);
 		}
 	}
 }
