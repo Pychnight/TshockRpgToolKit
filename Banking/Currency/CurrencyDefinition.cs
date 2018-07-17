@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,9 +17,6 @@ namespace Banking
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyDefinition
 	{
-		//used internally, at runtime -- do not cache or save this.
-		public int Id { get; set; }
-
 		[JsonProperty(Order=0)]
 		public string InternalName { get; set; }
 
@@ -61,18 +59,53 @@ namespace Banking
 		[JsonProperty(Order = 12)]
 		public bool EnableStatueNpcRewards { get; set; } = false;
 
-		public override string ToString()
+		//internal usage and non serialized members.
+
+		//used internally for fast access to currencies -- do not cache or save this.
+		public int Id { get; internal set; }
+
+		internal string InfoString { get; private set; }
+				
+		internal Dictionary<string, CurrencyQuadrantDefinition> NamesToQuadrants { get; private set; }
+		
+		internal void OnInitialize(int id)
 		{
-			return InternalName;
+			Id = id;
+			NamesToQuadrants = createNamesToQuadrants();
+			currencyConverter = new CurrencyConverter(this);
 		}
 
-		public string InfoString { get; private set; }
+		private Dictionary<string, CurrencyQuadrantDefinition> createNamesToQuadrants()
+		{
+			var mapping = new Dictionary<string, CurrencyQuadrantDefinition>();
+			
+			foreach(var quad in Quadrants)
+			{
+				var names = new List<string>() { quad.FullName, quad.Abbreviation };
+								
+				foreach(var name in names)
+				{
+					if( !string.IsNullOrWhiteSpace(name) )
+					{
+						if( mapping.ContainsKey(name) )
+						{
+							BankingPlugin.Instance.LogPrint($"Currency {this.InternalName} already contains " +
+															$"a quadrant using the name or abbreviation '{name}'. ",
+															TraceLevel.Warning);
+						}
+
+						mapping[name] = quad;
+					}
+				}
+			}
+			
+			return mapping;
+		}
 
 		internal void UpdateInfoString()
 		{
 			try
 			{
-
 				var sb = new StringBuilder();
 				var useSeparator = false;
 				var quadrants = Quadrants.ToList();
@@ -101,7 +134,12 @@ namespace Banking
 		private CurrencyConverter currencyConverter;
 		public CurrencyConverter GetCurrencyConverter()
 		{
-			return currencyConverter ?? ( currencyConverter = new CurrencyConverter(this) );
+			return currencyConverter;
+		}
+
+		public override string ToString()
+		{
+			return InternalName;
 		}
 
 		internal static CurrencyDefinition CreateDefaultCurrency()

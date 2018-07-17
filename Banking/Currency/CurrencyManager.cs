@@ -1,7 +1,9 @@
 ﻿using Banking.Configuration;
+using Corruption.PluginSupport;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,46 +15,65 @@ namespace Banking
 	/// </summary>
 	public class CurrencyManager : IEnumerable<CurrencyDefinition>
 	{
-		List<CurrencyDefinition> definitions;
-		internal Dictionary<string, CurrencyDefinition> DefinitionsByName;
+		List<CurrencyDefinition> items;
+		Dictionary<string, CurrencyDefinition> CurrencyByName;
+		Dictionary<string, CurrencyDefinition> CurrencyByQuadName;
 
-		public int Count => definitions.Count;
-
-		public CurrencyDefinition this[int id] => definitions[id];
-
-		public CurrencyDefinition this[string name]
-		{
-			get
-			{
-				DefinitionsByName.TryGetValue(name, out var result);
-				return result;
-			}
-		}
-
+		public int Count => items.Count;
+		public CurrencyDefinition this[int id] => GetCurrencyById(id);
+		public CurrencyDefinition this[string name] => GetCurrencyByName(name);
+		
 		internal CurrencyManager(IEnumerable<CurrencyDefinition> currencies)
 		{
 			var count = currencies.Count();
 			var nextId = 0;
 
-			definitions = new List<CurrencyDefinition>(count);
-			DefinitionsByName = new Dictionary<string, CurrencyDefinition>(count);
+			items = new List<CurrencyDefinition>(count);
+			CurrencyByName = new Dictionary<string, CurrencyDefinition>(count);
+			CurrencyByQuadName = new Dictionary<string, CurrencyDefinition>(count);
 
-			foreach(var cur in currencies)
+			foreach(var currency in currencies)
 			{
-				//we do this to avoid string parsing on every look up
-				//foreach(var kvp in cur.Rewards)
-				//	kvp.Value.PreParseValues(cur);
-				cur.Id = nextId++;
-				cur.UpdateInfoString();
+				currency.OnInitialize(nextId++);
+
+				//map quadrant abbreviations to currencies.
+				foreach(var name in currency.NamesToQuadrants.Keys)
+				{
+					if(CurrencyByQuadName.ContainsKey(name))
+					{
+						BankingPlugin.Instance.LogPrint($"Quadrant name '{name}' in Currency '{currency.InternalName}' " +
+														"will take precedence over another Currency using the same name.",
+														TraceLevel.Warning);
+					}
+
+					CurrencyByQuadName[name] = currency;	
+				}
 				
-				definitions.Add(cur);
-				DefinitionsByName.Add(cur.InternalName, cur);
+				items.Add(currency);
+				CurrencyByName.Add(currency.InternalName, currency);
 			}
+		}
+
+		public CurrencyDefinition GetCurrencyById(int id)
+		{
+			return items[id];
+		}
+
+		public CurrencyDefinition GetCurrencyByName(string name)
+		{
+			CurrencyByName.TryGetValue(name, out var result);
+			return result;
+		}
+
+		public CurrencyDefinition GetCurrencyByQuadName(string quadName)
+		{
+			CurrencyByQuadName.TryGetValue(quadName, out var result);
+			return result;
 		}
 
 		public IEnumerator<CurrencyDefinition> GetEnumerator()
 		{
-			return definitions.GetEnumerator();
+			return items.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

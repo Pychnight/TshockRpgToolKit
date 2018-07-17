@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TShockAPI;
 
@@ -13,6 +14,9 @@ namespace Banking
 {
 	public static class BankCommands
 	{
+		const string parseAmoungString = @"(\d+)([A-Za-z\d]+)";
+		static Regex parseAmountRegex = new Regex(parseAmoungString, RegexOptions.Compiled);
+
 		public static void Bank(CommandArgs args)
 		{
 			var parameters = args.Parameters;
@@ -58,13 +62,10 @@ namespace Banking
 						break;
 
 					case "pay":
-						if( parameters.Count == 4 )
+						if( parameters.Count >= 3 )
 						{
-							var currency = parameters[1];
-							var target = parameters[2];
-							var money = parameters[3];
-
-							payPlayer(player, currency, target, money);
+							var target = parameters[1];
+							payPlayerSmart(player, target, parameters.GetRange(2, parameters.Count - 2));
 							return;
 						}
 
@@ -174,8 +175,9 @@ namespace Banking
 		private static void viewBankHelp(TSPlayer player)
 		{
 			player.SendErrorMessage($"Usage is:");
-			player.SendErrorMessage($"{Commands.Specifier}bank bal <currency>");
-			player.SendErrorMessage($"{Commands.Specifier}bank pay <currency> <player> <amount>");
+			player.SendErrorMessage($"{Commands.Specifier}bank bal <currency> | <page>");
+			//player.SendErrorMessage($"{Commands.Specifier}bank pay <currency> <player> <amount>");
+			player.SendErrorMessage($"{Commands.Specifier}bank pay <player> <amount> (examples: 320Gold or 320g or 320g,50s,2Copper)");
 			player.SendErrorMessage($"{Commands.Specifier}bank list");
 		}
 
@@ -235,6 +237,44 @@ namespace Banking
 			}
 
 			client.SendMessage("Use /bank bal <page> or /bank bal <currency> to see more.", Color.Green);
+		}
+		
+		private static void payPlayerSmart(TSPlayer client, string targetName, IEnumerable<string> amounts)
+		{
+			var combinedAmounts = new StringBuilder();
+			amounts.ForEach(s => combinedAmounts.Append(s));
+
+			var quadNames = CurrencyConverter.ParseQuadrantNames(combinedAmounts.ToString());
+
+			if(quadNames.Count<1)
+			{
+				client.SendErrorMessage("Invalid input. Please check your formatting, and try again.");
+				return;
+			}
+
+			
+			var mgr = BankingPlugin.Instance.Bank.CurrencyManager;
+			var firstQuad = quadNames.First();
+			var currency = mgr.GetCurrencyByQuadName(firstQuad);
+			if( currency == null )
+			{
+				client.SendErrorMessage($"'{firstQuad}' does not belong to a known Currency.");
+				return;
+			}
+			
+			//ensure all quads lead to the same currency
+			foreach(var quadName in quadNames)
+			{
+				var cur = mgr.GetCurrencyByQuadName(quadName);
+
+				if(cur!=currency)
+				{
+					client.SendErrorMessage($"'{quadName}' is not valid for currency '{currency.InternalName}'.");
+					return;
+				}
+			}
+
+			payPlayer(client, currency.InternalName, targetName, combinedAmounts.ToString());
 		}
 
 		private static void payPlayer(TSPlayer client, string currencyType, string targetName, string money)
@@ -470,7 +510,6 @@ namespace Banking
 										});
 
 			//BankingPlugin.Instance.RewardDistributor.TryAddVoteReward(player.Name);
-				
 		}
 	}
 }

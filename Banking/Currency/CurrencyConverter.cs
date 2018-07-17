@@ -14,11 +14,13 @@ namespace Banking
 	/// </summary>
 	public class CurrencyConverter
 	{
+		static Regex getQuadNamesRegex = new Regex("[A-Za-z]+", RegexOptions.Compiled);
+
 		public CurrencyDefinition Currency { get; private set; }
 
 		List<CurrencyQuadrantDefinition> sortedQuadrants;//sorted, and reversed.
-		Regex parseRegex;
-				
+		Regex parseCurrencyRegex;
+								
 		internal CurrencyConverter(CurrencyDefinition currency)
 		{
 			Currency = currency;
@@ -58,13 +60,13 @@ namespace Banking
 			regexString = sb.ToString();
 			//Debug.Print($"Created {Currency} regex = {regexString}");
 					
-			parseRegex = new Regex(regexString,RegexOptions.Compiled);
+			parseCurrencyRegex = new Regex(regexString,RegexOptions.Compiled);
 		}
 
 		public bool TryParse(string input, out decimal value)
 		{
 			var tempValue = 0m;
-			var match = parseRegex.Match(input);
+			var match = parseCurrencyRegex.Match(input);
 			var quadMatched = false;
 			var sign = 1;
 			var quadIndex = 0;
@@ -106,7 +108,7 @@ namespace Banking
 			value = 0m;
 			return false;
 		}
-
+		
 		public string ToString(decimal value, bool useCommas = false)
 		{
 			Color color = Color.White;
@@ -162,6 +164,20 @@ namespace Banking
 			//Debug.Print("Color:{0:x8}", color.PackedValue);
 
 			return result;
+		}
+
+		internal static IList<string> ParseQuadrantNames(string input)
+		{
+			var results = new List<string>();
+			var match = getQuadNamesRegex.Match(input);
+
+			while( match.Success )
+			{
+				results.Add(match.Value);
+				match = match.NextMatch();
+			}
+
+			return results;
 		}
 	}
 }
