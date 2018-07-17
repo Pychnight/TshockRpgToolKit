@@ -45,7 +45,14 @@ namespace Banking
 
 			foreach(var quad in sortedQuadrants)
 			{
-				sb.Append($"(\\d+{quad.Abbreviation})?");
+				//value-quad pair
+				if(!string.IsNullOrWhiteSpace(quad.Abbreviation))
+					sb.Append($"((\\d+)({quad.FullName}|{quad.Abbreviation}))?");
+				else
+					sb.Append($"((\\d+)({quad.FullName}))?");
+
+				sb.Append(@",?");//optional separator between value/quad 
+				//sb.Append(@"(\W*)");//optional separator between value/quad pairs
 			}
 
 			regexString = sb.ToString();
@@ -60,6 +67,7 @@ namespace Banking
 			var match = parseRegex.Match(input);
 			var quadMatched = false;
 			var sign = 1;
+			var quadIndex = 0;
 			
 			if(match.Success)
 			{
@@ -68,19 +76,22 @@ namespace Banking
 					sign = match.Groups[1].Value == "-" ? -1 : 1;
 				}
 
-				for(var i=2;i<match.Groups.Count;i++)
+				for(var i=3;i<match.Groups.Count;i+=3)
 				{
-					var g = match.Groups[i];
+					var gValue = match.Groups[i];
+					var gQuad = match.Groups[i + 1];
 
-					if(g.Success)
+					if(gValue.Success && gQuad.Success)
 					{
 						quadMatched = true;
-						var quad = sortedQuadrants[i - 2];//since regex groups are offset by 1, and we have to account for sign(+/-) as well.
-						var number = g.Value.Replace(quad.Abbreviation, "");
+						var quad = sortedQuadrants[quadIndex];
+						var number = gValue.Value;
 						var quadValue = long.Parse(number);
 
 						tempValue += quadValue * quad.BaseUnitMultiplier;
 					}
+
+					quadIndex++;
 				}
 
 				//need to check that a quadrant matched, or else signs (+/-) may result in success.
