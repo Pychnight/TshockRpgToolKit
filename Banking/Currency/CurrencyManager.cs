@@ -71,6 +71,38 @@ namespace Banking
 			return result;
 		}
 
+		/// <summary>
+		/// Attempts to find the Currency represented by the value string.
+		/// </summary>
+		/// <param name="value">A string containing a valid currency amount.</param>
+		/// <param name="currency">The Currency, if valid. Null otherwise.</param>
+		/// <returns>True or false if a Currency was found.</returns>
+		public bool TryFindCurrencyFromString(string value, out CurrencyDefinition currency)
+		{
+			currency = null;
+			
+			var quadNames = CurrencyConverter.ParseQuadrantNames(value);
+			if( quadNames.Count < 1 )
+				return false;
+			
+			//try to find if the first suffix/quad name is valid
+			var firstQuad = quadNames.First();
+			var selectedCurrency = GetCurrencyByQuadName(firstQuad);
+			if( selectedCurrency == null )
+				return false;
+			
+			//ensure all quads are valid, and lead to the same currency
+			foreach( var quadName in quadNames )
+			{
+				var cur = GetCurrencyByQuadName(quadName);
+				if( cur != selectedCurrency )
+					return false;
+			}
+
+			currency = selectedCurrency;
+			return true;
+		}
+
 		public IEnumerator<CurrencyDefinition> GetEnumerator()
 		{
 			return items.GetEnumerator();

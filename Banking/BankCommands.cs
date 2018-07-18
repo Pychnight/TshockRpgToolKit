@@ -244,6 +244,8 @@ namespace Banking
 			var combinedAmounts = new StringBuilder();
 			amounts.ForEach(s => combinedAmounts.Append(s));
 
+			//we should really think about changing the below code to using CurrencyManager.TryFindCurrencyFromString(), since its adapted from below.
+			//but for better error reporting, we use this original version.
 			var quadNames = CurrencyConverter.ParseQuadrantNames(combinedAmounts.ToString());
 
 			if(quadNames.Count<1)
@@ -251,8 +253,7 @@ namespace Banking
 				client.SendErrorMessage("Invalid input. Please check your formatting, and try again.");
 				return;
 			}
-
-			
+						
 			var mgr = BankingPlugin.Instance.Bank.CurrencyManager;
 			var firstQuad = quadNames.First();
 			var currency = mgr.GetCurrencyByQuadName(firstQuad);

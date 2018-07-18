@@ -51,7 +51,7 @@ namespace Banking
 
 		public override string ToString()
 		{
-			return $"{FullName}";// ('{Abbreviation}')";
+			return FullName;// ('{Abbreviation}')";
 		}
 	}
 }

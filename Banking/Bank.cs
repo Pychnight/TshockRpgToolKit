@@ -14,7 +14,7 @@ namespace Banking
 	{
 		internal IDatabase Database;
 
-		internal CurrencyManager CurrencyManager { get; private set; }
+		public CurrencyManager CurrencyManager { get; private set; }
 		private Dictionary<string, PlayerBankAccountMap> playerAccountMaps;
 
 		//public BankAccount WorldAccount { get; private set; }

@@ -374,9 +374,9 @@ namespace Banking
 			return Bank.GetBankAccount(player.Name,accountType);
 		}
 
-		public BankAccount GetBankAccount(string playerName, string accountName)
+		public BankAccount GetBankAccount(string playerName, string accountType)
 		{
-			return Bank.GetBankAccount(playerName,accountName);
+			return Bank.GetBankAccount(playerName,accountType);
 		}
 
 		public PlayerBankAccountMap GetAllBankAccountsForPlayer(string playerName)
