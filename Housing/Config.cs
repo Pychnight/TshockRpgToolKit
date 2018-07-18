@@ -28,7 +28,7 @@ namespace Housing
 		[JsonProperty(Order = 1)]
 		public bool RequireAdminRegions { get; private set; }
 
-
+		[Obsolete]
 		[JsonProperty(Order = 2)]
 		public string CurrencyType { get; private set; }
 

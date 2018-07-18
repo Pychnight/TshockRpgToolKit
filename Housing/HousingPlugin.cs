@@ -190,20 +190,37 @@ namespace Housing
                     player.SendErrorMessage("You cannot purchase this house.");
                     return;
                 }
-								
-				var purchaseCost = house.Price;
+
+				if(!BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(house.SalePrice, out var saleCurrency))
+				{
+					player.SendErrorMessage("The House's list price is in an outdated currency format. Please contact the owner.");
+					return;
+				}
+
+				var currencyConverter = saleCurrency.GetCurrencyConverter();
+				if(!currencyConverter.TryParse(house.SalePrice, out var purchaseCost))
+				{
+					player.SendErrorMessage("The House's list price is in an invalid currency format. Please contact the owner.");
+					return;
+				}
+				
                 var salesTax = Math.Round((decimal)playerGroupConfig.TaxRate * purchaseCost);
-                player.SendInfoMessage(
+				var totalCost = purchaseCost + salesTax;
+
+				var purchaseCostString = currencyConverter.ToString(purchaseCost);
+				var salesTaxString = currencyConverter.ToString(salesTax);
+				var totalCostString = currencyConverter.ToString(totalCost);
+
+				player.SendInfoMessage(
                     $"Purchasing {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] will cost " +
-                    $"[c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
+                    $"[c/{Color.OrangeRed.Hex3()}:{purchaseCostString}], with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTaxString}].");
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                 player.AddResponse("yes", args2 =>
                 {
                     player.AwaitingResponse.Remove("no");
-					//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-					var account = BankingPlugin.Instance.GetBankAccount(player.Name, Config.Instance.CurrencyType);
+					var account = BankingPlugin.Instance.GetBankAccount(player.Name, saleCurrency.InternalName);
 
-                    if (account == null || account.Balance < purchaseCost + salesTax)
+                    if (account == null || account.Balance < totalCost)
                     {
                         player.SendErrorMessage(
                             $"You do not have enough of a balance to purchase {house.OwnerName}'s " +
@@ -219,36 +236,27 @@ namespace Housing
 
                     if (purchaseCost > 0)
                     {
-                        //var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(house.OwnerName);
-                        //account.TransferTo(
-                        //    account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-                        //    "", $"Purchased {house.OwnerName}'s house {house.Name}");
-
-						var account2 = BankingPlugin.Instance.GetBankAccount(house.OwnerName,Config.Instance.CurrencyType);
+                        var account2 = BankingPlugin.Instance.GetBankAccount(house.OwnerName,saleCurrency.InternalName);
 						account.TryTransferTo(account2, purchaseCost);
                     }
                     if (salesTax > 0)
                     {
-						//account.TransferTo(
-						//    SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-						//    "", $"Sales tax for {house.OwnerName}'s {house.Name} house");
-
 						//taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
 						TaxService.PayTax(account, salesTax);
 					}
-
+					
                     database.Remove(house);
                     database.AddHouse(player, inputHouseName, house.Rectangle.X, house.Rectangle.Y,
                                        house.Rectangle.Right - 1, house.Rectangle.Bottom - 1);
                     player.SendInfoMessage(
                         $"Purchased {house.OwnerName}'s house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
-                        $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
+                        $"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
 
                     var player2 = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == house.OwnerName);
                     player2?.SendInfoMessage(
                         $"{player.Name} purchased your house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
-                        $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
+                        $"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
                 });
                 player.AddResponse("no", args2 =>
                 {
@@ -355,22 +363,31 @@ namespace Housing
                         $"You can't sell {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house.");
                     return;
                 }
-
-                var inputPrice = parameters[1];
-                //if (!Money.TryParse(inputPrice, out var price) || price <= 0)
-				if( !inputPrice.TryParseMoney(out var price) || price <= 0 )
+								
+				var inputPrice = parameters[1];
+				if( !BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(inputPrice, out var saleCurrency))
 				{
-                    player.SendErrorMessage($"Invalid price '{inputPrice}'.");
-                    return;
-                }
+					player.SendErrorMessage($"Invalid price '{inputPrice}'. No currency supports this format.");
+					return;
+				}
 
-                house.ForSale = true;
-                house.Price = price;
-                database.Update(house);
-                player.SendSuccessMessage(
-                    $"Selling {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
-                    $"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{price.ToMoneyString()}].");
-            }
+				var parsed = saleCurrency.GetCurrencyConverter().TryParse(inputPrice, out var price);
+				if(parsed && price > 0m)
+				{
+					house.ForSale = true;
+					house.SalePrice = saleCurrency.GetCurrencyConverter().ToString(price);//we use the converter.ToString() so
+																							//so that the SalePrice uses the largest units available.
+					database.Update(house);
+					player.SendSuccessMessage(
+						$"Selling {( house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s" )} " +
+						$"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{house.SalePrice}].");
+				}
+				else
+				{
+					player.SendErrorMessage($"Invalid price '{inputPrice}'.");
+					return;
+				}
+			}
             else if (subcommand.Equals("set", StringComparison.OrdinalIgnoreCase))
             {
                 if (parameters.Count != 2)
@@ -939,7 +956,7 @@ namespace Housing
                     if (house.ForSale && house.OwnerName != player.User?.Name)
                     {
                         player.SendInfoMessage(
-                            $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.Price.ToMoneyString()}].");
+                            $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.SalePrice}].");
                     }
                 }
                 else if (session.CurrentHouse != null && house != session.CurrentHouse)

@@ -40,7 +40,7 @@ namespace Housing.Database
                               "  Debt      INTEGER DEFAULT 0," +
                               "  LastTaxed TEXT," +
                               "  ForSale   INTEGER DEFAULT 0," +
-                              "  PRICE     INTEGER DEFAULT 0," +
+                              "  SalePrice TEXT," +
                               "  PRIMARY KEY(OwnerName, Name, WorldId))");
             Connection.Query("CREATE TABLE IF NOT EXISTS Shops (" +
                               "  OwnerName  TEXT," +
@@ -201,14 +201,14 @@ namespace Housing.Database
                         var debt = (decimal)reader.Get<long>("Debt");
                         var lastTaxed = DateTime.Parse(reader.Get<string>("LastTaxed"));
                         var forSale = reader.Get<int>("ForSale") == 1;
-                        var price = (decimal)reader.Get<long>("Price");
+                        var salePrice = reader.Get<string>("SalePrice");
 
                         var house = new House(ownerName, name, x, y, x2, y2)
                         {
                             Debt = debt,
                             LastTaxed = lastTaxed,
                             ForSale = forSale,
-                            Price = price
+                            SalePrice = salePrice
                         };
                         using (var reader2 = Connection.QueryReader(
                             "SELECT Username FROM HouseHasUser " +
@@ -360,9 +360,9 @@ namespace Housing.Database
 
                 Connection.Query(
                     "UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +
-                    "  Price = @7 WHERE OwnerName = @8 AND Name = @9 AND WorldId = @10",
+                    "  SalePrice = @7 WHERE OwnerName = @8 AND Name = @9 AND WorldId = @10",
                     house.Rectangle.X, house.Rectangle.Y, house.Rectangle.Right - 1, house.Rectangle.Bottom - 1,
-                    (long)house.Debt, house.LastTaxed.ToString("s"), house.ForSale ? 1 : 0, (long)house.Price,
+                    (long)house.Debt, house.LastTaxed.ToString("s"), house.ForSale ? 1 : 0, house.SalePrice,
                     house.OwnerName, house.Name, Main.worldID);
                 Connection.Query("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
                                   house.OwnerName, house.Name, Main.worldID);

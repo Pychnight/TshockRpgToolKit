@@ -72,7 +72,6 @@ namespace Housing
 			}
 
 			//pay balance to world account
-			//sourceAccount.TransferTo(SEconomyPlugin.Instance.WorldAccount, (Money)remainder, options, transactionMessage, journalMessage);
 			sourceAccount.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), remainder);
 			Debug.Print($"Paid remaining {remainder.ToMoneyString()} tax to world('Server') account.");
 		}

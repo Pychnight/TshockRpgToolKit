@@ -33,46 +33,46 @@ namespace Housing.Models
             Rectangle = new Rectangle(x, y, x2 - x + 1, y2 - y + 1);
         }
 
-        /// <summary>
-        ///     Gets the set of allowed user names.
-        /// </summary>
-        public ISet<string> AllowedUsernames { get; } = new HashSet<string>();
+		/// <summary>
+		///     Gets the name.
+		/// </summary>
+		public string Name { get; }
+
+		/// <summary>
+		///     Gets the owner name.
+		/// </summary>
+		public string OwnerName { get; }
+
+		/// <summary>
+		///     Gets the set of allowed user names.
+		/// </summary>
+		public ISet<string> AllowedUsernames { get; } = new HashSet<string>();
 
         /// <summary>
         ///     Gets the area.
         /// </summary>
         public int Area => Rectangle.Width * Rectangle.Height;
-
-        /// <summary>
-        ///     Gets or sets the debt.
-        /// </summary>
-        public decimal Debt { get; set; }
-
-        /// <summary>
+		
+		/// <summary>
         ///     Gets or sets whether the house is for sale.
         /// </summary>
         public bool ForSale { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the last time the house was taxed.
-        /// </summary>
-        public DateTime LastTaxed { get; set; } = DateTime.UtcNow;
+		/// <summary>
+		///     Gets or sets the price.
+		/// </summary>
+		public string SalePrice { get; set; }
 
-        /// <summary>
-        ///     Gets the name.
-        /// </summary>
-        public string Name { get; }
+		/// <summary>
+		///     Gets or sets the debt.
+		/// </summary>
+		public decimal Debt { get; set; }
 
-        /// <summary>
-        ///     Gets the owner name.
-        /// </summary>
-        public string OwnerName { get; }
-
-        /// <summary>
-        ///     Gets or sets the price.
-        /// </summary>
-        public decimal Price { get; set; }
-
+		/// <summary>
+		///     Gets or sets the last time the house was taxed.
+		/// </summary>
+		public DateTime LastTaxed { get; set; } = DateTime.UtcNow;
+		        
         /// <summary>
         ///     Gets or sets the rectangle.
         /// </summary>
