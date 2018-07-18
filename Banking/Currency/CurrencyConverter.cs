@@ -109,13 +109,13 @@ namespace Banking
 			return false;
 		}
 		
-		public string ToString(decimal value, bool useCommas = false)
+		public string ToString(decimal value) // bool useCommas = false)
 		{
 			Color color = Color.White;
-			return ToStringAndColor(value, ref color, useCommas);
+			return ToStringAndColor(value, ref color);// useCommas);
 		}
 		
-		public string ToStringAndColor(decimal value, ref Color color, bool useCommas = false)
+		public string ToStringAndColor(decimal value, ref Color color) //, bool useCommas = false)
 		{
 			string result = null;
 			var colorSelected = false; // we find the first non zero quad, to determine color.
@@ -166,6 +166,11 @@ namespace Banking
 			return result;
 		}
 
+		/// <summary>
+		/// Helper method to grab all quadrant suffixes.
+		/// </summary>
+		/// <param name="input">string containing value-quadrant pairs.</param>
+		/// <returns>IList of strings.</returns>
 		internal static IList<string> ParseQuadrantNames(string input)
 		{
 			var results = new List<string>();

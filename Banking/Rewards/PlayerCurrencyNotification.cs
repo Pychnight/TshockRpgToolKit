@@ -44,7 +44,7 @@ namespace Banking
 			else
 			{
 				Color color = Color.White;
-				var text = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref color, useCommas: false);
+				var text = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref color);
 				
 				Color = color;
 				//Debug.Print($"Accumulated {debugAccumulateCounter} transactions. - {Player.Name} gained {text}. ( {Value} {CurrencyDefinition.InternalName} )");

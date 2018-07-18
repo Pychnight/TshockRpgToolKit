@@ -198,7 +198,7 @@ namespace Banking
 				return;
 			}
 
-			var balance = currency.GetCurrencyConverter().ToString(account.Balance, true);
+			var balance = currency.GetCurrencyConverter().ToString(account.Balance);//, true);
 			client.SendInfoMessage($"Current Balance: {balance}");
 		}
 
@@ -217,7 +217,7 @@ namespace Banking
 					return;
 				}
 
-				var balance = currency.GetCurrencyConverter().ToString(account.Balance, true);
+				var balance = currency.GetCurrencyConverter().ToString(account.Balance);//, true);
 				
 				lines.Add($"{currency.InternalName} - {balance}");
 			}
