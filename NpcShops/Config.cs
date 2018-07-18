@@ -18,12 +18,6 @@ namespace NpcShops
         public static Config Instance { get; internal set; }
 
 		/// <summary>
-		/// Gets the default Currency type for shops. 
-		/// </summary>
-		[JsonProperty(Order = 0)]
-		public string CurrencyType { get; internal set; } = "";
-
-		/// <summary>
 		///		Gets the maximum distance in tiles, in which a player may talk to a Shopkeeper NPC.
 		/// </summary>
 		[JsonProperty(Order = 1)]
@@ -37,10 +31,10 @@ namespace NpcShops
 
 		public override void Validate()
 		{
-			if(string.IsNullOrWhiteSpace(CurrencyType))
-			{
-				throw new Exception("CurrencyType is not set.");
-			}
+			//if(string.IsNullOrWhiteSpace(CurrencyType))
+			//{
+			//	throw new Exception("CurrencyType is not set.");
+			//}
 		}
 	}
 }

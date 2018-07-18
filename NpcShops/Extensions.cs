@@ -102,17 +102,5 @@ namespace NpcShops
 				//	return false;
 			}
 		}
-
-		public static string ToMoneyString(this decimal value)
-		{
-			var currency = NpcShopsPlugin.Instance.Currency;
-
-			if( currency == null )
-				return value.ToString();
-			else
-			{
-				return currency.GetCurrencyConverter().ToString(value);
-			}
-		}
 	}
 }

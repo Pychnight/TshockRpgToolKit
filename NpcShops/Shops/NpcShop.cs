@@ -60,8 +60,14 @@ namespace NpcShops.Shops
 					NpcToShopMap[npcType] = this;
 			}
 
-			ShopCommands = definition.ShopCommands.Select(sc => new ShopCommand(sc)).ToList();
-			ShopItems = definition.ShopItems.Select(si => new ShopItem(si)).ToList();
+			//we have to create our products, and make sure they are in a valid state before we add them to the shop.
+			ShopCommands = definition.ShopCommands.Select(sc => new ShopCommand(sc))
+													.Where( sc=> sc.IsValid )
+													.ToList();
+
+			ShopItems = definition.ShopItems.Select(si => new ShopItem(si))
+											.Where( si => si.IsValid)
+											.ToList();
         }
 
         /// <summary>

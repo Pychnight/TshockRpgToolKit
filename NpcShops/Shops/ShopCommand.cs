@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -23,7 +24,16 @@ namespace NpcShops.Shops
             Debug.Assert(definition != null, "Definition must not be null.");
 
             _definition = definition;
-            StackSize = definition.StackSize;
+
+			IsValid = TryResolvePricing(_definition.UnitPrice);
+			if(!IsValid)
+			{
+				NpcShopsPlugin.Instance.LogPrint($"Unable to find Currency for ShopCommand {_definition.Name}, hiding item.", TraceLevel.Warning);
+			}
+
+			//we don't really need to do anything past here, if IsValid is false, but for now...
+
+			StackSize = definition.StackSize;
 
 			RequiredItems = new List<RequiredItem>();
 
@@ -42,11 +52,6 @@ namespace NpcShops.Shops
         ///     Gets the name.
         /// </summary>
         public string Name => _definition.Name;
-		
-        /// <summary>
-        ///     Gets the unit price.
-        /// </summary>
-        public override decimal UnitPrice => _definition.UnitPriceMoney;
 		
 		/// <summary>
 		///     Restocks the shop command.

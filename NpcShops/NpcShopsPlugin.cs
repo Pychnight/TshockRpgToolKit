@@ -31,8 +31,6 @@ namespace NpcShops
 
         internal List<NpcShop> NpcShops = new List<NpcShop>();
 		internal NpcPauser NpcPauser = new NpcPauser();
-
-		internal CurrencyDefinition Currency { get; private set; }
 		
         public NpcShopsPlugin(Main game) : base(game)
         {
@@ -111,25 +109,7 @@ namespace NpcShops
 				this.LogPrint("BankingPlugin is required for NpcShopsPlugin to operate.",TraceLevel.Error);
 				return;
 			}
-			else
-			{
-				var currencyType = Config.Instance?.CurrencyType;
-
-				if( string.IsNullOrWhiteSpace(currencyType) )
-				{
-					this.LogPrint($"NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
-					return;
-				}
-
-				if( !BankingPlugin.Instance.TryGetCurrency(currencyType, out var currency ) )
-				{
-					this.LogPrint($"Unable to find CurrencyType '{Config.Instance.CurrencyType}'. NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
-					return;
-				}
-
-				Currency = currency;
-			}
-					
+								
 			var files = Directory.EnumerateFiles("npcshops", "*.shop", SearchOption.AllDirectories);
 			
 			foreach( var file in files )
@@ -197,7 +177,9 @@ namespace NpcShops
             if (index < shop.ShopItems.Count)
             {
                 var shopItem = shop.ShopItems[index];
-                if (shopItem.StackSize == 0 ||
+				var currencyConverter = shopItem.Currency.GetCurrencyConverter();
+
+				if (shopItem.StackSize == 0 ||
                     shopItem.PermissionRequired != null && !player.HasPermission(shopItem.PermissionRequired))
                 {
                     player.SendErrorMessage($"Invalid index '{inputIndex}'.");
@@ -210,14 +192,17 @@ namespace NpcShops
                     return;
                 }
 
-                var purchaseCost = (decimal)(amount * shopItem.UnitPrice);
-                var salesTax = (decimal)Math.Round(purchaseCost * (decimal)shop.SalesTaxRate);
+                var purchaseCost = amount * shopItem.UnitPrice;
+                var salesTax = Math.Round(purchaseCost * (decimal)shop.SalesTaxRate);
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
 
 				if(purchaseCost > 0 )
 				{
-					player.SendInfoMessage(	$"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], " +
-											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
+					var purchaseCostString	= currencyConverter.ToString(purchaseCost);
+					var salesTaxString		= currencyConverter.ToString(salesTax);
+
+					player.SendInfoMessage(	$"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCostString}], " +
+											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTaxString}].");
 				}
 
 				if(shopItem.RequiredItems.Count>0)
@@ -231,7 +216,7 @@ namespace NpcShops
 				{
 					player.AwaitingResponse.Remove("no");
 					//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-					var account = BankingPlugin.Instance.GetBankAccount(player,Currency.InternalName);
+					var account = BankingPlugin.Instance.GetBankAccount(player,shopItem.Currency.InternalName);
 					var totalCost = purchaseCost + salesTax;
 
 					if( account == null || account.Balance < totalCost )
@@ -252,8 +237,8 @@ namespace NpcShops
 
 					var item = new Item();
 					item.SetDefaults(shopItem.ItemId);
-										
-					var worldAccount = BankingPlugin.Instance.GetBankAccount("Server", Currency.InternalName);
+
+					var worldAccount = BankingPlugin.Instance.GetBankAccount("Server", shopItem.Currency.InternalName);
 					if( account.TryTransferTo(worldAccount,totalCost))
 					{
 						//deduct materials from player
@@ -284,6 +269,8 @@ namespace NpcShops
             {
                 index -= shop.ShopItems.Count;
                 var shopCommand = shop.ShopCommands[index];
+				var currencyConverter = shopCommand.Currency.GetCurrencyConverter();
+
                 if (shopCommand.StackSize == 0 ) //||
                     //shopCommand.PermissionRequired != null && !player.HasPermission(shopCommand.PermissionRequired))
                 {
@@ -297,14 +284,17 @@ namespace NpcShops
                     return;
                 }
 
-                var purchaseCost = (decimal)(amount * shopCommand.UnitPrice);
-                var salesTax = (decimal)Math.Round(purchaseCost * (decimal)shop.SalesTaxRate);
+                var purchaseCost = amount * shopCommand.UnitPrice;
+                var salesTax = Math.Round(purchaseCost * (decimal)shop.SalesTaxRate);
                 var commandText = $"{shopCommand.Name} x[c/{Color.OrangeRed.Hex3()}:{amount}]";
                 
 				if( purchaseCost > 0 )
 				{
-					player.SendInfoMessage($"Purchasing {commandText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], " +
-											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
+					var purchaseCostString	= currencyConverter.ToString(purchaseCost);
+					var salesTaxString		= currencyConverter.ToString(salesTax);
+
+					player.SendInfoMessage($"Purchasing {commandText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCostString}], " +
+											$"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTaxString}].");
 				}
 
 				if( shopCommand.RequiredItems.Count > 0 )
@@ -318,7 +308,7 @@ namespace NpcShops
                 {
                     player.AwaitingResponse.Remove("no");
                    // var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-					var account = BankingPlugin.Instance.GetBankAccount(player, Currency.InternalName);
+					var account = BankingPlugin.Instance.GetBankAccount(player, shopCommand.Currency.InternalName);
 					var totalCost = purchaseCost + salesTax;
 
 					if (account == null || account.Balance < totalCost)
@@ -337,7 +327,7 @@ namespace NpcShops
 						return;
 					}
 					
-					var worldAccount = BankingPlugin.Instance.GetBankAccount("Server", Currency.InternalName);
+					var worldAccount = BankingPlugin.Instance.GetBankAccount("Server", shopCommand.Currency.InternalName);
 					if( account.TryTransferTo(worldAccount, totalCost) )
 					{
 						//deduct materials from player
@@ -376,10 +366,13 @@ namespace NpcShops
 		private string getPostPurchaseRenderString( NpcShop shop, ShopProduct product, decimal totalCost, int quantity )
 		{
 			var sb = new StringBuilder();
-			
+
 			if( totalCost > 0 )
-				sb.Append($"[c/{ Color.OrangeRed.Hex3()}:{totalCost.ToMoneyString()}]");
-			
+			{
+				var totalCostString = product.Currency.GetCurrencyConverter().ToString(totalCost);
+				sb.Append($"[c/{ Color.OrangeRed.Hex3()}:{totalCostString}]");
+			}
+
 			if( product.RequiredItems.Count > 0 )
 			{
 				var fragment = shop.GetMaterialsCostRenderString(product, quantity); ;

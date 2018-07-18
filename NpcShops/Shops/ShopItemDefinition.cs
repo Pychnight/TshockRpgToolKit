@@ -6,17 +6,17 @@ using System.Diagnostics;
 
 namespace NpcShops.Shops
 {
-    /// <summary>
-    ///     Represents a shop item definition.
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class ShopItemDefinition
-    {
-        /// <summary>
-        ///     Gets the item name.
-        /// </summary>
-        [JsonProperty("Item", Order = 0)]
-        public string ItemName { get; private set; }
+	/// <summary>
+	///     Represents a shop item definition.
+	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
+	public sealed class ShopItemDefinition
+	{
+		/// <summary>
+		///     Gets the item name.
+		/// </summary>
+		[JsonProperty("Item", Order = 0)]
+		public string ItemName { get; private set; }
 
 		/// <summary>
 		///     Gets the stack size. A value of -1 indicates unlimited.
@@ -29,36 +29,19 @@ namespace NpcShops.Shops
 		/// </summary>
 		[JsonProperty("Prefix", Order = 2)]
 		public byte PrefixId { get; private set; }
-		
-		string unitPrice;
+
+		//string unitPrice;
 
 		/// <summary>
 		///     Gets the unit price.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		public string UnitPrice
-		{
-			get => unitPrice;
-			private set
-			{
-				unitPrice = value;
-				
-				if(!NpcShopsPlugin.Instance.Currency.GetCurrencyConverter().TryParse(value,out var result))
-				{
-					Debug.Print($"Failed to parse UnitPrice for NpcShop Item '{ItemName}.' Setting to 1.");
-					UnitPriceMoney = 1;
-				}
-				else
-				{
-					UnitPriceMoney = result;
-				}
-			}
-		}
-
-		/// <summary>
-		///		Gets the numeric value of the UnitPrice string.
-		/// </summary>
-		internal decimal UnitPriceMoney { get; private set; }
+		public string UnitPrice { get; set; }
+		
+		///// <summary>
+		/////		Gets the numeric value of the UnitPrice string.
+		///// </summary>
+		//internal decimal UnitPriceMoney { get; private set; }
 		
 		/// <summary>
 		///     Gets the permission required.
