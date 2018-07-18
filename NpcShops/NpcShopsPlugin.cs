@@ -51,10 +51,10 @@ namespace NpcShops
 #endif
 			//tryLoadConfig();
 
-            GeneralHooks.ReloadEvent += OnReload;
-            ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize, int.MinValue);
-            ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
-			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
+            GeneralHooks.ReloadEvent += onReload;
+            ServerApi.Hooks.GamePostInitialize.Register(this, onGamePostInitialize, int.MinValue);
+            ServerApi.Hooks.GameUpdate.Register(this, onGameUpdate);
+			ServerApi.Hooks.NetGetData.Register(this, onNetGetData);
 			
 			Commands.ChatCommands.Add(new Command("npcshops.npcbuy", NpcBuy, "npcbuy"));
         }
@@ -65,21 +65,16 @@ namespace NpcShops
             {
                 //File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
 
-                GeneralHooks.ReloadEvent -= OnReload;
-                ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
-                ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
+                GeneralHooks.ReloadEvent -= onReload;
+                ServerApi.Hooks.GamePostInitialize.Deregister(this, onGamePostInitialize);
+                ServerApi.Hooks.GameUpdate.Deregister(this, onGameUpdate);
 
-				ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+				ServerApi.Hooks.NetGetData.Deregister(this, onNetGetData);
 			}
             base.Dispose(disposing);
         }
-
-		public void LogPrint(string message, TraceLevel level)
-		{
-			ServerApi.LogWriter.PluginWriteLine(this, message, level);
-		}
-
-		private Session GetOrCreateSession(TSPlayer player)
+		
+		private Session getOrCreateSession(TSPlayer player)
         {
             var session = player.GetData<Session>(SessionKey);
             if (session == null)
@@ -102,8 +97,8 @@ namespace NpcShops
 			}
 			catch(Exception ex)
 			{
-				LogPrint("An error occured while trying to load shop config.", TraceLevel.Error);
-				LogPrint(ex.Message, TraceLevel.Error);
+				this.LogPrint("An error occured while trying to load shop config.", TraceLevel.Error);
+				this.LogPrint(ex.Message, TraceLevel.Error);
 			}
 		}
 
@@ -113,7 +108,7 @@ namespace NpcShops
 
 			if( BankingPlugin.Instance == null )
 			{
-				LogPrint("BankingPlugin is required for NpcShopsPlugin to operate.",TraceLevel.Error);
+				this.LogPrint("BankingPlugin is required for NpcShopsPlugin to operate.",TraceLevel.Error);
 				return;
 			}
 			else
@@ -122,13 +117,13 @@ namespace NpcShops
 
 				if( string.IsNullOrWhiteSpace(currencyType) )
 				{
-					LogPrint($"NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
+					this.LogPrint($"NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
 					return;
 				}
 
 				if( !BankingPlugin.Instance.TryGetCurrency(currencyType, out var currency ) )
 				{
-					LogPrint($"Unable to find CurrencyType '{Config.Instance.CurrencyType}'. NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
+					this.LogPrint($"Unable to find CurrencyType '{Config.Instance.CurrencyType}'. NpcShopsPlugin requires a configured Currency type to operate.", TraceLevel.Error);
 					return;
 				}
 
@@ -150,8 +145,8 @@ namespace NpcShops
 					}
 					catch( Exception ex )
 					{
-						LogPrint("An error occured while trying to create NpcShop.", TraceLevel.Error);
-						LogPrint(ex.Message, TraceLevel.Error);
+						this.LogPrint("An error occured while trying to create NpcShop.", TraceLevel.Error);
+						this.LogPrint(ex.Message, TraceLevel.Error);
 					}
 				}
 			}
@@ -169,7 +164,7 @@ namespace NpcShops
                 return;
             }
 
-            var session = GetOrCreateSession(player);
+            var session = getOrCreateSession(player);
             var shop = session.CurrentShop;
             if (shop == null)
             {
@@ -394,13 +389,13 @@ namespace NpcShops
 			return sb.ToString();
 		}
 		
-        private void OnGamePostInitialize(EventArgs args)
+        private void onGamePostInitialize(EventArgs args)
         {
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this,ConfigPath);
 			tryLoad();
 	    }
 
-		private void OnReload(ReloadEventArgs args)
+		private void onReload(ReloadEventArgs args)
 		{
 			NpcPauser.UnpauseAll();
 
@@ -414,7 +409,7 @@ namespace NpcShops
 			args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
 		}
 
-		private void OnNetGetData(GetDataEventArgs args)
+		private void onNetGetData(GetDataEventArgs args)
 		{
 			var msgId = args.MsgID;
 
@@ -447,7 +442,7 @@ namespace NpcShops
 							NpcPauser.Pause(npc, Config.Instance.ShopNpcPauseDuration);
 						}
 
-						var session = GetOrCreateSession(player);
+						var session = getOrCreateSession(player);
 						session.CurrentShopkeeperNpcIndex = npcIndex;
 						//session.CurrentShop = npcShop;
 						session.shopKeeperClickedHack = true;
@@ -459,11 +454,11 @@ namespace NpcShops
 			}
 		}
 
-		private void OnGameUpdate(EventArgs args)
+		private void onGameUpdate(EventArgs args)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
-                var session = GetOrCreateSession(player);
+                var session = getOrCreateSession(player);
 				session.Update();
 			}
 

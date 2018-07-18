@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Corruption.PluginSupport;
 using Newtonsoft.Json;
 
 namespace NpcShops.Shops
