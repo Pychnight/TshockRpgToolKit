@@ -65,6 +65,8 @@ namespace Banking
 
 		public bool TryParse(string input, out decimal value)
 		{
+			input = input.Replace(" ", "");//quick hack for inputs like "value quad value quad" 
+
 			var tempValue = 0m;
 			var match = parseCurrencyRegex.Match(input);
 			var quadMatched = false;
