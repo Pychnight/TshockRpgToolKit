@@ -18,7 +18,7 @@ namespace Banking
 
 		public CurrencyDefinition Currency { get; private set; }
 
-		List<CurrencyQuadrantDefinition> sortedQuadrants;//sorted, and reversed.
+		List<CurrencyQuadrant> sortedQuadrants;//sorted, and reversed.
 		Regex parseCurrencyRegex;
 								
 		internal CurrencyConverter(CurrencyDefinition currency)

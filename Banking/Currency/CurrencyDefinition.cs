@@ -24,7 +24,7 @@ namespace Banking
 		public string ScriptPath { get; set; }
 		
 		[JsonProperty(Order =2)]
-		public List<CurrencyQuadrantDefinition> Quadrants { get; set; } = new List<CurrencyQuadrantDefinition>();
+		public List<CurrencyQuadrant> Quadrants { get; set; } = new List<CurrencyQuadrant>();
 
 		//[JsonProperty(Order = 3)]
 		//public Dictionary<string,CurrencyRewardDefinition> Rewards { get; set; } = new Dictionary<string,CurrencyRewardDefinition>();
@@ -66,7 +66,7 @@ namespace Banking
 
 		internal string InfoString { get; private set; }
 				
-		internal Dictionary<string, CurrencyQuadrantDefinition> NamesToQuadrants { get; private set; }
+		internal Dictionary<string, CurrencyQuadrant> NamesToQuadrants { get; private set; }
 		
 		internal void OnInitialize(int id)
 		{
@@ -75,9 +75,9 @@ namespace Banking
 			currencyConverter = new CurrencyConverter(this);
 		}
 
-		private Dictionary<string, CurrencyQuadrantDefinition> createNamesToQuadrants()
+		private Dictionary<string, CurrencyQuadrant> createNamesToQuadrants()
 		{
-			var mapping = new Dictionary<string, CurrencyQuadrantDefinition>();
+			var mapping = new Dictionary<string, CurrencyQuadrant>();
 			
 			foreach(var quad in Quadrants)
 			{
@@ -150,7 +150,7 @@ namespace Banking
 			result.GainBy.Add(RewardReason.Killing);
 			result.SendCombatText = true;
 
-			var q = new CurrencyQuadrantDefinition();
+			var q = new CurrencyQuadrant();
 			q.BaseUnitMultiplier = 1;
 			q.FullName = "Copper";
 			q.ShortName = "copper";
@@ -158,7 +158,7 @@ namespace Banking
 
 			result.Quadrants.Add(q);
 
-			q = new CurrencyQuadrantDefinition();
+			q = new CurrencyQuadrant();
 			q.BaseUnitMultiplier = 100;
 			q.FullName = "Silver";
 			q.ShortName = "silver";
@@ -166,7 +166,7 @@ namespace Banking
 
 			result.Quadrants.Add(q);
 
-			q = new CurrencyQuadrantDefinition();
+			q = new CurrencyQuadrant();
 			q.BaseUnitMultiplier = 10_000;
 			q.FullName = "Gold";
 			q.ShortName = "gold";
@@ -174,7 +174,7 @@ namespace Banking
 
 			result.Quadrants.Add(q);
 
-			q = new CurrencyQuadrantDefinition();
+			q = new CurrencyQuadrant();
 			q.BaseUnitMultiplier = 1_000_000;
 			q.FullName = "Platinum";
 			q.ShortName = "platinum";

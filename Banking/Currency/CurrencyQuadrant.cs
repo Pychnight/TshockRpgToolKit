@@ -13,7 +13,7 @@ namespace Banking
 	/// Provides configuration and internal support for a quadrant of a Currency.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public class CurrencyQuadrantDefinition
+	public class CurrencyQuadrant
 	{
 		[JsonProperty(Order = 0)]
 		public int BaseUnitMultiplier { get; set; } = 1;
