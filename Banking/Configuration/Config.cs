@@ -17,25 +17,8 @@ namespace Banking.Configuration
 		
 		[JsonProperty(Order = 0)]
 		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
-
-		[JsonProperty(Order = 1)]
-		public List<CurrencyDefinition> Currency { get; private set; } = new List<CurrencyDefinition>();
-		
+				
 		[JsonProperty(Order = 2)]
 		public VotingConfig Voting { get; private set; } = new VotingConfig();
-
-		public override void Validate()
-		{
-			if(Currency==null || Currency.Count<1)
-			{
-				Currency = Currency ?? new List<CurrencyDefinition>();
-			}
-
-			if(Currency.Count<1)
-			{
-				//throw new Exception("Configuration defines no Currency.");
-				Currency.Add(CurrencyDefinition.CreateDefaultCurrency());
-			}
-		}
 	}
 }

@@ -29,8 +29,8 @@ namespace Banking
 		public override string Name => "Banking";
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 		
-		private static string DataDirectory { get; set; } = "banking";
-		private static string ConfigPath => Path.Combine(DataDirectory, "config.json");
+		internal static string DataDirectory { get; set; } = "banking";
+		internal static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
 		public static BankingPlugin Instance { get; private set; }
 				

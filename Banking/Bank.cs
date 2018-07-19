@@ -45,7 +45,8 @@ namespace Banking
 
 		internal Bank()
 		{
-			CurrencyManager = new CurrencyManager(Config.Instance.Currency);
+			//CurrencyManager = new CurrencyManager(Config.Instance.Currency);
+			CurrencyManager = new CurrencyManager(BankingPlugin.DataDirectory);
 			playerAccountMaps = new Dictionary<string, PlayerBankAccountMap>();
 			//EnsureBankAccountsExist(TSPlayer.Server.Name);
 			//WorldAccount.Get
@@ -72,8 +73,9 @@ namespace Banking
 		public void Load()
 		{
 			Debug.Print("BankAccountManager.Load!");
-			CurrencyManager = new CurrencyManager(Config.Instance.Currency);
-			
+			//CurrencyManager = new CurrencyManager(Config.Instance.Currency);
+			CurrencyManager = new CurrencyManager(BankingPlugin.DataDirectory);
+
 			playerAccountMaps.Clear();
 
 			var cfg = Config.Instance.Database;

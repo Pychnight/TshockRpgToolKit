@@ -5,6 +5,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,8 @@ namespace Banking
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyDefinition
 	{
+		const string DefaultCurrencyName = "TerrariaCoin";
+
 		[JsonProperty(Order=0)]
 		public string InternalName { get; set; }
 
@@ -142,13 +145,68 @@ namespace Banking
 			return InternalName;
 		}
 
+		public static IList<CurrencyDefinition> LoadCurrencys(string currencyDirectoryPath)
+		{
+			var currencyFiles = Directory.EnumerateFiles(currencyDirectoryPath, "*.currency");
+			var results = new List<CurrencyDefinition>();
+
+			results.Add(CreateDefaultCurrency());
+
+			foreach(var file in currencyFiles)
+			{
+				try
+				{
+					var json = File.ReadAllText(file);
+					var currency = JsonConvert.DeserializeObject<CurrencyDefinition>(json);
+
+					//never overwrite the default currency!
+					if( currency.InternalName == DefaultCurrencyName )
+					{
+						BankingPlugin.Instance.LogPrint($"{file} attempts to override the default currency({DefaultCurrencyName}), but this is not allowed. Ignoring file.", TraceLevel.Warning);
+						continue;
+					}
+
+					results.Add(currency);
+				}
+				catch(Exception ex)
+				{
+					BankingPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
+				}
+			}
+
+			return results;
+		}
+
+		public static void SaveCurrencys(string currencyDirectoryPath, IEnumerable<CurrencyDefinition> currencys)
+		{
+			Directory.CreateDirectory(currencyDirectoryPath);
+
+			foreach(var currency in currencys)
+			{
+				try
+				{
+					var filePath = Path.Combine(currencyDirectoryPath, currency.InternalName,".currency");
+					var json = JsonConvert.SerializeObject(currency);
+					File.WriteAllText(filePath, json);
+				}
+				catch(Exception ex)
+				{
+					BankingPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// This is a standard Currency that matches the Terraria Platinum/Gold/Silver/Copper currency. The n
+		/// </summary>
+		/// <returns></returns>
 		internal static CurrencyDefinition CreateDefaultCurrency()
 		{
 			var result = new CurrencyDefinition();
 
-			result.InternalName = "TerrariaCoin";
-			result.GainBy.Add(RewardReason.Killing);
-			result.SendCombatText = true;
+			result.InternalName = DefaultCurrencyName;
+			//result.GainBy.Add(RewardReason.Killing);
+			//result.SendCombatText = true;
 
 			var q = new CurrencyQuadrant();
 			q.BaseUnitMultiplier = 1;

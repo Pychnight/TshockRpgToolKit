@@ -23,6 +23,10 @@ namespace Banking
 		public CurrencyDefinition this[int id] => GetCurrencyById(id);
 		public CurrencyDefinition this[string name] => GetCurrencyByName(name);
 		
+		internal CurrencyManager(string currencyDirectory) : this( CurrencyDefinition.LoadCurrencys(currencyDirectory))
+		{
+		}
+
 		internal CurrencyManager(IEnumerable<CurrencyDefinition> currencies)
 		{
 			var count = currencies.Count();
@@ -53,6 +57,11 @@ namespace Banking
 				CurrencyByName.Add(currency.InternalName, currency);
 			}
 		}
+
+		//public CurrencyDefinition GetDefaultCurrency()
+		//{
+		//	return items[0];
+		//}
 
 		public CurrencyDefinition GetCurrencyById(int id)
 		{
