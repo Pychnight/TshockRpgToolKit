@@ -84,6 +84,7 @@
     <Compile Include="BankAccount.cs" />
     <Compile Include="Bank.cs" />
     <Compile Include="Configuration\VotingConfig.cs" />
+    <Compile Include="Currency\PriceInfo.cs" />
     <Compile Include="Rewards\PlayerCurrencyNotification.cs" />
     <Compile Include="Rewards\PlayerCurrencyNotificationDistributor.cs" />
     <Compile Include="TileTracking\PlayerTileTracker.cs" />
