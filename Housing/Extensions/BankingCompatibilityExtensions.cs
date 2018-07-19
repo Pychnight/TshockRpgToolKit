@@ -37,6 +37,7 @@ namespace Housing.Extensions
 			return false; 
 		}
 
+		[Obsolete]
 		public static string ToMoneyString(this decimal value)
 		{
 			CurrencyDefinition currency = null;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Banking.Currency;
 using Housing.Models;
 using Mono.Data.Sqlite;
 using Terraria;
@@ -80,7 +81,7 @@ namespace Housing.Database
                               "  ShopName           TEXT," +
                               "  WorldId            INTEGER," +
                               "  ItemId             INTEGER," +
-                              "  UnitPrice          INTEGER," +
+                              "  UnitPrice          TEXT," +
                               "  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
                               "    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
                               "  UNIQUE(OwnerName, ShopName, WorldId, ItemId) ON CONFLICT REPLACE)");
@@ -266,8 +267,8 @@ namespace Housing.Database
                             while (reader2.Read())
                             {
                                 var itemId = reader2.Get<int>("ItemId");
-                                var unitPrice = (decimal)reader2.Get<long>("UnitPrice");
-                                shop.UnitPrices[itemId] = unitPrice;
+                                var unitPriceString = reader2.Get<string>("UnitPrice");
+                                shop.UnitPrices[itemId] = new PriceInfo(unitPriceString);
                             }
                         }
                         Shops.Add(shop);
@@ -433,7 +434,7 @@ namespace Housing.Database
                             foreach (var kvp in shop.UnitPrices)
                             {
                                 command.Parameters["@3"].Value = kvp.Key;
-                                command.Parameters["@4"].Value = (long)kvp.Value;
+                                command.Parameters["@4"].Value = kvp.Value;
                                 command.ExecuteNonQuery();
                             }
                         }

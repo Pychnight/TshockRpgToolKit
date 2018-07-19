@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Banking.Currency;
 using Microsoft.Xna.Framework;
 using TShockAPI;
 //using Wolfje.Plugins.SEconomy;
@@ -85,9 +86,11 @@ namespace Housing.Models
         /// <summary>
         ///     Gets the unit prices.
         /// </summary>
-        public IDictionary<int, decimal> UnitPrices { get; } = new Dictionary<int, decimal>();
+        //public IDictionary<int, decimal> UnitPrices { get; } = new Dictionary<int, decimal>();
+		public IDictionary<int, PriceInfo> UnitPrices { get; } = new Dictionary<int, PriceInfo>();
 
-        public override string ToString() => Name;
+
+		public override string ToString() => Name;
 
 		/// <summary>
 		/// Trys to get a group config for the owner of the House.

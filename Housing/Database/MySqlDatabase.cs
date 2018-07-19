@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Banking.Currency;
 using Housing.Models;
 using MySql.Data.MySqlClient;
 using Terraria;
@@ -80,7 +81,7 @@ namespace Housing.Database
 								"  ShopName           VARCHAR(128)," +
 								"  WorldId            INTEGER," +
 								"  ItemId             INTEGER," +
-								"  UnitPrice          INTEGER," +
+								"  UnitPrice          VARCHAR(128)," +
 								"  FOREIGN KEY(OwnerName, ShopName, WorldId)" +
 								"    REFERENCES Shops(OwnerName, Name, WorldId) ON DELETE CASCADE," +
 								"  UNIQUE(OwnerName, ShopName, WorldId, ItemId))");
@@ -343,8 +344,8 @@ namespace Housing.Database
 							while( reader2.Read() )
 							{
 								var itemId = reader2.Get<int>("ItemId");
-								var unitPrice = (decimal)reader2.Get<long>("UnitPrice");
-								shop.UnitPrices[itemId] = unitPrice;
+								var unitPriceString = reader2.Get<string>("UnitPrice");
+								shop.UnitPrices[itemId] = new PriceInfo(unitPriceString);
 							}
 						}
 						Shops.Add(shop);
@@ -516,7 +517,7 @@ namespace Housing.Database
 							foreach( var kvp in shop.UnitPrices )
 							{
 								command.Parameters["@3"].Value = kvp.Key;
-								command.Parameters["@4"].Value = (long)kvp.Value;
+								command.Parameters["@4"].Value = kvp.Value;
 								command.ExecuteNonQuery();
 							}
 						}

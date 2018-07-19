@@ -21,6 +21,7 @@ using TShockAPI.Hooks;
 //using Wolfje.Plugins.SEconomy.Journal;
 using Banking;
 using Corruption.PluginSupport;
+using Banking.Currency;
 
 namespace Housing
 {
@@ -590,18 +591,34 @@ namespace Housing
                 var item = new Item();
                 var itemId = shopItem.ItemId;
                 item.SetDefaults(itemId);
-                var purchaseCost = (amount * shop.UnitPrices.Get(itemId, item.value / 5));
-                var salesTax = Math.Round(purchaseCost * (decimal)playerGroupConfig.SalesTaxRate);
+
+				//var unitPrice = shop.UnitPrices.Get(itemId, item.value / 5);
+				var unitPriceInfo = shop.UnitPrices[itemId];
+								
+				if(!unitPriceInfo.IsValid)
+				{
+					player.SendErrorMessage("Unfortunately, this item is priced incorrectly. Please contact the shop owner.");
+					return;
+				}
+
+				var currencyConverter = unitPriceInfo.Currency.GetCurrencyConverter();
+
+				//var purchaseCost = (amount * shop.UnitPrices.Get(itemId, item.value / 5));
+				var purchaseCost = amount * unitPriceInfo.Value;
+				var salesTax = Math.Round(purchaseCost * (decimal)playerGroupConfig.SalesTaxRate);
+				var purchaseCostString	= currencyConverter.ToString(purchaseCost);
+				var salesTaxString		= currencyConverter.ToString(salesTax);
+				
                 var itemText = $"[i/s{amount},p{shopItem.PrefixId}:{shopItem.ItemId}]";
                 player.SendInfoMessage(
-                    $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCost.ToMoneyString()}], " +
-                    $"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTax.ToMoneyString()}].");
+                    $"Purchasing {itemText} will cost [c/{Color.OrangeRed.Hex3()}:{purchaseCostString}], " +
+                    $"with a sales tax of [c/{Color.OrangeRed.Hex3()}:{salesTaxString}].");
                 player.SendInfoMessage("Do you wish to proceed? Use /yes or /no.");
                 player.AddResponse("yes", args2 =>
                 {
                     player.AwaitingResponse.Remove("no");
-					//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
-					var account = BankingPlugin.Instance.GetBankAccount(player.Name, Config.Instance.CurrencyType);
+					
+					var account = BankingPlugin.Instance.GetBankAccount(player.Name, unitPriceInfo.Currency.InternalName);
                     if (account == null || account.Balance < purchaseCost + salesTax)
                     {
                         player.SendErrorMessage($"You do not have enough of a balance to purchase {itemText}.");
@@ -617,35 +634,29 @@ namespace Housing
 
                     if (purchaseCost > 0)
                     {
-						//var account2 = SEconomyPlugin.Instance.RunningJournal.GetBankAccountByName(shop.OwnerName);
-						var account2 = BankingPlugin.Instance.GetBankAccount(shop.OwnerName, Config.Instance.CurrencyType);
-						//account.TransferTo(
-						//                      account2, purchaseCost, BankAccountTransferOptions.IsPayment,
-						//                      "", $"Purchased {item.Name} x{amount}");
-
+						var account2 = BankingPlugin.Instance.GetBankAccount(shop.OwnerName, unitPriceInfo.Currency.InternalName);
 						account.TryTransferTo(account2, purchaseCost);
                     }
                     if (salesTax > 0)
                     {
-						//account.TransferTo(
-						//    SEconomyPlugin.Instance.WorldAccount, salesTax, BankAccountTransferOptions.IsPayment,
-						//    "", $"Sales tax for {item.Name} x{amount}");
-
 						account.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), salesTax);
                     }
 
                     shopItem.StackSize -= amount;
                     database.Update(shop);
 
+					var totalCost = purchaseCost + salesTax;
+					var totalCostString = currencyConverter.ToString(totalCost);
+
                     player.GiveItem(
                         itemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
                     player.SendSuccessMessage($"Purchased {itemText} for " +
-                                              $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
+                                              $"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
 
                     var player2 = TShock.Players.Where(p => p?.Active == true)
                         .FirstOrDefault(p => p.User?.Name == shop.OwnerName);
                     player2?.SendInfoMessage($"{player.Name} purchased {itemText} for " +
-                                             $"[c/{Color.OrangeRed.Hex3()}:{(purchaseCost + salesTax).ToMoneyString()}].");
+                                             $"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
 
 					shop.TryShowStock(player, MessageRefreshDelay);
                 });
@@ -691,9 +702,10 @@ namespace Housing
 
                 var shop = session.CurrentShop;
                 player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.Name}");
-                var prices = shop.UnitPrices.Where(kvp => kvp.Value > 0)
-                    .Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value.ToMoneyString()}]");
-                player.SendInfoMessage(
+				var prices = shop.UnitPrices.Where(kvp => kvp.Value.IsValid && kvp.Value.Value > 0)
+					.Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value.Price}]");
+
+				player.SendInfoMessage(
                     $"Prices: {string.Join(", ", prices)}. All other items are default sell prices.");
                 if (shop.OwnerName == player.User?.Name)
                 {
@@ -891,15 +903,32 @@ namespace Housing
                 }
 
                 var inputPrice = parameters[2];
-				//if (!Money.TryParse(inputPrice, out var price) || price <= 0)
-				if( !inputPrice.TryParseMoney(out var price) || price <= 0 )
+				var priceInfo = new PriceInfo(inputPrice);
+				
+				//if(!BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(inputPrice, out var priceCurrency))
+				if(!priceInfo.IsValid)
 				{
-                    player.SendErrorMessage($"Invalid price '{inputPrice}'.");
+					player.SendErrorMessage($"Invalid price. '{inputPrice}' is not a valid currency format.");
+					return;
+				}
+				
+				//grab the generic unit value 
+				//if(!priceCurrency.GetCurrencyConverter().TryParse(inputPrice, out var price))
+				//{
+				//	player.SendErrorMessage($"Invalid price '{inputPrice}'.");//we shouldn't ever get here though...
+				//	return;
+				//}
+				
+				if( priceInfo.Value <= 0m )
+				{
+                    player.SendErrorMessage($"Invalid price '{inputPrice}'. Price cannot be less than 1.");
                     return;
                 }
 
-                shop.UnitPrices[items[0].type] = price;
-                database.Update(shop);
+				//we use CurrencyConverter.ToString() here to ensure the unit price uses the largest currency values possible.
+				//shop.UnitPrices[items[0].type] = priceCurrency.GetCurrencyConverter().ToString(price);
+				shop.UnitPrices[items[0].type] = priceInfo;
+				database.Update(shop);
                 player.SendSuccessMessage(
                     $"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
                     $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop prices.");
