@@ -899,22 +899,19 @@ namespace Housing
 
                 var inputPrice = parameters[2];
 				var priceInfo = new PriceInfo(inputPrice);
+				var disable = false;
+
+				if( inputPrice == "0" || inputPrice == "none" )
+					disable = true;
 				
 				//if(!BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(inputPrice, out var priceCurrency))
-				if(!priceInfo.IsValid)
+				if(!priceInfo.IsValid && !disable)
 				{
 					player.SendErrorMessage($"Invalid price. '{inputPrice}' is not a valid currency format.");
 					return;
 				}
-				
-				//grab the generic unit value 
-				//if(!priceCurrency.GetCurrencyConverter().TryParse(inputPrice, out var price))
-				//{
-				//	player.SendErrorMessage($"Invalid price '{inputPrice}'.");//we shouldn't ever get here though...
-				//	return;
-				//}
-				
-				if( priceInfo.Value <= 0m )
+							
+				if( priceInfo.Value <= 0m && !disable )
 				{
                     player.SendErrorMessage($"Invalid price '{inputPrice}'. Price cannot be less than 1.");
                     return;
@@ -924,9 +921,18 @@ namespace Housing
 				//shop.UnitPrices[items[0].type] = priceCurrency.GetCurrencyConverter().ToString(price);
 				shop.UnitPrices[items[0].type] = priceInfo;
 				database.Update(shop);
-                player.SendSuccessMessage(
-                    $"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop prices.");
+
+				if( disable )
+				{
+					player.SendSuccessMessage(
+						$"Removed {inputItemName} from the {Color.LimeGreen.ColorText(shop)} item listing.");
+				}
+				else
+				{
+					player.SendSuccessMessage(
+						$"Updated {( shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s" )} " +
+						$"[c/{Color.LimeGreen.Hex3()}:{shop}] shop prices.");
+				}
             }
             else
             {
