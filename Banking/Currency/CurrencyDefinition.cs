@@ -159,11 +159,11 @@ namespace Banking
 					var json = File.ReadAllText(file);
 					var currency = JsonConvert.DeserializeObject<CurrencyDefinition>(json);
 
-					//never overwrite the default currency!
+					//warn that the default currency is getting overidden
 					if( currency.InternalName == DefaultCurrencyName )
 					{
-						BankingPlugin.Instance.LogPrint($"{file} attempts to override the default currency({DefaultCurrencyName}), but this is not allowed. Ignoring file.", TraceLevel.Warning);
-						continue;
+						BankingPlugin.Instance.LogPrint($"{file} has overridden the default currency({DefaultCurrencyName}).", TraceLevel.Warning);
+						//continue;
 					}
 
 					results.Add(currency);
