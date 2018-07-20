@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Banking
 	/// <summary>
 	/// Internal collection of a player's bank accounts, keyed by account name.
 	/// </summary>
-	public class PlayerBankAccountMap
+	public class PlayerBankAccountMap : IEnumerable<BankAccount>
 	{
 		Dictionary<string, BankAccount> accountsByName;
 
@@ -117,6 +118,16 @@ namespace Banking
 		public void ClearAccountNameOverrides()
 		{
 			AccountNameOverrideMap.Clear();
+		}
+
+		public IEnumerator<BankAccount> GetEnumerator()
+		{
+			return accountsByName.Values.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return accountsByName.Values.GetEnumerator();
 		}
 
 		//public BankAccount GetAccountForCurrencyReward(string currencyType)

@@ -378,10 +378,11 @@ namespace Banking
 		{
 			return Bank.GetBankAccount(playerName,accountType);
 		}
-
-		public PlayerBankAccountMap GetAllBankAccountsForPlayer(string playerName)
+		
+		public IEnumerable<BankAccount> GetAllBankAccountsForPlayer(string playerName)
 		{
-			return Bank[playerName];
+			var playerBankAccountMap = Bank[playerName];
+			return playerBankAccountMap?.ToList() ?? new List<BankAccount>();
 		}
 
 		public IEnumerable<CurrencyDefinition> EnumerateCurrencies()

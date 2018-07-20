@@ -197,6 +197,19 @@ namespace Banking
 			return bankAccount;
 		}
 
+		/// <summary>
+		/// Calculates the sum of all BankAccounts linked to the player.
+		/// </summary>
+		/// <param name="playerName">Name of player.</param>
+		/// <returns>Sum of all account balances.</returns>
+		public decimal GetTotalBalance(string playerName)
+		{
+			var sum = BankingPlugin.Instance.GetAllBankAccountsForPlayer(playerName)
+						.Sum(ba => ba.Balance);
+
+			return sum;
+		}
+
 		//internal BankAccount TryGetCurrencyRewardAccount(string playerName, string currencyType)
 		//{
 		//	var accountMap = this[playerName];

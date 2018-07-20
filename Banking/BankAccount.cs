@@ -18,15 +18,25 @@ namespace Banking
 
 		//used only as a key within the update set, no relevance to db, or even between sessions.
 		internal int InternalId { get; private set; }
+
+		/// <summary>
+		/// Gets the account Name. This is the same as the Currency type this account backs.  
+		/// </summary>
 		public string Name { get; private set; }
+
+		/// <summary>
+		/// Gets the Player name of this accounts owner.
+		/// </summary>
 		public string OwnerName { get; private set; }
-		//public string CurrencyType { get; private set; }
+
+		/// <summary>
+		/// Gets the total funds available in this account, in generic units.
+		/// </summary>
 		public decimal Balance { get; internal set; }
 
 		internal BankAccount(string ownerName, string name, decimal startingFunds)
 		{
 			OwnerName = ownerName;
-			//CurrencyType = currencyType;
 			Name = name;
 			Balance = startingFunds;
 		}
