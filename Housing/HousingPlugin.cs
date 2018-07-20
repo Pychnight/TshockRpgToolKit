@@ -17,8 +17,6 @@ using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-//using Wolfje.Plugins.SEconomy;
-//using Wolfje.Plugins.SEconomy.Journal;
 using Banking;
 using Corruption.PluginSupport;
 using Banking.Currency;
@@ -194,7 +192,7 @@ namespace Housing
 
 				if(!BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(house.SalePrice, out var saleCurrency))
 				{
-					player.SendErrorMessage("The House's list price is in an outdated currency format. Please contact the owner.");
+					player.SendErrorMessage("The House's list price is in an unknown currency format. Please contact the owner.");
 					return;
 				}
 
@@ -698,7 +696,7 @@ namespace Housing
                 var shop = session.CurrentShop;
                 player.SendInfoMessage($"Owner: {shop.OwnerName}, Name: {shop.Name}");
 				var prices = shop.UnitPrices.Where(kvp => kvp.Value.IsValid && kvp.Value.Value > 0)
-					.Select(kvp => $"[i:{kvp.Key}]: [c/{Color.OrangeRed.Hex3()}:{kvp.Value.Price}]");
+					.Select(kvp => $"[i:{kvp.Key}]: {Color.OrangeRed.ColorText(kvp.Value.Price)}");
 
 				player.SendInfoMessage(
                     $"Prices: {string.Join(", ", prices)}. All other items are default sell prices.");
@@ -709,7 +707,7 @@ namespace Housing
                     var house = session.CurrentHouse;
                     var taxRate = playerGroupConfig.StoreTaxRate - playerGroupConfig.TaxRate;
                     var taxCost = (decimal)Math.Round(house.Area * taxRate);
-                    player.SendInfoMessage($"Extra tax on house: [c/{Color.OrangeRed.Hex3()}:{taxCost.ToMoneyString()}]");
+                    player.SendInfoMessage($"Extra tax on house: {Color.OrangeRed.ColorText(taxCost.ToMoneyString())}");
                 }
             }
             else if (subcommand.Equals("open", StringComparison.OrdinalIgnoreCase))
@@ -725,7 +723,7 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't open {shop.OwnerName}'s shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
+                        $"You can't open {shop.OwnerName}'s shop {Color.LimeGreen.ColorText(shop)}.");
                     return;
                 }
 
@@ -733,7 +731,7 @@ namespace Housing
                 database.Update(shop);
                 player.SendSuccessMessage(
                     $"Opened {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
+                    $"{Color.LimeGreen.ColorText(shop)}.");
             }
             else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
             {
@@ -748,7 +746,7 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't remove {shop.OwnerName}'s shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
+                        $"You can't remove {shop.OwnerName}'s shop {Color.LimeGreen.ColorText(shop)}.");
                     return;
                 }
 
@@ -772,7 +770,7 @@ namespace Housing
                 database.Remove(shop);
                 player.SendSuccessMessage(
                     $"Removed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}].");
+                    $"{Color.LimeGreen.ColorText(shop)}.");
             }
             else if (subcommand.Equals("set", StringComparison.OrdinalIgnoreCase))
             {
@@ -849,7 +847,7 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't set the message for {shop.OwnerName}'s [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                        $"You can't set the message for {shop.OwnerName}'s {Color.LimeGreen.ColorText(shop)} shop.");
                     return;
                 }
 
@@ -858,7 +856,7 @@ namespace Housing
                 database.Update(shop);
                 player.SendSuccessMessage(
                     $"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
-                    $"[c/{Color.LimeGreen.Hex3()}:{shop}] shop message.");
+                    $"{Color.LimeGreen.ColorText(shop)} shop message.");
             }
             else if (subcommand.Equals("setprice", StringComparison.OrdinalIgnoreCase))
             {
@@ -879,7 +877,7 @@ namespace Housing
                 if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
                 {
                     player.SendErrorMessage(
-                        $"You can't modify {shop.OwnerName}'s [c/{Color.LimeGreen.Hex3()}:{shop}] shop.");
+                        $"You can't modify {shop.OwnerName}'s {Color.LimeGreen.ColorText(shop)} shop.");
                     return;
                 }
 
@@ -931,7 +929,7 @@ namespace Housing
 				{
 					player.SendSuccessMessage(
 						$"Updated {( shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s" )} " +
-						$"[c/{Color.LimeGreen.Hex3()}:{shop}] shop prices.");
+						$"{Color.LimeGreen.ColorText(shop)} shop prices.");
 				}
             }
             else
@@ -944,7 +942,7 @@ namespace Housing
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}itemshop remove");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}itemshop set <shop-name>");
                 player.SendErrorMessage($"Syntax: {Commands.Specifier}itemshop setmsg <message>");
-                player.SendErrorMessage($"Syntax: {Commands.Specifier}itemshop setprice <item-name> <price>");
+                player.SendErrorMessage($"Syntax: {Commands.Specifier}itemshop setprice <item-name> <price> ( 0 or none disables listing. )");
             }
         }
 
@@ -982,7 +980,7 @@ namespace Housing
                     Debug.WriteLine($"DEBUG: {player.Name} entered {house.OwnerName}'s {house} house");
                     player.SendInfoMessage(
                         $"You entered {(house.OwnerName == player.User?.Name ? "your house" : house.OwnerName + "'s house")} " +
-                        $"[c/{Color.MediumPurple.Hex3()}:{house}].");
+                        $"{Color.MediumPurple.ColorText(house)}.");
                     if (house.ForSale && house.OwnerName != player.User?.Name)
                     {
                         player.SendInfoMessage(
@@ -995,7 +993,7 @@ namespace Housing
                         $"DEBUG: {player.Name} left {session.CurrentHouse.OwnerName}'s {session.CurrentHouse} house");
                     player.SendInfoMessage(
                         $"You left {(session.CurrentHouse.OwnerName == player.User?.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
-                        $"[c/{Color.MediumPurple.Hex3()}:{session.CurrentHouse}].");
+                        $"{Color.MediumPurple.ColorText(session.CurrentHouse)}.");
                 }
                 session.CurrentHouse = house;
 
@@ -1043,9 +1041,6 @@ namespace Housing
 					{
 						//since the player is not active, we can use the more more efficient version
 						TaxService.PayTax(house.OwnerName, payment);
-
-						//player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your house " +
-						//					$"[c/{Color.MediumPurple.Hex3()}:{house}].");
 					}
 					
 					house.Debt = taxCost - payment;
