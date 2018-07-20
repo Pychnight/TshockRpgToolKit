@@ -242,7 +242,6 @@ namespace Housing
                     }
                     if (salesTax > 0)
                     {
-						//taxService.PayTax(account, salesTax, BankAccountTransferOptions.IsPayment, "", $"Sales tax for {house.OwnerName}'s house, {house.Name}");
 						TaxService.PayTax(account, salesTax);
 					}
 					
@@ -311,12 +310,12 @@ namespace Housing
                 {
 					var ownerConfig = house.GetGroupConfig();//because a player other than the owner maybe running this command.
 
-                    player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt.ToMoneyString()}]");
+                    player.SendInfoMessage($"Debt: [c/{Color.OrangeRed.Hex3()}:{house.Debt}]");
                     var isStore = database.GetShops().Any(s => house.Rectangle.Contains(s.Rectangle));
                     var taxRate = isStore ? ownerConfig.StoreTaxRate : ownerConfig.TaxRate;
                     var taxCost = (decimal)Math.Round(house.Area * taxRate);
                     player.SendInfoMessage(
-                        $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost.ToMoneyString()}], Last taxed: {house.LastTaxed}");
+                        $"Tax cost: [c/{Color.OrangeRed.Hex3()}:{taxCost}], Last taxed: {house.LastTaxed}");
                     player.SendInfoMessage($"Allowed users: {string.Join(", ", house.AllowedUsernames)}");
                 }
             }
@@ -454,7 +453,7 @@ namespace Housing
                     player.AddResponse("yes", args2 =>
                     {
                         player.AwaitingResponse.Remove("no");
-						//var account = SEconomyPlugin.Instance?.GetBankAccount(player);
+						
 						var account = BankingPlugin.Instance.GetBankAccount(player);
                         if (account == null || account.Balance < purchaseCost)
                         {
@@ -462,10 +461,6 @@ namespace Housing
                             return;
                         }
 
-                        //account.TransferTo(
-                        //    SEconomyPlugin.Instance.WorldAccount, purchaseCost, BankAccountTransferOptions.IsPayment,
-                        //    "", $"Purchased the {inputHouseName} house");
-						
 						account.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), purchaseCost);
 
                         var house = database.AddHouse(player, inputHouseName, x, y, x2, y2);
@@ -1014,12 +1009,7 @@ namespace Housing
 
 				if (DateTime.UtcNow - house.LastTaxed > houseConfig.TaxPeriod)
                 {
-					//var account = SEconomyPlugin.Instance?.RunningJournal.GetBankAccountByName(house.OwnerName);
-					var account = BankingPlugin.Instance.GetBankAccount(house.OwnerName, Config.Instance.CurrencyType);
-                    if (account == null)
-                    {
-                        continue;
-                    }
+					var totalBalance = BankingPlugin.Instance.Bank.GetTotalBalance(house.OwnerName);
 					
                     //var isStore = shops.Any(s => house.Rectangle.Contains(s.Rectangle));
 					var store = shops.FirstOrDefault(s => house.Rectangle.Contains(s.Rectangle));
@@ -1027,20 +1017,32 @@ namespace Housing
 
 					var taxRate = store!=null ? storeConfig.StoreTaxRate : houseConfig.TaxRate;
                     var taxCost = (long)Math.Round(house.Area * taxRate) + house.Debt;
-                    var payment = (decimal)Math.Min(account.Balance, taxCost);
-					//account.TransferTo(
-					//    SEconomyPlugin.Instance.WorldAccount, payment, BankAccountTransferOptions.IsPayment, "",
-					//    $"Taxed for the {house} house");
-
-					//taxService.PayTax(account, payment, BankAccountTransferOptions.IsPayment, "", $"Taxed for house {house}");
-					TaxService.PayTax(account, payment);
+                    var payment = Math.Min(totalBalance, taxCost);
 
 					var player = TShock.Players.Where(p => p?.Active == true)
-                        .FirstOrDefault(p => p.User?.Name == house.OwnerName);
-                    player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment.ToMoneyString()}] for your house " +
-                                            $"[c/{Color.MediumPurple.Hex3()}:{house}].");
+						.FirstOrDefault(p => p.User?.Name == house.OwnerName);
 
-                    house.Debt = taxCost - payment;
+					if(player!=null)
+					{
+						foreach(var payInfo in TaxService.PayTaxIterator(house.OwnerName, payment))
+						{
+							var curr = BankingPlugin.Instance.Bank.CurrencyManager.GetCurrencyByName(payInfo.Item2.Name);
+							var payText = curr.GetCurrencyConverter().ToString(payInfo.Item1);
+							
+							player?.SendInfoMessage($"You were taxed {Color.OrangeRed.ColorText(payText)} for your house " +
+												$"{Color.MediumPurple.ColorText(house)}.");
+						}
+					}
+					else
+					{
+						//since the player is not active, we can use the more more efficient version
+						TaxService.PayTax(house.OwnerName, payment);
+
+						//player?.SendInfoMessage($"You were taxed [c/{Color.OrangeRed.Hex3()}:{payment}] for your house " +
+						//					$"[c/{Color.MediumPurple.Hex3()}:{house}].");
+					}
+					
+					house.Debt = taxCost - payment;
                     if (payment < taxCost)
                     {
                         if (house.Debt > houseConfig.MaxDebtAllowed)

@@ -26,10 +26,84 @@ namespace Housing
 			this.plugin = plugin;
 			//Debug.Print("Created TaxService.");
 		}
-		
-		public void PayTax(string sourceAccountName, decimal payment)
+
+		/// <summary>
+		/// Iterates over the players accounts, pulling funds from each account until the payment is satisfied.
+		/// It works in order of largest account to smallest.
+		/// </summary>
+		/// <param name="playerName">Player name.</param>
+		/// <param name="payment">Total payment size, in generic units.</param>
+		/// <returns>IEnumerable<Tuple<decimal,BankAccount>> containing the pay and account per iteration.</returns>
+		public IEnumerable<Tuple<decimal,BankAccount>> PayTaxIterator(string playerName, decimal payment)
 		{
-			PayTax(BankingPlugin.Instance.GetBankAccount(sourceAccountName, Config.Instance.CurrencyType),payment);
+			//no account has been specified for this player. So...
+			//get all accounts for this player, sorted by largest balance
+			var playerAccounts = BankingPlugin.Instance.GetAllBankAccountsForPlayer(playerName)
+									.Where(ac => ac.Balance > 0m)
+									.OrderByDescending(ac => ac.Balance);
+
+			//deduct tax from account
+			foreach( var acct in playerAccounts )
+			{
+				if( payment <= 0m )
+					break;
+
+				if( payment <= acct.Balance )
+				{
+					PayTax(acct, payment);
+					yield return new Tuple<decimal,BankAccount>(payment, acct);
+
+					payment = 0m;
+				}
+				else
+				{
+					var subPayment = acct.Balance;
+					PayTax(acct, subPayment);
+					payment -= subPayment;
+
+					yield return new Tuple<decimal, BankAccount>(subPayment, acct);
+				}
+			}
+
+			//at this point, anything not covered is debt.
+		}
+
+		/// <summary>
+		/// Makes a TaxPayment, pulling funds from each of the players accounts until the payment is satisfied.
+		/// It works in order of largest account to smallest.
+		/// </summary>
+		/// <param name="playerName">Player name.</param>
+		/// <param name="payment">Total payment size, in generic units.</param>
+		/// <returns>The leftover balance that could not be paid.</returns>
+		public decimal PayTax(string playerName, decimal payment)
+		{
+			//no account has been specified for this player. So...
+			//get all accounts for this player, sorted by largest balance
+			var playerAccounts = BankingPlugin.Instance.GetAllBankAccountsForPlayer(playerName)
+									.Where( ac => ac.Balance > 0m )	
+									.OrderByDescending(ac => ac.Balance);
+
+			//deduct tax from account
+			foreach(var acct in playerAccounts)
+			{
+				if( payment <= 0m )
+					break;
+
+				if(payment<= acct.Balance)
+				{
+					PayTax(acct, payment);
+					payment = 0m;
+				}
+				else
+				{
+					var subPayment = acct.Balance;
+					PayTax(acct, subPayment);
+					payment -= subPayment;
+				}
+			}
+
+			//at this point, anything not covered is debt.
+			return payment;
 		}
 
 		public void PayTax(BankAccount sourceAccount, decimal payment)
@@ -45,27 +119,26 @@ namespace Housing
 				var cut = payment / ( taxCollectors.Count > 0 ? taxCollectors.Count : 1m );
 
 				Debug.Print($"Tax payment is {remainder}");
-				Debug.Print($"{taxCollectors.Count} tax collectors get {cut.ToMoneyString()} each.");
+				Debug.Print($"{taxCollectors.Count} tax collectors get {cut} each.");
 
 				//split revenue between the tax collectors.
 				foreach( var tc in taxCollectors )
 				{
-					//var playerAccount = SEconomyPlugin.Instance.WorldAccount;
-					var playerAccount = BankingPlugin.Instance.GetBankAccount(tc.PlayerName,Config.Instance.CurrencyType);
+					var collectorAccount = BankingPlugin.Instance.GetBankAccount(tc.PlayerName,sourceAccount.Name);
 
-					if( playerAccount != null )
+					if( collectorAccount != null )
 					{
 						//skip the transfer if the source account belongs to a tax collector 
-						if( sourceAccount == playerAccount )
+						if( sourceAccount == collectorAccount )
 						{
 							remainder -= cut;//still take cut so it doesn't go to world account.
-							Debug.Print($"Skipping transfer, account belongs to tax collector {tc.PlayerName}");
+							//Debug.Print($"Skipping transfer, account belongs to tax collector {tc.PlayerName}");
 						}
 						else
 						{
-							sourceAccount.TryTransferTo(playerAccount, (decimal)cut);
+							sourceAccount.TryTransferTo(collectorAccount, cut);
 							remainder -= cut;
-							Debug.Print($"Paid {cut.ToMoneyString()} tax to player {tc.PlayerName}");
+							Debug.Print($"Paid {cut} tax to player {tc.PlayerName}'s {collectorAccount.Name} account.");
 						}
 					}
 				}
@@ -73,7 +146,7 @@ namespace Housing
 
 			//pay balance to world account
 			sourceAccount.TryTransferTo(BankingPlugin.Instance.GetWorldAccount(), remainder);
-			Debug.Print($"Paid remaining {remainder.ToMoneyString()} tax to world('Server') account.");
+			Debug.Print($"Paid remaining {remainder} tax to world('Server') account.");
 		}
 
 		public static void TaxCommand(CommandArgs args)
