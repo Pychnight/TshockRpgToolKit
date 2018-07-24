@@ -1,286 +1,117 @@
-﻿using Banking.Configuration;
-using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TShockAPI;
 
 namespace Banking.Rewards
 {
-	/// <summary>
-	/// Distributes monetary rewards to players.
-	/// </summary>
-	public class RewardDistributor
+	public class RewardDistributor //since we can't use distributor or evaluator atm, its a currently in-use type.
 	{
-		IRewardEvaluator defaultRewardEvaluator;
-		public Dictionary<string, RewardEvaluatorMap> CurrencyRewardEvaluators { get; private set; }
+		IRewardModifier defaultRewardEvaluator;
+		public Dictionary<string, RewardModifierMap> CurrencyRewardModifiers { get; private set; }
+		ConcurrentQueue<RewardSource> rewardSourceQueue;
 
 		public RewardDistributor()
 		{
-			defaultRewardEvaluator = new DefaultRewardEvaluator();
-			CurrencyRewardEvaluators = new Dictionary<string, RewardEvaluatorMap>();
+			defaultRewardEvaluator = new DefaultRewardModifier();
+			CurrencyRewardModifiers = new Dictionary<string, RewardModifierMap>();
+
+			rewardSourceQueue = new ConcurrentQueue<RewardSource>();
 		}
 
-		public void TryAddKillingReward(PlayerStrikeInfo strikeInfo, string npcGivenOrTypeName, float npcValue, bool npcSpawnedFromStatue)
+		public void EnqueueRewardSource(RewardSource rewardSource)
+		{
+			rewardSourceQueue.Enqueue(rewardSource);
+		}
+
+		public bool TryDequeueRewardSource(out RewardSource rewardSource)
+		{
+			return rewardSourceQueue.TryDequeue(out rewardSource);
+		}
+
+		public void OnGameUpdate()
+		{
+			const int maxIterations = 64;
+			var i = 0;
+
+			while(TryDequeueRewardSource(out var rewardSource) && i++ < maxIterations)
+			{
+				evaluate(rewardSource);
+			}
+		}
+
+		private void evaluate(RewardSource rewardSource)
 		{
 			var bank = BankingPlugin.Instance.Bank;
-			float totalDamage = strikeInfo.Values.Select(si => si.Damage).Sum();
-			float totalDamageDefended = strikeInfo.Values.Select(si => si.DamageDefended).Sum();
+			//var playerAccountMap = bank[rewardSource.PlayerName];
+			var multiPlayerRewardSource = rewardSource as MultipleRewardSource;
 
-			foreach( var kvp in strikeInfo )
+			rewardSource.OnPreEvaluate();
+
+			foreach( var currency in BankingPlugin.Instance.Bank.CurrencyManager )
 			{
-				var playerName = kvp.Key;
-				var weaponName = kvp.Value.WeaponName;
-				var damagePercent = kvp.Value.Damage / totalDamage;
-				var damageDefendedPercent = totalDamageDefended > 0 ? kvp.Value.DamageDefended / totalDamageDefended : 0;//avoid divide by 0
-				
-				var playerAccountMap = bank[playerName];
-
-				foreach( var currency in bank.CurrencyManager )
+				if( currency.GainBy.Contains(rewardSource.RewardReason) ||
+					rewardSource.RewardReason == RewardReason.Death ||
+					rewardSource.RewardReason == RewardReason.DeathPvP ||
+					rewardSource.RewardReason == RewardReason.Undefined )
 				{
-					Debug.Assert(currency != null, "Currency should never be null!");
-					
-					if( !currency.GainBy.Contains(RewardReason.Killing) )
-						continue;
-
-					if( npcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
-						continue;
-					
-					var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
-
-					if( rewardAccount == null )
-					{
-						Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
-						continue;
-					}
-
 					//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
-					var evaluator = GetRewardEvaluator(currency.InternalName, RewardReason.Killing);
-					var value = (float)evaluator.GetRewardValue(RewardReason.Killing, playerName, currency.InternalName, npcGivenOrTypeName, (decimal)npcValue);
+					var evaluator = GetRewardModifier(currency.InternalName, rewardSource.RewardReason);
 
-					var defenseBonus = value * damageDefendedPercent * currency.DefenseBonusMultiplier;
-
-					Debug.Print($"DefenseBonus: {defenseBonus}");
-
-					value *= damagePercent;
-					
-					//Weapons are implicitly at 1.0, unless modifier is found.
-					float weaponMultiplier = 0;
-					if( weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true )
+					if(multiPlayerRewardSource!=null)
 					{
-						value *= weaponMultiplier;
+						foreach( var pair in multiPlayerRewardSource.OnEvaluateMultiple(currency,evaluator) ) 
+						{
+							var playerName = pair.Item1;
+							var rewardValue = pair.Item2;
+							
+							if( updateBankAccount(playerName,currency.InternalName,ref rewardValue))
+							{
+								trySendCombatText(playerName, currency, ref rewardValue);
+							}
+						}
 					}
-					
-					value += defenseBonus;
-
-					value *= currency.Multiplier;
-
-					if( value == 0.0f )
-						continue;
-
-					if( value > 0.0f )
-						rewardAccount.Deposit((decimal)value);
 					else
-						rewardAccount.TryWithdraw((decimal)value);
+					{
+						var rewardValue = rewardSource.OnEvaluate(currency,evaluator);
 
-					var decimalValue = (decimal)value;
-					trySendCombatText(playerName, currency, ref decimalValue);
+						if( updateBankAccount(rewardSource.PlayerName, currency.InternalName, ref rewardValue) )
+						{
+							trySendCombatText(rewardSource.PlayerName, currency, ref rewardValue);
+						}
+					}
 				}
 			}
 		}
 
-		public void TryAddDeathPenalty(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, string weaponName = null)
+		private bool updateBankAccount(string playerName, string accountName, ref decimal value)
 		{
-			var bank = BankingPlugin.Instance.Bank;
-			var playerAccountMap = bank[playerName];
+			if( value == 0m )
+				return false;
 
-			Debug.Assert(gainedBy == RewardReason.Death || gainedBy == RewardReason.DeathPvP,
-							"TryAddDeathPenalty() must be RewardReason.Death, or RewardReason.DeathPvP.");
-			
-			foreach( var currency in bank.CurrencyManager )
+			var account = BankingPlugin.Instance.Bank.GetBankAccount(playerName, accountName);
+			Debug.Assert(account != null, $"Unable to find BankAccount '{accountName}' for player '{playerName}'.");
+
+			if( value > 0m )
 			{
-				Debug.Assert(currency != null, "Currency should never be null!");
-
-				//var rewardAccount = playerAccountMap.GetAccountForCurrencyReward(currency.InternalName);
-				var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
-
-				if( rewardAccount == null )
-				{
-					Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
-					continue;
-				}
-
-				//var evaluator = GetRewardEvaluator(currency.InternalName, gainedBy);
-
-				switch( gainedBy )
-				{
-					case RewardReason.Death:
-						var factor = 1.0m; // ( session.Class.DeathPenaltyMultiplierOverride ?? 1.0 );
-
-						decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyMultiplier * factor * rewardAccount.Balance,
-																	(decimal)currency.DeathPenaltyMinimum), 2);
-						if( loss == 0.0m )
-							continue;
-
-						if( rewardAccount.TryWithdraw(loss, false) )
-						{
-							loss = -loss;//make negative
-							trySendCombatText(playerName, currency, ref loss);
-						}
-						break;
-
-					case RewardReason.DeathPvP:
-						//decimal value = evaluator.GetRewardValue(playerName, currency.InternalName, itemName, (decimal)defaultValue);//<---not sure how or if to slot this in.
-						//decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum));
-						decimal lossPvP = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum),2);
-
-						if( lossPvP == 0.0m )
-							continue;
-
-						if( string.IsNullOrWhiteSpace(itemName) )//itemName will hold other players name, if available.
-						{
-							if( rewardAccount.TryWithdraw(lossPvP, false) )
-								trySendCombatText(playerName, currency, ref lossPvP);
-						}
-						else
-						{
-							var other = bank.GetBankAccount(itemName, currency.InternalName);
-
-							if( other == null )
-							{
-								Debug.Print($"Unable to find player {itemName}'s BankAccount for DeathPvP.");
-								continue;
-							}
-
-							if( rewardAccount.TryTransferTo(other, lossPvP, false) )
-							{
-								lossPvP = -lossPvP;//make negative
-								trySendCombatText(playerName, currency, ref lossPvP);
-
-								lossPvP = -lossPvP;//make positive
-								trySendCombatText(itemName, currency, ref lossPvP);
-							}
-						}
-						break;
-				}
+				account.Deposit(value);
+				return true;
 			}
-		}
-				
-		public void TryAddReward(string playerName, RewardReason gainedBy, string itemName, float defaultValue = 1.0f, bool npcSpawnedFromStatue = false, string weaponName = null )
-		{
-			var bank = BankingPlugin.Instance.Bank;
-			var playerAccountMap = bank[playerName];
-
-			foreach(var currency in bank.CurrencyManager)
+			else
 			{
-				if(currency==null)
-				{
-					Debug.Assert(currency!=null,"Currency should never be null!");
-					continue;
-				}
-
-				if( !currency.GainBy.Contains(gainedBy) )
-					continue;
-
-				if(npcSpawnedFromStatue&&!currency.EnableStatueNpcRewards)
-				{
-					continue;
-				}
-
-				//var rewardAccount = playerAccountMap.GetAccountForCurrencyReward(currency.InternalName);
-				var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
-
-				if( rewardAccount == null )
-				{
-					Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
-					continue;
-				}
-
-				var evaluator = GetRewardEvaluator(currency.InternalName, gainedBy);
-				
-				switch(gainedBy)
-				{
-					case RewardReason.Killing:
-						throw new NotImplementedException("Killing is no longer supported in this method. Use TryAddKillingReward() instead.");
-					case RewardReason.Mining:
-					case RewardReason.Placing:
-						decimal value =	evaluator.GetRewardValue(gainedBy,playerName, currency.InternalName, itemName, (decimal)defaultValue);
-
-						value *= (decimal)currency.Multiplier;
-
-						//Weapons are implicitly at 1.0, unless modifier is found.
-						float weaponMultiplier = 0;
-						if(weaponName!=null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier)==true)
-						{
-							value *= (decimal)weaponMultiplier;
-						}
-
-						if( value == 0.0m )
-							continue;
-
-						if( value > 0.0m )
-							rewardAccount.Deposit(value);
-						else
-							rewardAccount.TryWithdraw(value);
-
-						trySendCombatText(playerName, currency, ref value);
-						break;
-
-					case RewardReason.Death:
-						//decimal value = evaluator.GetRewardValue(playerName, currency.InternalName, itemName, (decimal)defaultValue);//<---not sure how or if to slot this in.
-						decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum));
-
-						if( loss == 0.0m )
-							continue;
-
-						if( string.IsNullOrWhiteSpace(itemName) )//itemName will hold other players name, if available.
-						{
-							if( rewardAccount.TryWithdraw(loss, false) )
-								trySendCombatText(playerName, currency, ref loss);
-						}
-						else
-						{
-							var other = bank.GetBankAccount(itemName, currency.InternalName);
-
-							if( other == null )
-							{
-								Debug.Print($"Unable to find player {itemName}'s BankAccount for DeathPvP.");
-								continue;
-							}
-
-							if( rewardAccount.TryTransferTo(other, loss, false) )
-							{
-								loss = -loss;//make negative
-								trySendCombatText(playerName, currency, ref loss);
-
-								loss = -loss;//make positive
-								trySendCombatText(itemName, currency, ref loss);
-							}
-						}
-						break;
-
-					case RewardReason.DeathPvP:
-						var factor = 1.0m; // ( session.Class.DeathPenaltyMultiplierOverride ?? 1.0 );
-
-						decimal pvpLoss = Math.Round(Math.Max((decimal)currency.DeathPenaltyMultiplier * factor * rewardAccount.Balance,
-																	(decimal)currency.DeathPenaltyMinimum));
-						if( pvpLoss == 0.0m )
-							continue;
-
-						if( rewardAccount.TryWithdraw(pvpLoss, false) )
-						{
-							pvpLoss = -pvpLoss;//make negative
-							trySendCombatText(playerName, currency, ref pvpLoss);
-						}
-						break;
-				}
+				return account.TryWithdraw(value);
 			}
 		}
 
+		/// <summary>
+		/// Attempts to send the rewarded value as a combat text. This combat text may get concatenated with other rewards, or ignored altogether.
+		/// </summary>
+		/// <param name="playerName"></param>
+		/// <param name="currency"></param>
+		/// <param name="value"></param>
 		private void trySendCombatText(string playerName, CurrencyDefinition currency, ref decimal value)
 		{
 			if( !currency.SendCombatText )
@@ -296,7 +127,7 @@ namespace Banking.Rewards
 
 			if( player != null )
 			{
-				var notification = new PlayerCurrencyNotification()
+				var notification = new PlayerRewardNotification()
 				{
 					Player = player,
 					Value = value,
@@ -306,10 +137,10 @@ namespace Banking.Rewards
 				BankingPlugin.Instance.PlayerCurrencyNotificationDistributor.Add(notification);
 			}
 		}
-		
-		public IRewardEvaluator GetRewardEvaluator(string currencyType, RewardReason reason)
+
+		public IRewardModifier GetRewardModifier(string currencyType, RewardReason reason)
 		{
-			if( CurrencyRewardEvaluators.TryGetValue(currencyType, out var rewardEvaluatorMap) )
+			if( CurrencyRewardModifiers.TryGetValue(currencyType, out var rewardEvaluatorMap) )
 			{
 				if( rewardEvaluatorMap.TryGetValue(reason, out var evaluator) )
 					return evaluator;
@@ -318,230 +149,29 @@ namespace Banking.Rewards
 			//otherwise, get a default evaluator
 			return defaultRewardEvaluator;
 		}
-		
-		public void SetRewardEvaluator(string currencyType, RewardReason reason, IRewardEvaluator evaluator)
+
+		public void SetRewardModifier(string currencyType, RewardReason reason, IRewardModifier evaluator)
 		{
-			if( !CurrencyRewardEvaluators.TryGetValue(currencyType, out var rewardEvaluatorMap) )
+			if( !CurrencyRewardModifiers.TryGetValue(currencyType, out var rewardEvaluatorMap) )
 			{
-				rewardEvaluatorMap = new RewardEvaluatorMap();
-				CurrencyRewardEvaluators.Add(currencyType, rewardEvaluatorMap);
+				rewardEvaluatorMap = new RewardModifierMap();
+				CurrencyRewardModifiers.Add(currencyType, rewardEvaluatorMap);
 			}
 
 			rewardEvaluatorMap[reason] = evaluator;
 		}
 
-		public void ClearRewardEvaluators()
+		public void ClearRewardModifiers()
 		{
-			CurrencyRewardEvaluators.Clear();
+			CurrencyRewardModifiers.Clear();
 		}
 
-		//public void AddNpcKill(string playerName, float damage, float npcValue)
-		//{
-		//	if( npcValue < 1f )
-		//		return;
-
-		//	if( dustCurrency != null )
-		//	{
-		//		var value = npcValue;
-		//		var currencyType = "Dust";
-		//		var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(playerName, currencyType);
-		//		Debug.Assert(account != null, $"Couldn't find {currencyType} account for {playerName}.");
-
-		//		account?.Deposit((decimal)value);
-
-		//		if(dustCurrency.SendCombatText)
-		//		{
-		//			var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
-
-		//			if(player!=null)
-		//			{
-		//				var txt = $"+{value}";
-
-		//				//BankingPlugin.Instance.CombatTextDistributor.AddCombatText(txt, player, color);
-		//			}
-		//		}
-		//	}
-		//}
-
-		//public void AddBlockMined(string playerName, float blockValue)
-		//{
-
-		//}
-
-		//public void AddTimePlayed(string playerName, float value)
-		//{
-
-		//}
-
-		public void TryAddVoteReward(string playerName)
+		private class DefaultRewardModifier : IRewardModifier
 		{
-			var bank = BankingPlugin.Instance.Bank;
-			var playerAccountMap = bank[playerName];
-			var config = Config.Instance.Voting;
-
-			foreach( var kvp in config.Rewards )
-			{
-				var currencyName = kvp.Key;
-				var currency = bank.CurrencyManager[currencyName];
-
-				if( currency == null )
-				{
-					Debug.Assert(currency != null, "Currency should never be null!");
-					continue;
-				}
-								
-				var rewardAccount = playerAccountMap.TryGetBankAccount(currency.InternalName);
-
-				if( rewardAccount == null )
-				{
-					Debug.Print($"Transaction skipped. Couldn't find {currency.InternalName} account for {playerName}.");
-					continue;
-				}
-
-				if(currency.GetCurrencyConverter().TryParse(kvp.Value, out var value))
-				{
-					value *= (decimal)currency.Multiplier;
-					
-					if( value > 0.0m )
-					{
-						rewardAccount.Deposit(value);
-						trySendCombatText(playerName, currency, ref value);
-					}
-				}
-				else
-				{
-					Debug.Print($"Transaction skipped. Couldn't parse '{value}' as a valid {currency.InternalName} value for {playerName}.");
-				}
-			}
-		}
-
-		private class DefaultRewardEvaluator : IRewardEvaluator
-		{
-			public decimal GetRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
+			public decimal ModifyBaseRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
 			{
 				return rewardValue;
 			}
 		}
-
-		//private class DefaultRewardEvaluator : IRewardEvaluator
-		//{
-		//	public decimal GetRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
-		//	{
-		//		var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyType];
-
-		//		if( currency?.Rewards.TryGetValue(reason, out var rewardDef) )
-		//		{
-		//			decimal value;
-
-		//			//if( rewardDef.Ignore.Contains(itemName) )
-		//			//	continue;
-
-		//			if( !rewardDef.ParsedValues.TryGetValue(itemName, out value) )
-		//				value = rewardValue;
-
-		//		}
-		//	}
-		//}
 	}
-
-#if ENABLE_IREWARD_EXPERIMENT
-		ConcurrentQueue<IReward> rewards;
-		
-		public RewardDistributor()
-		{
-			rewards = new ConcurrentQueue<IReward>();
-		}
-
-		public void Clear()
-		{
-			var count = rewards.Count;//only clear what was in queue at time of call
-
-			for( var i = 0; i < count; i++ )
-				rewards.TryDequeue(out var unused);
-		}
-		
-		public void OnGameUpdate()
-		{
-			var count = rewards.Count;//only process what was in queue at time of call
-
-			for( var i = 0; i < count; i++ )
-			{
-				if(rewards.TryDequeue(out var reward))
-				{
-					reward.Give();
-					reward.Notify();
-				}
-			}
-		}
-
-		//this would go in above class...
-		public void AddReward(IReward reward)
-		{
-			rewards.Enqueue(reward);
-		}
-
-	//all experimental stuff that's been temporarily shelved. Ideally we could use this in place of string creation/comparison, but for now 
-	//this will remain as an interesting idea that needs more time.
-
-	public interface IReward
-	{
-		string PlayerName { get; set; }
-		float Value { get; set; }
-		void Give();
-		void Notify();
-	}
-
-	public class Reward : IReward
-	{
-		public string PlayerName { get; set; }
-		public float Value { get; set; }
-		public string CombatText { get; set; }
-
-		public virtual void Give()
-		{
-			Debug.Print($"Giving player a reward of {Value}.");
-		}
-
-		public virtual void Notify()
-		{
-			Debug.Print("This is a basic reward notification.");
-		}
-	}
-
-	public class CurrencyReward : Reward
-	{
-		public string CurrencyType { get; set; }
-		
-		public override void Give()
-		{
-			var account = BankingPlugin.Instance.BankAccountManager.GetBankAccount(PlayerName, CurrencyType);
-			Debug.Assert(account != null, $"Couldn't find {CurrencyType} account for {PlayerName}.");
-
-			account?.Deposit((decimal)Value);
-		}
-
-		public override void Notify()
-		{
-			//this should use the currency's config to determine if we even send anything...
-			if(!string.IsNullOrWhiteSpace(CombatText))
-			{
-				var currencyMgr = BankingPlugin.Instance.BankAccountManager.CurrencyManager;
-				var currency = currencyMgr != null ? currencyMgr[CurrencyType] : null;
-
-				Debug.Assert(currency != null, $"Couldn't find {CurrencyType} for {PlayerName}.");
-
-				var player = TShockAPI.Utils.Instance.FindPlayer(PlayerName).FirstOrDefault();
-
-				if( player != null )
-				{
-					//currency.SendCombatText;
-
-					//var color = CurrencyType == "Exp" ? Color.OrangeRed : Color.Gold;//this should use the currency's config for colors.
-					//BankingPlugin.Instance.CombatTextDistributor.AddCombatText(CombatText, player, color);
-				}
-			}
-		}
-	}
-
-#endif
 }

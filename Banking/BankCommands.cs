@@ -502,8 +502,10 @@ namespace Banking
 											if( t.Result == VoteStatus.Unclaimed )
 											{
 												player.SendInfoMessage(config.RewardMessage);
-												BankingPlugin.Instance.RewardDistributor.TryAddVoteReward(player.Name);
-
+												//BankingPlugin.Instance.RewardDistributor.TryAddVoteReward(player.Name);
+												var voteRewardSource = new VoteRewardSource(player.Name);
+												BankingPlugin.Instance.RewardDistributor.EnqueueRewardSource(voteRewardSource);
+												
 												await voteChecker.ClaimPlayerVoteAsync(player.Name);
 											}
 											else

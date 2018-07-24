@@ -13,8 +13,10 @@ namespace Banking.Rewards
 	/// </summary>
 	internal class PlayerCurrencyNotificationDistributor
 	{
-		ConcurrentQueue<PlayerCurrencyNotification> incomingNotificationsQueue;
-		Dictionary<NotificationKey, PlayerCurrencyNotification> accumulatingNotifications;
+		ConcurrentQueue<PlayerRewardNotification> incomingNotificationsQueue;//previous version filled this from a network thread(?), but drained on the game thread.
+																				//this is no longer the case, and it does both in GameUpate().
+																				//so this can probably be changed to a normal Queue<of T>.
+		Dictionary<NotificationKey, PlayerRewardNotification> accumulatingNotifications;
 		DateTime lastSendTime;
 		TimeSpan accumulateDuration;
 
@@ -25,8 +27,8 @@ namespace Banking.Rewards
 		{
 			const int startingCapacity = 32;
 
-			incomingNotificationsQueue = new ConcurrentQueue<PlayerCurrencyNotification>();
-			accumulatingNotifications = new Dictionary<NotificationKey, PlayerCurrencyNotification>(startingCapacity);
+			incomingNotificationsQueue = new ConcurrentQueue<PlayerRewardNotification>();
+			accumulatingNotifications = new Dictionary<NotificationKey, PlayerRewardNotification>(startingCapacity);
 
 			DateTime lastSendTime = DateTime.Now;
 			accumulateDuration = TimeSpan.FromMilliseconds(650);
@@ -34,18 +36,9 @@ namespace Banking.Rewards
 			xOffsetRandom = new Random();
 		}
 
-		//looks like we dont need this currently, since onLoad() always rebuilds everything anew.
-		//internal void Clear()
-		//{
-		//	accumulatingNotifications.Clear();
-
-		//	while( incomingNotificationsQueue.Count > 0 )
-		//		incomingNotificationsQueue.TryDequeue(out var unused);
-			
-		//	DateTime lastSendTime = DateTime.Now;
-		//}
-
-		internal void Add(PlayerCurrencyNotification notification)
+		//no need for a Clear() method, since onLoad() always rebuilds everything anew.
+		
+		internal void Add(PlayerRewardNotification notification)
 		{
 			incomingNotificationsQueue.Enqueue(notification);
 		}
@@ -95,7 +88,7 @@ namespace Banking.Rewards
 			if( ( now - lastSendTime ) >= dispatchInterval )
 			{
 				var key = new NotificationKey();
-				PlayerCurrencyNotification notification = null;
+				PlayerRewardNotification notification = null;
 				var removeNotification = false;
 				
 				foreach( var kvp in accumulatingNotifications )
@@ -148,7 +141,7 @@ namespace Banking.Rewards
 			internal readonly int IsGlobalHash;
 			internal readonly int CurrencyDefinitionHash;
 
-			internal NotificationKey(PlayerCurrencyNotification notification)
+			internal NotificationKey(PlayerRewardNotification notification)
 			{
 				PlayerHash = notification.Player.GetHashCode();
 				IsGlobalHash = notification.IsGlobal.GetHashCode();

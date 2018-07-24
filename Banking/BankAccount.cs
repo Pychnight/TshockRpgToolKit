@@ -117,7 +117,9 @@ namespace Banking
 			decimal newBalance, previousBalance;
 
 			if( amount < 0 )
-				return false;
+			{
+				amount = Math.Abs(amount);
+			}
 
 			lock(locker)
 			{

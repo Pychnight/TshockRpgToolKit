@@ -8,7 +8,7 @@ namespace Banking.Rewards
 {
 	public enum RewardReason
 	{
-		Unknown,
+		Undefined,
 		Killing,
 		Mining,
 		Placing,

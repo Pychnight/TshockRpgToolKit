@@ -40,6 +40,7 @@ namespace Banking
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerTileTracker PlayerTileTracker;
+		//public RewardDistributor RewardDistributor { get; private set; }
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
 				
@@ -246,19 +247,21 @@ namespace Banking
 
 							if( otherPlayer != null )
 							{
-								//RewardDistributor.TryAddReward(otherPlayer.Name, RewardReason.DeathPvP, otherPlayer.Name);
-								RewardDistributor.TryAddDeathPenalty(player.Name, RewardReason.DeathPvP, otherPlayer.Name);
+								var reward = new DeathRewardSource(player.Name,RewardReason.DeathPvP, otherPlayer.Name);
+								RewardDistributor.EnqueueRewardSource(reward);
+
 							}
 							else
 							{
-								//RewardDistributor.TryAddReward(player.Name, RewardReason.DeathPvP, "");
-								RewardDistributor.TryAddDeathPenalty(player.Name, RewardReason.DeathPvP, "");
+								var reward = new DeathRewardSource(player.Name, RewardReason.DeathPvP, "");
+								RewardDistributor.EnqueueRewardSource(reward);
 							}
 						}
 						else
 						{
-							//RewardDistributor.TryAddReward(player.Name, RewardReason.Death, "");
-							RewardDistributor.TryAddDeathPenalty(player.Name, RewardReason.Death, "");
+							var reward = new DeathRewardSource(player.Name, RewardReason.Death, "");
+							RewardDistributor.EnqueueRewardSource(reward);
+
 						}
 					}
 
@@ -269,7 +272,7 @@ namespace Banking
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
-			//CombatTextDistributor.Send(400);
+			RewardDistributor.OnGameUpdate();
 			PlayerCurrencyNotificationDistributor.Send(400);
 		}
 
@@ -298,7 +301,9 @@ namespace Banking
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
 			Debug.Print("OnStruckNpcKilled!");
-			RewardDistributor.TryAddKillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
+		
+			var rewardSource = new KillingRewardSource(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
+			RewardDistributor.EnqueueRewardSource(rewardSource);
 		}
 
 		private void OnTileKilled(TileChangedEventArgs args)
@@ -319,7 +324,7 @@ namespace Banking
 			if( !PlayerTileTracker.HasModifiedTile(player.Name,args.TileX,args.TileY))
 			{
 				var tile = Main.tile[args.TileX, args.TileY];
-
+				
 				//ignore walls and grass
 				if( tile.collisionType > 0 )
 				{
@@ -327,7 +332,10 @@ namespace Banking
 					PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 					if( args.Player != null )
-						RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Mining, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
+					{
+						var rewardSource = new MiningRewardSource(player.Name, tile, rewardReason: RewardReason.Mining);
+						RewardDistributor.EnqueueRewardSource(rewardSource);
+					}
 				}
 			}
 			else
@@ -350,12 +358,15 @@ namespace Banking
 			//if( !player.TilesCreated.TryGetValue(key, out var dummy) )
 			if(!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
 			{
-				//var tile = Main.tile[args.TileX, args.TileY];
+				var tile = Main.tile[args.TileX, args.TileY];
 				//player.TilesCreated.Add(key, tile);
 				PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 				if( args.Player != null )
-					RewardDistributor.TryAddReward(args.Player.Name, RewardReason.Placing, args.Type.ToString(), 1);//ideally we wont create strings, but for now...
+				{
+					var rewardSource = new MiningRewardSource(player.Name, tile, rewardReason: RewardReason.Placing);
+					RewardDistributor.EnqueueRewardSource(rewardSource);
+				}
 			}
 			else
 				Debug.Print("Already placed.");

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
-	public class RewardEvaluatorMap : Dictionary<RewardReason,IRewardEvaluator>
+	public class RewardModifierMap : Dictionary<RewardReason,IRewardModifier>
 	{
 	}
 }

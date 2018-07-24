@@ -12,17 +12,17 @@ namespace Banking
 	/// <summary>
 	/// Stores currency gains or losses for a player, in order to be sent as a CombatText.
 	/// </summary>
-	internal class PlayerCurrencyNotification
+	internal class PlayerRewardNotification
 	{
 		internal DateTime TimeStamp { get; set; }
 		internal TSPlayer Player { get; set; }
-		internal Color Color { get; set; }
+		Color Color;
 		internal bool IsGlobal { get; set; }
 		internal decimal Value { get; set; }
 		internal CurrencyDefinition CurrencyDefinition { get; set; }
 		//private int debugAccumulateCounter = 1;
 
-		internal void Accumulate(PlayerCurrencyNotification other)
+		internal void Accumulate(PlayerRewardNotification other)
 		{
 			Debug.Assert(Player == other.Player &&
 						IsGlobal == other.IsGlobal &&
@@ -43,10 +43,8 @@ namespace Banking
 			}
 			else
 			{
-				Color color = Color.White;
-				var text = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref color);
+				var text = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref Color);
 				
-				Color = color;
 				//Debug.Print($"Accumulated {debugAccumulateCounter} transactions. - {Player.Name} gained {text}. ( {Value} {CurrencyDefinition.InternalName} )");
 
 				return text;
