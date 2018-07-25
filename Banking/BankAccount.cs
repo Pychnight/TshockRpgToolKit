@@ -102,7 +102,7 @@ namespace Banking
 				markForUpdate();
 			}
 
-			bank.InvokeBalanceChanged(this, newBalance, previousBalance);
+			bank.InvokeBalanceChanged(this, ref newBalance, ref previousBalance);
 		}
 
 		/// <summary>
@@ -139,7 +139,7 @@ namespace Banking
 				markForUpdate();
 			}
 
-			bank.InvokeBalanceChanged(this, newBalance, previousBalance);
+			bank.InvokeBalanceChanged(this, ref newBalance, ref previousBalance);
 
 			return true;
 		}

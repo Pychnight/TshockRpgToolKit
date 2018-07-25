@@ -58,11 +58,11 @@ namespace Banking
 			};
 		}
 
-		internal void InvokeBalanceChanged(BankAccount bankAccount, decimal newBalance, decimal previousBalance)
+		internal void InvokeBalanceChanged(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)
 		{
 			if( BankAccountBalanceChanged != null && bankAccount.OwnerName != "Server" )
 			{
-				var args = new BalanceChangedEventArgs(bankAccount, newBalance, previousBalance);
+				var args = new BalanceChangedEventArgs(bankAccount, ref newBalance, ref previousBalance);
 				BankAccountBalanceChanged?.Invoke(this, args);
 			}
 		}
