@@ -274,7 +274,7 @@ namespace Leveling.Sessions
 			
 			if(exp<0)
 			{
-				var result = account.TryWithdraw(Math.Abs(exp), allowOverdraw: true);
+				var result = account.TryWithdraw(Math.Abs(exp), withdrawalMode: WithdrawalMode.AllowOverdraw);
 
 				Debug.Assert(result, "Tried to take Exp, but BankAccount withdraw operation failed.");
 			}

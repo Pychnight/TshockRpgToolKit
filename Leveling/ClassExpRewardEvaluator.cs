@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Leveling
 {
-	public class ClassExpRewardEvaluator : IRewardEvaluator
+	public class ClassExpRewardEvaluator : IRewardModifier
 	{
-		public decimal GetRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
+		public decimal ModifyBaseRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
 		{
 			if( reason != RewardReason.Killing || currencyType != "Exp" )
 				return rewardValue;

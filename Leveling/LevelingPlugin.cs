@@ -20,8 +20,6 @@ using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-//using Wolfje.Plugins.SEconomy;
-//using Wolfje.Plugins.SEconomy.Journal;
 
 namespace Leveling
 {
@@ -43,8 +41,7 @@ namespace Leveling
 
 		internal ISessionDatabase SessionRepository;
 
-        private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages =
-            new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
+        private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages = new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
 
         private List<ClassDefinition> _classDefinitions;
         internal List<Class> _classes;
@@ -279,7 +276,7 @@ namespace Leveling
 				}
 			}
 
-			BankingPlugin.Instance.RewardDistributor.SetRewardEvaluator(ExpCurrency.InternalName, RewardReason.Killing, new ClassExpRewardEvaluator());
+			BankingPlugin.Instance.RewardDistributor.SetRewardModifier(ExpCurrency.InternalName, RewardReason.Killing, new ClassExpRewardEvaluator());
 
 			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
 			//  .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
