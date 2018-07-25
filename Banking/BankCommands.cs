@@ -366,7 +366,7 @@ namespace Banking
 				switch( mode )
 				{
 					case SetBalanceMode.Take:
-						if(targetAccount.TryWithdraw(amount,true))//allow account to be overdrawn
+						if(targetAccount.TryWithdraw(amount,WithdrawalMode.AllowOverdraw))
 						{
 							client.SendInfoMessage($"Took {money} from {targetAccount.OwnerName}'s account.");
 							return;

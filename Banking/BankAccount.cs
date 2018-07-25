@@ -111,7 +111,7 @@ namespace Banking
 		/// <param name="amount">Amount to withdraw.</param>
 		/// <param name="allowOverdraw">True if the account can go negative.</param>
 		/// <returns>True if transaction succeeded.</returns>
-		public bool TryWithdraw(decimal amount, bool allowOverdraw = false)
+		public bool TryWithdraw(decimal amount, WithdrawalMode withdrawalMode = WithdrawalMode.RequireFullBalance)// bool allowOverdraw = false)
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			decimal newBalance, previousBalance;
@@ -123,11 +123,15 @@ namespace Banking
 
 			lock(locker)
 			{
-				if( !allowOverdraw && ( Balance - amount ) < 0  )
+				if( ( Balance - amount ) < 0 )
 				{
-					return false;
+					if( withdrawalMode == WithdrawalMode.RequireFullBalance)
+						return false;
+					
+					if( withdrawalMode == WithdrawalMode.StopAtZero)
+						amount = Balance;
 				}
-
+				
 				previousBalance = Balance;
 				Balance -= amount;
 				newBalance = Balance;
@@ -147,12 +151,12 @@ namespace Banking
 		/// <param name="amount">Amount to transfer.</param>
 		/// <param name="allowOverdraw">True if the transaction can leave the source account negative.</param>
 		/// <returns>True if the transaction succeeded.</returns>
-		public bool TryTransferTo(BankAccount other, decimal amount, bool allowOverdraw=false)
+		public bool TryTransferTo(BankAccount other, decimal amount, WithdrawalMode withdrawalMode = WithdrawalMode.RequireFullBalance)
 		{
 			if( other == null )
 				return false;
 
-			if(TryWithdraw(amount,allowOverdraw))
+			if(TryWithdraw(amount,withdrawalMode))
 			{
 				other.Deposit(amount);
 				return true;

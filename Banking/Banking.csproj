@@ -117,6 +117,7 @@
     <Compile Include="Currency\CurrencyQuadrant.cs" />
     <Compile Include="Database\SqliteDatabase.cs" />
     <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="WithdrawlMode.cs" />
     <None Include="Rewards\RewardDistributorOld.cs" />
     <Compile Include="StrikeTracking\NpcStrikeTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
