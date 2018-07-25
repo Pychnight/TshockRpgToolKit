@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
-	public class MiningRewardSource : RewardSource
+	/// <summary>
+	/// Reward for destroying or placing a tile. 
+	/// </summary>
+	public class MiningReward : Reward
 	{
 		public ITile Tile { get; set; }
 		public int TileX { get; set; }
 		public int TileY { get; set; }
 
-		public MiningRewardSource(string playerName, ITile tile, int tileX = 0, int tileY = 0, RewardReason rewardReason = RewardReason.Mining)
+		public MiningReward(string playerName, ITile tile, int tileX = 0, int tileY = 0, RewardReason rewardReason = RewardReason.Mining)
 		{
 			Debug.Assert(rewardReason == RewardReason.Mining || rewardReason == RewardReason.Placing,
 							"RewardReason must be either Mining, or Placing.");

@@ -33,17 +33,12 @@ namespace Banking
 		internal static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
 		public static BankingPlugin Instance { get; private set; }
-				
-		//public event EventHandler RewardDepositing;
-
-		internal PlayerCurrencyNotificationDistributor PlayerCurrencyNotificationDistributor;
+		internal PlayerRewardNotificationDistributor PlayerRewardNotificationDistributor;
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerTileTracker PlayerTileTracker;
-		//public RewardDistributor RewardDistributor { get; private set; }
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
-				
 		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
 		
 		public BankingPlugin(Main game) : base(game)
@@ -126,7 +121,7 @@ namespace Banking
 				
 				if( Bank == null )
 				{
-					PlayerCurrencyNotificationDistributor = new PlayerCurrencyNotificationDistributor();
+					PlayerRewardNotificationDistributor = new PlayerRewardNotificationDistributor();
 					Bank = new Bank();
 					NpcStrikeTracker = new NpcStrikeTracker();
 					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
@@ -205,7 +200,6 @@ namespace Banking
 								//ignore walls and grass
 								if(tile.collisionType>0)
 								{
-									//player.TilesDestroyed.Add(key, tile);
 									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
 									return;
 								}
@@ -247,20 +241,20 @@ namespace Banking
 
 							if( otherPlayer != null )
 							{
-								var reward = new DeathRewardSource(player.Name,RewardReason.DeathPvP, otherPlayer.Name);
-								RewardDistributor.EnqueueRewardSource(reward);
+								var reward = new DeathReward(player.Name,RewardReason.DeathPvP, otherPlayer.Name);
+								RewardDistributor.EnqueueReward(reward);
 
 							}
 							else
 							{
-								var reward = new DeathRewardSource(player.Name, RewardReason.DeathPvP, "");
-								RewardDistributor.EnqueueRewardSource(reward);
+								var reward = new DeathReward(player.Name, RewardReason.DeathPvP, "");
+								RewardDistributor.EnqueueReward(reward);
 							}
 						}
 						else
 						{
-							var reward = new DeathRewardSource(player.Name, RewardReason.Death, "");
-							RewardDistributor.EnqueueRewardSource(reward);
+							var reward = new DeathReward(player.Name, RewardReason.Death, "");
+							RewardDistributor.EnqueueReward(reward);
 
 						}
 					}
@@ -273,7 +267,7 @@ namespace Banking
 		{
 			NpcStrikeTracker.OnGameUpdate();
 			RewardDistributor.OnGameUpdate();
-			PlayerCurrencyNotificationDistributor.Send(400);
+			PlayerRewardNotificationDistributor.Send(400);
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
@@ -302,8 +296,8 @@ namespace Banking
 		{
 			Debug.Print("OnStruckNpcKilled!");
 		
-			var rewardSource = new KillingRewardSource(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
-			RewardDistributor.EnqueueRewardSource(rewardSource);
+			var reward = new KillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
+			RewardDistributor.EnqueueReward(reward);
 		}
 
 		private void OnTileKilled(TileChangedEventArgs args)
@@ -319,8 +313,6 @@ namespace Banking
 				return;
 			}
 
-			//if( !player.TilesDestroyed.TryGetValue(key, out var dummy) &&
-			//	!player.TilesCreated.TryGetValue(key,out var dummy2) ) //dont gain from mining own placed tiles
 			if( !PlayerTileTracker.HasModifiedTile(player.Name,args.TileX,args.TileY))
 			{
 				var tile = Main.tile[args.TileX, args.TileY];
@@ -328,13 +320,12 @@ namespace Banking
 				//ignore walls and grass
 				if( tile.collisionType > 0 )
 				{
-					//player.TilesDestroyed.Add(key, tile);
 					PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 					if( args.Player != null )
 					{
-						var rewardSource = new MiningRewardSource(player.Name, tile, rewardReason: RewardReason.Mining);
-						RewardDistributor.EnqueueRewardSource(rewardSource);
+						var reward = new MiningReward(player.Name, tile, rewardReason: RewardReason.Mining);
+						RewardDistributor.EnqueueReward(reward);
 					}
 				}
 			}
@@ -355,17 +346,16 @@ namespace Banking
 				return;
 			}
 
-			//if( !player.TilesCreated.TryGetValue(key, out var dummy) )
 			if(!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
 			{
 				var tile = Main.tile[args.TileX, args.TileY];
-				//player.TilesCreated.Add(key, tile);
+				
 				PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 				if( args.Player != null )
 				{
-					var rewardSource = new MiningRewardSource(player.Name, tile, rewardReason: RewardReason.Placing);
-					RewardDistributor.EnqueueRewardSource(rewardSource);
+					var reward = new MiningReward(player.Name, tile, rewardReason: RewardReason.Placing);
+					RewardDistributor.EnqueueReward(reward);
 				}
 			}
 			else

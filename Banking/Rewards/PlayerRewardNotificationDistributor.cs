@@ -11,7 +11,7 @@ namespace Banking.Rewards
 	/// <summary>
 	/// Used to queue and concatenate player rewards/losses.
 	/// </summary>
-	internal class PlayerCurrencyNotificationDistributor
+	internal class PlayerRewardNotificationDistributor
 	{
 		ConcurrentQueue<PlayerRewardNotification> incomingNotificationsQueue;//previous version filled this from a network thread(?), but drained on the game thread.
 																				//this is no longer the case, and it does both in GameUpate().
@@ -23,7 +23,7 @@ namespace Banking.Rewards
 		int yOffsetTicker;// used to displace the y offset of sent notifications. Its set to a number, and ticked down on each send, eventually reaching 0 and resetting.
 		Random xOffsetRandom; // used to randomize the x offset of sent notifications 
 
-		internal PlayerCurrencyNotificationDistributor()
+		internal PlayerRewardNotificationDistributor()
 		{
 			const int startingCapacity = 32;
 

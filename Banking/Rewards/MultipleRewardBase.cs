@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Banking.Rewards
 {
 	/// <summary>
-	/// Base class for RewardSource's that can reward multiple players or a single player with multiple rewards.
+	/// Base class for Reward's that can reward multiple players or a single player with multiple rewards.
 	/// </summary>
-	public abstract class MultipleRewardSource : RewardSource
+	public abstract class MultipleRewardBase : Reward
 	{
 		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardEvaluator = null)
 		{

@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
-	public class DeathRewardSource : MultipleRewardSource
+	/// <summary>
+	/// Negative reward for the Player dying, either due to "natural" causes, or from getting killed by another Player.
+	/// </summary>
+	public class DeathReward : MultipleRewardBase
 	{
 		public string OtherPlayerName { get; set; }
 
-		public DeathRewardSource(string playerName, RewardReason rewardReason = RewardReason.Death, string otherPlayerName = "")
+		public DeathReward(string playerName, RewardReason rewardReason = RewardReason.Death, string otherPlayerName = "")
 		{
 			Debug.Assert(rewardReason == RewardReason.Death || rewardReason == RewardReason.DeathPvP,
 							$"DeathRewards must use either RewardReason.Death, or RewardReason.DeathPvP.");

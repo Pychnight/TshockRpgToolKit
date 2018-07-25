@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace Banking.Rewards
 {
 	/// <summary>
-	/// Base class for capturing the origin or context of a reward, as well as deciding on the actual reward that will be given.
+	/// Rewards represent a player's monetary gains or losses from various in-game events. 
 	/// </summary>
-	public abstract class RewardSource
+	public abstract class Reward
 	{
 		public RewardReason RewardReason { get; set; }
 		public string PlayerName { get; set; }
@@ -23,7 +23,7 @@ namespace Banking.Rewards
 		}
 
 		/// <summary>
-		/// Computes a decimal value, representing the value of this reward for the given Currency. The value is in generic units.
+		/// Computes a decimal value, representing the value of this reward for the given Currency. The value is in generic units, and maybe positive or negative.
 		/// </summary>
 		/// <param name="currency"></param>
 		/// <param name="rewardModifier"></param> 

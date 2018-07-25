@@ -10,7 +10,7 @@ using Terraria;
 namespace Banking
 {
 	/// <summary>
-	/// Maintains track of which players have hit an NPC, and how many times.
+	/// Tracks which players have hit an NPC, and how many times.
 	/// </summary>
 	public class NpcStrikeTracker
 	{

@@ -5,11 +5,11 @@ using System.Diagnostics;
 namespace Banking
 {
 	/// <summary>
-	/// RewardSource for when a player votes on the server.
+	/// Reward for when a player votes on the server.
 	/// </summary>
-	public class VoteRewardSource : RewardSource
+	public class VoteReward : Reward
 	{
-		public VoteRewardSource(string playerName)
+		public VoteReward(string playerName)
 		{
 			RewardReason = RewardReason.Undefined;
 			PlayerName = playerName;

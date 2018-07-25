@@ -8,26 +8,29 @@ using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
-	public class RewardDistributor //since we can't use distributor or evaluator atm, its a currently in-use type.
+	/// <summary>
+	/// Consumes and queues Rewards, for deferred evaluation.
+	/// </summary>
+	public class RewardDistributor
 	{
 		IRewardModifier defaultRewardEvaluator;
 		public Dictionary<string, RewardModifierMap> CurrencyRewardModifiers { get; private set; }
-		ConcurrentQueue<RewardSource> rewardSourceQueue;
+		ConcurrentQueue<Reward> rewardSourceQueue;
 
 		public RewardDistributor()
 		{
 			defaultRewardEvaluator = new DefaultRewardModifier();
 			CurrencyRewardModifiers = new Dictionary<string, RewardModifierMap>();
 
-			rewardSourceQueue = new ConcurrentQueue<RewardSource>();
+			rewardSourceQueue = new ConcurrentQueue<Reward>();
 		}
 
-		public void EnqueueRewardSource(RewardSource rewardSource)
+		public void EnqueueReward(Reward rewardSource)
 		{
 			rewardSourceQueue.Enqueue(rewardSource);
 		}
 
-		public bool TryDequeueRewardSource(out RewardSource rewardSource)
+		public bool TryDequeueReward(out Reward rewardSource)
 		{
 			return rewardSourceQueue.TryDequeue(out rewardSource);
 		}
@@ -37,17 +40,17 @@ namespace Banking.Rewards
 			const int maxIterations = 64;
 			var i = 0;
 
-			while(TryDequeueRewardSource(out var rewardSource) && i++ < maxIterations)
+			while(TryDequeueReward(out var rewardSource) && i++ < maxIterations)
 			{
 				evaluate(rewardSource);
 			}
 		}
 
-		private void evaluate(RewardSource rewardSource)
+		private void evaluate(Reward rewardSource)
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			//var playerAccountMap = bank[rewardSource.PlayerName];
-			var multiPlayerRewardSource = rewardSource as MultipleRewardSource;
+			var multiPlayerRewardSource = rewardSource as MultipleRewardBase;
 
 			rewardSource.OnPreEvaluate();
 
@@ -134,7 +137,7 @@ namespace Banking.Rewards
 					CurrencyDefinition = currency
 				};
 
-				BankingPlugin.Instance.PlayerCurrencyNotificationDistributor.Add(notification);
+				BankingPlugin.Instance.PlayerRewardNotificationDistributor.Add(notification);
 			}
 		}
 

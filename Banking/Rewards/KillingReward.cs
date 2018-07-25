@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
-	public class KillingRewardSource : MultipleRewardSource
+	/// <summary>
+	/// Reward for killing npc's. Multiple players may share a single reward if they've all attacked the same NPC.
+	/// </summary>
+	public class KillingReward : MultipleRewardBase
 	{
 		PlayerStrikeInfo StrikeInfo;
 		string NpcGivenOrTypeName;
@@ -18,7 +21,7 @@ namespace Banking.Rewards
 		float TotalDamage;
 		float TotalDamageDefended;
 
-		public KillingRewardSource(PlayerStrikeInfo strikeInfo, string npcGivenOrTypeName, float npcValue, bool npcSpawnedFromStatue)
+		public KillingReward(PlayerStrikeInfo strikeInfo, string npcGivenOrTypeName, float npcValue, bool npcSpawnedFromStatue)
 		{
 			RewardReason = RewardReason.Killing;
 			StrikeInfo = strikeInfo;
