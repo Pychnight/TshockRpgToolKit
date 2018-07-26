@@ -96,9 +96,8 @@ namespace Banking
 		public void OnGameUpdate()
 		{
 			var now = stopwatch.ElapsedMilliseconds;
-			var keys = playerToPendingFishingInfos.Keys;
-
-			foreach(var k in keys)
+			
+			foreach(var k in playerToPendingFishingInfos.Keys.ToArray())
 			{
 				if(playerToPendingFishingInfos.TryGetValue(k, out var fishingInfo))
 				{
