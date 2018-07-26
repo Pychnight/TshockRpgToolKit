@@ -36,6 +36,7 @@ namespace Banking
 		internal PlayerRewardNotificationDistributor PlayerRewardNotificationDistributor;
 		public Bank Bank { get; internal set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
+		internal PlayerFishingTracker PlayerFishingTracker;
 		internal PlayerTileTracker PlayerTileTracker;
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
@@ -125,6 +126,7 @@ namespace Banking
 					Bank = new Bank();
 					NpcStrikeTracker = new NpcStrikeTracker();
 					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
+					PlayerFishingTracker = new PlayerFishingTracker();
 					PlayerTileTracker = new PlayerTileTracker(DataDirectory);
 					RewardDistributor = new RewardDistributor();
 					VoteChecker = new VoteChecker();
@@ -260,12 +262,67 @@ namespace Banking
 					}
 
 					break;
+				
+				case PacketTypes.ProjectileNew:
+					//Debug.Print("ProjectileNew!");
+
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var projectileId = reader.ReadInt16();
+						reader.ReadSingle();
+						reader.ReadSingle();
+						reader.ReadSingle();
+						reader.ReadSingle();
+						reader.ReadSingle();
+						reader.ReadInt16();
+						var playerId = reader.ReadByte();
+						var type = reader.ReadInt16();
+						//var aiFlags = reader.ReadByte();
+						//var ai0 = reader.ReadSingle();
+						//var ai1 = reader.ReadSingle();
+						//var projUUID = reader.ReadSingle();
+
+						PlayerFishingTracker.TryBeginFishing(playerId, projectileId, type);
+					}
+
+					break;
+
+				case PacketTypes.ProjectileDestroy:
+					//Debug.Print("ProjectileDestroy!");
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var projectileId = reader.ReadInt16();
+						var ownerId = reader.ReadByte();
+
+						PlayerFishingTracker.TryEndFishing(ownerId, projectileId);
+					}
+
+					break;
+
+				case PacketTypes.PlayerSlot:
+					//Debug.Print("PlayerSlot!");
+					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					{
+						var playerId = reader.ReadByte();
+						var slotId = reader.ReadByte();
+						var stack = reader.ReadInt16();
+						var prefix = reader.ReadByte();
+						var itemId = reader.ReadInt16();
+
+						PlayerFishingTracker.CheckForFishingItem(playerId, stack, prefix, itemId);
+					}
+					
+					break;
+
+				default:
+					break;
 			}
 		}
 		
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
+			PlayerFishingTracker.OnGameUpdate();
 			RewardDistributor.OnGameUpdate();
 			PlayerRewardNotificationDistributor.Send(400);
 		}
