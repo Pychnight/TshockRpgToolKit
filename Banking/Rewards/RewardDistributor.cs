@@ -25,14 +25,14 @@ namespace Banking.Rewards
 			rewardSourceQueue = new ConcurrentQueue<Reward>();
 		}
 
-		public void EnqueueReward(Reward rewardSource)
+		public void EnqueueReward(Reward reward)
 		{
-			rewardSourceQueue.Enqueue(rewardSource);
+			rewardSourceQueue.Enqueue(reward);
 		}
 
-		public bool TryDequeueReward(out Reward rewardSource)
+		public bool TryDequeueReward(out Reward reward)
 		{
-			return rewardSourceQueue.TryDequeue(out rewardSource);
+			return rewardSourceQueue.TryDequeue(out reward);
 		}
 
 		public void OnGameUpdate()
@@ -40,29 +40,29 @@ namespace Banking.Rewards
 			const int maxIterations = 64;
 			var i = 0;
 
-			while(TryDequeueReward(out var rewardSource) && i++ < maxIterations)
+			while(TryDequeueReward(out var reward) && i++ < maxIterations)
 			{
-				evaluate(rewardSource);
+				evaluate(reward);
 			}
 		}
 
-		private void evaluate(Reward rewardSource)
+		private void evaluate(Reward reward)
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			//var playerAccountMap = bank[rewardSource.PlayerName];
-			var multiPlayerRewardSource = rewardSource as MultipleRewardBase;
+			var multiPlayerRewardSource = reward as MultipleRewardBase;
 
-			rewardSource.OnPreEvaluate();
+			reward.OnPreEvaluate();
 
 			foreach( var currency in BankingPlugin.Instance.Bank.CurrencyManager )
 			{
-				if( currency.GainBy.Contains(rewardSource.RewardReason) ||
-					rewardSource.RewardReason == RewardReason.Death ||
-					rewardSource.RewardReason == RewardReason.DeathPvP ||
-					rewardSource.RewardReason == RewardReason.Undefined )
+				if( currency.GainBy.Contains(reward.RewardReason) ||
+					reward.RewardReason == RewardReason.Death ||
+					reward.RewardReason == RewardReason.DeathPvP ||
+					reward.RewardReason == RewardReason.Undefined )
 				{
 					//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
-					var evaluator = GetRewardModifier(currency.InternalName, rewardSource.RewardReason);
+					var evaluator = GetRewardModifier(currency.InternalName, reward.RewardReason);
 
 					if(multiPlayerRewardSource!=null)
 					{
@@ -79,11 +79,11 @@ namespace Banking.Rewards
 					}
 					else
 					{
-						var rewardValue = rewardSource.OnEvaluate(currency,evaluator);
+						var rewardValue = reward.OnEvaluate(currency,evaluator);
 
-						if( updateBankAccount(rewardSource.PlayerName, currency.InternalName, ref rewardValue) )
+						if( updateBankAccount(reward.PlayerName, currency.InternalName, ref rewardValue) )
 						{
-							trySendCombatText(rewardSource.PlayerName, currency, ref rewardValue);
+							trySendCombatText(reward.PlayerName, currency, ref rewardValue);
 						}
 					}
 				}

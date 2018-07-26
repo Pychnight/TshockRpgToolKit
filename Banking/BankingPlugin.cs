@@ -309,7 +309,12 @@ namespace Banking
 						var prefix = reader.ReadByte();
 						var itemId = reader.ReadInt16();
 
-						PlayerFishingTracker.CheckForFishingItem(playerId, stack, prefix, itemId);
+						if(PlayerFishingTracker.IsItemFromFishing(playerId))//, stack, prefix, itemId))
+						{
+							var player = TShock.Players[args.Msg.whoAmI];
+							var reward = new FishingReward(player.Name, stack, prefix, itemId);
+							RewardDistributor.EnqueueReward(reward);
+						}
 					}
 					
 					break;

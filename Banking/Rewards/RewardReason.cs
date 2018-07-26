@@ -14,5 +14,6 @@ namespace Banking.Rewards
 		Placing,
 		Death,
 		DeathPvP,
+		Fishing
 	}
 }

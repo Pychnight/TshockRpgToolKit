@@ -87,6 +87,7 @@
     <Compile Include="Currency\PriceInfo.cs" />
     <Compile Include="PlayerFishingTracker.cs" />
     <Compile Include="Rewards\DeathReward.cs" />
+    <Compile Include="Rewards\FishingReward.cs" />
     <Compile Include="Rewards\KillingReward.cs" />
     <Compile Include="Rewards\MiningReward.cs" />
     <Compile Include="Rewards\MultipleRewardBase.cs" />

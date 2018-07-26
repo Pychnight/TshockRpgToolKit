@@ -73,18 +73,21 @@ namespace Banking
 			}
 		}
 
-		public void CheckForFishingItem(int playerId, int stack, byte prefix, int itemId)
+		public bool IsItemFromFishing(int playerId)//, int stack, byte prefix, int itemId)
 		{
 			if( !IsWaitingOnFishingItem() )
-				return;
+				return false;
 
 			if(playerToPendingFishingInfos.TryGetValue(playerId,out var fishingInfo))
 			{
 				//player probably(**hopefully**) got this item through fishing.
 				playerToPendingFishingInfos.TryRemove(playerId, out var unused);
-
 				Debug.Print($"Player #{playerId} has caught an item through fishing.");
+
+				return true;
 			}
+
+			return false;
 		}
 
 		/// <summary>
