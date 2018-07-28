@@ -1,4 +1,6 @@
-﻿using OTAPI.Tile;
+﻿using Banking.Currency;
+using Banking.TileTracking;
+using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,31 +15,35 @@ namespace Banking.Rewards
 	/// </summary>
 	public class MiningReward : Reward
 	{
-		public ITile Tile { get; set; }
-		public int TileX { get; set; }
-		public int TileY { get; set; }
-
-		public MiningReward(string playerName, ITile tile, int tileX = 0, int tileY = 0, RewardReason rewardReason = RewardReason.Mining)
+		public TileSubTarget TileSubTarget { get; set; }
+		public ushort TileOrWallId { get; set; }
+				
+		public MiningReward(string playerName, ushort tileOrWallId, TileSubTarget tileSubTarget, RewardReason rewardReason = RewardReason.Mining)
 		{
 			Debug.Assert(rewardReason == RewardReason.Mining || rewardReason == RewardReason.Placing,
 							"RewardReason must be either Mining, or Placing.");
 
 			PlayerName = playerName;
 			RewardReason = rewardReason;
-			Tile = tile;
-			TileX = tileX;
-			TileY = tileY;
+			TileSubTarget = tileSubTarget;
+			TileOrWallId = tileOrWallId;
+			//tile.wallFrameNumber();
 		}
 
 		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardEvaluator = null)
 		{
-			var value = 1.0m;
+			decimal value;
 
-			if(rewardEvaluator!=null)
-			{
-				value = rewardEvaluator.ModifyBaseRewardValue(RewardReason, PlayerName, currency.InternalName, Tile.type.ToString(), value);
-			}
-			
+			if(RewardReason == RewardReason.Mining)
+				value = currency.GetBaseMiningValue(TileOrWallId, TileSubTarget);
+			else
+				value = currency.GetBasePlacingValue(TileOrWallId, TileSubTarget);
+
+			//if(rewardEvaluator!=null)
+			//{
+			//	value = rewardEvaluator.ModifyBaseRewardValue(RewardReason, PlayerName, currency.InternalName, Tile.type.ToString(), value);
+			//}
+
 			value *= (decimal)currency.Multiplier;
 						
 			return value;

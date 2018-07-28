@@ -22,7 +22,7 @@ namespace Banking
 		public int Count => items.Count;
 		public CurrencyDefinition this[int id] => GetCurrencyById(id);
 		public CurrencyDefinition this[string name] => GetCurrencyByName(name);
-		
+				
 		internal CurrencyManager(string currencyDirectory) : this( CurrencyDefinition.LoadCurrencys(currencyDirectory))
 		{
 		}
@@ -35,7 +35,7 @@ namespace Banking
 			items = new List<CurrencyDefinition>(count);
 			CurrencyByName = new Dictionary<string, CurrencyDefinition>(count);
 			CurrencyByQuadName = new Dictionary<string, CurrencyDefinition>(count);
-
+						
 			foreach(var currency in currencies)
 			{
 				currency.OnInitialize(nextId++);

@@ -180,7 +180,7 @@ namespace Banking
 					{
 						var action = reader.ReadByte();
 
-						if(action==0 || action==1)//0 kill, 1 place
+						if(action>=0 && action<= 3)//0 kill, 1 place tile, 2 kill, 3 place wall
 						{
 							var tileX = reader.ReadInt16();
 							var tileY = reader.ReadInt16();
@@ -193,26 +193,31 @@ namespace Banking
 							//Debug.Print($"var1: {var1}");
 							//Debug.Print($"var2: {var2}");
 
-							if( action==0 && var1 == 0 )
+							var player = TShock.Players[args.Msg.whoAmI];
+							TileSubTarget tileSubTarget;
+
+							if( action < 2 )
+								tileSubTarget = TileSubTarget.Tile;
+							else
+								tileSubTarget = TileSubTarget.Wall;	
+
+							if( ( action==0 || action == 2) && var1 == 0 )
 							{
-								//kill tile
-								var player = TShock.Players[args.Msg.whoAmI];
 								var tile = Main.tile[tileX, tileY];
-								
-								//ignore walls and grass
-								if(tile.collisionType>0)
+
+								//kill tile
+								if(action==2 || tile.collisionType>0 ) //ignore grass
 								{
-									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type));
+									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type, tile.wall, tileSubTarget));
 									return;
 								}
 							}
-							else if(action==1)// && var1 > 0)
+							else if(action==1 || action==3)// && var1 > 0)
 							{
-								//place tile
-								var player = TShock.Players[args.Msg.whoAmI];
-								var tile = Main.tile[tileX, tileY];
+								//var1 should hold the type of the tile or wall we placed.
 								
-								OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, tile.type));
+								//place tile
+								OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, (ushort)var1, (byte)var1, tileSubTarget));
 								return;
 							}
 						}
@@ -367,8 +372,7 @@ namespace Banking
 			Debug.Print("OnTileKilled!");
 
 			var player = args.Player;
-			var key = new Vector2(args.TileX, args.TileY);
-
+			
 			if(!canBuild(args.TileX,args.TileY,player))
 			{
 				Debug.Print("Cannot build here.");
@@ -377,16 +381,14 @@ namespace Banking
 
 			if( !PlayerTileTracker.HasModifiedTile(player.Name,args.TileX,args.TileY))
 			{
-				var tile = Main.tile[args.TileX, args.TileY];
-				
-				//ignore walls and grass
-				if( tile.collisionType > 0 )
+				//ignore walls and grass.. this should be filtered already...
+				//if( tile.collisionType > 0 )
 				{
 					PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 					if( args.Player != null )
 					{
-						var reward = new MiningReward(player.Name, tile, rewardReason: RewardReason.Mining);
+						var reward = new MiningReward(player.Name, args.GetTypeOrWall() , args.TileSubTarget, RewardReason.Mining);
 						RewardDistributor.EnqueueReward(reward);
 					}
 				}
@@ -400,23 +402,20 @@ namespace Banking
 			Debug.Print("OnTilePlaced!");
 
 			var player = args.Player;
-			var key = new Vector2(args.TileX, args.TileY);
-
+			
 			if( !canBuild(args.TileX, args.TileY, player) )
 			{
 				Debug.Print("Cannot build here.");
 				return;
 			}
-
+			
 			if(!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
 			{
-				var tile = Main.tile[args.TileX, args.TileY];
-				
 				PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
 				if( args.Player != null )
 				{
-					var reward = new MiningReward(player.Name, tile, rewardReason: RewardReason.Placing);
+					var reward = new MiningReward(player.Name, args.GetTypeOrWall(), args.TileSubTarget, RewardReason.Placing);
 					RewardDistributor.EnqueueReward(reward);
 				}
 			}

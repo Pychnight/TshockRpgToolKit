@@ -1,7 +1,10 @@
-﻿using Banking.Rewards;
+﻿using Banking.Currency;
+using Banking.Rewards;
+using Banking.TileTracking;
 using Corruption.PluginSupport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,21 +23,18 @@ namespace Banking
 	{
 		const string DefaultCurrencyName = "TerrariaCoin";
 
-		[JsonProperty(Order=0)]
+		[JsonProperty(Order = 0)]
 		public string InternalName { get; set; }
 
-		[JsonProperty(Order =1)]
+		[JsonProperty(Order = 1)]
 		public string ScriptPath { get; set; }
-		
-		[JsonProperty(Order =2)]
-		public List<CurrencyQuadrant> Quadrants { get; set; } = new List<CurrencyQuadrant>();
 
-		//[JsonProperty(Order = 3)]
-		//public Dictionary<string,CurrencyRewardDefinition> Rewards { get; set; } = new Dictionary<string,CurrencyRewardDefinition>();
+		[JsonProperty(Order = 2)]
+		public List<CurrencyQuadrant> Quadrants { get; set; } = new List<CurrencyQuadrant>();
 
 		[JsonProperty(Order = 3, ItemConverterType = typeof(StringEnumConverter))]
 		public List<RewardReason> GainBy { get; set; } = new List<RewardReason>();
-		
+
 		[JsonProperty(Order = 4)]
 		public bool SendCombatText { get; set; }
 
@@ -42,40 +42,71 @@ namespace Banking
 		public bool SendStatus { get; set; }
 
 		[JsonProperty(Order = 6)]
+		public bool EnableStatueNpcRewards { get; set; } = false;
+		
+		[JsonProperty(Order = 7)]
 		public float Multiplier { get; set; } = 1.0f;
 
-		[JsonProperty(Order = 7)]
+		[JsonProperty(Order = 8)]
 		public float DefenseBonusMultiplier { get; set; } = 0.0f;
 
-		[JsonProperty(Order = 8)]
+		[JsonProperty(Order = 9)]
 		public float DeathPenaltyMultiplier { get; set; }
 
-		[JsonProperty(Order = 8)]
+		[JsonProperty(Order = 10)]
 		public float DeathPenaltyMinimum { get; set; }
 
-		[JsonProperty(Order = 10)]
+		[JsonProperty(Order = 11)]
 		public float DeathPenaltyPvPMultiplier { get; set; }
 
-		[JsonProperty(Order = 11)]
+		[JsonProperty(Order = 12, PropertyName = "DefaultMiningValue")]
+		public string DefaultMiningValueString { get; set; } = "";
+		public decimal DefaultMiningValue { get; set; } = 1m;
+
+		[JsonProperty(Order = 13, PropertyName = "DefaultPlacingValue")]
+		public string DefaultPlacingValueString { get; set; } = "";
+		public decimal DefaultPlacingValue { get; set; } = 1m;
+
+		[JsonProperty(Order = 14)]
 		public Dictionary<string, float> WeaponMultipliers { get; set; } = new Dictionary<string, float>();
+		
+		[JsonProperty(Order = 15)]
+		public ValueOverrideList<string> KillingOverrides { get; set; } = new ValueOverrideList<string>();
 
-		[JsonProperty(Order = 12)]
-		public bool EnableStatueNpcRewards { get; set; } = false;
+		[JsonProperty(Order = 16)]
+		public ValueOverrideList<TileKey> MiningOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
-		//internal usage and non serialized members.
+		[JsonProperty(Order = 17)]
+		public ValueOverrideList<TileKey> PlacingOverrides { get; set; } = new ValueOverrideList<TileKey>();
+
+		[JsonProperty(Order = 18)]
+		public ValueOverrideList<ItemKey> FishingOverrides { get; set; } = new ValueOverrideList<ItemKey>();
+
+		//non serialized members.
 
 		//used internally for fast access to currencies -- do not cache or save this.
 		public int Id { get; internal set; }
-
 		internal string InfoString { get; private set; }
-				
 		internal Dictionary<string, CurrencyQuadrant> NamesToQuadrants { get; private set; }
-		
+				
 		internal void OnInitialize(int id)
 		{
 			Id = id;
 			NamesToQuadrants = createNamesToQuadrants();
 			currencyConverter = new CurrencyConverter(this);
+
+			//set defaults 
+			if(currencyConverter.TryParse(DefaultMiningValueString, out var parsedResult))
+				DefaultMiningValue = parsedResult;
+
+			if( currencyConverter.TryParse(DefaultPlacingValueString, out parsedResult) )
+				DefaultPlacingValue = parsedResult;
+
+			//set overrides
+			KillingOverrides.Initialize(this);
+			MiningOverrides.Initialize(this);
+			PlacingOverrides.Initialize(this);
+			FishingOverrides.Initialize(this);
 		}
 
 		private Dictionary<string, CurrencyQuadrant> createNamesToQuadrants()
@@ -140,6 +171,48 @@ namespace Banking
 			return currencyConverter;
 		}
 
+		//public decimal GetBaseKillingValue(string npc)
+		//{
+		//	return 0m;
+		//}
+
+		/// <summary>
+		/// Computes the base value for mining a tile, that is, before multipliers or modifications.
+		/// </summary>
+		/// <param name="tileOrWallType">The tile type or wall.</param>
+		/// <param name="miningTargetType">Type of tile data, either tile or wall.</param>
+		/// <returns>Base value in generic units.</returns>
+		public decimal GetBaseMiningValue(ushort tileOrWallType, TileSubTarget miningTargetType)
+		{
+			var key = new TileKey(tileOrWallType, miningTargetType);
+
+			if( MiningOverrides.TryGetValue(key, out var valueOverride) )
+				return valueOverride.Value;
+			else
+				return DefaultMiningValue;
+		}
+
+		/// <summary>
+		/// Computes the base value for placing a tile, that is, before multipliers or modifications.
+		/// </summary>
+		/// <param name="tileOrWallType">The tile type or wall.</param>
+		/// <param name="miningTargetType">Type of tile data, either tile or wall.</param>
+		/// <returns>Base value in generic units.</returns>
+		public decimal GetBasePlacingValue(ushort tileOrWallType, TileSubTarget miningTargetType)
+		{
+			var key = new TileKey(tileOrWallType, miningTargetType);
+
+			if( PlacingOverrides.TryGetValue(key, out var valueOverride) )
+				return valueOverride.Value;
+			else
+				return DefaultPlacingValue;
+		}
+
+		//public decimal GetBaseFishingValue(string itemNameOrId, int frameX, int frameY, int wallId)
+		//{
+		//	return 0m;
+		//}
+
 		public override string ToString()
 		{
 			return InternalName;
@@ -160,11 +233,11 @@ namespace Banking
 					var currency = JsonConvert.DeserializeObject<CurrencyDefinition>(json);
 
 					//warn that the default currency is getting overidden
-					if( currency.InternalName == DefaultCurrencyName )
-					{
-						BankingPlugin.Instance.LogPrint($"{file} has overridden the default currency({DefaultCurrencyName}).", TraceLevel.Warning);
-						//continue;
-					}
+					//if( currency.InternalName == DefaultCurrencyName )
+					//{
+					//	BankingPlugin.Instance.LogPrint($"{file} has overridden the default currency({DefaultCurrencyName}).", TraceLevel.Warning);
+					//	//continue;
+					//}
 
 					results.Add(currency);
 				}
