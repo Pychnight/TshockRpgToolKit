@@ -26,7 +26,7 @@ namespace Banking.Rewards
 
 		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
 		{
-			return 1m;// StackSize wont work-- it will be the sum of the previous slot + new items.
+			return currency.DefaultFishingValue;// StackSize wont work-- it will be the sum of the previous slot + new items.
 		}
 	}
 }

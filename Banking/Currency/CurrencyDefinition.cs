@@ -61,25 +61,29 @@ namespace Banking
 
 		[JsonProperty(Order = 12, PropertyName = "DefaultMiningValue")]
 		public string DefaultMiningValueString { get; set; } = "";
-		public decimal DefaultMiningValue { get; set; } = 1m;
+		public decimal DefaultMiningValue = 1m;
 
 		[JsonProperty(Order = 13, PropertyName = "DefaultPlacingValue")]
 		public string DefaultPlacingValueString { get; set; } = "";
-		public decimal DefaultPlacingValue { get; set; } = 1m;
+		public decimal DefaultPlacingValue = 1m;
 
-		[JsonProperty(Order = 14)]
+		[JsonProperty(Order = 14, PropertyName = "DefaultFishingValue")]
+		public string DefaultFishingValueString { get; set; } = "";
+		public decimal DefaultFishingValue = 1m;
+
+		[JsonProperty(Order = 15)]
 		public Dictionary<string, float> WeaponMultipliers { get; set; } = new Dictionary<string, float>();
 		
-		[JsonProperty(Order = 15)]
+		[JsonProperty(Order = 16)]
 		public ValueOverrideList<string> KillingOverrides { get; set; } = new ValueOverrideList<string>();
 
-		[JsonProperty(Order = 16)]
+		[JsonProperty(Order = 17)]
 		public ValueOverrideList<TileKey> MiningOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
-		[JsonProperty(Order = 17)]
+		[JsonProperty(Order = 18)]
 		public ValueOverrideList<TileKey> PlacingOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
-		[JsonProperty(Order = 18)]
+		[JsonProperty(Order = 19)]
 		public ValueOverrideList<ItemKey> FishingOverrides { get; set; } = new ValueOverrideList<ItemKey>();
 
 		//non serialized members.
@@ -101,6 +105,9 @@ namespace Banking
 
 			if( currencyConverter.TryParse(DefaultPlacingValueString, out parsedResult) )
 				DefaultPlacingValue = parsedResult;
+
+			if( currencyConverter.TryParse(DefaultFishingValueString, out parsedResult) )
+				DefaultFishingValue = parsedResult;
 
 			//set overrides
 			KillingOverrides.Initialize(this);
@@ -135,7 +142,7 @@ namespace Banking
 			
 			return mapping;
 		}
-
+		
 		internal void UpdateInfoString()
 		{
 			try
