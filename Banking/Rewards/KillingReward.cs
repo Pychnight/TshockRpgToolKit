@@ -40,6 +40,8 @@ namespace Banking.Rewards
 		{
 			if( NpcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
 				yield break;
+
+			var npcBaseValue = currency.GetKillingValueOverride(NpcGivenOrTypeName) ?? (decimal)NpcValue;
 			
 			foreach( var kvp in StrikeInfo )
 			{
@@ -47,33 +49,29 @@ namespace Banking.Rewards
 				var weaponName = kvp.Value.WeaponName;
 				var damagePercent = kvp.Value.Damage / TotalDamage;
 				var damageDefendedPercent = TotalDamageDefended > 0 ? kvp.Value.DamageDefended / TotalDamageDefended : 0;//avoid divide by 0
-				
-				//foreach( var currency in bank.CurrencyManager )
+							
+				//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
+				//var value = (float)rewardModifier.ModifyBaseRewardValue(RewardReason.Killing, playerName, currency.InternalName, NpcGivenOrTypeName, (decimal)NpcValue);
+				//var value = NpcValue;
+
+				var value = npcBaseValue;
+				var defenseBonus = value * (decimal)(damageDefendedPercent * currency.DefenseBonusMultiplier);
+
+				Debug.Print($"DefenseBonus: {defenseBonus}");
+
+				value *= (decimal)damagePercent;
+
+				//Weapons are implicitly at 1.0, unless modifier is found.
+				float weaponMultiplier = 0;
+				if( weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true )
 				{
-					//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
-					var value = (float)rewardModifier.ModifyBaseRewardValue(RewardReason.Killing, playerName, currency.InternalName, NpcGivenOrTypeName, (decimal)NpcValue);
-					//var value = NpcValue;
-
-					var defenseBonus = value * damageDefendedPercent * currency.DefenseBonusMultiplier;
-
-					Debug.Print($"DefenseBonus: {defenseBonus}");
-
-					value *= damagePercent;
-
-					//Weapons are implicitly at 1.0, unless modifier is found.
-					float weaponMultiplier = 0;
-					if( weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true )
-					{
-						value *= weaponMultiplier;
-					}
-
-					value += defenseBonus;
-					value *= currency.Multiplier;
-					
-					var decimalValue = (decimal)value;
-					
-					yield return new Tuple<string, decimal>(playerName, decimalValue);
+					value *= (decimal)weaponMultiplier;
 				}
+
+				value += defenseBonus;
+				value *= (decimal)currency.Multiplier;
+					
+				yield return new Tuple<string, decimal>(playerName, value);
 			}
 		}
 	}

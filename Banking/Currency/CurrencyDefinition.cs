@@ -178,10 +178,20 @@ namespace Banking
 			return currencyConverter;
 		}
 
-		//public decimal GetBaseKillingValue(string npc)
-		//{
-		//	return 0m;
-		//}
+		/// <summary>
+		/// Gets an override value for killing an npc, should an override exist.
+		/// </summary>
+		/// <remarks>This is related to the GetBase*Value() methods, but works a bit differently in that it tries to find an override value only.
+		/// If one cannot be found, null is returned.</remarks>
+		/// <param name="npcGivenOrTypeName">Npc given or type name string.</param>
+		/// <returns>Decimal value if override exists, null otherwise.</returns>
+		public decimal? GetKillingValueOverride(string npcGivenOrTypeName)
+		{
+			if(KillingOverrides.TryGetValue(npcGivenOrTypeName,out var valueOverride))
+				return valueOverride.Value;
+			else
+				return null;
+		}
 
 		/// <summary>
 		/// Computes the base value for mining a tile, that is, before multipliers or modifications.
@@ -227,6 +237,8 @@ namespace Banking
 
 		public static IList<CurrencyDefinition> LoadCurrencys(string currencyDirectoryPath)
 		{
+			Debug.Print($"Loading CurrencyDefintions at: {currencyDirectoryPath}");
+
 			var currencyFiles = Directory.EnumerateFiles(currencyDirectoryPath, "*.currency");
 			var results = new List<CurrencyDefinition>();
 
@@ -234,6 +246,8 @@ namespace Banking
 
 			foreach(var file in currencyFiles)
 			{
+				Debug.Print($"Attempting to load {file}...");
+
 				try
 				{
 					var json = File.ReadAllText(file);
@@ -247,6 +261,7 @@ namespace Banking
 					//}
 
 					results.Add(currency);
+					Debug.Print($"Success!");
 				}
 				catch(Exception ex)
 				{
