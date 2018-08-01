@@ -61,11 +61,4 @@ namespace Banking.Currency
 			}
 		}
 	}
-	
-	[JsonObject(MemberSerialization.OptIn)]
-	public class ItemKey
-	{
-		//item
-		//prefix
-	}
 }

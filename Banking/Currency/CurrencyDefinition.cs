@@ -225,10 +225,21 @@ namespace Banking
 				return DefaultPlacingValue;
 		}
 
-		//public decimal GetBaseFishingValue(string itemNameOrId, int frameX, int frameY, int wallId)
-		//{
-		//	return 0m;
-		//}
+		/// <summary>
+		/// Computes the base value for catching items through fishing, that is, before multipliers or modifications.
+		/// </summary>
+		/// <param name="itemId">ItemId</param>
+		/// <param name="prefix">Prefix</param>
+		/// <returns>Base value in generic units.</returns>
+		public decimal GetBaseFishingValue(int itemId, byte prefix)
+		{
+			var key = new ItemKey(itemId, prefix);
+
+			if( FishingOverrides.TryGetValue(key, out var valueOverride) )
+				return valueOverride.Value;
+			else
+				return DefaultFishingValue;
+		}
 
 		public override string ToString()
 		{
