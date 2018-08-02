@@ -21,8 +21,6 @@ namespace Banking
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyDefinition
 	{
-		const string DefaultCurrencyName = "TerrariaCoin";
-
 		[JsonProperty(Order = 0)]
 		public string InternalName { get; set; }
 
@@ -248,13 +246,22 @@ namespace Banking
 
 		public static IList<CurrencyDefinition> LoadCurrencys(string currencyDirectoryPath)
 		{
-			Debug.Print($"Loading CurrencyDefintions at: {currencyDirectoryPath}");
+			Debug.Print($"Loading CurrencyDefinitions at: {currencyDirectoryPath}");
 
 			var currencyFiles = Directory.EnumerateFiles(currencyDirectoryPath, "*.currency");
 			var results = new List<CurrencyDefinition>();
+			
+#if DEBUG
+			if( currencyFiles.Count()<1)
+			{
+				BankingPlugin.Instance.LogPrint("No .currency files found, creating default 'TerrariaCoin.currency'.", TraceLevel.Warning);
+				results.Add(CreateDefaultCurrency());
 
-			results.Add(CreateDefaultCurrency());
-
+				SaveCurrencys(currencyDirectoryPath,results);
+				return results;
+			}
+#endif
+			
 			foreach(var file in currencyFiles)
 			{
 				Debug.Print($"Attempting to load {file}...");
@@ -263,14 +270,7 @@ namespace Banking
 				{
 					var json = File.ReadAllText(file);
 					var currency = JsonConvert.DeserializeObject<CurrencyDefinition>(json);
-
-					//warn that the default currency is getting overidden
-					//if( currency.InternalName == DefaultCurrencyName )
-					//{
-					//	BankingPlugin.Instance.LogPrint($"{file} has overridden the default currency({DefaultCurrencyName}).", TraceLevel.Warning);
-					//	//continue;
-					//}
-
+					
 					results.Add(currency);
 					Debug.Print($"Success!");
 				}
@@ -291,7 +291,7 @@ namespace Banking
 			{
 				try
 				{
-					var filePath = Path.Combine(currencyDirectoryPath, currency.InternalName,".currency");
+					var filePath = Path.Combine(currencyDirectoryPath, currency.InternalName + ".currency");
 					var json = JsonConvert.SerializeObject(currency);
 					File.WriteAllText(filePath, json);
 				}
@@ -308,6 +308,8 @@ namespace Banking
 		/// <returns></returns>
 		internal static CurrencyDefinition CreateDefaultCurrency()
 		{
+			const string DefaultCurrencyName = "TerrariaCoin";
+
 			var result = new CurrencyDefinition();
 
 			result.InternalName = DefaultCurrencyName;
