@@ -89,6 +89,9 @@ namespace Banking
 		public bool TryFindCurrencyFromString(string value, out CurrencyDefinition currency)
 		{
 			currency = null;
+
+			if( string.IsNullOrWhiteSpace(value) )
+				return false;
 			
 			var quadNames = CurrencyConverter.ParseQuadrantNames(value);
 			if( quadNames.Count < 1 )
