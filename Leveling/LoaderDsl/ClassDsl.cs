@@ -93,7 +93,7 @@ namespace Leveling.LoaderDsl
 
 		public static void SEconomyCost(long expCost)
 		{
-			ClassDefinition.SEconomyCost = expCost;
+			//ClassDefinition.SEconomyCost = expCost;
 		}
 
 		public static void CurrencyType() { CurrencyType(null); }

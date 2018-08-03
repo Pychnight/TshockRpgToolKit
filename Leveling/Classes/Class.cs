@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Banking;
@@ -84,20 +85,25 @@ namespace Leveling.Classes
         /// </summary>
         public IList<string> PrerequisitePermissions => _definition.PrerequisitePermissions;
 
-        /// <summary>
-        ///     Gets the SEconomy cost to enter this class.
-        /// </summary>
-        public long SEconomyCost => _definition.SEconomyCost;
-
 		/// <summary>
-		///		Gets the Banking CurrencyType to be used when switching to this class.
+		/// Gets the CurrencyDefinition this Class uses for leveling purposes.
 		/// </summary>
-		public string CurrencyType => _definition.CurrencyType;
-
+		public CurrencyDefinition LevelingCurrency => _definition.LevelingCurrency;
+		
 		/// <summary>
 		///		Gets the Exp Currency cost to enter this class.
 		/// </summary>
-		public string CurrencyCost => _definition.CurrencyCost;
+		public string CostString => _definition.CostString;
+
+		/// <summary>
+		/// Gets the parsed equivalent of CostString.
+		/// </summary>
+		public decimal Cost => _definition.Cost;
+
+		/// <summary>
+		/// Gets the Currency used to enter this class, if one exists.
+		/// </summary>
+		public CurrencyDefinition CostCurrency => _definition.CostCurrency;
 
 		/// <summary>
 		///		Gets the list of Commands to run on first change to the class.
@@ -148,26 +154,5 @@ namespace Leveling.Classes
                 }
             }
         }
-
-		/// <summary>
-		///		Returns the monetary cost of switching to this class, if a valid CurrencyType and CurrencyCost are configured. 
-		/// </summary>
-		/// <returns>Decimal value on success, null if not.</returns>
-		public decimal? GetSwitchingCurrencyCost()
-		{
-			if( string.IsNullOrWhiteSpace(CurrencyType) )
-				return null;
-
-			if( string.IsNullOrWhiteSpace(CurrencyCost))
-				return null;
-
-			if( !BankingPlugin.Instance.TryGetCurrency(CurrencyType, out var currency) )
-				return null;
-
-			if( !currency.GetCurrencyConverter().TryParse(CurrencyCost, out var value) )
-				return null;
-
-			return value;
-		}
     }
 }

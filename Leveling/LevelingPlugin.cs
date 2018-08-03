@@ -11,7 +11,7 @@ using Corruption.PluginSupport;
 using Leveling.Classes;
 using Leveling.Database;
 using Leveling.Levels;
-using Leveling.LoaderDsl;
+//using Leveling.LoaderDsl;
 using Leveling.Sessions;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -187,13 +187,13 @@ namespace Leveling
 				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: Unable to retrieve BankingPlugin.Instance", TraceLevel.Error);
 			}
 
-			if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
-			{
-				throw new Exception($"LevelingPlugin requires BankingPlugin to have an \"Exp\" Currency.");
-				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: BankingPlugin must have an \"Exp\" Currency.", TraceLevel.Error);
-			}
+			//if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
+			//{
+			//	throw new Exception($"LevelingPlugin requires BankingPlugin to have an \"Exp\" Currency.");
+			//	//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: BankingPlugin must have an \"Exp\" Currency.", TraceLevel.Error);
+			//}
 
-			ExpCurrency = currency;
+			//ExpCurrency = currency;
 
 			//if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
 			//{
@@ -220,43 +220,44 @@ namespace Leveling
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 			
 			var dbConfig = Config.Instance.DatabaseConfig;
-			//SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379,defaultDatabase=1");
 			SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
 			initializeBanking();
 
 			Directory.CreateDirectory(classDirectory);
 
-			var classDefs = loadClassDefinitions(classDirectory);
-
+			//var classDefs = loadClassDefinitions(classDirectory);
+			var classDefs = ClassDefinition.Load(classDirectory);
+			
 			//filter out duplicate names
-			var classNames = new HashSet<string>(classDefs.Select(cd => cd.Name));
-			var booDefs = loadBooClassDefinitions(classDirectory)
-							.Where(cd => !classNames.Contains(cd.Name))
-							.Select(cd => cd);
+			//var classNames = new HashSet<string>(classDefs.Select(cd => cd.Name));
+			//var booDefs = loadBooClassDefinitions(classDirectory)
+			//				.Where(cd => !classNames.Contains(cd.Name))
+			//				.Select(cd => cd);
 										
-			classDefs.AddRange(booDefs);
-
-			classDefs.ForEach(cd => cd.ValidateAndFix());
+			//classDefs.AddRange(booDefs);
+			//classDefs.ForEach(cd => cd.ValidateAndFix());
 						
 			_classDefinitions = classDefs;
 			_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
 						
-			//if default class file does not exist, we're in an error state
-			if( _classDefinitions.Select(cd => cd.Name).
-				FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
-			{
-				//throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
-				ServerApi.LogWriter.PluginWriteLine(this, $"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
-				//_classDefinitions.Clear();
-				//_classes.Clear();
-				//return;
-			}
+			////if default class file does not exist, we're in an error state
+			//if( _classDefinitions.Select(cd => cd.Name).
+			//	FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
+			//{
+			//	//throw new Exception($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found.");
+			//	ServerApi.LogWriter.PluginWriteLine(this, $"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
+			//	//_classDefinitions.Clear();
+			//	//_classes.Clear();
+			//	//return;
+			//}
 
-			foreach(var def in classDefs)
-			{
-				def.PreParseRewardValues(ExpCurrency);
-			}
+			//foreach(var def in classDefs)
+			//{
+			//	//disabled during conversion to multi currency
+			//	//def.PreParseRewardValues(ExpCurrency);
+			//	def.PreParseRewardValues();
+			//}
 			
 			ItemNameToLevelRequirements?.Clear();
 			var levels = _classes.SelectMany(c => c.Levels).ToList();
@@ -276,7 +277,8 @@ namespace Leveling
 				}
 			}
 
-			BankingPlugin.Instance.RewardDistributor.SetRewardModifier(ExpCurrency.InternalName, RewardReason.Killing, new ClassExpRewardEvaluator());
+			//disabled during multi currency conversion
+			//BankingPlugin.Instance.RewardDistributor.SetRewardModifier(ExpCurrency.InternalName, RewardReason.Killing, new ClassExpRewardEvaluator());
 
 			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
 			//  .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
@@ -300,39 +302,31 @@ namespace Leveling
 			//	}
 			//}
 		}
-
-		private List<ClassDefinition> loadClassDefinitions(string directoryPath)
-		{
-			//Debug.Print("Loading json classes...");
-			var files = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
-
-			return files.Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-		}
-
-		private List<ClassDefinition> loadBooClassDefinitions(string directoryPath)
-		{
-			//Debug.Print("Loading boo classes...");
-			var fileNames = Directory.EnumerateFiles(directoryPath, "*.bclass", SearchOption.AllDirectories);
-			var classCompiler = new ClassCompiler();
-			var definitions = new List<ClassDefinition>();
+		
+		//private List<ClassDefinition> loadBooClassDefinitions(string directoryPath)
+		//{
+		//	//Debug.Print("Loading boo classes...");
+		//	var fileNames = Directory.EnumerateFiles(directoryPath, "*.bclass", SearchOption.AllDirectories);
+		//	var classCompiler = new ClassCompiler();
+		//	var definitions = new List<ClassDefinition>();
 			
-			foreach( var classFile in fileNames )
-			{
-				try
-				{
-					var def = classCompiler.LoadClassDefinition(classFile);
-					var newClass = new Class(def);
-					definitions.Add(def);
-				}
-				catch(Exception ex)
-				{
-					Debug.Print($"Error while loading boo class '{classFile}'.");
-					Debug.Print($"{ex.Message}");
-				}
-			}
+		//	foreach( var classFile in fileNames )
+		//	{
+		//		try
+		//		{
+		//			var def = classCompiler.LoadClassDefinition(classFile);
+		//			var newClass = new Class(def);
+		//			definitions.Add(def);
+		//		}
+		//		catch(Exception ex)
+		//		{
+		//			Debug.Print($"Error while loading boo class '{classFile}'.");
+		//			Debug.Print($"{ex.Message}");
+		//		}
+		//	}
 			
-			return definitions;
-		}
+		//	return definitions;
+		//}
 
         private void AddHp(CommandArgs args)
         {
@@ -465,9 +459,9 @@ namespace Leveling
             else
             {
                 var inputClassName = parameters[0];
-                var @class = _classes.FirstOrDefault(
+                var klass = _classes.FirstOrDefault(
                     c => string.Equals(c.DisplayName, inputClassName, StringComparison.OrdinalIgnoreCase));
-                if (@class == null)
+                if (klass == null)
                 {
                     player.SendErrorMessage($"Invalid class '{inputClassName}'.");
                     return;
@@ -484,65 +478,51 @@ namespace Leveling
                     return;
                 }
 
-                if (session.UnlockedClasses.Contains(@class))
+                if (session.UnlockedClasses.Contains(klass))
                 {
-                    session.Class = @class;
-                    player.SendSuccessMessage($"Changed to the {@class} class.");
+                    session.Class = klass;
+                    player.SendSuccessMessage($"Changed to the {klass} class.");
                     return;
                 }
 
-                var missingLevels = @class.PrerequisiteLevels.Where(l => !session.HasLevel(l)).ToList();
+                var missingLevels = klass.PrerequisiteLevels.Where(l => !session.HasLevel(l)).ToList();
                 if (missingLevels.Count > 0)
                 {
                     player.SendErrorMessage(
-                        $"You can't unlock the {@class} class, as you haven't reached " +
+                        $"You can't unlock the {klass} class, as you haven't reached " +
                         $"{string.Join(", ", missingLevels.Select(l => $"{l} {l.Class}"))}");
                     return;
                 }
 
-                var missingPermissions = @class.PrerequisitePermissions.Where(p => !player.HasPermission(p)).ToList();
+                var missingPermissions = klass.PrerequisitePermissions.Where(p => !player.HasPermission(p)).ToList();
                 if (missingPermissions.Count > 0)
                 {
                     player.SendErrorMessage(
-                        $"You can't unlock the {@class} class, as you don't have the " +
+                        $"You can't unlock the {klass} class, as you don't have the " +
                         $"{string.Join(", ", missingPermissions)} permission(s).");
                     return;
                 }
-
-				//if (@class.SEconomyCost > 0)
-				var cost = @class.GetSwitchingCurrencyCost();
-				if(cost>0)
+								
+				if( klass.CostCurrency != null && klass.Cost > 0)
                 {
-					//we were going to try to remove seconomy cost at first, but now may just leave it in for compatibility purposes.
-					//some of the below code is wonky because of the change that didnt fully take place.
-
-					//var cost = new Money(@class.SEconomyCost);
-					//var cost = @class.ExpCost;
-					//var cost = @class.SEconomyCost;
-					//var moneyCost = (decimal)cost;
-                    player.SendInfoMessage($"It costs [c/{Color.OrangeRed.Hex3()}:{@class.CurrencyCost}] to unlock the {@class} class.");
+					player.SendInfoMessage($"It costs [c/{Color.OrangeRed.Hex3()}:{klass.CostString}] to unlock the {klass} class.");
                     player.SendInfoMessage("Do you wish to proceed? Type /yes or /no.");
                     player.AddResponse("yes", args2 =>
                     {
                         player.AwaitingResponse.Remove("no");
-						
-						//var bankAccount = SEconomyPlugin.Instance?.GetBankAccount(player);
-						var bankAccount = BankingPlugin.Instance.GetBankAccount(player, @class.CurrencyType);
-						if (bankAccount == null || bankAccount.Balance < cost)
+												
+						var bankAccount = BankingPlugin.Instance.GetBankAccount(player, klass.CostCurrency.InternalName);
+						if (bankAccount == null || bankAccount.Balance < klass.Cost)
                         {
-                            player.SendErrorMessage( $"Insufficienet funds to unlock the {@class} class.");
+                            player.SendErrorMessage( $"Insufficient funds to unlock the {klass} class.");
                             return;
                         }
 
-						//bankAccount.TransferTo(SEconomyPlugin.Instance.WorldAccount, cost,
-						//                       BankAccountTransferOptions.IsPayment, $"Unlocking the {@class} class",
-						//                       $"Unlocking the {@class} class.");
-						
-						if(bankAccount.TryTransferTo(BankingPlugin.Instance.GetBankAccount("Server", @class.CurrencyType), (decimal)cost))
+						if(bankAccount.TryTransferTo(BankingPlugin.Instance.GetBankAccount("Server", klass.CostCurrency.InternalName), klass.Cost))
 						{
-							session.UnlockClass(@class);
-							session.Class = @class;
-							player.SendSuccessMessage($"Changed to the {@class} class.");
+							session.UnlockClass(klass);
+							session.Class = klass;
+							player.SendSuccessMessage($"Changed to the {klass} class.");
 						}
 						else
 						{
@@ -552,14 +532,14 @@ namespace Leveling
                     player.AddResponse("no", args2 =>
                     {
                         player.AwaitingResponse.Remove("yes");
-                        player.SendInfoMessage($"Canceled unlocking the {@class} class.");
+                        player.SendInfoMessage($"Canceled unlocking the {klass} class.");
                     });
                     return;
                 }
 
-                session.UnlockClass(@class);
-                session.Class = @class;
-                player.SendSuccessMessage($"Changed to the {@class} class.");
+                session.UnlockClass(klass);
+                session.Class = klass;
+                player.SendSuccessMessage($"Changed to the {klass} class.");
             }
         }
 

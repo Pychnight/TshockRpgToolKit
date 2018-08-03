@@ -171,14 +171,19 @@ namespace Leveling.Sessions
 
 		internal static void OnBankAccountBalanceChanged(object sender, BalanceChangedEventArgs args)
 		{
-			//Debug.Print($"BankAccountBalanceChanged! {args.Name}");
+			Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
 
-			if(args.Name.StartsWith(LevelingPlugin.BankAccountNamePrefix))
+			if(args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix))
 			{
+				//itd be better to cache player names -> players.... not the nicest function internally
 				var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
-				var session = LevelingPlugin.Instance.GetOrCreateSession(player);
 
-				session.ExpUpdated(args);
+				//dont bother with session for disconnected players ( bank may update accounts on players not logged in )
+				if(player!=null)
+				{
+					var session = LevelingPlugin.Instance.GetOrCreateSession(player);
+					session.ExpUpdated(args);
+				}
 			}
 		}
 
@@ -467,7 +472,11 @@ namespace Leveling.Sessions
 			setBankAccountForClass(Class);
 		}
 
-		private void EnsureBankAccounts(IList<Class> classes)
+		/// <summary>
+		/// Creates bank accounts for each Class, for the Player if none exist.
+		/// </summary>
+		/// <param name="classes"></param>
+		internal void EnsureBankAccounts(IEnumerable<Class> classes)
 		{
 			var bank = BankingPlugin.Instance?.Bank;
 
@@ -482,6 +491,11 @@ namespace Leveling.Sessions
 			}
 		}
 
+		/// <summary>
+		/// Sets the bank account used for the Class. 
+		/// </summary>
+		/// <remarks>For now, we remap the bank account name "Exp" to any number of user-hidden, "exp_class" bank accounts.</remarks>
+		/// <param name="klass">Class</param>
 		private void setBankAccountForClass(Class klass)
 		{
 			var bank = BankingPlugin.Instance?.Bank;

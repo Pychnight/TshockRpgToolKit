@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using Banking;
+using Corruption.PluginSupport;
 using Leveling.Levels;
 using Leveling.Sessions;
 using Newtonsoft.Json;
@@ -39,28 +42,38 @@ namespace Leveling.Classes
 		[JsonProperty(Order = 3)]
 		public IList<string> PrerequisitePermissions { get; internal set; } = new List<string>();
 
-		/// <summary>
-		///     Gets the SEconomy cost to enter this class.
-		/// </summary>
-		/// <remarks>This member is obsolete, and left for backwards compatibility. Use ExpCost instead.</remarks>
-		[JsonProperty(Order = 4)]
-		public long SEconomyCost
-		{
-			get { return (long)InternalCost; }
-			set { InternalCost = value; }
-		}
+		///// <summary>
+		/////     Gets the SEconomy cost to enter this class.
+		///// </summary>
+		///// <remarks>This member is obsolete, and left for backwards compatibility. Use ExpCost instead.</remarks>
+		//[JsonProperty(Order = 4)]
+		//public long SEconomyCost
+		//{
+		//	get { return (long)InternalCost; }
+		//	set { InternalCost = value; }
+		//}
 
-		/// <summary>
-		///		Gets the CurrencyType used for CurrencyCost.
-		/// </summary>
-		[JsonProperty(Order = 5)]
-		public string CurrencyType { get; set; } = "Exp";
-				
+		///// <summary>
+		/////		Gets the CurrencyType used for CurrencyCost.
+		///// </summary>
+		//[JsonProperty(Order = 5)]
+		//public string CurrencyType { get; set; } = "Exp";
+		
 		/// <summary>
 		///		Gets the Currency cost to enter this class.
 		/// </summary>
-		[JsonProperty(Order = 6)]
-		public string CurrencyCost { get; set; }
+		[JsonProperty(Order = 6, PropertyName = "Cost")]
+		public string CostString { get; set; } = "";
+
+		/// <summary>
+		/// The parsed equivalent of CostString.
+		/// </summary>
+		public decimal Cost { get; set; }
+
+		/// <summary>
+		/// The Currency used to to enter this class.
+		/// </summary>
+		public CurrencyDefinition CostCurrency { get; set; }
 
 		/// <summary>
 		///     Gets a value indicating whether to allow switching the class after mastery.
@@ -99,6 +112,11 @@ namespace Leveling.Classes
 		public IList<LevelDefinition> LevelDefinitions { get; internal set; } = new List<LevelDefinition>();
 
 		/// <summary>
+		/// Gets or sets the Currency used for Leveling purposes.
+		/// </summary>
+		public CurrencyDefinition LevelingCurrency { get; set; }
+
+		/// <summary>
 		///     Gets the mapping of NPC names to EXP rewards.
 		/// </summary>
 		[JsonProperty("NpcToExpReward", Order = 13)]
@@ -108,12 +126,7 @@ namespace Leveling.Classes
 		///		Gets a mapping of NPC names to preparsed EXP values.
 		/// </summary>
 		internal Dictionary<string, decimal> ParsedNpcNameToExpValues { get; set; } = new Dictionary<string, decimal>();
-		
-		/// <summary>
-		///		Currency neutral "backing" cost, for ExpCost and SEconomyCost.
-		/// </summary>
-		internal double InternalCost { get; set; }
-		
+				
 		//--- new stuff
 		public string DisplayInfo { get; internal set; }
 
@@ -129,11 +142,107 @@ namespace Leveling.Classes
 			return $"[ClassDefinition '{Name}']";
 		}
 
+		public static List<ClassDefinition> Load(string directoryPath)
+		{
+			var results = new List<ClassDefinition>();
+			var files = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
+			
+			foreach( var f in files )
+			{
+				try
+				{
+					var json = File.ReadAllText(f);
+					var def = JsonConvert.DeserializeObject<ClassDefinition>(json);
+					
+					if(def.Initialize())
+						results.Add(def);
+				}
+				catch(Exception ex)
+				{
+					LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+				}
+			}
+			
+			//filter out duplicate names
+			//var classNames = new HashSet<string>(results.Select(cd => cd.Name));
+			//var booDefs = loadBooClassDefinitions(classDirectory)
+			//				.Where(cd => !classNames.Contains(cd.Name))
+			//				.Select(cd => cd);
+
+			//classDefs.AddRange(booDefs);
+			//classDefs.ForEach(cd => cd.ValidateAndFix());
+			//_classDefinitions = classDefs;
+			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+
+			//if default class file does not exist, we're in an error state
+			if( results.Select(cd => cd.Name)
+						.FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
+			{
+				LevelingPlugin.Instance.LogPrint($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
+			}
+			
+			return results;
+		}
+		
+
+		internal bool Initialize()
+		{
+			ValidateAndFix();
+			ResolveClassCurrency();
+			//ResolveLevelingCurrency();
+			PreParseRewardValues();
+
+			return true;//in future, we can check whether the class is actually valid, or needs to be rejected.
+		}
+
 		/// <summary>
-		///		Preparse Reward strings to numeric values.
+		/// Attempts to determine the Currency's and Values for the class cost.
 		/// </summary>
-		/// <param name="currency">Banking.Currency used for Experience.</param>
-		internal void PreParseRewardValues(CurrencyDefinition currency)
+		private bool ResolveClassCurrency()
+		{
+			var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
+
+			if( currencyMgr.TryFindCurrencyFromString(CostString, out var costCurrency) )
+			{
+				if(costCurrency.GetCurrencyConverter().TryParse(CostString, out var costValue))
+				{
+					Cost = costValue;
+					CostCurrency = costCurrency;
+					return true;
+				}
+			}
+			
+			LevelingPlugin.Instance.LogPrint($"Could not determine currency or value for switching to class '{Name}'.", TraceLevel.Warning);
+			LevelingPlugin.Instance.LogPrint($"Ensure that the 'Cost' property has a properly formatted currency string set.", TraceLevel.Info);
+
+			return false;
+		}
+
+		///// <summary>
+		///// Attempts to determine the Currency's and Values for the levels within the class.
+		///// </summary>
+		//private bool ResolveLevelingCurrency()
+		//{
+		//	//determine leveling currency
+		//	var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
+
+		//	if( currencyMgr.TryFindCurrencyFromString(CostString, out var costCurrency) )
+		//	{
+		//		if( costCurrency.GetCurrencyConverter().TryParse(CostString, out var costValue) )
+		//		{
+		//			Cost = costValue;
+		//			CostCurrency = costCurrency;
+		//			return true;
+		//		}
+		//	}
+
+		//	foreach( var lvl in LevelDefinitions )
+		//	{
+		//		lvl.ExpRequired;
+		//	}
+		//}
+
+		private void PreParseRewardValues()
 		{
 			ParsedNpcNameToExpValues.Clear();
 
@@ -141,20 +250,45 @@ namespace Leveling.Classes
 			{
 				decimal unitValue;
 
-				if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
-				{
-					ParsedNpcNameToExpValues.Add(kvp.Key, unitValue);
-				}
-				else
-				{
-					Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
-				}
+				//if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
+				//{
+				//	ParsedNpcNameToExpValues.Add(kvp.Key, unitValue);
+				//}
+				//else
+				//{
+				//	Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
+				//}
 			}
 		}
 
-		internal void ValidateAndFix()
+		///// <summary>
+		/////		Preparse Reward strings to numeric values.
+		///// </summary>
+		///// <param name="currency">Banking.Currency used for Experience.</param>
+		//internal void PreParseRewardValues(CurrencyDefinition currency)
+		//{
+		//	ParsedNpcNameToExpValues.Clear();
+
+		//	foreach( var kvp in NpcNameToExpReward )
+		//	{
+		//		decimal unitValue;
+
+		//		if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
+		//		{
+		//			ParsedNpcNameToExpValues.Add(kvp.Key, unitValue);
+		//		}
+		//		else
+		//		{
+		//			Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
+		//		}
+		//	}
+		//}
+
+		/// <summary>
+		/// Checks that the ClassDefinition is valid, and it not, attempts to bring it into a valid state.
+		/// </summary>
+		private void ValidateAndFix()
 		{
-			var plugin = LevelingPlugin.Instance;
 			var levelNames = new HashSet<string>();
 			var duplicateLevelDefinitions = new List<LevelDefinition>();
 
@@ -162,7 +296,7 @@ namespace Leveling.Classes
 			{
 				if(!levelNames.Add(def.Name))
 				{
-					ServerApi.LogWriter.PluginWriteLine(plugin, $"Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
+					LevelingPlugin.Instance.LogPrint($"Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
 					duplicateLevelDefinitions.Add(def);
 				}
 			}
