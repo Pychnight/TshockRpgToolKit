@@ -41,23 +41,6 @@ namespace Leveling.Classes
 		/// </summary>
 		[JsonProperty(Order = 3)]
 		public IList<string> PrerequisitePermissions { get; internal set; } = new List<string>();
-
-		///// <summary>
-		/////     Gets the SEconomy cost to enter this class.
-		///// </summary>
-		///// <remarks>This member is obsolete, and left for backwards compatibility. Use ExpCost instead.</remarks>
-		//[JsonProperty(Order = 4)]
-		//public long SEconomyCost
-		//{
-		//	get { return (long)InternalCost; }
-		//	set { InternalCost = value; }
-		//}
-
-		///// <summary>
-		/////		Gets the CurrencyType used for CurrencyCost.
-		///// </summary>
-		//[JsonProperty(Order = 5)]
-		//public string CurrencyType { get; set; } = "Exp";
 		
 		/// <summary>
 		///		Gets the Currency cost to enter this class.
@@ -184,12 +167,11 @@ namespace Leveling.Classes
 			return results;
 		}
 		
-
 		internal bool Initialize()
 		{
 			ValidateAndFix();
 			ResolveClassCurrency();
-			//ResolveLevelingCurrency();
+			ResolveLevelingCurrency();
 			PreParseRewardValues();
 
 			return true;//in future, we can check whether the class is actually valid, or needs to be rejected.
@@ -212,35 +194,66 @@ namespace Leveling.Classes
 				}
 			}
 			
-			LevelingPlugin.Instance.LogPrint($"Could not determine currency or value for switching to class '{Name}'.", TraceLevel.Warning);
+			LevelingPlugin.Instance.LogPrint($"Could not determine currency or value for switching to class '{Name}'.", TraceLevel.Warning);//not an error, in the strict sense of the word.
 			LevelingPlugin.Instance.LogPrint($"Ensure that the 'Cost' property has a properly formatted currency string set.", TraceLevel.Info);
 
 			return false;
 		}
 
-		///// <summary>
-		///// Attempts to determine the Currency's and Values for the levels within the class.
-		///// </summary>
-		//private bool ResolveLevelingCurrency()
-		//{
-		//	//determine leveling currency
-		//	var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
+		/// <summary>
+		/// Attempts to determine the Currency's and Values for the levels within the class.
+		/// </summary>
+		private bool ResolveLevelingCurrency()
+		{
+			//determine leveling currency
+			var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
+			
+			foreach( var lvl in LevelDefinitions )
+			{
+				if( string.IsNullOrWhiteSpace(lvl.CurrencyRequired) )
+					continue;//no currency value was set
 
-		//	if( currencyMgr.TryFindCurrencyFromString(CostString, out var costCurrency) )
-		//	{
-		//		if( costCurrency.GetCurrencyConverter().TryParse(CostString, out var costValue) )
-		//		{
-		//			Cost = costValue;
-		//			CostCurrency = costCurrency;
-		//			return true;
-		//		}
-		//	}
+				if( currencyMgr.TryFindCurrencyFromString(lvl.CurrencyRequired, out var lvlCurrency) )
+				{
+					if( lvlCurrency.GetCurrencyConverter().TryParse(lvl.CurrencyRequired, out var requiredValue) )
+					{
+						if( LevelingCurrency == null )
+						{
+							//no leveling currency has been set yet...
+							LevelingCurrency = lvlCurrency;
+							lvl.ExpRequired = (long)requiredValue;
+						}
+						else
+						{
+							//a leveling currency has been set, so we should flag any currency's that do not match the set currency.
+							if(lvlCurrency==LevelingCurrency)
+								lvl.ExpRequired = (long)requiredValue;
+							else
+							{
+								LevelingPlugin.Instance.LogPrint($"Currency '{lvlCurrency.InternalName}' used in 'CurrencyRequired' in level '{lvl.Name}' in class '{Name}' does not match previously set currency '{LevelingCurrency.InternalName}'. Falling back to 'ExpLevel'.", TraceLevel.Error);
+							}
+						}
+					}
+					else
+					{
+						LevelingPlugin.Instance.LogPrint($"Couldn't parse 'CurrencyRequired' in level '{lvl.Name}' in class '{Name}'. Using 'ExpLevel' instead.", TraceLevel.Error);
+					}
+				}
+				else
+				{
+					LevelingPlugin.Instance.LogPrint($"Couldn't determine currency type in level '{lvl.Name}' in class '{Name}'. Using 'ExpLevel' instead.", TraceLevel.Error);
+					LevelingPlugin.Instance.LogPrint($"Ensure that the 'CurrencyRequired' property has a properly formatted currency string set, or that 'ExpLevel' is set instead.", TraceLevel.Info);
+				}
+			}
 
-		//	foreach( var lvl in LevelDefinitions )
-		//	{
-		//		lvl.ExpRequired;
-		//	}
-		//}
+			if(LevelingCurrency==null)
+			{
+				LevelingPlugin.Instance.LogPrint($"Could not determine a LevelingCurrency for class '{Name}'. Members of this class will be unable to change levels.", TraceLevel.Error);
+				LevelingPlugin.Instance.LogPrint($"Ensure that at least one Level has a 'CurrencyRequired' property with a properly formatted currency string set.", TraceLevel.Info);
+			}
+
+			return true;//just pass it for now, future iterations can handle this better.
+		}
 
 		private void PreParseRewardValues()
 		{

@@ -54,6 +54,11 @@ namespace Leveling.Levels
         /// </summary>
         public long ExpRequired => _definition.ExpRequired;
 
+		/// <summary>
+		///		Gets the CurrencyRequired string, if any.
+		/// </summary>
+		public string CurrencyRequired => _definition.CurrencyRequired;
+
         /// <summary>
         ///     Gets the set of item names allowed.
         /// </summary>

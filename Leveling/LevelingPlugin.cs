@@ -186,23 +186,7 @@ namespace Leveling
 				throw new Exception($"Unable to retrieve BankingPlugin.Instance");
 				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: Unable to retrieve BankingPlugin.Instance", TraceLevel.Error);
 			}
-
-			//if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
-			//{
-			//	throw new Exception($"LevelingPlugin requires BankingPlugin to have an \"Exp\" Currency.");
-			//	//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: BankingPlugin must have an \"Exp\" Currency.", TraceLevel.Error);
-			//}
-
-			//ExpCurrency = currency;
-
-			//if( !BankingPlugin.Instance.TryGetCurrency("Exp", out var currency) )
-			//{
-			//	throw new Exception($"LevelingPlugin requires BankingPlugin to have an \"Exp\" Currency.");
-			//	//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: BankingPlugin must have an \"Exp\" Currency.", TraceLevel.Error);
-			//}
-
-			//PurchaseCurrency = currency;
-			
+						
 			var bank = BankingPlugin.Instance.Bank;
 
 			//bank.BankAccountBalanceChanged += (s, a) =>

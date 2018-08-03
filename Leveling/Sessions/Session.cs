@@ -35,7 +35,7 @@ namespace Leveling.Sessions
         private DateTime _lastCombatTextTime;
         private DateTime _lastExpReportTime;
         private DateTime _lastItemCheckTime;
-
+		
         /// <summary>
         ///     Initializes a new instance of the <see cref="Session" /> class with the specified player and definition.
         /// </summary>
@@ -169,22 +169,49 @@ namespace Leveling.Sessions
 			}
         }
 
+		//internal static void OnBankAccountBalanceChanged(object sender, BalanceChangedEventArgs args)
+		//{
+		//	Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
+
+		//	if(args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix))
+		//	{
+		//		//itd be better to cache player names -> players.... not the nicest function internally
+		//		var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
+
+		//		//dont bother with session for disconnected players ( bank may update accounts on players not logged in )
+		//		if(player!=null)
+		//		{
+		//			var session = LevelingPlugin.Instance.GetOrCreateSession(player);
+		//			session.ExpUpdated(args);
+		//		}
+		//	}
+		//}
+
 		internal static void OnBankAccountBalanceChanged(object sender, BalanceChangedEventArgs args)
 		{
 			Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
 
-			if(args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix))
-			{
-				//itd be better to cache player names -> players.... not the nicest function internally
-				var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
+			if( args.OwnerName == "Server" )
+				return;
 
-				//dont bother with session for disconnected players ( bank may update accounts on players not logged in )
-				if(player!=null)
-				{
-					var session = LevelingPlugin.Instance.GetOrCreateSession(player);
-					session.ExpUpdated(args);
-				}
-			}
+			//we're only interested in non experience account transactions. ( or put differently, we want publicly visible accounts, not our hidden shadow accounts.)
+			if( args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix) )
+				return;
+
+			//dont bother with session for disconnected players ( bank may update accounts on players not logged in )
+			var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
+			if( player == null )
+				return;
+							
+			var session = LevelingPlugin.Instance.GetOrCreateSession(player);
+			var lvlCurrency = session.Class.LevelingCurrency;
+			
+			//if this currency is not the leveling currency, then ignore
+			if( lvlCurrency?.InternalName != args.AccountName )
+				return;
+
+			session.Exp += (long)args.Change;
+			session.ExpUpdated(args);
 		}
 
 		/// <summary>
