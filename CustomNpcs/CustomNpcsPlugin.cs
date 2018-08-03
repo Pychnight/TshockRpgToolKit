@@ -66,7 +66,7 @@ namespace CustomNpcs
 		public override void Initialize()
 		{
 			GeneralHooks.ReloadEvent += OnReload;
-			//ServerApi.Hooks.GamePostInitialize.Register(this,onGamePostInitialize);
+			ServerApi.Hooks.GamePostInitialize.Register(this,OnGamePostInitialize);
 
 			Commands.ChatCommands.Add(new Command("customnpcs.cinvade", CustomInvade, "cinvade"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cmaxspawns", CustomMaxSpawns, "cmaxspawns"));
@@ -82,8 +82,6 @@ namespace CustomNpcs
 #if DEBUG
 			Commands.ChatCommands.Add(new Command("customnpcs.debug", TileSnake, "tilesnake"));
 #endif
-
-			onLoad();
 		}
 		
 		/// <summary>
@@ -104,15 +102,16 @@ namespace CustomNpcs
 				ProjectileManager.Instance = null;
 
 				GeneralHooks.ReloadEvent -= OnReload;
+				ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
 			}
 
 			base.Dispose(disposing);
 		}
-		
-		//private void onGamePostInitialize(EventArgs args)
-		//{
-		//	onLoad();
-		//}
+
+		private void OnGamePostInitialize(EventArgs args)
+		{
+			onLoad();
+		}
 
 		private void onLoad()
 		{
@@ -121,11 +120,6 @@ namespace CustomNpcs
 			InvasionManager.Instance = InvasionManager.Instance ?? new InvasionManager(this);
 			NpcManager.Instance = NpcManager.Instance ?? new NpcManager(this);
 			ProjectileManager.Instance = ProjectileManager.Instance ?? new ProjectileManager(this);
-		}
-
-		public void LogPrint(string message, TraceLevel level )
-		{
-			ServerApi.LogWriter.PluginWriteLine(this, message, level);
 		}
 
 		private void CustomInvade(CommandArgs args)

@@ -1,5 +1,6 @@
 ﻿using Boo.Lang.Compiler;
 using BooTS;
+using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

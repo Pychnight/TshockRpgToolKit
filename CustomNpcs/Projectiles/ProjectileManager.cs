@@ -2,6 +2,7 @@
 using Boo.Lang.Compiler.IO;
 using BooTS;
 using Corruption;
+using Corruption.PluginSupport;
 using CustomNpcs.Npcs;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;

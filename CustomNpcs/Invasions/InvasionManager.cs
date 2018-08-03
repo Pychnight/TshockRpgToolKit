@@ -13,6 +13,7 @@ using TShockAPI.Hooks;
 using System.Diagnostics;
 using System.Reflection;
 using BooTS;
+using Corruption.PluginSupport;
 
 namespace CustomNpcs.Invasions
 {

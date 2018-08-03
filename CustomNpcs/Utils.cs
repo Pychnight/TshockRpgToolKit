@@ -9,6 +9,7 @@ using Terraria;
 using TShockAPI;
 using System.Diagnostics;
 using TerrariaApi.Server;
+using Corruption.PluginSupport;
 
 namespace CustomNpcs
 {
@@ -21,8 +22,7 @@ namespace CustomNpcs
 
 		public static void LogScriptRuntimeError(Exception ex)
 		{
-			CustomNpcsPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
-			CustomNpcsPlugin.Instance.LogPrint(ex.StackTrace, TraceLevel.Error);
+			CustomNpcsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 			CustomNpcsPlugin.Instance.LogPrint("Disabling event callback.", TraceLevel.Error);
 		}
 

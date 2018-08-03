@@ -17,6 +17,7 @@ using Corruption;
 using BooTS;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler;
+using Corruption.PluginSupport;
 
 namespace CustomNpcs.Npcs
 {
@@ -218,7 +219,7 @@ namespace CustomNpcs.Npcs
 		protected override void LoadDefinitions()
 		{
 			CustomNpcsPlugin.Instance.LogPrint($"Compiling NPC scripts.", TraceLevel.Info);
-			base.LoadDefinitions();			
+			base.LoadDefinitions();		
 		}
 
 		private void OnGameUpdate(EventArgs args)
