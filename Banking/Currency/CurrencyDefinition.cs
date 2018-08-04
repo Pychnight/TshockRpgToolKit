@@ -88,7 +88,11 @@ namespace Banking
 
 		//used internally for fast access to currencies -- do not cache or save this.
 		public int Id { get; internal set; }
-		internal string InfoString { get; private set; }
+
+		/// <summary>
+		/// Gets a cached string used for display by /bank list.
+		/// </summary>
+		internal string DisplayString { get; private set; }
 		internal Dictionary<string, CurrencyQuadrant> NamesToQuadrants { get; private set; }
 				
 		internal void OnInitialize(int id)
@@ -112,6 +116,8 @@ namespace Banking
 			MiningOverrides.Initialize(this);
 			PlacingOverrides.Initialize(this);
 			FishingOverrides.Initialize(this);
+
+			InitializeDisplayString();
 		}
 
 		private Dictionary<string, CurrencyQuadrant> createNamesToQuadrants()
@@ -141,7 +147,7 @@ namespace Banking
 			return mapping;
 		}
 		
-		internal void UpdateInfoString()
+		internal void InitializeDisplayString()
 		{
 			try
 			{
@@ -162,11 +168,11 @@ namespace Banking
 
 				var quadrantInfo = sb.ToString();
 
-				InfoString = $"{InternalName} - {quadrantInfo}";
+				DisplayString = $"{InternalName} - {quadrantInfo}";
 			}
 			catch
 			{
-				InfoString = $"{InternalName} - Information not available.";
+				DisplayString = $"{InternalName} - Information not available.";
 			}
 		}
 

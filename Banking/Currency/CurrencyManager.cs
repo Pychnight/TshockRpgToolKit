@@ -22,6 +22,10 @@ namespace Banking
 		public int Count => items.Count;
 		public CurrencyDefinition this[int id] => GetCurrencyById(id);
 		public CurrencyDefinition this[string name] => GetCurrencyByName(name);
+
+		internal CurrencyManager() : this(new List<CurrencyDefinition>()) //...work around, keeps the CurrencyManager from loading multiple times at first start.
+		{
+		}
 				
 		internal CurrencyManager(string currencyDirectory) : this( CurrencyDefinition.LoadCurrencys(currencyDirectory))
 		{

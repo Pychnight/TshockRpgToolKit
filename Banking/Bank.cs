@@ -45,17 +45,18 @@ namespace Banking
 
 		internal Bank()
 		{
-			//CurrencyManager = new CurrencyManager(Config.Instance.Currency);
-			CurrencyManager = new CurrencyManager(BankingPlugin.DataDirectory);
+			//CurrencyManager = new CurrencyManager(BankingPlugin.DataDirectory);
+			CurrencyManager = new CurrencyManager();
 			playerAccountMaps = new Dictionary<string, PlayerBankAccountMap>();
 			//EnsureBankAccountsExist(TSPlayer.Server.Name);
-			//WorldAccount.Get
 			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 
+#if DEBUG
 			EnsuringPlayerAccounts += (s,e) =>
 			{
 				Debug.Print($"Ensuring accounts for player {e.PlayerName}");
 			};
+#endif
 		}
 
 		internal void InvokeBalanceChanged(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)

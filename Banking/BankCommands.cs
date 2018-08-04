@@ -330,7 +330,7 @@ namespace Banking
 
 			foreach(var cur in BankingPlugin.Instance.Bank.CurrencyManager)
 			{
-				client.SendInfoMessage($"{cur.InfoString}");
+				client.SendInfoMessage($"{cur.DisplayString}");
 			}
 		}
 
