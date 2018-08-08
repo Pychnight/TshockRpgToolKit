@@ -51,7 +51,8 @@ namespace CustomNpcs
 										 .Select(d => Path.Combine(BasePath, d.ScriptPath))
 										 .ToList();
 
-			var newModuleManager = new ModuleManager(ScriptHelpers.GetReferences(),
+			var newModuleManager = new ModuleManager(CustomNpcsPlugin.Instance,
+													ScriptHelpers.GetReferences(),
 													ScriptHelpers.GetDefaultImports(),
 													GetEnsuredMethodSignatures());
 
