@@ -199,13 +199,15 @@ namespace CustomNpcs.Invasions
 				result.AddError($"{nameof(Name)} is whitespace.", FilePath, LineNumber, LinePosition);
 			}
 
-			var rooted = Path.Combine(InvasionManager.Instance.BasePath, ScriptPath ?? "");
+			//Disabling this check for rooted, because at the point this is ran, InvasionManager may not have been set yet, causing 
+			//an NRE to get logged.
+			//var rooted = Path.Combine(InvasionManager.Instance.BasePath, ScriptPath ?? "");
 
-			if( ScriptPath != null && !File.Exists(rooted) )
-			{
-				//throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
-				result.AddError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath, LineNumber, LinePosition);
-			}
+			//if( ScriptPath != null && !File.Exists(rooted) )
+			//{
+			//	//throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
+			//	result.AddError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath, LineNumber, LinePosition);
+			//}
 			if( NpcPointValues == null )
 			{
 				//throw new FormatException($"{nameof(NpcPointValues)} is null.");
