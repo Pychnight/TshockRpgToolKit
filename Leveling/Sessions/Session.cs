@@ -80,12 +80,8 @@ namespace Leveling.Sessions
 								
 				if(_class!=lastClass)
 				{
-					var def = _class.Definition;
-
-					if(def!=null && def.OnClassChange!=null)
-					{
-						def.OnClassChange(this);
-					}
+					//_class?.Definition?.OnClassChange(_player,_class,lastClass);
+					_class?.OnClassChange(_player, lastClass);
 				}
             }
         }
@@ -401,14 +397,9 @@ namespace Leveling.Sessions
                 Commands.HandleCommand(TSPlayer.Server, command2);
             }
             Save();
+						
+			Class.OnLevelDown(_player, levelIndex - 1);
 
-			var def = Class.Definition;
-
-			if(def!=null)
-			{
-				def.OnLevelDown?.Invoke(this);
-			}
-			
             return true;
         }
 
@@ -437,12 +428,9 @@ namespace Leveling.Sessions
                 _player.SendInfoMessage($"You have mastered the {Class} class.");
                 MasteredClasses.Add(Class);
                 _definition.MasteredClassNames.Add(Class.Name);
-
-				if(def.OnClassMastered!=null)
-				{
-					def.OnClassMastered(this);
-				}
-            }
+								
+				Class.OnClassMastered(_player);
+			}
             AddCombatText("Leveled up!", Color.LimeGreen);
 
             // Handle commands for leveling up for the new level.
@@ -463,13 +451,10 @@ namespace Leveling.Sessions
             }
             _definition.LevelNamesObtained.Add(Level.Name);
             Save();
+						
+			Class.OnLevelUp(_player, levelIndex + 1);
 			
-			if(def!=null)
-			{
-				def.OnLevelUp?.Invoke(this);
-			}
-			
-            return true;
+			return true;
         }
 
         /// <summary>

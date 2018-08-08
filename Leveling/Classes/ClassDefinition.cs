@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Banking;
+using Boo.Lang.Compiler;
+using BooTS;
 using Corruption.PluginSupport;
 using Leveling.Levels;
 using Leveling.Sessions;
 using Newtonsoft.Json;
 using TerrariaApi.Server;
+using TShockAPI;
 
 namespace Leveling.Classes
 {
@@ -29,21 +33,27 @@ namespace Leveling.Classes
 		/// </summary>
 		[JsonProperty("DisplayName", Order = 1)]
 		public string DisplayName { get; internal set; }
+		
+		/// <summary>
+		/// Gets or sets the ScriptPath.
+		/// </summary>
+		[JsonProperty("ScriptPath", Order = 2)]
+		public string ScriptPath { get; set; }
 
 		/// <summary>
 		///     Gets the list of prerequisite levels.
 		/// </summary>
-		[JsonProperty("PrerequisiteLevels", Order = 2)]
+		[JsonProperty("PrerequisiteLevels", Order = 3)]
 		public IList<string> PrerequisiteLevelNames { get; internal set; } = new List<string>();
 
 		/// <summary>
 		///     Gets the list of prerequisite permissions.
 		/// </summary>
-		[JsonProperty(Order = 3)]
+		[JsonProperty(Order = 4)]
 		public IList<string> PrerequisitePermissions { get; internal set; } = new List<string>();
 		
 		/// <summary>
-		///		Gets the Currency cost to enter this class.
+		///		Gets or sets the Currency cost to enter this class.
 		/// </summary>
 		[JsonProperty(Order = 6, PropertyName = "Cost")]
 		public string CostString { get; set; } = "";
@@ -113,12 +123,23 @@ namespace Leveling.Classes
 		//--- new stuff
 		public string DisplayInfo { get; internal set; }
 
-		public Action<object> OnMaximumCurrency;
-		public Action<object> OnNegativeCurrency;
-		public Action<object> OnLevelUp;
-		public Action<object> OnLevelDown;
-		public Action<object> OnClassChange;
-		public Action<object> OnClassMastered;
+		//not sure how these should/would work
+		//public Action<object> OnMaximumCurrency;
+		//public Action<object> OnNegativeCurrency;
+		
+		//player, currentclass, currentLevelIndex
+		public Action<TSPlayer,Class,int> OnLevelUp;
+
+		//player, currentclass, currentLevelIndex
+		public Action<TSPlayer,Class,int> OnLevelDown;
+
+		//player, currentclass, oldclass
+		public Action<TSPlayer,Class, Class> OnClassChange;
+		
+		//player, currentclass
+		public Action<TSPlayer,Class> OnClassMastered;
+
+		public static ModuleManager ModuleManager { get; set; }
 
 		public override string ToString()
 		{
@@ -128,6 +149,7 @@ namespace Leveling.Classes
 		public static List<ClassDefinition> Load(string directoryPath)
 		{
 			var results = new List<ClassDefinition>();
+			var filesAndDefs = new List<Tuple<string, ClassDefinition>>();//needed by LoadScripts.
 			var files = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
 			
 			foreach( var f in files )
@@ -136,15 +158,22 @@ namespace Leveling.Classes
 				{
 					var json = File.ReadAllText(f);
 					var def = JsonConvert.DeserializeObject<ClassDefinition>(json);
-					
-					if(def.Initialize())
+
+					if( def.Initialize() )
+					{
 						results.Add(def);
+
+						var fd = new Tuple<string, ClassDefinition>(f, def);
+						filesAndDefs.Add(fd);
+					}
 				}
 				catch(Exception ex)
 				{
 					LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 				}
 			}
+			
+			LoadScripts(filesAndDefs);
 			
 			//filter out duplicate names
 			//var classNames = new HashSet<string>(results.Select(cd => cd.Name));
@@ -316,6 +345,130 @@ namespace Leveling.Classes
 
 			foreach(var dupDef in duplicateLevelDefinitions)
 				LevelDefinitions.Remove(dupDef);
+		}
+
+		private bool LinkToScriptAssembly(Assembly assembly)
+		{
+			if( assembly == null )
+				return false;
+
+			if( string.IsNullOrWhiteSpace(ScriptPath) )
+				return false;
+
+			var linker = new BooModuleLinker(assembly, ScriptPath, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+			//try to link to callbacks...
+
+			//...but these are disabled since I have no idea how these should work
+			//def.OnMaximumCurrency = linker["OnMaximumCurrency"]?.TryCreateDelegate<Action<object>>();
+			//def.OnNegativeCurrency = linker["OnNegativeCurrency"]?.TryCreateDelegate<Action<object>>();
+
+			OnLevelUp			= linker["OnLevelUp"]?.TryCreateDelegate<Action<TSPlayer,Class,int>>();
+			OnLevelDown			= linker["OnLevelDown"]?.TryCreateDelegate<Action<TSPlayer,Class,int>>();
+			OnClassChange		= linker["OnClassChange"]?.TryCreateDelegate<Action<TSPlayer,Class,Class>>();
+			OnClassMastered		= linker["OnClassMastered"]?.TryCreateDelegate<Action<TSPlayer,Class>>();
+
+			return true;
+		}
+
+		//private static void LoadScripts(string basePath, List<ClassDefinition> classDefs)
+		private static void LoadScripts(List<Tuple<string,ClassDefinition>> filesAndDefs)
+		{
+			const string AssemblyNamePrefix = "ClassDef_";
+
+			LevelingPlugin.Instance.LogPrint("Compiling Class scripts...",TraceLevel.Info);
+
+			//get script files paths
+			var scriptedDefs = filesAndDefs.Where(d => !string.IsNullOrWhiteSpace(d.Item2.ScriptPath));
+			var booScripts = scriptedDefs.Select(d => Path.Combine(Path.GetDirectoryName(d.Item1), d.Item2.ScriptPath))
+											.ToList();
+
+			//var scriptedDefs	= classDefs.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath));
+			//var booScripts		= scriptedDefs.Select(d => Path.Combine(basePath, d.ScriptPath))
+			//									.ToList();
+
+			//var booScripts = classDefs.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
+			//							 .Select(d => Path.Combine(basePath, d.ScriptPath))
+			//							 .ToList();
+
+			var newModuleManager = new ModuleManager(LevelingPlugin.Instance,
+													ScriptHelpers.GetReferences(),
+													ScriptHelpers.GetDefaultImports(),
+													GetEnsuredMethodSignatures());
+
+			newModuleManager.AssemblyNamePrefix = AssemblyNamePrefix;
+
+			foreach( var f in booScripts )
+				newModuleManager.Add(f);
+
+			Dictionary<string, CompilerContext> results = null;
+
+			if( ModuleManager != null )
+				results = newModuleManager.IncrementalCompile(ModuleManager);
+			else
+				results = newModuleManager.Compile();
+
+			ModuleManager = newModuleManager;
+
+			//link!
+			foreach( var def in scriptedDefs )
+			{
+				//var fileName = Path.Combine(basePath, def.ScriptPath);
+				var fileName = Path.Combine(Path.GetDirectoryName(def.Item1), def.Item2.ScriptPath);
+
+				//if newly compile assembly, examine the context, and try to link to the new assembly
+				if( results.TryGetValue(fileName, out var context) )
+				{
+					var scriptAssembly = context.GeneratedAssembly;
+
+					if( scriptAssembly != null )
+					{
+						var result = def.Item2.LinkToScriptAssembly(scriptAssembly);
+
+						//if(!result)
+						//	//	CustomNpcsPlugin.Instance.LogPrint($"Failed to link {kvp.Key}.", TraceLevel.Info);
+					}
+				}
+				else
+				{
+					var scriptAssembly = ModuleManager[fileName];
+
+					if( scriptAssembly != null )
+					{
+						var result = def.Item2.LinkToScriptAssembly(scriptAssembly);
+
+						//if(!result)
+						//	//	CustomNpcsPlugin.Instance.LogPrint($"Failed to link {kvp.Key}.", TraceLevel.Info);
+					}
+				}
+			}
+		}
+
+		internal static IEnumerable<EnsuredMethodSignature> GetEnsuredMethodSignatures()
+		{
+			var sigs = new List<EnsuredMethodSignature>()
+			{
+				new EnsuredMethodSignature("OnLevelDown")
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("klass",typeof(Class))
+					.AddParameter("levelIndex",typeof(int)),
+
+				new EnsuredMethodSignature("OnLevelUp")
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("klass",typeof(Class))
+					.AddParameter("levelIndex",typeof(int)),
+
+				new EnsuredMethodSignature("OnClassChange")
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("newClass",typeof(Class))
+					.AddParameter("oldClass",typeof(Class)),
+
+				new EnsuredMethodSignature("OnClassMastered")
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("klass",typeof(Class))
+			};
+
+			return sigs;
 		}
 	}
 }

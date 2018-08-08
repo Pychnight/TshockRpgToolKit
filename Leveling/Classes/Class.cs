@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using Banking;
 using Banking.Rewards;
+using Corruption.PluginSupport;
 using Leveling.Levels;
+using TShockAPI;
 
 namespace Leveling.Classes
 {
@@ -21,12 +23,12 @@ namespace Leveling.Classes
         ///     Initializes a new instance of the <see cref="Class" /> class with the specified definition.
         /// </summary>
         /// <param name="definition">The definition, which must not be <c>null</c>.</param>
-        public Class(ClassDefinition definition)
+        internal Class(ClassDefinition definition)
         {
             Debug.Assert(definition != null, "Definition must not be null.");
 
             _definition = definition;
-            Levels = _definition.LevelDefinitions.Select(ld => new Level(this, ld)).ToList();
+            Levels = _definition.LevelDefinitions.Select(ld => new Level(this, ld)).ToList().AsReadOnly();
         }
 
         /// <summary>
@@ -113,11 +115,78 @@ namespace Leveling.Classes
 		public override string ToString() => DisplayName;
 
 		/// <summary>
+		/// Safe wrapper for script hook OnLevelUp.
+		/// </summary>
+		/// <param name="player">TSPlayer instance.</param>
+		/// <param name="levelIndex">Int level index.</param>		
+		internal void OnLevelUp(TSPlayer player, int levelIndex)
+		{
+			try
+			{
+				Definition.OnLevelUp?.Invoke(player, this, levelIndex);
+			}
+			catch(Exception ex)
+			{
+				LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
+		}
+
+		/// <summary>
+		/// Safe wrapper for script hook OnLevelUp.
+		/// </summary>
+		/// <param name="player">TSPlayer instance.</param>
+		/// <param name="levelIndex">Int level index.</param>
+		internal void OnLevelDown(TSPlayer player, int levelIndex)
+		{
+			try
+			{
+				Definition.OnLevelDown?.Invoke(player, this, levelIndex);
+			}
+			catch( Exception ex )
+			{
+				LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
+		}
+
+		/// <summary>
+		/// Safe wrapper for script hook OnClassChange.
+		/// </summary>
+		/// <param name="player">TSPlayer instance.</param>
+		/// <param name="previousClass">Previous Class instance.</param>
+		internal void OnClassChange(TSPlayer player, Class previousClass)
+		{
+			try
+			{
+				Definition.OnClassChange?.Invoke(player, this, previousClass);
+			}
+			catch( Exception ex )
+			{
+				LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
+		}
+
+		/// <summary>
+		/// Safe wrapper for script hook OnClassMastered.
+		/// </summary>
+		/// <param name="player">TSPlayer instance.</param>
+		internal void OnClassMastered(TSPlayer player)
+		{
+			try
+			{
+				Definition.OnClassMastered?.Invoke(player, this);
+			}
+			catch( Exception ex )
+			{
+				LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
+		}
+
+		/// <summary>
 		///     Resolves the class using the specified levels.
 		/// </summary>
 		/// <param name="levels">The levels, which must not be <c>null</c> or contain <c>null</c>.</param>
 		/// <param name="stage">The resolution stage. All classes must be resolved at stage 0 before stage 1.</param>
-		public void Resolve(IList<Level> levels, int stage)
+		internal void Resolve(IList<Level> levels, int stage)
         {
             Debug.Assert(levels != null, "Levels must not be null.");
             Debug.Assert(!levels.Contains(null), "Levels must not contain null.");
