@@ -35,6 +35,11 @@ namespace Banking
 		public static BankingPlugin Instance { get; private set; }
 		internal PlayerRewardNotificationDistributor PlayerRewardNotificationDistributor;
 		public Bank Bank { get; internal set; }
+
+		/// <summary>
+		/// Gets a Dictionary that records spawned NPC's starting hit points.
+		/// </summary>
+		internal Dictionary<int,int> NpcSpawnHP { get; private set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerFishingTracker PlayerFishingTracker;
 		internal PlayerTileTracker PlayerTileTracker;
@@ -57,6 +62,7 @@ namespace Banking
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
+			ServerApi.Hooks.NpcSpawn.Register(this, OnNpcSpawn);
 			ServerApi.Hooks.NpcStrike.Register(this, OnNpcStrike);
 			ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
@@ -102,6 +108,7 @@ namespace Banking
 				//	PlayerHooks.PlayerPermission -= OnPlayerPermission;
 				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
 				ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+				ServerApi.Hooks.NpcSpawn.Deregister(this, OnNpcSpawn);
 				ServerApi.Hooks.NpcStrike.Deregister(this, OnNpcStrike);
 				ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
@@ -124,6 +131,7 @@ namespace Banking
 				{
 					PlayerRewardNotificationDistributor = new PlayerRewardNotificationDistributor();
 					Bank = new Bank();
+					NpcSpawnHP = new Dictionary<int, int>();
 					NpcStrikeTracker = new NpcStrikeTracker();
 					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 					PlayerFishingTracker = new PlayerFishingTracker();
@@ -336,6 +344,12 @@ namespace Banking
 			RewardDistributor.OnGameUpdate();
 			PlayerRewardNotificationDistributor.Send(400);
 		}
+		
+		private void OnNpcSpawn(NpcSpawnEventArgs args)
+		{
+			var npc = Main.npc[args.NpcId];
+			NpcSpawnHP[args.NpcId] = npc.life;
+		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
 		{
@@ -349,13 +363,20 @@ namespace Banking
 		private void OnNpcKilled(NpcKilledEventArgs args)
 		{
 			Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
-			Debug.Print($"Value: {args.npc.value}");
+			//Debug.Print($"Value: {args.npc.value}");
+			
+			if(!NpcSpawnHP.TryGetValue(args.npc.whoAmI,out var spawnHp))
+			{
+				throw new Exception("Unable to retrieve NpcSpawnHP!");
+			}
+
+			Debug.Print($"NpcHP: {spawnHp}");
 			//NpcStrikeTracker.OnNpcKilled(args.npc);
 
 			Task.Run(() =>
 			{
 				//Debug.Print("Task.Run() => OnNpcKilled!");
-				NpcStrikeTracker.OnNpcKilled(args.npc);
+				NpcStrikeTracker.OnNpcKilled(args.npc, spawnHp);
 			});
 		}
 
@@ -363,7 +384,7 @@ namespace Banking
 		{
 			Debug.Print("OnStruckNpcKilled!");
 		
-			var reward = new KillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcValue, args.NpcSpawnedFromStatue);
+			var reward = new KillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcHitPoints, args.NpcSpawnedFromStatue);
 			RewardDistributor.EnqueueReward(reward);
 		}
 

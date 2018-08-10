@@ -14,26 +14,31 @@ namespace Banking.Rewards
 	{
 		PlayerStrikeInfo StrikeInfo;
 		string NpcGivenOrTypeName;
-		float NpcValue;
+		int npcHp;
 		bool NpcSpawnedFromStatue;
 
 		//cached values
-		float TotalDamage;
-		float TotalDamageDefended;
+		float totalDamage;
+		float totalDamageDefended;
 
-		public KillingReward(PlayerStrikeInfo strikeInfo, string npcGivenOrTypeName, float npcValue, bool npcSpawnedFromStatue)
+		public KillingReward(PlayerStrikeInfo strikeInfo, string npcGivenOrTypeName, int npcHp, bool npcSpawnedFromStatue)
 		{
 			RewardReason = RewardReason.Killing;
 			StrikeInfo = strikeInfo;
 			NpcGivenOrTypeName = npcGivenOrTypeName;
-			NpcValue = npcValue;
+			this.npcHp = npcHp;
 			NpcSpawnedFromStatue = npcSpawnedFromStatue;
 		}
 
 		protected internal override void OnPreEvaluate()
 		{
-			TotalDamage = StrikeInfo.Values.Select(si => si.Damage).Sum();
-			TotalDamageDefended = StrikeInfo.Values.Select(si => si.DamageDefended).Sum();
+			totalDamage = StrikeInfo.Values.Select(si => si.Damage).Sum();
+			totalDamageDefended = StrikeInfo.Values.Select(si => si.DamageDefended).Sum();
+
+			//if(TotalDamage>npcHp)
+			//{
+			//	TotalDamage = npcHp;
+			//}
 		}
 
 		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
@@ -41,14 +46,14 @@ namespace Banking.Rewards
 			if( NpcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
 				yield break;
 
-			var npcBaseValue = currency.GetKillingValueOverride(NpcGivenOrTypeName) ?? (decimal)NpcValue;
+			var npcBaseValue = currency.GetKillingValueOverride(NpcGivenOrTypeName) ?? npcHp;
 			
 			foreach( var kvp in StrikeInfo )
 			{
 				var playerName = kvp.Key;
 				var weaponName = kvp.Value.WeaponName;
-				var damagePercent = kvp.Value.Damage / TotalDamage;
-				var damageDefendedPercent = TotalDamageDefended > 0 ? kvp.Value.DamageDefended / TotalDamageDefended : 0;//avoid divide by 0
+				var damagePercent = kvp.Value.Damage / totalDamage;
+				var damageDefendedPercent = totalDamageDefended > 0 ? kvp.Value.DamageDefended / totalDamageDefended : 0;//avoid divide by 0
 							
 				//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
 				//var value = (float)rewardModifier.ModifyBaseRewardValue(RewardReason.Killing, playerName, currency.InternalName, NpcGivenOrTypeName, (decimal)NpcValue);

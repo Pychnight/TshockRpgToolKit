@@ -79,7 +79,7 @@ namespace Banking
 			playerStrikes.AddStrike(player.name, realDamage, damageDefended, itemName);
 		}
 
-		public void OnNpcKilled(NPC npc)
+		public void OnNpcKilled(NPC npc, int spawnHp)
 		{
 			var npcIndex = npc.whoAmI;
 
@@ -89,7 +89,7 @@ namespace Banking
 				npcStrikes.TryRemove(npcIndex, out var psi);
 				if(StruckNpcKilled!=null)
 				{
-					var args = new StruckNpcKilledEventArgs(npc,strikes);
+					var args = new StruckNpcKilledEventArgs(npc,spawnHp,strikes);
 					StruckNpcKilled(this, args);
 				}
 			}
