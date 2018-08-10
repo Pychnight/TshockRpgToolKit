@@ -31,7 +31,7 @@ namespace CustomNpcs
 		/// <remarks> This is cached and applied to each ModuleManager right before compilation.</remarks>
 		public string AssemblyNamePrefix { get; protected set; } = "";
 
-		protected ModuleManager ModuleManager { get; set; }
+		protected BooModuleManager ModuleManager { get; set; }
 
 		/// <summary>
 		/// Allows a CustomTypeManager, to return a number of EnsuredMethodSignatures, used during script linking. 
@@ -51,7 +51,7 @@ namespace CustomNpcs
 										 .Select(d => Path.Combine(BasePath, d.ScriptPath))
 										 .ToList();
 
-			var newModuleManager = new ModuleManager(CustomNpcsPlugin.Instance,
+			var newModuleManager = new BooModuleManager(CustomNpcsPlugin.Instance,
 													ScriptHelpers.GetReferences(),
 													ScriptHelpers.GetDefaultImports(),
 													GetEnsuredMethodSignatures());
