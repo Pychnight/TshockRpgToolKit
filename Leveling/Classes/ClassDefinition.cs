@@ -139,7 +139,7 @@ namespace Leveling.Classes
 		//player, currentclass
 		public Action<TSPlayer,Class> OnClassMastered;
 
-		public static ModuleManager ModuleManager { get; set; }
+		public static BooModuleManager ModuleManager { get; set; }
 
 		public override string ToString()
 		{
@@ -391,7 +391,7 @@ namespace Leveling.Classes
 			//							 .Select(d => Path.Combine(basePath, d.ScriptPath))
 			//							 .ToList();
 
-			var newModuleManager = new ModuleManager(LevelingPlugin.Instance,
+			var newModuleManager = new BooModuleManager(LevelingPlugin.Instance,
 													ScriptHelpers.GetReferences(),
 													ScriptHelpers.GetDefaultImports(),
 													GetEnsuredMethodSignatures());
