@@ -6,6 +6,7 @@ using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using OTAPI.Tile;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -43,6 +44,7 @@ namespace Banking
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerFishingTracker PlayerFishingTracker;
 		internal PlayerTileTracker PlayerTileTracker;
+		internal PlayingRewardTracker PlayerSessionTracker;
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
 		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
@@ -136,6 +138,7 @@ namespace Banking
 					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 					PlayerFishingTracker = new PlayerFishingTracker();
 					PlayerTileTracker = new PlayerTileTracker(DataDirectory);
+					PlayerSessionTracker = new PlayingRewardTracker();
 					RewardDistributor = new RewardDistributor();
 					VoteChecker = new VoteChecker();
 				}
@@ -166,8 +169,9 @@ namespace Banking
 
 		private void OnServerJoin(JoinEventArgs args)
 		{
-			var player = new TSPlayer(args.Who);
+			var player = TShock.Players[args.Who];
 			Bank.EnsureBankAccountsExist(player.Name);
+			PlayerSessionTracker.AddPlayer(player);
 		}
 
 		private void OnServerLeave(LeaveEventArgs args)
@@ -341,6 +345,7 @@ namespace Banking
 		{
 			NpcStrikeTracker.OnGameUpdate();
 			PlayerFishingTracker.OnGameUpdate();
+			PlayerSessionTracker.OnGameUpdate();
 			RewardDistributor.OnGameUpdate();
 			PlayerRewardNotificationDistributor.Send(400);
 		}
