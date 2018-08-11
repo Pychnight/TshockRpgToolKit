@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace Banking.Rewards
 {
@@ -18,12 +19,13 @@ namespace Banking.Rewards
 		public TileSubTarget TileSubTarget { get; set; }
 		public ushort TileOrWallId { get; set; }
 				
-		public MiningReward(string playerName, ushort tileOrWallId, TileSubTarget tileSubTarget, RewardReason rewardReason = RewardReason.Mining)
+		public MiningReward(TSPlayer player, ushort tileOrWallId, TileSubTarget tileSubTarget, RewardReason rewardReason = RewardReason.Mining)
 		{
 			Debug.Assert(rewardReason == RewardReason.Mining || rewardReason == RewardReason.Placing,
 							"RewardReason must be either Mining, or Placing.");
 
-			PlayerName = playerName;
+			PlayerName = player.Name;
+			PlayerGroup = player.Group.Name;
 			RewardReason = rewardReason;
 			TileSubTarget = tileSubTarget;
 			TileOrWallId = tileOrWallId;
@@ -35,9 +37,9 @@ namespace Banking.Rewards
 			decimal value;
 
 			if(RewardReason == RewardReason.Mining)
-				value = currency.GetBaseMiningValue(TileOrWallId, TileSubTarget);
+				value = currency.GetBaseMiningValue(TileOrWallId, TileSubTarget, PlayerGroup);
 			else
-				value = currency.GetBasePlacingValue(TileOrWallId, TileSubTarget);
+				value = currency.GetBasePlacingValue(TileOrWallId, TileSubTarget, PlayerGroup);
 
 			//if(rewardEvaluator!=null)
 			//{

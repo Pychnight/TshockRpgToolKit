@@ -84,6 +84,7 @@
     <Compile Include="BankAccount.cs" />
     <Compile Include="Bank.cs" />
     <Compile Include="Configuration\VotingConfig.cs" />
+    <Compile Include="Currency\GroupValueOverrides.cs" />
     <Compile Include="Currency\PriceInfo.cs" />
     <Compile Include="Currency\ValueOverride.cs" />
     <Compile Include="Currency\ValueOverrideList.cs" />

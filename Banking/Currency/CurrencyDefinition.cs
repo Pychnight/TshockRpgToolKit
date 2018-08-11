@@ -91,6 +91,12 @@ namespace Banking
 		[JsonProperty(Order = 21)]
 		public ValueOverrideList<ItemKey> FishingOverrides { get; set; } = new ValueOverrideList<ItemKey>();
 
+		[JsonProperty(Order = 22)]
+		public GroupValueOverrides<TileKey> GroupMiningOverrides { get; set; } = new GroupValueOverrides<TileKey>();
+
+		[JsonProperty(Order = 23)]
+		public GroupValueOverrides<TileKey> GroupPlacingOverrides { get; set; } = new GroupValueOverrides<TileKey>();
+
 		//non serialized members.
 
 		//used internally for fast access to currencies -- do not cache or save this.
@@ -127,6 +133,21 @@ namespace Banking
 			PlacingOverrides.Initialize(this);
 			FishingOverrides.Initialize(this);
 
+			//set group overrides ( only tiles for now )
+			var tileGroupOverrides = new List<GroupValueOverrides<TileKey>>()
+			{
+				GroupMiningOverrides,
+				GroupPlacingOverrides
+			};
+
+			foreach(var go in tileGroupOverrides)
+			{
+				foreach(var vol in go.Values)
+				{
+					vol.Initialize(this);
+				}
+			}
+			
 			InitializeDisplayString();
 		}
 
@@ -213,10 +234,23 @@ namespace Banking
 		/// <param name="tileOrWallType">The tile type or wall.</param>
 		/// <param name="miningTargetType">Type of tile data, either tile or wall.</param>
 		/// <returns>Base value in generic units.</returns>
-		public decimal GetBaseMiningValue(ushort tileOrWallType, TileSubTarget miningTargetType)
+		public decimal GetBaseMiningValue(ushort tileOrWallType, TileSubTarget miningTargetType, string group)
 		{
 			var key = new TileKey(tileOrWallType, miningTargetType);
 
+			//check group overrides first
+			if(!string.IsNullOrWhiteSpace(group))
+			{
+				if(GroupMiningOverrides.TryGetValue(group,out var groupMiningOverride))
+				{
+					if(groupMiningOverride.TryGetValue(key, out var groupValueOverride))
+					{
+						return groupValueOverride.Value;
+					}
+				}
+			}
+
+			//no group override found, move to global overrides
 			if( MiningOverrides.TryGetValue(key, out var valueOverride) )
 				return valueOverride.Value;
 			else
@@ -229,9 +263,21 @@ namespace Banking
 		/// <param name="tileOrWallType">The tile type or wall.</param>
 		/// <param name="miningTargetType">Type of tile data, either tile or wall.</param>
 		/// <returns>Base value in generic units.</returns>
-		public decimal GetBasePlacingValue(ushort tileOrWallType, TileSubTarget miningTargetType)
+		public decimal GetBasePlacingValue(ushort tileOrWallType, TileSubTarget miningTargetType, string group)
 		{
 			var key = new TileKey(tileOrWallType, miningTargetType);
+
+			//check group overrides first
+			if( !string.IsNullOrWhiteSpace(group) )
+			{
+				if( GroupPlacingOverrides.TryGetValue(group, out var groupPlacingOverride) )
+				{
+					if( groupPlacingOverride.TryGetValue(key, out var groupValueOverride) )
+					{
+						return groupValueOverride.Value;
+					}
+				}
+			}
 
 			if( PlacingOverrides.TryGetValue(key, out var valueOverride) )
 				return valueOverride.Value;

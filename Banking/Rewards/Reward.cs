@@ -14,6 +14,7 @@ namespace Banking.Rewards
 	{
 		public RewardReason RewardReason { get; set; }
 		public string PlayerName { get; set; }
+		public string PlayerGroup { get; set; }
 		
 		/// <summary>
 		/// Provides a spot to perform evaluation initialization, like computing and caching expensive values, etc.

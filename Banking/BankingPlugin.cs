@@ -412,9 +412,9 @@ namespace Banking
 				{
 					PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
-					if( args.Player != null )
+					if( player != null )
 					{
-						var reward = new MiningReward(player.Name, args.GetTypeOrWall() , args.TileSubTarget, RewardReason.Mining);
+						var reward = new MiningReward(player, args.GetTypeOrWall() , args.TileSubTarget, RewardReason.Mining);
 						RewardDistributor.EnqueueReward(reward);
 					}
 				}
@@ -441,7 +441,7 @@ namespace Banking
 
 				if( args.Player != null )
 				{
-					var reward = new MiningReward(player.Name, args.GetTypeOrWall(), args.TileSubTarget, RewardReason.Placing);
+					var reward = new MiningReward(args.Player, args.GetTypeOrWall(), args.TileSubTarget, RewardReason.Placing);
 					RewardDistributor.EnqueueReward(reward);
 				}
 			}
