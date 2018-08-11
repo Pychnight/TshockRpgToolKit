@@ -141,8 +141,8 @@ namespace Banking
 				{
 					if( emitSpace )
 						sb.Append(" ");
-
-					sb.Append(quadValue);
+											
+					sb.Append($"{quadValue:#,0}");//render with commas for thousands, and no leading zeros.
 					sb.Append(" ");
 					sb.Append(quad.FullName);
 					
