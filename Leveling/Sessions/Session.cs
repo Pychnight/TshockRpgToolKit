@@ -106,7 +106,7 @@ namespace Leveling.Sessions
 				Debug.Print($"Set Exp account: {account.Balance}");
 
 				//_definition.ClassNameToExp[_class.Name] = value;
-				account.Set(value);
+				account.SetBalance(value);
 			}
 		}
 
@@ -165,30 +165,17 @@ namespace Leveling.Sessions
 			}
         }
 
-		//internal static void OnBankAccountBalanceChanged(object sender, BalanceChangedEventArgs args)
-		//{
-		//	Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
-
-		//	if(args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix))
-		//	{
-		//		//itd be better to cache player names -> players.... not the nicest function internally
-		//		var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
-
-		//		//dont bother with session for disconnected players ( bank may update accounts on players not logged in )
-		//		if(player!=null)
-		//		{
-		//			var session = LevelingPlugin.Instance.GetOrCreateSession(player);
-		//			session.ExpUpdated(args);
-		//		}
-		//	}
-		//}
-
+		/// <summary>
+		/// Handles the Banking AccountDeposit and AccountWithdraw events.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="args"></param>
 		internal static void OnBankAccountBalanceChanged(object sender, BalanceChangedEventArgs args)
 		{
-			Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
-
-			if( args.OwnerName == "Server" )
+			if( args.IsServerAccount )
 				return;
+
+			Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
 
 			//we're only interested in non experience account transactions. ( or put differently, we want publicly visible accounts, not our hidden shadow accounts.)
 			if( args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix) )

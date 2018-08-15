@@ -194,7 +194,9 @@ namespace Leveling
 			//	Debug.Print($"BankAccountBalanceChanged! {a.Name}");
 			//};
 
-			bank.BankAccountBalanceChanged += Session.OnBankAccountBalanceChanged;
+			//bank.BankAccountBalanceChanged += Session.OnBankAccountBalanceChanged;
+			bank.AccountDeposit += Session.OnBankAccountBalanceChanged;
+			bank.AccountWithdraw += Session.OnBankAccountBalanceChanged;
 		}
 
 		private void onLoad()
