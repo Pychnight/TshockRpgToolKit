@@ -15,7 +15,7 @@ namespace BooTS
 	/// <summary>
 	/// Caches and manages script compiling.
 	/// </summary>
-	public class ModuleManager
+	public class BooModuleManager
 	{
 		Dictionary<string, ModuleInfo> modules;
 		private IEnumerable<Assembly> references;
@@ -43,7 +43,7 @@ namespace BooTS
 			}
 		}
 
-		public ModuleManager(TerrariaPlugin plugin, IEnumerable<Assembly> references, IEnumerable<string> defaultImports, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures)
+		public BooModuleManager(TerrariaPlugin plugin, IEnumerable<Assembly> references, IEnumerable<string> defaultImports, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures)
 		{
 			Plugin = plugin;
 			modules = new Dictionary<string, ModuleInfo>();
@@ -129,7 +129,7 @@ namespace BooTS
 		/// </summary>
 		/// <param name="previous">ModuleManager holding the previous compiled modules.</param>
 		/// <returns>Dictionary of file paths to Boo.Lang.CompilerContext's.</returns>
-		public Dictionary<string, CompilerContext> IncrementalCompile(ModuleManager previous)
+		public Dictionary<string, CompilerContext> IncrementalCompile(BooModuleManager previous)
 		{
 			compileGuard();
 
