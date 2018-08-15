@@ -10,25 +10,21 @@ using TShockAPI;
 
 namespace Banking
 {
+	/// <summary>
+	/// The Bank is the central root of BankAccount information for players, and also coordinates persistance to disk.
+	/// Currency information can be retrieved through the CurrencyManager.
+	/// </summary>
 	public class Bank
 	{
 		internal IDatabase Database;
 
+		/// <summary>
+		/// Gets the CurrencyManager.
+		/// </summary>
 		public CurrencyManager CurrencyManager { get; private set; }
+		
 		private Dictionary<string, PlayerBankAccountMap> playerAccountMaps;
-
-		//public BankAccount WorldAccount { get; private set; }
-
-		/// <summary>
-		/// Raised when the Bank is checking that needed BankAccounts exist.
-		/// </summary>
-		public event EventHandler<EnsurePlayerAccountsEventArgs> EnsuringPlayerAccounts;
-		
-		/// <summary>
-		/// Raised when a BankAccount is modified from A Deposit, WithDraw, or Transfer.
-		/// </summary>
-		public event EventHandler<BalanceChangedEventArgs> BankAccountBalanceChanged;
-		
+						
 		/// <summary>
 		/// Gets all BankAccounts linked to a player.
 		/// </summary>
@@ -43,28 +39,37 @@ namespace Banking
 			}
 		}
 
+		/// <summary>
+		/// Raised when a deposit into a BankAccount succeeds.
+		/// </summary>
+		public event EventHandler<BalanceChangedEventArgs> AccountDeposit;
+		
+		/// <summary>
+		/// Raised when a withdraw from a BankAccount succeeds.
+		/// </summary>
+		public event EventHandler<BalanceChangedEventArgs> AccountWithdraw;
+
 		internal Bank()
 		{
-			//CurrencyManager = new CurrencyManager(BankingPlugin.DataDirectory);
 			CurrencyManager = new CurrencyManager();
 			playerAccountMaps = new Dictionary<string, PlayerBankAccountMap>();
-			//EnsureBankAccountsExist(TSPlayer.Server.Name);
-			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
-
-#if DEBUG
-			EnsuringPlayerAccounts += (s,e) =>
-			{
-				Debug.Print($"Ensuring accounts for player {e.PlayerName}");
-			};
-#endif
 		}
-
-		internal void InvokeBalanceChanged(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)
+				
+		internal void InvokeAccountDeposit(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)
 		{
-			if( BankAccountBalanceChanged != null && bankAccount.OwnerName != "Server" )
+			if( AccountDeposit != null )
 			{
 				var args = new BalanceChangedEventArgs(bankAccount, ref newBalance, ref previousBalance);
-				BankAccountBalanceChanged?.Invoke(this, args);
+				AccountDeposit?.Invoke(this, args);
+			}
+		}
+
+		internal void InvokeAccountWithdraw(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)
+		{
+			if( AccountWithdraw != null )
+			{
+				var args = new BalanceChangedEventArgs(bankAccount, ref newBalance, ref previousBalance);
+				AccountWithdraw?.Invoke(this, args);
 			}
 		}
 
@@ -74,7 +79,6 @@ namespace Banking
 		public void Load()
 		{
 			Debug.Print("BankAccountManager.Load!");
-			//CurrencyManager = new CurrencyManager(Config.Instance.Currency);
 			CurrencyManager = new CurrencyManager(BankingPlugin.DataDirectory);
 
 			playerAccountMaps.Clear();
@@ -110,9 +114,6 @@ namespace Banking
 					EnsureBankAccountsExist(player.Name);
 				}
 			}
-			
-			//WorldAccount = GetOrCreateBankAccount(TSPlayer.Server.Name);
-			//bankAccounts.Add("World", WorldAccount);//World is the usual alias for the server account 
 		}
 		
 		/// <summary>
@@ -120,21 +121,20 @@ namespace Banking
 		/// </summary>
 		public void Save()
 		{
-			//Debug.Print("BankAccountManager.Save!");
+			Debug.Print("BankAccountManager.Save!");
 			//Database.Save(bankAccounts.Values.ToArray());
-			throw new NotImplementedException();
+			throw new NotImplementedException("This method is for future expansion.");
 		}
 		
 		/// <summary>
-		/// Ensures that a player has BankAccounts for each configured Currency. Also raises the EnsuringPlayerAccounts event, for external plugins to ensure their own BankAccounts exist.
+		/// Ensures that a player has BankAccounts for each configured Currency.
 		/// </summary>
 		/// <param name="playerName"></param>
-		public void EnsureBankAccountsExist(string playerName)
+		internal void EnsureBankAccountsExist(string playerName)
 		{
 			if( !playerAccountMaps.TryGetValue(playerName, out var playerAccountMap) )
 			{
 				Debug.Print($"Creating bank account map for user {playerName}...");
-				//playerAccountMap = new PlayerBankAccountMap(playerName, CurrencyManager.Definitions.Values);
 				playerAccountMap = new PlayerBankAccountMap(playerName);
 				playerAccountMaps.Add(playerName, playerAccountMap);
 			}
@@ -148,38 +148,8 @@ namespace Banking
 			{
 				playerAccountMap.SetAccountNameOverride(name, name);
 			}
-			
-			if( EnsuringPlayerAccounts != null )
-			{
-				var args = new EnsurePlayerAccountsEventArgs(playerName, playerAccountMap);
-				EnsuringPlayerAccounts(this, args);
-			}
 		}
-
-		//public BankAccount GetOrCreateBankAccount(string ownerName, string accountName)
-		//{
-		//	PlayerBankAccountMap accountMap = null;
-		//	BankAccount account = null;
-
-		//	if( !playerAccountMaps.TryGetValue(ownerName, out accountMap) )
-		//	{
-		//		Debug.Print($"Creating bank account types for user {ownerName}...");
-		//		//accountMap = new PlayerBankAccountMap(ownerName, CurrencyManager.Definitions.Values);
-		//		accountMap = new PlayerBankAccountMap(ownerName);
-				
-		//		playerAccountMaps.Add(ownerName, accountMap);
-
-		//		//this whole method could be problematic, since it doesnt take into account any currency reward mapping.. hmmm.
-
-		//		//var currencyNames = CurrencyManager.Definitions.Values.Select(v => v.InternalName);
-		//		//accountMap.EnsureBankAccountNamesExist(currencyNames);
-		//	}
-
-		//	account = accountMap.GetOrCreateBankAccount(accountName,0);
-
-		//	return account;
-		//}
-
+		
 		/// <summary>
 		/// Tries to get the named BankAccount for the given player, if it exists.
 		/// </summary>
@@ -210,22 +180,5 @@ namespace Banking
 
 			return sum;
 		}
-
-		//internal BankAccount TryGetCurrencyRewardAccount(string playerName, string currencyType)
-		//{
-		//	var accountMap = this[playerName];
-
-		//	if(accountMap!=null)
-		//	{
-		//		var rewardAccountName = accountMap.GetAccountNameOverride(currencyType);
-
-		//		if(!string.IsNullOrWhiteSpace(rewardAccountName))
-		//		{
-		//			return accountMap.TryGetBankAccount(rewardAccountName);
-		//		}
-		//	}
-			
-		//	return null;
-		//}
 	}
 }

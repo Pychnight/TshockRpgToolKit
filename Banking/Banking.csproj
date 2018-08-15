@@ -110,7 +110,6 @@
     <Compile Include="Database\DatabaseFactory.cs" />
     <Compile Include="Database\MySqlDatabase.cs" />
     <Compile Include="Database\RedisDatabase.cs" />
-    <Compile Include="EnsurePlayerAccountsEventArgs.cs" />
     <Compile Include="PlayerBankAccountMap.cs" />
     <Compile Include="BankCommands.cs" />
     <Compile Include="BankingPlugin.cs" />

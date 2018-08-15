@@ -34,18 +34,6 @@ namespace Banking
 			AccountNameOverrideMap = new Dictionary<string, BankAccount>();
 		}
 
-		//internal PlayerBankAccountMap(string playerName, IEnumerable<CurrencyDefinition> definitions) : this(playerName)
-		//{
-		//	foreach(var def in definitions)
-		//	{
-		//		var account = new BankAccount(playerName, def.InternalName, 0m);
-		//		BankingPlugin.Instance.Bank.Database.Create(account);
-		//		accountsByName.Add(def.InternalName, account);
-
-		//		CurrencyRewardMap.Add(def.InternalName, account);
-		//	}
-		//}
-
 		public BankAccount GetOrCreateBankAccount(string accountName, decimal startingAmount = 0.0m)
 		{
 			var account = TryGetBankAccount(accountName);
@@ -129,11 +117,5 @@ namespace Banking
 		{
 			return accountsByName.Values.GetEnumerator();
 		}
-
-		//public BankAccount GetAccountForCurrencyReward(string currencyType)
-		//{
-		//	AccountNameOverrideMap.TryGetValue(currencyType, out var account);
-		//	return account;
-		//}
 	}
 }

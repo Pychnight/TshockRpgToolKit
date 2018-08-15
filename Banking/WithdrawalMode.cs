@@ -12,7 +12,7 @@ namespace Banking
 	public enum WithdrawalMode
 	{
 		/// <summary>
-		/// The account's Balance must be large enough to satisfy the withdrawal in orde to succeed.
+		/// The account's Balance must be large enough to satisfy the withdrawal in order to succeed.
 		/// </summary>
 		RequireFullBalance,
 		/// <summary>

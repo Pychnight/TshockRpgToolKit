@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Banking
 {
+	/// <summary>
+	/// BankAccounts store a players money.
+	/// </summary>
 	public class BankAccount
 	{
 		static object updateLocker = new object();
@@ -41,7 +44,10 @@ namespace Banking
 			Balance = startingFunds;
 		}
 
-		internal static void UpdateAccounts()
+		/// <summary>
+		/// Persists BankAccounts marked as dirty.
+		/// </summary>
+		internal static void PersistDirtyAccounts()
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			var accounts = AccountsToUpdate.Select( kvp => kvp.Value ).ToList();
@@ -55,16 +61,16 @@ namespace Banking
 			});
 		}
 
-		private void markForUpdate()
-		{
-			AccountsToUpdate.TryAdd(InternalId, this);
-		}
-
 		/// <summary>
-		/// Sets the Balance to a specified amount. Does not raise the BalanceChanged event.
+		/// Marks a BankAccount as dirty, so that it can be persisted at an appropriate time.
+		/// </summary>
+		private void MarkAsDirty() => AccountsToUpdate.TryAdd(InternalId, this);
+		
+		/// <summary>
+		/// Sets the Balance to a specified amount. Does not raise any events.
 		/// </summary>
 		/// <param name="amount">New balance.</param>
-		public void Set(decimal amount)
+		public void SetBalance(decimal amount)
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			//decimal newBalance, previousBalance;
@@ -75,7 +81,7 @@ namespace Banking
 				Balance = amount;
 				//newBalance = Balance;
 				//bank.Database.Update(this);
-				markForUpdate();
+				MarkAsDirty();
 			}
 
 			//bank.InvokeBalanceChanged(this, newBalance, previousBalance);
@@ -99,10 +105,11 @@ namespace Banking
 				Balance += amount;
 				newBalance = Balance;
 				//bank.Database.Update(this);
-				markForUpdate();
+				MarkAsDirty();
 			}
 
-			bank.InvokeBalanceChanged(this, ref newBalance, ref previousBalance);
+			//bank.InvokeBalanceChanged(this, ref newBalance, ref previousBalance);
+			bank.InvokeAccountDeposit(this, ref newBalance, ref previousBalance);
 		}
 
 		/// <summary>
@@ -136,10 +143,11 @@ namespace Banking
 				Balance -= amount;
 				newBalance = Balance;
 				//bank.Database.Update(this);
-				markForUpdate();
+				MarkAsDirty();
 			}
 
-			bank.InvokeBalanceChanged(this, ref newBalance, ref previousBalance);
+			//bank.InvokeBalanceChanged(this, ref newBalance, ref previousBalance);
+			bank.InvokeAccountWithdraw(this, ref newBalance, ref previousBalance);
 
 			return true;
 		}

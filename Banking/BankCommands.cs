@@ -377,7 +377,7 @@ namespace Banking
 						break;
 
 					case SetBalanceMode.Set:
-						targetAccount.Set(amount);
+						targetAccount.SetBalance(amount);
 						client.SendInfoMessage($"Set {targetAccount.OwnerName}'s account to {money}.");
 						break;
 
@@ -418,7 +418,7 @@ namespace Banking
 				return;
 			}
 
-			targetAccount.Set(0);
+			targetAccount.SetBalance(0);
 			client.SendInfoMessage($"Reset {targetAccount.OwnerName}'s '{currencyType}' account.");
 		}
 

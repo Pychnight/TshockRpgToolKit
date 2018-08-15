@@ -47,8 +47,7 @@ namespace Banking
 		internal PlayingRewardTracker PlayerSessionTracker;
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
-		//public BankAccount WorldAccount { get { return BankAccountManager.WorldAccount; } }
-		
+				
 		public BankingPlugin(Main game) : base(game)
 		{
 #if DEBUG
@@ -164,7 +163,7 @@ namespace Banking
 		
 		private void OnWorldSave(WorldSaveEventArgs args)
 		{
-			BankAccount.UpdateAccounts();
+			BankAccount.PersistDirtyAccounts();
 		}
 
 		private void OnServerJoin(JoinEventArgs args)
