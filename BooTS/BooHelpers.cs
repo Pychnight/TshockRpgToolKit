@@ -12,6 +12,16 @@ namespace BooTS
 	public static class BooHelpers
 	{
 		/// <summary>
+		/// Do not use. Used only to guarantee that Boo.Lang.Extensions.dll is copied.
+		/// </summary>
+		public static Boo.Lang.Extensions.AssertMacro DummyExtensionLoadHack => new Boo.Lang.Extensions.AssertMacro();
+
+		/// <summary>
+		/// Do not use. Used only to guarantee that Boo.Lang.Useful.dll is copied.
+		/// </summary>
+		public static Boo.Lang.Useful.Collections.Set DummyUsefulLoadHack => new Boo.Lang.Useful.Collections.Set();
+
+		/// <summary>
 		/// "Safe" means of creating a BooCompiler within a TShock plugin. 
 		/// </summary>
 		/// <remarks>This creates compiler without calling LoadDefaultReferences(), which causes exceptions under TShock.</remarks>
