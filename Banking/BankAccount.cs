@@ -172,5 +172,17 @@ namespace Banking
 
 			return false;
 		}
+
+		/// <summary>
+		/// Helper method. Attempts to match a Currency from the current Bank.CurrencyManager, to this BankAccount's name.
+		/// </summary>
+		/// <returns>Currency if found, otherwise null.</returns>
+		public CurrencyDefinition TryGetCurrency()
+		{
+			var bank = BankingPlugin.Instance?.Bank;
+			var currency = bank?.CurrencyManager.GetCurrencyByName(Name);
+
+			return currency;
+		}
 	}
 }

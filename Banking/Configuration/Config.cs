@@ -16,9 +16,12 @@ namespace Banking.Configuration
 		public static Config Instance { get; internal set; }
 		
 		[JsonProperty(Order = 0)]
-		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
+		public DatabaseConfig Database { get; set; } = new DatabaseConfig();
+
+		[JsonProperty(Order = 1)]
+		public string ScriptPath { get; set; }
 				
 		[JsonProperty(Order = 2)]
-		public VotingConfig Voting { get; private set; } = new VotingConfig();
+		public VotingConfig Voting { get; set; } = new VotingConfig();
 	}
 }

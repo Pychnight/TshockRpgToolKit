@@ -34,6 +34,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Boo.Lang">
+      <HintPath>..\refs\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.CodeDom">
+      <HintPath>..\refs\Boo.Lang.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>..\refs\Boo.Lang.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Extensions">
+      <HintPath>..\refs\Boo.Lang.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Interpreter">
+      <HintPath>..\refs\Boo.Lang.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\refs\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\refs\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\refs\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
@@ -96,6 +120,7 @@
     <Compile Include="Rewards\KillingReward.cs" />
     <Compile Include="Rewards\MiningReward.cs" />
     <Compile Include="Rewards\PlayingReward.cs" />
+    <Compile Include="ScriptHelpers.cs" />
     <Compile Include="TileTracking\TileSubTarget.cs" />
     <Compile Include="Rewards\MultipleRewardBase.cs" />
     <Compile Include="Rewards\RewardDistributor.cs" />
@@ -154,6 +179,10 @@
     <ProjectReference Include="..\..\Corruption\Corruption\Corruption.csproj">
       <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
       <Name>Corruption</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Terraria-Boo\BooTS\BooTS.csproj">
+      <Project>{a74d2d6c-99ab-465b-bc81-935b9139bfba}</Project>
+      <Name>BooTS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
