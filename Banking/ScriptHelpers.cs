@@ -1,4 +1,5 @@
-﻿using BooTS;
+﻿using Banking.Rewards;
+using BooTS;
 using Corruption;
 using Microsoft.Xna.Framework;
 using System;
@@ -32,7 +33,8 @@ namespace Banking
 				"Corruption.NpcFunctions",
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
-				"Banking"
+				"Banking",
+				"Banking.Rewards"
 			} );
 		}
 
@@ -81,6 +83,12 @@ namespace Banking
 				new EnsuredMethodSignature("OnAccountWithdraw")
 					.AddParameter("bank",typeof(Bank))
 					.AddParameter("info",typeof(BalanceChangedEventArgs)),
+				
+				new EnsuredMethodSignature("OnPreReward",typeof(decimal))
+					.AddParameter("playerName",typeof(string))
+					.AddParameter("reward",typeof(Reward))
+					.AddParameter("currency",typeof(CurrencyDefinition))
+					.AddParameter("value",typeof(decimal))
 			};
 
 			return sigs;

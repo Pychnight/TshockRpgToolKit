@@ -1,5 +1,6 @@
 ﻿using Banking.Configuration;
 using Banking.Database;
+using Banking.Rewards;
 using BooTS;
 using Corruption.PluginSupport;
 using System;
@@ -43,6 +44,8 @@ namespace Banking
 		}
 
 		//scripting points
+		//private void ScriptHook(string playerName, CurrencyDefinition currency, ref decimal value, Reward reward)
+		internal Func<string, Reward, CurrencyDefinition, decimal, decimal> ScriptOnPreReward;
 		private Action<Bank,BalanceChangedEventArgs> scriptOnAccountDeposit;
 		private Action<Bank,BalanceChangedEventArgs> scriptOnAccountWithdraw;
 
@@ -184,6 +187,7 @@ namespace Banking
 			var ass = context.GeneratedAssembly;
 			var linker = new BooModuleLinker(ass, scriptPath);
 
+			ScriptOnPreReward = linker.TryCreateDelegate<Func<string,Reward,CurrencyDefinition,decimal,decimal>>("OnPreReward");
 			scriptOnAccountDeposit = linker.TryCreateDelegate<Action<Bank, BalanceChangedEventArgs>>("OnAccountDeposit");
 			scriptOnAccountWithdraw = linker.TryCreateDelegate<Action<Bank, BalanceChangedEventArgs>>("OnAccountWithdraw");
 		}

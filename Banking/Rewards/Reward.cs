@@ -12,9 +12,9 @@ namespace Banking.Rewards
 	/// </summary>
 	public abstract class Reward
 	{
-		public RewardReason RewardReason { get; set; }
-		public string PlayerName { get; set; }
-		public string PlayerGroup { get; set; }
+		public RewardReason RewardReason { get; protected set; }
+		public string PlayerName { get; protected set; }
+		public string PlayerGroup { get; protected set; }
 		
 		/// <summary>
 		/// Provides a spot to perform evaluation initialization, like computing and caching expensive values, etc.

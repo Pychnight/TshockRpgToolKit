@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -70,8 +71,9 @@ namespace Banking.Rewards
 						{
 							var playerName = pair.Item1;
 							var rewardValue = pair.Item2;
-							
-							if( updateBankAccount(playerName,currency.InternalName,ref rewardValue))
+
+							ScriptHookOnPreReward(playerName, reward, currency, ref rewardValue);
+							if( TryUpdateBankAccount(playerName,currency.InternalName,ref rewardValue))
 							{
 								trySendCombatText(playerName, currency, ref rewardValue);
 							}
@@ -81,7 +83,8 @@ namespace Banking.Rewards
 					{
 						var rewardValue = reward.OnEvaluate(currency,evaluator);
 
-						if( updateBankAccount(reward.PlayerName, currency.InternalName, ref rewardValue) )
+						ScriptHookOnPreReward(reward.PlayerName, reward, currency, ref rewardValue);
+						if( TryUpdateBankAccount(reward.PlayerName, currency.InternalName, ref rewardValue) )
 						{
 							trySendCombatText(reward.PlayerName, currency, ref rewardValue);
 						}
@@ -90,7 +93,31 @@ namespace Banking.Rewards
 			}
 		}
 
-		private bool updateBankAccount(string playerName, string accountName, ref decimal value)
+		private void ScriptHookOnPreReward(string playerName, Reward reward, CurrencyDefinition currency, ref decimal value )
+		{
+			try
+			{
+				var scriptHookOnPreReward = BankingPlugin.Instance.Bank.ScriptOnPreReward;
+				if(scriptHookOnPreReward!=null)
+				{
+					var result = scriptHookOnPreReward(playerName, reward, currency,value);
+					value = result;
+				}
+			}
+			catch(Exception ex)
+			{
+				BankingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
+		}
+
+		/// <summary>
+		/// Attempts to issue the award to the players BankAccount.
+		/// </summary>
+		/// <param name="playerName"></param>
+		/// <param name="accountName"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		private bool TryUpdateBankAccount(string playerName, string accountName, ref decimal value)
 		{
 			if( value == 0m )
 				return false;
