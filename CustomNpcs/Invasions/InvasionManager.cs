@@ -364,7 +364,7 @@ namespace CustomNpcs.Invasions
                     }
                 }
 
-                Utils.SpawnVanillaOrCustomNpc(_currentMiniboss, tileX, tileY);
+				Utils.SpawnVanillaOrCustomNpc(_currentMiniboss, tileX, tileY);
             }
             else
             {

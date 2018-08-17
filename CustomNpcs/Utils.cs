@@ -224,7 +224,7 @@ namespace CustomNpcs
         ///     Tries to run a spawning algorithm for each player.
         /// </summary>
         /// <param name="action">The spawning algorithm, which must not be <c>null</c>.</param>
-        public static void TrySpawnForEachPlayer([NotNull] Action<TSPlayer, int, int> action)
+        public static void TrySpawnForEachPlayer(Action<TSPlayer, int, int> action)
         {
             foreach (var player in TShock.Players.Where(p => p?.Active == true))
             {
@@ -253,27 +253,37 @@ namespace CustomNpcs
                     {
                     }
 
-                    if (tileY != Main.maxTilesY && CanNpcSpawnAtCoordinates(tileX, tileY))
+                    if (tileY != Main.maxTilesY && CanNpcSpawnAtCoordinates(tileX, tileY, 2, 2))
                     {
                         succeeded = true;
                         break;
                     }
                 }
 
-                if (succeeded && !CanPlayersSeeCoordinates(tileX, tileY))
+                if(succeeded && !CanPlayersSeeCoordinates(tileX, tileY))
                 {
-					//TileFunctions.KillTile(tileX, tileY);
-					//TileFunctions.SetTile(tileX, tileX, 1);
-                    action(player, tileX, tileY);
+					action(player, tileX, tileY);
                 }
             }
         }
 
-        private static bool CanNpcSpawnAtCoordinates(int tileX, int tileY)
+		/// <summary>
+		/// Checks that a given tile is suitable to spawn an NPC.
+		/// </summary>
+		/// <param name="tileX">Tile x.</param>
+		/// <param name="tileY">Tile y.</param>
+		/// <param name="extraSpawnSpaceX">Optional extra space.</param>
+		/// <param name="extraSpawnSpaceY">Optional extra space.</param>
+		/// <returns>True if the space is big enough.</returns>
+        private static bool CanNpcSpawnAtCoordinates(int tileX, int tileY, int extraSpawnSpaceX = 0, int extraSpawnSpaceY = 0)
         {
-            var minCheckX = Math.Max(0, tileX - NPC.spawnSpaceX / 2);
-            var maxCheckX = Math.Min(Main.maxTilesX, tileX + NPC.spawnSpaceX / 2);
-            var minCheckY = Math.Max(0, tileY - NPC.spawnSpaceY);
+			//try to minimize invasion npcs spawning in tight areas by adding extra space...
+			var spawnSpaceX = NPC.spawnSpaceX + extraSpawnSpaceX;
+			var spawnSpaceY = NPC.spawnSpaceY + extraSpawnSpaceY;
+
+            var minCheckX = Math.Max(0, tileX - spawnSpaceX / 2);
+            var maxCheckX = Math.Min(Main.maxTilesX, tileX + spawnSpaceX / 2);
+            var minCheckY = Math.Max(0, tileY - spawnSpaceY);
             for (var x = minCheckX; x < maxCheckX; ++x)
             {
                 for (var y = minCheckY; y < tileY; ++y)
