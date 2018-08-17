@@ -27,6 +27,7 @@ namespace CustomNpcs.Invasions
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
 		private string _currentMiniboss;
+		private bool currentMinibossKilled;
         private int _currentPoints;
         private int _currentWaveIndex;
         private DateTime _lastProgressUpdate;
@@ -188,7 +189,8 @@ namespace CustomNpcs.Invasions
 					player.TPlayer.activeNPCs = 10000;
             }
 
-            if (_currentPoints >= _requiredPoints && _currentMiniboss == null)
+            if(_currentPoints >= _requiredPoints &&
+				( _currentMiniboss == null || currentMinibossKilled == true ))
             {
 				if (++_currentWaveIndex == CurrentInvasion.Waves.Count)
                 {
@@ -242,6 +244,8 @@ namespace CustomNpcs.Invasions
 					CurrentInvasion.OnBossDefeated = null;
 					_currentMiniboss = null;
 				}
+
+				currentMinibossKilled = true;
 	        }
             else if (CurrentInvasion.NpcPointValues.TryGetValue(npcNameOrType, out var points))
             {
@@ -297,6 +301,7 @@ namespace CustomNpcs.Invasions
 			TSPlayer.All.SendMessage(wave.StartMessage, InvasionTextColor);
 			_currentPoints = 0;
 			_currentMiniboss = wave.Miniboss;
+			currentMinibossKilled = false;
 			_requiredPoints = wave.PointsRequired * ( CurrentInvasion.ScaleByPlayers ? TShock.Utils.ActivePlayers() : 1 );
 
 			if(wave!=null)
@@ -348,6 +353,7 @@ namespace CustomNpcs.Invasions
 
             if (_currentPoints >= _requiredPoints && _currentMiniboss != null)
             {
+				//only spawn mini boss if a current miniboss doesnt exist.
                 foreach (var npc in Main.npc.Where(n => n?.active == true))
                 {
                     var customNpc = NpcManager.Instance?.GetCustomNpc(npc);

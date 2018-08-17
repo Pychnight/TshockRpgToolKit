@@ -85,22 +85,22 @@ namespace CustomNpcs.Invasions
 		public InvasionUpdateHandler OnUpdate { get; internal set; }
 
 		/// <summary>
-		///     Gets a function that is invoked when the invasion is started.
+		///     Gets a function that is invoked when the wave is started.
 		/// </summary>
 		public InvasionWaveStartHandler OnWaveStart { get; internal set; }
 
 		/// <summary>
-		///     Gets a function that is invoked when the invasion is ending.
+		///     Gets a function that is invoked when the wave is ending.
 		/// </summary>
 		public InvasionWaveEndHandler OnWaveEnd { get; internal set; }
 
 		/// <summary>
-		///     Gets a function that is invoked when the invasion is ending.
+		///     Gets a function that is invoked when the wave is updated.
 		/// </summary>
 		public InvasionWaveUpdateHandler OnWaveUpdate { get; internal set; }
 
 		/// <summary>
-		///     Gets a function that is invoked when the invasion is ending.
+		///     Gets a function that is invoked when the boss is defeated.
 		/// </summary>
 		public InvasionBossDefeatedHandler OnBossDefeated { get; internal set; }
 
