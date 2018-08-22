@@ -1,5 +1,6 @@
 ﻿using RpgToolsEditor.Controls;
 using RpgToolsEditor.Models;
+using RpgToolsEditor.Models.Banking;
 using RpgToolsEditor.Models.CustomNpcs;
 using RpgToolsEditor.Models.CustomQuests;
 using RpgToolsEditor.Models.Leveling;
@@ -66,6 +67,13 @@ namespace RpgToolsEditor
 			questTreeEditor.SaveFileDialog = saveFileDialogQuests;
 			questTreeEditor.ModelTree = new QuestInfoModelTree();
 			questTreeEditor.ItemImageList = imageListQuests;
+
+			var bankingTreeEditor = (ModelTreeEditor)tabControlMain.TabPages[6].Controls[0];
+			//bankingTreeEditor.OpenFileDialog = openFileDialogQuests;
+			//bankingTreeEditor.SaveFileDialog = saveFileDialogQuests;
+			bankingTreeEditor.ModelTree = new BankingModelTree();
+			bankingTreeEditor.ItemImageList = imageListQuests;
+			bankingTreeEditor.UseSingleFolderTreeNode = true;//force special mode with root folder.
 
 			//start on this page during development...
 			//tabControlMain.SelectedIndex = 0;

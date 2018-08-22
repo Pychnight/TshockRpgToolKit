@@ -84,6 +84,8 @@
 			this.imageListQuests = new System.Windows.Forms.ImageList(this.components);
 			this.imageListNpcShops = new System.Windows.Forms.ImageList(this.components);
 			this.imageListLeveling = new System.Windows.Forms.ImageList(this.components);
+			this.tabPageBanking = new System.Windows.Forms.TabPage();
+			this.modelTreeEditorBanking = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -92,6 +94,7 @@
 			this.tabPageNpcShops.SuspendLayout();
 			this.tabPageLeveling.SuspendLayout();
 			this.tabPageQuests.SuspendLayout();
+			this.tabPageBanking.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -289,6 +292,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageNpcShops);
 			this.tabControlMain.Controls.Add(this.tabPageLeveling);
 			this.tabControlMain.Controls.Add(this.tabPageQuests);
+			this.tabControlMain.Controls.Add(this.tabPageBanking);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.ImageList = this.imageListTabIcons;
 			this.tabControlMain.Location = new System.Drawing.Point(0, 24);
@@ -590,6 +594,30 @@
 			this.imageListLeveling.Images.SetKeyName(2, "directory_closed.png");
 			this.imageListLeveling.Images.SetKeyName(3, "shield_blue.png");
 			// 
+			// tabPageBanking
+			// 
+			this.tabPageBanking.Controls.Add(this.modelTreeEditorBanking);
+			this.tabPageBanking.Location = new System.Drawing.Point(4, 23);
+			this.tabPageBanking.Name = "tabPageBanking";
+			this.tabPageBanking.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageBanking.TabIndex = 9;
+			this.tabPageBanking.Text = "Banking";
+			this.tabPageBanking.UseVisualStyleBackColor = true;
+			// 
+			// modelTreeEditorBanking
+			// 
+			this.modelTreeEditorBanking.CurrentFilePath = "";
+			this.modelTreeEditorBanking.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTreeEditorBanking.IsTreeDirty = false;
+			this.modelTreeEditorBanking.Location = new System.Drawing.Point(0, 0);
+			this.modelTreeEditorBanking.ModelTree = null;
+			this.modelTreeEditorBanking.Name = "modelTreeEditorBanking";
+			this.modelTreeEditorBanking.OpenFileDialog = null;
+			this.modelTreeEditorBanking.SaveFileDialog = null;
+			this.modelTreeEditorBanking.Size = new System.Drawing.Size(1000, 608);
+			this.modelTreeEditorBanking.TabIndex = 0;
+			this.modelTreeEditorBanking.UseSingleFolderTreeNode = false;
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -612,6 +640,7 @@
 			this.tabPageNpcShops.ResumeLayout(false);
 			this.tabPageLeveling.ResumeLayout(false);
 			this.tabPageQuests.ResumeLayout(false);
+			this.tabPageBanking.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -673,6 +702,8 @@
 		private System.Windows.Forms.ImageList imageListQuests;
 		private System.Windows.Forms.ImageList imageListNpcShops;
 		private System.Windows.Forms.ImageList imageListLeveling;
+		private System.Windows.Forms.TabPage tabPageBanking;
+		private Controls.ModelTreeEditor modelTreeEditorBanking;
 	}
 }
 

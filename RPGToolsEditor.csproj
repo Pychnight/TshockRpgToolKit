@@ -72,6 +72,16 @@
     <Compile Include="Controls\ModelTreeEditor.Designer.cs">
       <DependentUpon>ModelTreeEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Banking\Currency.cs" />
+    <Compile Include="Models\Banking\Nodes\BankingModelTree.cs" />
+    <Compile Include="Models\Banking\Nodes\CurrencyTreeNode.cs" />
+    <Compile Include="Models\Banking\CurrencyQuadrant.cs" />
+    <Compile Include="Models\Banking\GroupValueOverrides.cs" />
+    <Compile Include="Models\Banking\ItemKey.cs" />
+    <Compile Include="Models\Banking\RewardReason.cs" />
+    <Compile Include="Models\Banking\TileSubTarget.cs" />
+    <Compile Include="Models\Banking\ValueOverrideList.cs" />
+    <Compile Include="Models\Banking\ValueOverride.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\CategoryTreeNode.cs" />
     <Compile Include="Controls\IncludeModelExtensions.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\IncludeTreeNode.cs" />
@@ -125,6 +135,7 @@
     <Compile Include="Models\CustomNpcs\Wave.cs" />
     <Compile Include="Models\StringHolderJsonConverter.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\NpcsModelTree.cs" />
+    <Compile Include="Models\Banking\TileKey.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\ProjectilesModelTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
