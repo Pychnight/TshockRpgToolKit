@@ -65,6 +65,8 @@
 			this.modelTreeEditor3 = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.tabPageQuests = new System.Windows.Forms.TabPage();
 			this.modelTreeEditor1 = new RpgToolsEditor.Controls.ModelTreeEditor();
+			this.tabPageBanking = new System.Windows.Forms.TabPage();
+			this.modelTreeEditorBanking = new RpgToolsEditor.Controls.ModelTreeEditor();
 			this.imageListTabIcons = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogProjectiles = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogProjectiles = new System.Windows.Forms.SaveFileDialog();
@@ -84,8 +86,8 @@
 			this.imageListQuests = new System.Windows.Forms.ImageList(this.components);
 			this.imageListNpcShops = new System.Windows.Forms.ImageList(this.components);
 			this.imageListLeveling = new System.Windows.Forms.ImageList(this.components);
-			this.tabPageBanking = new System.Windows.Forms.TabPage();
-			this.modelTreeEditorBanking = new RpgToolsEditor.Controls.ModelTreeEditor();
+			this.openFileDialogBanking = new System.Windows.Forms.OpenFileDialog();
+			this.saveFileDialogBanking = new System.Windows.Forms.SaveFileDialog();
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -453,6 +455,30 @@
 			this.modelTreeEditor1.TabIndex = 0;
 			this.modelTreeEditor1.UseSingleFolderTreeNode = false;
 			// 
+			// tabPageBanking
+			// 
+			this.tabPageBanking.Controls.Add(this.modelTreeEditorBanking);
+			this.tabPageBanking.Location = new System.Drawing.Point(4, 23);
+			this.tabPageBanking.Name = "tabPageBanking";
+			this.tabPageBanking.Size = new System.Drawing.Size(1000, 608);
+			this.tabPageBanking.TabIndex = 9;
+			this.tabPageBanking.Text = "Banking";
+			this.tabPageBanking.UseVisualStyleBackColor = true;
+			// 
+			// modelTreeEditorBanking
+			// 
+			this.modelTreeEditorBanking.CurrentFilePath = "";
+			this.modelTreeEditorBanking.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTreeEditorBanking.IsTreeDirty = false;
+			this.modelTreeEditorBanking.Location = new System.Drawing.Point(0, 0);
+			this.modelTreeEditorBanking.ModelTree = null;
+			this.modelTreeEditorBanking.Name = "modelTreeEditorBanking";
+			this.modelTreeEditorBanking.OpenFileDialog = null;
+			this.modelTreeEditorBanking.SaveFileDialog = null;
+			this.modelTreeEditorBanking.Size = new System.Drawing.Size(1000, 608);
+			this.modelTreeEditorBanking.TabIndex = 0;
+			this.modelTreeEditorBanking.UseSingleFolderTreeNode = false;
+			// 
 			// imageListTabIcons
 			// 
 			this.imageListTabIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListTabIcons.ImageStream")));
@@ -594,29 +620,21 @@
 			this.imageListLeveling.Images.SetKeyName(2, "directory_closed.png");
 			this.imageListLeveling.Images.SetKeyName(3, "shield_blue.png");
 			// 
-			// tabPageBanking
+			// openFileDialogBanking
 			// 
-			this.tabPageBanking.Controls.Add(this.modelTreeEditorBanking);
-			this.tabPageBanking.Location = new System.Drawing.Point(4, 23);
-			this.tabPageBanking.Name = "tabPageBanking";
-			this.tabPageBanking.Size = new System.Drawing.Size(1000, 608);
-			this.tabPageBanking.TabIndex = 9;
-			this.tabPageBanking.Text = "Banking";
-			this.tabPageBanking.UseVisualStyleBackColor = true;
+			this.openFileDialogBanking.CheckFileExists = false;
+			this.openFileDialogBanking.CheckPathExists = false;
+			this.openFileDialogBanking.Filter = "Currency files|*.currency|Json files|*.json|All files|*.*";
+			this.openFileDialogBanking.Title = "Open Currency";
 			// 
-			// modelTreeEditorBanking
+			// saveFileDialogBanking
 			// 
-			this.modelTreeEditorBanking.CurrentFilePath = "";
-			this.modelTreeEditorBanking.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.modelTreeEditorBanking.IsTreeDirty = false;
-			this.modelTreeEditorBanking.Location = new System.Drawing.Point(0, 0);
-			this.modelTreeEditorBanking.ModelTree = null;
-			this.modelTreeEditorBanking.Name = "modelTreeEditorBanking";
-			this.modelTreeEditorBanking.OpenFileDialog = null;
-			this.modelTreeEditorBanking.SaveFileDialog = null;
-			this.modelTreeEditorBanking.Size = new System.Drawing.Size(1000, 608);
-			this.modelTreeEditorBanking.TabIndex = 0;
-			this.modelTreeEditorBanking.UseSingleFolderTreeNode = false;
+			this.saveFileDialogBanking.AddExtension = false;
+			this.saveFileDialogBanking.CheckPathExists = false;
+			this.saveFileDialogBanking.Filter = "Currency files|*.currency|Json files|*.json|All files|*.*";
+			this.saveFileDialogBanking.SupportMultiDottedExtensions = true;
+			this.saveFileDialogBanking.Title = "Save Currency";
+			this.saveFileDialogBanking.ValidateNames = false;
 			// 
 			// EditorForm
 			// 
@@ -704,6 +722,8 @@
 		private System.Windows.Forms.ImageList imageListLeveling;
 		private System.Windows.Forms.TabPage tabPageBanking;
 		private Controls.ModelTreeEditor modelTreeEditorBanking;
+		private System.Windows.Forms.OpenFileDialog openFileDialogBanking;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogBanking;
 	}
 }
 

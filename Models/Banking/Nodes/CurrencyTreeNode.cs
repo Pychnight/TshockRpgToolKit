@@ -20,7 +20,7 @@ namespace RpgToolsEditor.Models.Banking
 		{
 			CanEditModel = true;
 			CanAdd = false;
-			CanCopy = true;
+			CanCopy = false;
 			CanDelete = true;
 			CanDrag = true;
 
