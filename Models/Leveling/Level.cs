@@ -67,23 +67,29 @@ namespace RpgToolsEditor.Models.Leveling
 		public long ExpRequired { get; set; }
 
 		/// <summary>
+		///     Gets or sets the CurrencyRequired to level up.
+		/// </summary>
+		[JsonProperty("CurrencyRequired", Order = 3)]
+		public string CurrencyRequired { get; set; } = "";
+
+		/// <summary>
+		///     Gets the prefix for the level.
+		/// </summary>
+		[JsonProperty("Prefix", Order = 4)]
+		public string Prefix { get; set; } = "";
+
+		/// <summary>
 		///     Gets the set of item names allowed.
 		/// </summary>
-		[JsonProperty("ItemsAllowed", Order = 4)]
+		[JsonProperty("ItemsAllowed", Order = 5)]
 		public BindingList<TerrariaItemStringHolder> ItemNamesAllowed { get; set; } = new BindingList<TerrariaItemStringHolder>();
 			
 		/// <summary>
 		///     Gets the set of permissions granted.
 		/// </summary>
-		[JsonProperty("PermissionsGranted", Order = 5)]
+		[JsonProperty("PermissionsGranted", Order = 6)]
 		public BindingList<StringHolder> PermissionsGranted { get; set; } = new BindingList<StringHolder>();
-
-		/// <summary>
-		///     Gets the prefix for the level.
-		/// </summary>
-		[JsonProperty("Prefix", Order = 3)]
-		public string Prefix { get; set; } = "";
-
+		
 		public Level()
 		{
 		}
@@ -99,8 +105,6 @@ namespace RpgToolsEditor.Models.Leveling
 			CommandsOnLevelUp = other.CommandsOnLevelUp.DeepClone();
 			CommandsOnLevelUpOnce = other.CommandsOnLevelUpOnce.DeepClone();
 			CommandsOnLevelDown = other.CommandsOnLevelDown.DeepClone();
-			
-			//throw new NotImplementedException();
 		}
 
 		public object Clone()

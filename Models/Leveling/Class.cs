@@ -57,36 +57,13 @@ namespace RpgToolsEditor.Models.Leveling
 		[Category("Prerequisites")]
 		[JsonProperty(Order = 3)]
 		public BindingList<StringHolder> PrerequisitePermissions { get; set; } = new BindingList<StringHolder>();
-
-		/// <summary>
-		///     Gets the SEconomy cost to enter this class.
-		/// </summary>
-		/// <remarks>This member is obsolete, and left for backwards compatibility. Use ExpCost instead.</remarks>
-		[JsonProperty(Order = 4)]
-		[Category("Currency")]
-		[Description("...subject to future removal.")]
-		public long SEconomyCost
-		{
-			get { return (long)InternalCost; }
-			set { InternalCost = value; }
-		}
-
-		long InternalCost;//this is a placeholder until we figure out what to do with SEconomyCost
-
-		/// <summary>
-		///		Gets the CurrencyType used for CurrencyCost.
-		/// </summary>
-		[JsonProperty(Order = 5)]
-		[Category("Currency")]
-		[Description("Name of a Currency from Banking; defaults to Exp.")]
-		public string CurrencyType { get; set; } = "Exp";
-
+		
 		/// <summary>
 		///		Gets the Currency cost to enter this class.
 		/// </summary>
 		[JsonProperty(Order = 6)]
 		[Category("Currency")]
-		public string CurrencyCost { get; set; }
+		public string Cost { get; set; }
 
 		/// <summary>
 		///     Gets a value indicating whether to allow switching the class after mastery.
@@ -160,9 +137,7 @@ namespace RpgToolsEditor.Models.Leveling
 			DisplayName = other.DisplayName;
 			PrerequisiteLevelNames = other.PrerequisiteLevelNames.DeepClone();
 			PrerequisitePermissions = other.PrerequisitePermissions.DeepClone();
-			SEconomyCost = other.SEconomyCost;
-			CurrencyType = other.CurrencyType;
-			CurrencyCost = other.CurrencyCost;
+			Cost = other.Cost;
 			AllowSwitching = other.AllowSwitching;
 			AllowSwitchingBeforeMastery = other.AllowSwitchingBeforeMastery;
 			ExpMultiplierOverride = other.ExpMultiplierOverride;
@@ -170,8 +145,6 @@ namespace RpgToolsEditor.Models.Leveling
 			CommandsOnClassChangeOnce = other.CommandsOnClassChangeOnce.DeepClone();
 			LevelDefinitions = other.LevelDefinitions.Select(ld => new Level(ld)).ToList();
 			NpcNameToExpReward = new Dictionary<string,string>(other.NpcNameToExpReward);
-						
-			//throw new NotImplementedException();
 		}
 
 		public override string ToString()
