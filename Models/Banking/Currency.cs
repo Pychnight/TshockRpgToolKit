@@ -10,10 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing.Design;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wexman.Design;
 
 namespace RpgToolsEditor.Models.Banking
 {
@@ -115,22 +117,27 @@ namespace RpgToolsEditor.Models.Banking
 		public decimal DefaultPlayingValue = 1m;
 
 		[Category("Killing")]
+		[Editor(typeof(GenericDictionaryEditor<string, float>), typeof(UITypeEditor))]
 		[JsonProperty(Order = 17)]
 		public Dictionary<string, float> WeaponMultipliers { get; set; } = new Dictionary<string, float>();
 
 		[Category("Killing")]
+		[Editor(typeof(StringKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 18)]
 		public ValueOverrideList<string> KillingOverrides { get; set; } = new ValueOverrideList<string>();
 
 		[Category("Mining")]
+		[Editor(typeof(TileKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 19)]
 		public ValueOverrideList<TileKey> MiningOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
 		[Category("Placing")]
+		[Editor(typeof(TileKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 20)]
 		public ValueOverrideList<TileKey> PlacingOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
 		[Category("Fishing")]
+		[Editor(typeof(ItemKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 21)]
 		public ValueOverrideList<ItemKey> FishingOverrides { get; set; } = new ValueOverrideList<ItemKey>();
 

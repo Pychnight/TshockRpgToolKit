@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 //using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +14,7 @@ namespace RpgToolsEditor.Models.Banking
 	/// <summary>
 	/// Tile based key for ValueOverride.
 	/// </summary>
+	[TypeConverter(typeof(TileKeyConverter))]
 	[JsonObject(MemberSerialization.OptIn)]
 	public class TileKey : IEquatable<TileKey>
 	{
@@ -80,6 +83,11 @@ namespace RpgToolsEditor.Models.Banking
 				return Equals(tk);
 			else
 				return false;
+		}
+
+		public override string ToString()
+		{
+			return $"TileKey(Type:{Type}, Wall: {Wall})";
 		}
 	}
 }

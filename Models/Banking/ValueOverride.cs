@@ -14,14 +14,15 @@ namespace RpgToolsEditor.Models.Banking
 	/// Represents a value to be used for an item, instead of relying on the default value generation.
 	/// </summary>
 	/// <typeparam name="TKey"></typeparam>
+	[TypeConverter(typeof(ExpandableObjectConverter))]
 	[JsonObject(MemberSerialization.OptIn)]
-	public class ValueOverride<TKey>
+	public class ValueOverride<TKey> //where TKey : new() -- cant use this because of System.String...
 	{
 		/// <summary>
 		/// Gets or sets the key. 
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		public TKey Key { get; set; } = default(TKey);
+		public TKey Key { get; set; } //= new TKey();
 
 		/// <summary>
 		/// Gets or sets the string representation of the value.
@@ -35,7 +36,7 @@ namespace RpgToolsEditor.Models.Banking
 		/// </summary>
 		[Browsable(false)]
 		public decimal Value { get; set; }
-
+		
 		///// <summary>
 		///// Performs necessary initialization in order to use this ValueOverride. The base implementation attempts to parse the ValueString
 		///// into a generic unit Value from the Currency. If this fails, it tries to parse a raw decimal value from the string. If this also fails,

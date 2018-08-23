@@ -73,6 +73,7 @@
       <DependentUpon>ModelTreeEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Banking\Currency.cs" />
+    <Compile Include="Models\Banking\ItemKeyConverter.cs" />
     <Compile Include="Models\Banking\Nodes\BankingModelTree.cs" />
     <Compile Include="Models\Banking\Nodes\CurrencyTreeNode.cs" />
     <Compile Include="Models\Banking\CurrencyQuadrant.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Models\StringHolderJsonConverter.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\NpcsModelTree.cs" />
     <Compile Include="Models\Banking\TileKey.cs" />
+    <Compile Include="Models\TileKeyConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Models\CustomNpcs\Nodes\ProjectilesModelTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
