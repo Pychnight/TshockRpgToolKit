@@ -79,6 +79,7 @@
     <Compile Include="Models\Banking\CurrencyQuadrant.cs" />
     <Compile Include="Models\Banking\GroupValueOverrides.cs" />
     <Compile Include="Models\Banking\ItemKey.cs" />
+    <Compile Include="Models\Banking\OverrideCollectionEditors.cs" />
     <Compile Include="Models\Banking\RewardReason.cs" />
     <Compile Include="Models\Banking\TileSubTarget.cs" />
     <Compile Include="Models\Banking\ValueOverrideList.cs" />
