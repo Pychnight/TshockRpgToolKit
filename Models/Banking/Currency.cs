@@ -117,40 +117,44 @@ namespace RpgToolsEditor.Models.Banking
 		public decimal DefaultPlayingValue = 1m;
 
 		[Category("Killing")]
-		[Editor(typeof(GenericDictionaryEditor<string, float>), typeof(UITypeEditor))]
 		[JsonProperty(Order = 17)]
+		[Editor(typeof(GenericDictionaryEditor<string, float>), typeof(UITypeEditor))]
+		[GenericDictionaryEditor(Title = "Weapon Multipliers", KeyDisplayName = "Weapon", ValueDisplayName = "Multiplier")]
 		public Dictionary<string, float> WeaponMultipliers { get; set; } = new Dictionary<string, float>();
 
 		[Category("Killing")]
-		[Editor(typeof(StringKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 18)]
+		//[Editor(typeof(StringKeyCollectionEditor), typeof(UITypeEditor))]
+		[Editor(typeof(KillingCollectionEditor), typeof(UITypeEditor))]
 		public ValueOverrideList<string> KillingOverrides { get; set; } = new ValueOverrideList<string>();
 
 		[Category("Mining")]
-		[Editor(typeof(TileKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 19)]
+		//[Editor(typeof(TileKeyCollectionEditor), typeof(UITypeEditor))]
+		[Editor(typeof(MiningCollectionEditor), typeof(UITypeEditor))]
 		public ValueOverrideList<TileKey> MiningOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
 		[Category("Placing")]
-		[Editor(typeof(TileKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 20)]
+		//[Editor(typeof(TileKeyCollectionEditor), typeof(UITypeEditor))]
+		[Editor(typeof(PlacingCollectionEditor), typeof(UITypeEditor))]
 		public ValueOverrideList<TileKey> PlacingOverrides { get; set; } = new ValueOverrideList<TileKey>();
 
 		[Category("Fishing")]
-		[Editor(typeof(ItemKeyCollectionEditor), typeof(UITypeEditor))]
 		[JsonProperty(Order = 21)]
+		[Editor(typeof(ItemKeyCollectionEditor), typeof(UITypeEditor))]
 		public ValueOverrideList<ItemKey> FishingOverrides { get; set; } = new ValueOverrideList<ItemKey>();
 
 		[Category("Mining")]
 		[JsonProperty(Order = 22)]
 		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<TileKey>>), typeof(UITypeEditor))]
-		[GenericDictionaryEditor(Title = "Group Mining Overrides", ValueEditorType = typeof(TileKeyCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Mining Overrides" )]
+		[GenericDictionaryEditor(Title = "Group Mining Overrides", ValueEditorType = typeof(MiningCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Mining Overrides" )]
 		public GroupValueOverrides<TileKey> GroupMiningOverrides { get; set; } = new GroupValueOverrides<TileKey>();
 
 		[Category("Placing")]
 		[JsonProperty(Order = 23)]
 		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<TileKey>>), typeof(UITypeEditor))]
-		[GenericDictionaryEditor(Title = "Group Placing Overrides", ValueEditorType = typeof(TileKeyCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Placing Overrides")]
+		[GenericDictionaryEditor(Title = "Group Placing Overrides", ValueEditorType = typeof(PlacingCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Placing Overrides")]
 		public GroupValueOverrides<TileKey> GroupPlacingOverrides { get; set; } = new GroupValueOverrides<TileKey>();
 			
 		//non serialized members.

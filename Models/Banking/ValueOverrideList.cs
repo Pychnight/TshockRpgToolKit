@@ -49,17 +49,17 @@ namespace RpgToolsEditor.Models.Banking
 		{
 			if(typeof(TKey) == typeof(TileKey))
 			{
-				return $"ValueOverrideList<TileKey>";
+				return $"{Count} Tile Overrides";
 			}
 
 			if(typeof(TKey) == typeof(ItemKey))
 			{
-				return $"ValueOverrideList<ItemKey>";
+				return $"{Count} Item Overrides";
 			}
 
 			if(typeof(TKey) == typeof(string) )
 			{
-				return $"ValueOverrideList<string>";
+				return $"{Count} String Overrides";
 			}
 
 			return base.ToString();

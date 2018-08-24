@@ -87,7 +87,7 @@ namespace RpgToolsEditor.Models.Banking
 
 		public override string ToString()
 		{
-			return $"TileKey(Type:{Type}, Wall: {Wall})";
+			return $"TileKey(Type:{Type}, Wall:{Wall})";
 		}
 	}
 }
