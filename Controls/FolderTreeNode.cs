@@ -14,7 +14,7 @@ namespace RpgToolsEditor.Controls
 			CanCopy = false;
 			CanDrag = false;
 			
-			ImageIndex = SelectedImageIndex = 2;
+			ImageIndex = SelectedImageIndex = 2;//yeah, were hardcoded into using index 2 for now :/
 		}
 
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)

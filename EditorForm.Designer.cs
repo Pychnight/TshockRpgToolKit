@@ -88,6 +88,7 @@
 			this.imageListLeveling = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialogBanking = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialogBanking = new System.Windows.Forms.SaveFileDialog();
+			this.imageListBanking = new System.Windows.Forms.ImageList(this.components);
 			this.menuStrip1.SuspendLayout();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageInvasions.SuspendLayout();
@@ -458,6 +459,7 @@
 			// tabPageBanking
 			// 
 			this.tabPageBanking.Controls.Add(this.modelTreeEditorBanking);
+			this.tabPageBanking.ImageIndex = 6;
 			this.tabPageBanking.Location = new System.Drawing.Point(4, 23);
 			this.tabPageBanking.Name = "tabPageBanking";
 			this.tabPageBanking.Size = new System.Drawing.Size(1000, 608);
@@ -489,6 +491,7 @@
 			this.imageListTabIcons.Images.SetKeyName(3, "Merchant-16.png");
 			this.imageListTabIcons.Images.SetKeyName(4, "Wooden_Sword-16.png");
 			this.imageListTabIcons.Images.SetKeyName(5, "Skeletron_Head-16.png");
+			this.imageListTabIcons.Images.SetKeyName(6, "Gold_Coin-16.png");
 			// 
 			// openFileDialogProjectiles
 			// 
@@ -636,6 +639,14 @@
 			this.saveFileDialogBanking.Title = "Save Currency";
 			this.saveFileDialogBanking.ValidateNames = false;
 			// 
+			// imageListBanking
+			// 
+			this.imageListBanking.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListBanking.ImageStream")));
+			this.imageListBanking.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageListBanking.Images.SetKeyName(0, "Gold_Coin-16.png");
+			this.imageListBanking.Images.SetKeyName(1, "triangle_red.png");
+			this.imageListBanking.Images.SetKeyName(2, "directory_closed.png");
+			// 
 			// EditorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -724,6 +735,7 @@
 		private Controls.ModelTreeEditor modelTreeEditorBanking;
 		private System.Windows.Forms.OpenFileDialog openFileDialogBanking;
 		private System.Windows.Forms.SaveFileDialog saveFileDialogBanking;
+		private System.Windows.Forms.ImageList imageListBanking;
 	}
 }
 

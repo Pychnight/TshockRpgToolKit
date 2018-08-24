@@ -72,7 +72,7 @@ namespace RpgToolsEditor
 			bankingTreeEditor.OpenFileDialog = openFileDialogBanking;
 			bankingTreeEditor.SaveFileDialog = saveFileDialogBanking;
 			bankingTreeEditor.ModelTree = new BankingModelTree();
-			bankingTreeEditor.ItemImageList = imageListQuests;
+			bankingTreeEditor.ItemImageList = imageListBanking;
 			bankingTreeEditor.UseSingleFolderTreeNode = true;//force special mode with root folder.
 
 			//start on this page during development...
