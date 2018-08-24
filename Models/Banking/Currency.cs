@@ -143,12 +143,16 @@ namespace RpgToolsEditor.Models.Banking
 
 		[Category("Mining")]
 		[JsonProperty(Order = 22)]
+		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<TileKey>>), typeof(UITypeEditor))]
+		[GenericDictionaryEditor(Title = "Group Mining Overrides", ValueEditorType = typeof(TileKeyCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Mining Overrides" )]
 		public GroupValueOverrides<TileKey> GroupMiningOverrides { get; set; } = new GroupValueOverrides<TileKey>();
 
 		[Category("Placing")]
 		[JsonProperty(Order = 23)]
+		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<TileKey>>), typeof(UITypeEditor))]
+		[GenericDictionaryEditor(Title = "Group Placing Overrides", ValueEditorType = typeof(TileKeyCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Placing Overrides")]
 		public GroupValueOverrides<TileKey> GroupPlacingOverrides { get; set; } = new GroupValueOverrides<TileKey>();
-
+			
 		//non serialized members.
 
 		//used internally for fast access to currencies -- do not cache or save this.
@@ -264,7 +268,15 @@ namespace RpgToolsEditor.Models.Banking
 		//{
 		//	return currencyConverter;
 		//}
-		
+
+		//private void TestArea()
+		//{
+		//	Wexman.Design.GenericDictionaryEditorAttribute attr = null;
+
+		//	attr.Title
+
+		//}
+
 		public override string ToString()
 		{
 			return InternalName;

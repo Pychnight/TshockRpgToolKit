@@ -44,5 +44,25 @@ namespace RpgToolsEditor.Models.Banking
 		//{
 		//	return map.TryGetValue(key, out value);
 		//}
+
+		public override string ToString()
+		{
+			if(typeof(TKey) == typeof(TileKey))
+			{
+				return $"ValueOverrideList<TileKey>";
+			}
+
+			if(typeof(TKey) == typeof(ItemKey))
+			{
+				return $"ValueOverrideList<ItemKey>";
+			}
+
+			if(typeof(TKey) == typeof(string) )
+			{
+				return $"ValueOverrideList<string>";
+			}
+
+			return base.ToString();
+		}
 	}
 }
