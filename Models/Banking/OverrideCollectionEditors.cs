@@ -39,6 +39,8 @@ namespace RpgToolsEditor.Models.Banking
 		public TileKeyCollectionEditor() : this("Tile Overrides Editor") { }
 		public TileKeyCollectionEditor(string caption) : base(caption, typeof(ValueOverrideList<TileKey>)) { }
 
+		protected override string HelpTopic => base.HelpTopic;
+
 		protected override object CreateInstance(Type itemType)
 		{
 			if( itemType == typeof(ValueOverride<TileKey>) )
@@ -49,6 +51,23 @@ namespace RpgToolsEditor.Models.Banking
 			}
 
 			return base.CreateInstance(itemType);
+		}
+
+		protected override string GetDisplayText(object value)
+		{
+			var item = (ValueOverride<TileKey>)value;
+			var key = item.Key;
+			string val = item.ValueString;
+
+			if( string.IsNullOrWhiteSpace(item.ValueString) )
+				val = "???";
+			
+			return $"Tile:{key.Type}, Wall:{key.Wall} = {val}";
+		}
+
+		protected override void ShowHelp()
+		{
+			base.ShowHelp();
 		}
 	}
 
@@ -68,6 +87,18 @@ namespace RpgToolsEditor.Models.Banking
 
 			return base.CreateInstance(itemType);
 		}
+
+		protected override string GetDisplayText(object value)
+		{
+			var item = (ValueOverride<ItemKey>)value;
+			var key = item.Key;
+			string val = item.ValueString;
+
+			if( string.IsNullOrWhiteSpace(item.ValueString) )
+				val = "???";
+
+			return $"ItemId:{key.ItemId}, Prefix:{key.Prefix} = {val}";
+		}
 	}
 
 	public class StringKeyCollectionEditor : CaptionedCollectionEditor
@@ -86,12 +117,37 @@ namespace RpgToolsEditor.Models.Banking
 
 			return base.CreateInstance(itemType);
 		}
+
+		protected override string GetDisplayText(object value)
+		{
+			var item = (ValueOverride<string>)value;
+			var key = item.Key;
+			string val = item.ValueString;
+
+			if( string.IsNullOrWhiteSpace(item.ValueString) )
+				val = "???";
+
+			return $"Key:{key} = {val}";
+		}
 	}
 
 	// Collection editors with custom captions to match the properties they are tied to.
+	
 	public class KillingCollectionEditor : StringKeyCollectionEditor
 	{
 		public KillingCollectionEditor() : base("Killing Overrides") { }
+
+		protected override string GetDisplayText(object value)
+		{
+			var item = (ValueOverride<string>)value;
+			var key = item.Key;
+			string val = item.ValueString;
+
+			if( string.IsNullOrWhiteSpace(item.ValueString) )
+				val = "???";
+
+			return $"NPC:{key} = {val}";
+		}
 	}
 
 	public class MiningCollectionEditor : TileKeyCollectionEditor
@@ -102,6 +158,11 @@ namespace RpgToolsEditor.Models.Banking
 	public class PlacingCollectionEditor : TileKeyCollectionEditor
 	{
 		public PlacingCollectionEditor() : base("Placing Overrides") { }
+	}
+
+	public class FishingCollectionEditor : ItemKeyCollectionEditor
+	{
+		public FishingCollectionEditor() : base("Fishing Overrides") { }
 	}
 
 }

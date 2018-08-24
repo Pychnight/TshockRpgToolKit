@@ -24,6 +24,7 @@ namespace RpgToolsEditor.Models.Banking
 		/// <summary>
 		/// Terraria Tile Id.
 		/// </summary>
+		[Description("Terraria Tile Id.")]
 		[JsonProperty]
 		public ushort Type { get; set; } = 0;
 
@@ -36,6 +37,7 @@ namespace RpgToolsEditor.Models.Banking
 		/// <summary>
 		/// Terraria Wall Id.
 		/// </summary>
+		[Description("Terraria Wall Id.")]
 		[JsonProperty]
 		public byte Wall { get; set; } = 0;
 
