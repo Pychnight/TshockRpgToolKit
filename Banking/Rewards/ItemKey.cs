@@ -13,20 +13,21 @@ namespace Banking.Rewards
 	[JsonObject(MemberSerialization.OptIn)]
 	public class ItemKey : IEquatable<ItemKey>
 	{
-		//item
-		int itemId;
-		byte prefix;
+		[JsonProperty(Order = 0 )]
+		public int ItemId { get; set; }
+
+		[JsonProperty(Order = 1)]
+		public byte Prefix { get; set; }
 		
-		//prefix
 		public ItemKey(int itemId, byte prefix)
 		{
-			this.itemId = itemId;
-			this.prefix = prefix;
+			ItemId = itemId;
+			Prefix = prefix;
 		}
 
 		public bool Equals(ItemKey other)
 		{
-			return itemId == other.itemId && prefix == other.prefix;
+			return ItemId == other.ItemId && Prefix == other.Prefix;
 		}
 
 		public override bool Equals(object obj)
@@ -41,7 +42,7 @@ namespace Banking.Rewards
 
 		public override int GetHashCode()
 		{
-			return itemId ^ prefix;
+			return ItemId ^ Prefix;
 		}
 	}
 }
