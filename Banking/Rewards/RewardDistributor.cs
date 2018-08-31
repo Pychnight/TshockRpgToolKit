@@ -132,7 +132,8 @@ namespace Banking.Rewards
 			}
 			else
 			{
-				return account.TryWithdraw(value);
+				account.TryWithdraw(value);	//dont use the return status here,
+				return true;				//always return true, so a combat text may get sent for negative numbers.
 			}
 		}
 
