@@ -179,131 +179,20 @@ namespace RpgToolsEditor.Models.Banking
 		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<TileKey>>), typeof(UITypeEditor))]
 		[GenericDictionaryEditor(Title = "Group Placing Overrides", ValueEditorType = typeof(PlacingCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Placing Overrides")]
 		public GroupValueOverrides<TileKey> GroupPlacingOverrides { get; set; } = new GroupValueOverrides<TileKey>();
-			
+
+		[Category("Playing")]
+		[Description("Playing values, per tshock group name, if Playing rewards are enabled. This overrides the DefaultPlayingValue. Note: Only a single override is allowed per group, and its inner key name MUST be set to 'key'. Any additional overrides( per group ) will be ignored.")]
+		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<string>>), typeof(UITypeEditor))]
+		[GenericDictionaryEditor(Title = "Group Playing Overrides", ValueEditorType = typeof(PlayingCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Placing Overrides")]
+		[JsonProperty(Order = 24)]
+		public GroupValueOverrides<string> GroupPlayingOverrides { get; set; } = new GroupValueOverrides<string>();
+
 		//non serialized members.
 
-		//used internally for fast access to currencies -- do not cache or save this.
-		//public int Id { get; internal set; }
-
-		/// <summary>
-		/// Gets a cached string used for display by /bank list.
-		/// </summary>
-		internal string DisplayString { get; private set; }
-		//internal Dictionary<string, CurrencyQuadrant> NamesToQuadrants { get; private set; }
-
-		//internal void OnInitialize(int id)
-		//{
-		//	Id = id;
-		//	NamesToQuadrants = createNamesToQuadrants();
-		//	currencyConverter = new CurrencyConverter(this);
-
-		//	//set defaults 
-		//	if( currencyConverter.TryParse(DefaultMiningValueString, out var parsedResult) )
-		//		DefaultMiningValue = parsedResult;
-
-		//	if( currencyConverter.TryParse(DefaultPlacingValueString, out parsedResult) )
-		//		DefaultPlacingValue = parsedResult;
-
-		//	if( currencyConverter.TryParse(DefaultFishingValueString, out parsedResult) )
-		//		DefaultFishingValue = parsedResult;
-
-		//	if( currencyConverter.TryParse(DefaultPlayingValueString, out parsedResult) )
-		//		DefaultPlayingValue = parsedResult;
-
-		//	//set overrides
-		//	KillingOverrides.Initialize(this);
-		//	MiningOverrides.Initialize(this);
-		//	PlacingOverrides.Initialize(this);
-		//	FishingOverrides.Initialize(this);
-
-		//	//set group overrides ( only tiles for now )
-		//	var tileGroupOverrides = new List<GroupValueOverrides<TileKey>>()
-		//	{
-		//		GroupMiningOverrides,
-		//		GroupPlacingOverrides
-		//	};
-
-		//	foreach( var go in tileGroupOverrides )
-		//	{
-		//		foreach( var vol in go.Values )
-		//		{
-		//			vol.Initialize(this);
-		//		}
-		//	}
-
-		//	InitializeDisplayString();
-		//}
-
-		//private Dictionary<string, CurrencyQuadrant> createNamesToQuadrants()
-		//{
-		//	var mapping = new Dictionary<string, CurrencyQuadrant>();
-
-		//	foreach( var quad in Quadrants )
-		//	{
-		//		var names = new List<string>() { quad.FullName, quad.Abbreviation };
-
-		//		foreach( var name in names )
-		//		{
-		//			if( !string.IsNullOrWhiteSpace(name) )
-		//			{
-		//				if( mapping.ContainsKey(name) )
-		//				{
-		//					BankingPlugin.Instance.LogPrint($"Currency {this.InternalName} already contains " +
-		//													$"a quadrant using the name or abbreviation '{name}'. ",
-		//													TraceLevel.Warning);
-		//				}
-
-		//				mapping[name] = quad;
-		//			}
-		//		}
-		//	}
-
-		//	return mapping;
-		//}
-
-		//internal void InitializeDisplayString()
-		//{
-		//	try
-		//	{
-		//		var sb = new StringBuilder();
-		//		var useSeparator = false;
-		//		var quadrants = Quadrants.ToList();
-
-		//		quadrants.Reverse();
-
-		//		foreach( var q in quadrants )
-		//		{
-		//			if( useSeparator )
-		//				sb.Append(" | ");
-
-		//			sb.AppendFormat("{0}({1})", q.FullName, q.Abbreviation);
-		//			useSeparator = true;
-		//		}
-
-		//		var quadrantInfo = sb.ToString();
-
-		//		DisplayString = $"{InternalName} - {quadrantInfo}";
-		//	}
-		//	catch
-		//	{
-		//		DisplayString = $"{InternalName} - Information not available.";
-		//	}
-		//}
-
-		//private CurrencyConverter currencyConverter;
-		//public CurrencyConverter GetCurrencyConverter()
-		//{
-		//	return currencyConverter;
-		//}
-
-		//private void TestArea()
-		//{
-		//	Wexman.Design.GenericDictionaryEditorAttribute attr = null;
-
-		//	attr.Title
-
-		//}
-
+		//We want to reuse the GroupValueOverrides type, but GroupPlayingOverrides property doesn't need a specialized key.
+		//In order to reuse the existing code, we give GroupPlayingOverrides a dummy key placeholder and call it a day.  
+		internal const string DummyKeyString = "key";
+		
 		public override string ToString()
 		{
 			return InternalName;

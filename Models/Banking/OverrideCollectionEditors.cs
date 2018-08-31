@@ -160,6 +160,11 @@ namespace RpgToolsEditor.Models.Banking
 		public PlacingCollectionEditor() : base("Placing Overrides") { }
 	}
 
+	public class PlayingCollectionEditor : StringKeyCollectionEditor
+	{
+		public PlayingCollectionEditor() : base("Playing Overrides") { }
+	}
+
 	public class FishingCollectionEditor : ItemKeyCollectionEditor
 	{
 		public FishingCollectionEditor() : base("Fishing Overrides") { }
