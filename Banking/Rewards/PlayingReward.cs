@@ -6,13 +6,17 @@ using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
+	/// <summary>
+	/// Reward for playing a certain amount of time.
+	/// </summary>
 	public class PlayingReward : Reward
 	{
 		public CurrencyDefinition Currency { get; private set; }
 		
-		public PlayingReward(string playerName, CurrencyDefinition currency)
+		public PlayingReward(string playerName, string playerGroup, CurrencyDefinition currency)
 		{
 			PlayerName = playerName;
+			PlayerGroup = playerGroup;
 			RewardReason = RewardReason.Playing;
 			Currency = currency;
 		}
@@ -22,7 +26,7 @@ namespace Banking.Rewards
 			if( currency != Currency )
 				return 0m;
 
-			var value = currency.DefaultPlayingValue;
+			var value = currency.GetBasePlayingValue(PlayerGroup);
 
 			value *= (decimal)currency.Multiplier;
 

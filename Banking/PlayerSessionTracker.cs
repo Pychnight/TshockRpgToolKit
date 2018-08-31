@@ -75,7 +75,7 @@ namespace Banking
 							//reset time
 							times[currency.InternalName] = now;
 
-							var reward = new PlayingReward(player.Name, currency);
+							var reward = new PlayingReward(player.Name, player.Group.Name, currency);
 							rewardDist.EnqueueReward(reward);
 						}
 					}

@@ -97,7 +97,14 @@ namespace Banking
 		[JsonProperty(Order = 23)]
 		public GroupValueOverrides<TileKey> GroupPlacingOverrides { get; set; } = new GroupValueOverrides<TileKey>();
 
+		[JsonProperty(Order = 24)]
+		public GroupValueOverrides<string> GroupPlayingOverrides { get; set; } = new GroupValueOverrides<string>();
+
 		//non serialized members.
+
+		//We want to reuse the GroupValueOverrides type, but GroupPlayingOverrides property doesn't need a specialized key.
+		//In order to reuse the existing code, we give GroupPlayingOverrides a dummy key placeholder and call it a day.  
+		internal const string DummyKeyString = "key";
 
 		//used internally for fast access to currencies -- do not cache or save this.
 		public int Id { get; internal set; }
@@ -106,8 +113,16 @@ namespace Banking
 		/// Gets a cached string used for display by /bank list.
 		/// </summary>
 		internal string DisplayString { get; private set; }
+
+		/// <summary>
+		/// Fast access to quadrants, by name.
+		/// </summary>
 		internal Dictionary<string, CurrencyQuadrant> NamesToQuadrants { get; private set; }
-				
+		
+		/// <summary>
+		/// Performs necessary setup and preprocessing to use a Currency in-game.  
+		/// </summary>
+		/// <param name="id"></param>
 		internal void OnInitialize(int id)
 		{
 			Id = id;
@@ -133,7 +148,7 @@ namespace Banking
 			PlacingOverrides.Initialize(this);
 			FishingOverrides.Initialize(this);
 
-			//set group overrides ( only tiles for now )
+			//set group overrides for tiles
 			var tileGroupOverrides = new List<GroupValueOverrides<TileKey>>()
 			{
 				GroupMiningOverrides,
@@ -147,7 +162,11 @@ namespace Banking
 					vol.Initialize(this);
 				}
 			}
-			
+
+			//set group overrides for playing
+			foreach(var vol in GroupPlayingOverrides.Values)
+				vol.Initialize(this);
+						
 			InitializeDisplayString();
 		}
 
@@ -299,6 +318,28 @@ namespace Banking
 				return valueOverride.Value;
 			else
 				return DefaultFishingValue;
+		}
+
+		/// <summary>
+		/// Computes the base value for placing a certain amount of time, before multipliers or modifications.
+		/// </summary>
+		/// <param name="group">Optional Group name.</param>
+		/// <returns>Base value in generic units.</returns>
+		public decimal GetBasePlayingValue(string group="")
+		{
+			//check group overrides first
+			if( !string.IsNullOrWhiteSpace(group) )
+			{
+				if( GroupPlayingOverrides.TryGetValue(group, out var groupPlacingOverride) )
+				{
+					if( groupPlacingOverride.TryGetValue(DummyKeyString, out var groupValueOverride) )
+					{
+						return groupValueOverride.Value;
+					}
+				}
+			}
+			
+			return DefaultPlayingValue;
 		}
 
 		public override string ToString()
