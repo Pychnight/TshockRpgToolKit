@@ -3,6 +3,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,22 +16,26 @@ namespace RpgToolsEditor.Models.Banking
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CurrencyQuadrant
 	{
+		[Category("Basic")]
 		[JsonProperty(Order = 0)]
 		public int BaseUnitMultiplier { get; set; } = 1;
 
+		[Category("Basic")]
 		[JsonProperty(Order = 1)]
-		public string FullName { get; set; }
+		public string FullName { get; set; } = "NewQuadrant";
 
-		[JsonProperty(Order = 2)]
-		public string ShortName { get; set; }
+		//[JsonProperty(Order = 2)]
+		//public string ShortName { get; set; }
 
+		[Category("Basic")]
 		[JsonProperty(Order = 3)]
 		public string Abbreviation { get; set; }
-
+				
 		[JsonProperty(Order = 4)]
 		public string CombatText { get; set; }
 
-		//formerly "CombatTextColor"
+		[Category("Visual")]
+		[DisplayName("GainColor")]
 		[JsonProperty(Order = 5, PropertyName = "GainColor")]
 		public string GainColorString { get; set; } = "ffffffff";
 
@@ -42,6 +47,8 @@ namespace RpgToolsEditor.Models.Banking
 
 		//public Color GainColor { get; set; } = Color.White;
 
+		[Category("Visual")]
+		[DisplayName("LossColor")]
 		[JsonProperty(Order = 6, PropertyName = "LossColor")]
 		public string LossColorString { get; set; } = "ffffffff";
 		//public string LossColorString
@@ -51,6 +58,21 @@ namespace RpgToolsEditor.Models.Banking
 		//}
 
 		//public Color LossColor { get; set; } = Color.Red;
+
+		public CurrencyQuadrant()
+		{
+		}
+
+		public CurrencyQuadrant(CurrencyQuadrant source)
+		{
+			BaseUnitMultiplier = source.BaseUnitMultiplier;
+			FullName = source.FullName;
+			//ShortName = source.ShortName;
+			Abbreviation = source.Abbreviation;
+			CombatText = source.CombatText;
+			GainColorString = source.GainColorString;
+			LossColorString = source.LossColorString;
+		}
 
 		public override string ToString()
 		{

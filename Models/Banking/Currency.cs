@@ -47,7 +47,7 @@ namespace RpgToolsEditor.Models.Banking
 		[Category("Currency")]
 		[Description("The name of this Currency as used by the Banking plugin.")]
 		[JsonProperty(Order = 0)]
-		public string InternalName { get; set; }
+		public string InternalName { get; set; } = "NewCurrency";
 
 		[Category("Currency")]
 		[Description("Relative path to a Boo script that can react to events for this Currency.")]
@@ -67,7 +67,7 @@ namespace RpgToolsEditor.Models.Banking
 		[Category("Currency")]
 		[Description("Determines if the Currency will send a player a notification via combat text for rewards.")]
 		[JsonProperty(Order = 4)]
-		public bool SendCombatText { get; set; }
+		public bool SendCombatText { get; set; } = true;
 
 		[Category("Currency")]
 		[Description("Not implemented.")]
@@ -91,7 +91,7 @@ namespace RpgToolsEditor.Models.Banking
 		[Category("Death")]
 		[Description("Scales the amount of any losses due to a player dying.")]
 		[JsonProperty(Order = 9)]
-		public float DeathPenaltyMultiplier { get; set; }
+		public float DeathPenaltyMultiplier { get; set; } = 0.50f;
 
 		[Category("Death")]
 		[Description("The minimium loss allowed per player death.")]
@@ -101,7 +101,7 @@ namespace RpgToolsEditor.Models.Banking
 		[Category("Death")]
 		[Description("Scales the amount of any losses or gains due to a player killing another player.")]
 		[JsonProperty(Order = 11)]
-		public float DeathPenaltyPvPMultiplier { get; set; }
+		public float DeathPenaltyPvPMultiplier { get; set; } = 0.50f;
 
 		[Category("Playing")]
 		[Description("Sets the amount of time a player must be playing to earn a reward from Playing, if enabled.")]
@@ -109,29 +109,29 @@ namespace RpgToolsEditor.Models.Banking
 		public TimeSpan PlayingDuration { get; set; } = TimeSpan.FromMinutes(15);
 
 		[Category("Mining")]
+		[DisplayName("DefaultMiningValue")]
 		[JsonProperty(Order = 13, PropertyName = "DefaultMiningValue")]
 		[Description("Sets the default value given for mining tiles, if enabled.")]
 		public string DefaultMiningValueString { get; set; } = "";
-		public decimal DefaultMiningValue = 1m;
-
+		
 		[Category("Placing")]
+		[DisplayName("DefaultPlacingValue")]
 		[Description("Sets the default value given for placing tiles, if enabled.")]
 		[JsonProperty(Order = 14, PropertyName = "DefaultPlacingValue")]
 		public string DefaultPlacingValueString { get; set; } = "";
-		public decimal DefaultPlacingValue = 1m;
-
+		
 		[Category("Fishing")]
+		[DisplayName("DefaultFishingValue")]
 		[Description("Sets the default value given for fishing items, if enabled.")]
 		[JsonProperty(Order = 15, PropertyName = "DefaultFishingValue")]
 		public string DefaultFishingValueString { get; set; } = "";
-		public decimal DefaultFishingValue = 1m;
-
+		
 		[Category("Playing")]
+		[DisplayName("DefaultPlayingValue")]
 		[Description("Sets the default value given for playing long enough, if enabled.")]
 		[JsonProperty(Order = 16, PropertyName = "DefaultPlayingValue")]
 		public string DefaultPlayingValueString { get; set; } = "";
-		public decimal DefaultPlayingValue = 1m;
-
+		
 		[Category("Killing")]
 		[Description("Scales killing rewards, per weapon, if killing is enabled.")]
 		[JsonProperty(Order = 17)]
@@ -193,14 +193,54 @@ namespace RpgToolsEditor.Models.Banking
 		//In order to reuse the existing code, we give GroupPlayingOverrides a dummy key placeholder and call it a day.  
 		internal const string DummyKeyString = "key";
 		
-		public override string ToString()
+		public CurrencyDefinition()
 		{
-			return InternalName;
+		}
+
+		public CurrencyDefinition(CurrencyDefinition source)
+		{
+			Name = source.Name;
+			Filename = source.Filename;
+			InternalName = source.InternalName;
+			ScriptPath = source.ScriptPath;
+
+			Quadrants = source.Quadrants.Select(q => new CurrencyQuadrant(q)).ToList();
+
+			GainBy = source.GainBy.ToList();
+			SendCombatText = source.SendCombatText;
+			SendStatus = source.SendStatus;
+			EnableStatueNpcRewards = source.EnableStatueNpcRewards;
+			Multiplier = source.Multiplier;
+			DefenseBonusMultiplier = source.DefenseBonusMultiplier;
+			DeathPenaltyMultiplier = source.DeathPenaltyMultiplier;
+			DeathPenaltyMinimum = source.DeathPenaltyMinimum;
+			DeathPenaltyPvPMultiplier = source.DeathPenaltyPvPMultiplier;
+			PlayingDuration = source.PlayingDuration;
+			DefaultMiningValueString = source.DefaultMiningValueString;
+			DefaultPlacingValueString = source.DefaultPlacingValueString;
+			DefaultFishingValueString = source.DefaultFishingValueString;
+			DefaultPlayingValueString = source.DefaultPlayingValueString;
+
+			WeaponMultipliers = new Dictionary<string, float>(source.WeaponMultipliers);
+
+			KillingOverrides = new ValueOverrideList<string>(source.KillingOverrides);
+			MiningOverrides = new ValueOverrideList<TileKey>(source.MiningOverrides);
+			PlacingOverrides = new ValueOverrideList<TileKey>(source.PlacingOverrides);
+			FishingOverrides = new ValueOverrideList<ItemKey>(source.FishingOverrides);
+
+			GroupMiningOverrides = (GroupValueOverrides<TileKey>)source.GroupMiningOverrides?.Clone();
+			GroupPlacingOverrides = (GroupValueOverrides<TileKey>)source.GroupPlacingOverrides?.Clone();
+			GroupPlayingOverrides = (GroupValueOverrides<string>)source.GroupPlayingOverrides?.Clone();
 		}
 
 		public object Clone()
 		{
-			throw new NotImplementedException();
+			return new CurrencyDefinition(this);
+		}
+
+		public override string ToString()
+		{
+			return InternalName;
 		}
 	}
 }

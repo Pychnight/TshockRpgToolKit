@@ -16,7 +16,7 @@ namespace RpgToolsEditor.Models.Banking
 	/// </summary>
 	[TypeConverter(typeof(TileKeyConverter))]
 	[JsonObject(MemberSerialization.OptIn)]
-	public class TileKey : IEquatable<TileKey>
+	public class TileKey : IEquatable<TileKey>, ICloneable
 	{
 		//[JsonProperty]
 		//public string NameOrType { get; set; } = "";
@@ -45,6 +45,12 @@ namespace RpgToolsEditor.Models.Banking
 		{
 		}
 
+		public TileKey(TileKey source)
+		{
+			Type = source.Type;
+			Wall = source.Wall;
+		}
+
 		//public TileKey(ITile tile)
 		//{
 		//	Type = tile.type;
@@ -52,6 +58,11 @@ namespace RpgToolsEditor.Models.Banking
 		//	//FrameY = tile.frameY;
 		//	Wall = tile.wall;
 		//}
+
+		public object Clone()
+		{
+			return new TileKey(this);
+		}
 
 		public TileKey(ushort tileOrWallId, TileSubTarget tileSubTarget)
 		{

@@ -13,7 +13,7 @@ namespace RpgToolsEditor.Models.Banking
 	/// </summary>
 	[TypeConverter(typeof(ExpandableObjectConverter))]
 	[JsonObject(MemberSerialization.OptIn)]
-	public class ItemKey : IEquatable<ItemKey>
+	public class ItemKey : IEquatable<ItemKey>, ICloneable
 	{
 		[JsonProperty(Order = 0)]
 		public int ItemId { get; set; }
@@ -22,12 +22,23 @@ namespace RpgToolsEditor.Models.Banking
 		public byte Prefix { get; set; }
 
 		public ItemKey() { }
-
+		
 		//prefix
 		public ItemKey(int itemId, byte prefix)
 		{
 			ItemId = itemId;
 			Prefix = prefix;
+		}
+
+		public ItemKey(ItemKey source)
+		{
+			ItemId = source.ItemId;
+			Prefix = source.Prefix;
+		}
+
+		public object Clone()
+		{
+			return new ItemKey(this);
 		}
 
 		public bool Equals(ItemKey other)
