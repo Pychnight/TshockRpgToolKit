@@ -3,10 +3,13 @@
 	
 	<PropertyGroup>
 		<TShockVersion>4.3.24</TShockVersion>
-		<TShockPluginsPath>bin\tshock_$(TShockVersion)\ServerPlugins</TShockPluginsPath>
+		<TShockPath>bin\tshock_$(TShockVersion)</TShockPath>
+		<TShockPluginsPath>$(TShockPath)\ServerPlugins</TShockPluginsPath>
 		<OutputPath>$(TShockPluginsPath)\</OutputPath>
 		<!-- Keep intermediate cruft out of our project folders -->
 		<IntermediateOutputPath>$(SolutionDir)\obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
+		<!-- Root folder for Deploy target-->
+		<RpgToolsBaseDeployPath>$(SolutionDir)\bin\$(Configuration)</RpgToolsBaseDeployPath>
 	</PropertyGroup>
 
 	<!-- override default csproj props -->
@@ -21,12 +24,19 @@
 
 	<!-- Add group and target for packaging as a versioned zip -->
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
-		<DebugType>none</DebugType>
+		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
-		<OutputPath>bin\Deploy\</OutputPath>
+		<!--<OutputPath>$(SolutionDir)\bin\Deploy\</OutputPath>-->
+		<!--<OutputPath>$(SolutionDir)\bin\$(Configuration)\$(MSBuildProjectName)\</OutputPath>-->
+		<OutputPath>$(RpgToolsBaseDeployPath)\ServerPlugins\</OutputPath>
 		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+	<!-- For tools -->
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' and '$(UseToolsFolder)' == 'true'">
+		<OutputPath>$(RpgToolsBaseDeployPath)\Tools\$(MSBuildProjectName)\</OutputPath>
 	</PropertyGroup>
 
 </Project>
