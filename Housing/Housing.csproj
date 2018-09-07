@@ -14,7 +14,11 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <Import Project="..\..\TShock.props" />
+	<PropertyGroup>
+		<RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
+		<RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
+	</PropertyGroup>
+	<Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -139,5 +143,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-  <Import Project="..\..\TShock.targets" />
+	<Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
 </Project>
