@@ -19,9 +19,9 @@
     <RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
     <RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|AnyCPU'">
+  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
+  </PropertyGroup>-->
   <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -42,9 +42,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
+  <!--<PropertyGroup>
     <StartupObject />
-  </PropertyGroup>
+  </PropertyGroup>-->
   <ItemGroup>
     <Reference Include="Boo.Lang">
       <HintPath>..\refs\boo-custom\Boo.Lang.dll</HintPath>
@@ -69,6 +69,9 @@
     </Reference>
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\refs\boo-custom\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OTAPI">
       <HintPath>..\refs\OTAPI.dll</HintPath>
@@ -97,10 +100,12 @@
     <Compile Include="BooScriptAssembly.cs" />
     <Compile Include="BooScriptAssemblyConfig.cs" />
     <Compile Include="BooScriptCompiler.cs" />
+    <Compile Include="BooScriptingPlugin.cs" />
+    <None Include="Configuration\Config.cs" />
     <Compile Include="ModuleManager.cs" />
+    <Compile Include="ScriptHelpers.cs" />
     <Compile Include="TerrariaPluginExtensions.cs" />
     <None Include="packages.config" />
-    <None Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steps\EnsureMethodSignaturesStep.cs" />
     <Compile Include="Steps\InjectImportsStep.cs" />
@@ -123,5 +128,5 @@
     <!--<Error Condition="!Exists('..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />-->
     <Error Condition="!Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-	<Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
+  <Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
 </Project>
