@@ -15,7 +15,14 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <Import Project="..\..\TShock.props" />
+  <PropertyGroup>
+    <RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
+    <RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
@@ -116,5 +123,5 @@
     <!--<Error Condition="!Exists('..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />-->
     <Error Condition="!Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-  <Import Project="..\..\TShock.targets" />
+	<Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
 </Project>
