@@ -64,7 +64,7 @@ namespace Leveling.Classes
 		public decimal Cost { get; set; }
 
 		/// <summary>
-		/// The Currency used to to enter this class.
+		/// The Currency used to to enter this class. This is determined from CostString.
 		/// </summary>
 		public CurrencyDefinition CostCurrency { get; set; }
 
