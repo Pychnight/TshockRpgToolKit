@@ -5,6 +5,8 @@
 		<TShockVersion>4.3.24</TShockVersion>
 		<TShockPluginsPath>bin\tshock_$(TShockVersion)\ServerPlugins</TShockPluginsPath>
 		<OutputPath>$(TShockPluginsPath)\</OutputPath>
+		<!-- Keep intermediate cruft out of our project folders -->
+		<IntermediateOutputPath>$(SolutionDir)\obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
 	</PropertyGroup>
 
 	<!-- override default csproj props -->

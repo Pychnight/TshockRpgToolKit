@@ -22,3 +22,6 @@
 [submodule "Terraria-Boo"]
 	path = Terraria-Boo
 	url = https://github.com/Pychnight/Terraria-Boo
+[submodule "Tools/RPGToolsEditor"]
+	path = Tools/RPGToolsEditor
+	url = https://github.com/Pychnight/RpgToolsTshockGUI
