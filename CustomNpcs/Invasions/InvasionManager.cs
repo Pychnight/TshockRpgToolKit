@@ -52,7 +52,6 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets the invasion manager instance.
         /// </summary>
-        [CanBeNull]
         public static InvasionManager Instance { get; internal set; }
 
         /// <summary>

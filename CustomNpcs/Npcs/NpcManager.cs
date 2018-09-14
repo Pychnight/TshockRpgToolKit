@@ -77,7 +77,6 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets the NPC manager instance.
         /// </summary>
-        [CanBeNull]
         public static NpcManager Instance { get; internal set; }
 
         /// <summary>
@@ -111,7 +110,7 @@ namespace CustomNpcs.Npcs
         /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
         /// <returns>The custom NPC, or <c>null</c> if it does not exist.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
-        public CustomNpc GetCustomNpc([NotNull] NPC npc)
+        public CustomNpc GetCustomNpc(NPC npc)
         {
             if (npc == null)
             {

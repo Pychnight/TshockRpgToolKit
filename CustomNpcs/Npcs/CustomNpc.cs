@@ -16,7 +16,6 @@ namespace CustomNpcs.Npcs
 	/// <summary>
 	///     Represents a custom NPC.
 	/// </summary>
-	[PublicAPI]
 	public sealed class CustomNpc
 	{
 		private Dictionary<string, object> _variables = new Dictionary<string, object>();

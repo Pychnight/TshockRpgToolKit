@@ -14,7 +14,6 @@ using TShockAPI.Hooks;
 using CustomNpcs.Invasions;
 using CustomNpcs.Npcs;
 using CustomNpcs.Projectiles;
-using JetBrains.Annotations;
 using System.Diagnostics;
 using Corruption.PluginSupport;
 
@@ -24,12 +23,11 @@ namespace CustomNpcs
 	///     Represents the custom NPCs plugin.
 	/// </summary>
 	[ApiVersion(2, 1)]
-	[UsedImplicitly]
 	public sealed class CustomNpcsPlugin : TerrariaPlugin
 	{
 		private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
 
-		internal static CustomNpcsPlugin Instance = null;
+		public static CustomNpcsPlugin Instance = null;
 		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
