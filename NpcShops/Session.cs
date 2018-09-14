@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using CustomNpcs.Npcs;
 using Microsoft.Xna.Framework;
 using NpcShops.Shops;
 using Terraria;
@@ -113,7 +115,24 @@ namespace NpcShops
 			{
 				//npc shop
 				var shopKeeper = GetShopkeeper();
-				NpcShop.NpcToShopMap.TryGetValue(shopKeeper.type, out newShop);
+				string npcType = null;
+				
+				//Determine if this is a custom npc, and if so try to get its id/internal name.
+				if(shopKeeper!=null)
+				{
+					var customNpc = NpcManager.Instance?.GetCustomNpc(shopKeeper);
+					if( customNpc != null )
+					{
+						npcType = customNpc.Definition.Name;
+					}
+				}
+
+				if(npcType==null)
+				{
+					npcType = shopKeeper.type.ToString();
+				}
+				
+				NpcShop.NpcToShopMap.TryGetValue(npcType, out newShop);
 			}
 
 			if(newShop==null)

@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Text;
 using Banking;
 using Corruption.PluginSupport;
+using CustomNpcs;
+using CustomNpcs.Npcs;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NpcShops.Shops;
@@ -15,8 +17,6 @@ using Terraria.Localization;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-//using Wolfje.Plugins.SEconomy;
-//using Wolfje.Plugins.SEconomy.Journal;
 
 namespace NpcShops
 {
@@ -421,8 +421,18 @@ namespace NpcShops
 				{
 					reader.ReadByte();
 					var npcIndex = reader.ReadInt16();
-					var npcType = npcIndex < 0 ? 0 : Main.npc[npcIndex].type;
 					var npc = npcIndex < 0 ? null : Main.npc[npcIndex];
+					var npcType = npcIndex < 0 ? "0" : npc.type.ToString();
+					
+					//Determine if this is a custom npc, and if so try to get its id/internal name.
+					if(npc!=null)
+					{
+						var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
+						if( customNpc != null )
+						{
+							npcType = customNpc.Definition.Name ?? npcType;
+						}
+					}
 					
 					if(NpcShop.NpcToShopMap.ContainsKey(npcType))
 					{

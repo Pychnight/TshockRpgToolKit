@@ -59,8 +59,10 @@ namespace NpcShops.Shops
 		///		Gets the town npc types that this shop overrides.
 		/// </summary>
 		[JsonProperty(Order = 8)]
-		public List<int> OverrideNpcTypes { get; private set; } = new List<int>();
-		
+		public List<object> OverrideNpcTypes { get; private set; } = new List<object>();//we use object to maintain compatibility with older versions which used int npc id's.
+																						//but now we also want to support string id's, in order to use CustomNpcs.
+																						//A later step will parse the values, and convert them all to string keys used internally now.
+
 		/// <summary>
 		///     Gets the list of shop items.
 		/// </summary>

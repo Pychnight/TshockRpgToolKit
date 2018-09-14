@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using Terraria;
 using TShockAPI;
@@ -25,7 +26,7 @@ namespace NpcShops.Shops
                 ["midnight"] = 0.0
             };
 
-		public static ConcurrentDictionary<int, NpcShop> NpcToShopMap { get; private set; } = new ConcurrentDictionary<int, NpcShop>();
+		public static ConcurrentDictionary<string, NpcShop> NpcToShopMap { get; private set; } = new ConcurrentDictionary<string, NpcShop>();
 
         private readonly NpcShopDefinition _definition;
 
@@ -54,11 +55,7 @@ namespace NpcShops.Shops
 				Rectangle = new Rectangle(-1, -1, 0, 0);
 			}
 
-			if( definition.OverrideNpcTypes!=null)
-			{
-				foreach( var npcType in definition.OverrideNpcTypes )
-					NpcToShopMap[npcType] = this;
-			}
+			ParseNpcTypeOverrides(definition);
 
 			//we have to create our products, and make sure they are in a valid state before we add them to the shop.
 			ShopCommands = definition.ShopCommands.Select(sc => new ShopCommand(sc))
@@ -69,6 +66,44 @@ namespace NpcShops.Shops
 											.Where( si => si.IsValid)
 											.ToList();
         }
+
+		/// <summary>
+		/// Parses int and string ids for normal and custom npcs, and adds them to the NpcToShopMap.
+		/// </summary>
+		private void ParseNpcTypeOverrides(NpcShopDefinition definition )
+		{
+			if(definition.OverrideNpcTypes != null )
+			{
+				foreach( var npcType in definition.OverrideNpcTypes )
+				{
+					string key = null;
+
+					if(npcType is string)
+					{
+						key = (string)npcType;
+					}
+					else if(npcType is long)//json.net will generate longs, but we add an int branch in case this changes for some reason...
+					{
+						var intKey = (long)npcType;
+						key = intKey.ToString();
+					}
+					else if( npcType is int )
+					{
+						var intKey = (int)npcType;
+						key = intKey.ToString();
+					}
+					else
+					{
+						NpcShopsPlugin.Instance.LogPrint($"OverrideNpcType '{npcType.ToString()}' is not a string or int. Ignoring.", TraceLevel.Warning);
+					}
+
+					if(!string.IsNullOrWhiteSpace(key))
+					{
+						NpcToShopMap[key] = this;
+					}
+				}
+			}
+		}
 
         /// <summary>
         ///     Gets the closing time.
