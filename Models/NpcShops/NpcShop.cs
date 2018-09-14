@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms.Design;
 using RpgToolsEditor.Controls;
 using Newtonsoft.Json;
+using System.Drawing.Design;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -74,7 +76,9 @@ namespace RpgToolsEditor.Models.NpcShops
 		/// </summary>
 		[Category("Basic Properties")]
 		[JsonProperty(Order = 8)]
-		public List<int> OverrideNpcTypes { get; set; } = new List<int>();
+		//[Editor(typeof(StringCollectionEditor), typeof(UITypeEditor))]
+		[Editor("System.Windows.Forms.Design.StringCollectionEditor, System.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", typeof(System.Drawing.Design.UITypeEditor))]
+		public List<string> OverrideNpcTypes { get; set; } = new List<string>();
 
 		/// <summary>
 		///     Gets the restock time.
@@ -118,7 +122,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			ClosedMessage = other.ClosedMessage;
 			OpeningTime = other.OpeningTime;
 			RegionName = other.RegionName;
-			OverrideNpcTypes = new List<int>(other.OverrideNpcTypes);
+			OverrideNpcTypes = new List<string>(other.OverrideNpcTypes);
 			RestockTime = other.RestockTime;
 			SalesTaxRate = other.SalesTaxRate;
 			ShopCommands = other.ShopCommands.Select(s => new ShopCommand(s)).ToList();
