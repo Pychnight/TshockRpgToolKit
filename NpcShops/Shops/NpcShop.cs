@@ -82,11 +82,9 @@ namespace NpcShops.Shops
         {
             get
             {
-                if (OpeningTime == null || ClosingTime == null)
-                {
-                    return true;
-                }
-
+                if(string.IsNullOrWhiteSpace(OpeningTime) || string.IsNullOrWhiteSpace(ClosingTime))
+					return true;//if no values set for times, shop will be default always be open.
+                
                 var time = Main.time / 3600.0;
                 time += 4.5;
                 if (!Main.dayTime)
