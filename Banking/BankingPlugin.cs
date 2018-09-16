@@ -40,7 +40,8 @@ namespace Banking
 		/// <summary>
 		/// Gets a Dictionary that records spawned NPC's starting hit points.
 		/// </summary>
-		internal Dictionary<int,int> NpcSpawnHP { get; private set; }
+		/// <remarks>This is exposed publicly for BankingPlugin interaction.</remarks>
+		public ConcurrentDictionary<int,int> NpcSpawnHP { get; private set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerFishingTracker PlayerFishingTracker;
 		internal PlayerTileTracker PlayerTileTracker;
@@ -132,7 +133,7 @@ namespace Banking
 				{
 					PlayerRewardNotificationDistributor = new PlayerRewardNotificationDistributor();
 					Bank = new Bank();
-					NpcSpawnHP = new Dictionary<int, int>();
+					NpcSpawnHP = new ConcurrentDictionary<int, int>();
 					NpcStrikeTracker = new NpcStrikeTracker();
 					NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
 					PlayerFishingTracker = new PlayerFishingTracker();
@@ -352,7 +353,16 @@ namespace Banking
 		private void OnNpcSpawn(NpcSpawnEventArgs args)
 		{
 			var npc = Main.npc[args.NpcId];
-			NpcSpawnHP[args.NpcId] = npc.life;
+			var life = npc.life; //...should we use npc.lifeMax?
+
+			//this wont work here.. NpcManager hasn't added the npc to the custom npcs conditional weak table at the point
+			//this is raised. So we reverse things... CustomNpcs plugin can now access NpcSpawnHP, and set it manually within. 
+			//var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
+			//if( customNpc != null )
+			//	life = customNpc.MaxHp;
+
+			//Debug.Print("** Regular set life.");
+			NpcSpawnHP[args.NpcId] = life;
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
