@@ -14,11 +14,11 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-	<PropertyGroup>
-		<RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
-		<RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
-	</PropertyGroup>
-	<Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
+  <PropertyGroup>
+    <RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
+    <RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -111,7 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Class.cs" />
-    <Compile Include="ClassExpRewardEvaluator.cs" />
+    <None Include="ClassExpRewardEvaluator.cs" />
     <Compile Include="Database\RedisSessionDatabase.cs" />
     <None Include="LoaderDsl\BooOutputter.cs" />
     <None Include="LoaderDsl\ClassCompiler.cs" />
@@ -176,5 +176,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-	<Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
+  <Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
 </Project>

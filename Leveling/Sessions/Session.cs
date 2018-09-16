@@ -175,7 +175,7 @@ namespace Leveling.Sessions
 			if( args.IsServerAccount )
 				return;
 
-			Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
+			//Debug.Print($"BankAccountBalanceChanged! Player {args.OwnerName} - {args.AccountName}.");
 
 			//we're only interested in non experience account transactions. ( or put differently, we want publicly visible accounts, not our hidden shadow accounts.)
 			if( args.AccountName.StartsWith(LevelingPlugin.BankAccountNamePrefix) )

@@ -27,7 +27,8 @@ namespace Leveling
 		/// </summary>
 		[JsonProperty("DefaultClass", Order = 1)]
 		public string DefaultClassName { get; private set; } // = "ranger";
-		
+
+		//TODO should this use generic units or use currency strings? This needs an overhaul.
 		/// <summary>
 		///     Gets the mapping of NPC names to EXP rewards.
 		/// </summary>

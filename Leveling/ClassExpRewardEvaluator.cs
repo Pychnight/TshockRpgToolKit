@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace Leveling
 {
+	/// <summary>
+	/// Old reward evaluator for overriding exp for killing npcs... not used now, and the npc exp overriding needs an overhaul.
+	/// Keeping this around for posterity...
+	/// </summary>
 	public class ClassExpRewardEvaluator : IRewardModifier
 	{
 		public decimal ModifyBaseRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)

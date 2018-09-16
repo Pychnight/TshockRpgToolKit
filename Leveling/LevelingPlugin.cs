@@ -45,10 +45,7 @@ namespace Leveling
 
         private List<ClassDefinition> _classDefinitions;
         internal List<Class> _classes;
-
-		//internal CurrencyDefinition PurchaseCurrency { get; set; }
-		internal CurrencyDefinition ExpCurrency { get; set; } 
-
+		
         public LevelingPlugin(Main game) : base(game)
         {
 //#if DEBUG
@@ -183,22 +180,54 @@ namespace Leveling
 		{
 			if(BankingPlugin.Instance==null)
 			{
-				throw new Exception($"Unable to retrieve BankingPlugin.Instance");
+				throw new Exception($"Unable to retrieve BankingPlugin.Instance.");
 				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: Unable to retrieve BankingPlugin.Instance", TraceLevel.Error);
 			}
 						
 			var bank = BankingPlugin.Instance.Bank;
-
-			//bank.BankAccountBalanceChanged += (s, a) =>
-			//{
-			//	Debug.Print($"BankAccountBalanceChanged! {a.Name}");
-			//};
-
-			//bank.BankAccountBalanceChanged += Session.OnBankAccountBalanceChanged;
+			
+			foreach(var currency in bank.CurrencyManager)
+			{
+				currency.PreReward += OnCurrencyPreReward;
+			}
+						
 			bank.AccountDeposit += Session.OnBankAccountBalanceChanged;
 			bank.AccountWithdraw += Session.OnBankAccountBalanceChanged;
 		}
 
+		private void OnCurrencyPreReward(object sender, RewardEventArgs e)
+		{
+			var session = TryGetOrCreateSession(e.PlayerName);
+
+			if(session!=null)
+			{
+				if(session.Class.LevelingCurrency == e.Currency)
+				{
+					//originally from KillNpc() 
+					//var expAmount = (long)Math.Round((double)kvp.Value / total *
+					//							config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
+					//							( session.Class.ExpMultiplierOverride ?? 1.0 ) * config.ExpMultiplier);
+					
+					//TODO Start adapting old npc exp overrides... but this wont really work as is -- we need an overhaul
+					//if(e.RewardReason == RewardReason.Killing)
+					//{
+					//	var expValues = session.Class.Definition.ParsedNpcNameToExpValues;
+					//	//var result = rewardValue;
+					//	var killReward = (KillingReward)e.Reward;
+						
+					//	if( expValues.TryGetValue(killReward.NpcGivenOrTypeName, out var newValue) == true )
+					//	{
+					//		Debug.Print($"ClassExpReward adjusted to {newValue}(was {e.RewardValue}).");
+					//		e.RewardValue = newValue;
+					//	}
+					//}
+					
+					e.RewardValue = e.RewardValue *
+										(decimal)((session.Class.ExpMultiplierOverride ?? 1.0 ) * Config.Instance.ExpMultiplier );
+				}
+			}
+		}
+		
 		private void onLoad()
 		{
 			const string classDirectory = "leveling";
@@ -541,6 +570,16 @@ namespace Leveling
             }
         }
 
+		internal Session TryGetOrCreateSession(string playerName)
+		{
+			var tsPlayer = TShock.Utils.FindPlayer(playerName).FirstOrDefault();
+
+			if( tsPlayer != null && tsPlayer.Active )
+				return GetOrCreateSession(tsPlayer);
+			else
+				return null;
+		}
+
         internal Session GetOrCreateSession(TSPlayer player)
         {
             var session = player.GetData<Session>(SessionKey);
@@ -687,40 +726,7 @@ namespace Leveling
             otherPlayer.GiveItem(item.type, "", Player.defaultWidth, Player.defaultHeight, stack, prefix);
             otherPlayer.SendInfoMessage($"Received [i/s{stack},p{prefix}:{item.type}].");
         }
-
-        private void KillNpc(NPC npc)
-        {
-            if (!_npcDamages.TryGetValue(npc, out var damages))
-            {
-                return;
-            }
-            _npcDamages.Remove(npc);
-
-            if (npc.value <= 0.0 || npc.SpawnedFromStatue)
-            {
-                return;
-            }
-
-            Debug.Assert(damages.Count > 0, "Damages must not be empty.");
-
-            var total = damages.Values.Sum();
-            var config = Config.Instance;
-            foreach (var kvp in damages)
-            {
-                Debug.Assert(kvp.Value > 0, "Damage must be positive.");
-
-                var player = kvp.Key;
-                var session = GetOrCreateSession(player);
-                var expAmount = (long)Math.Round((double)kvp.Value / total *
-                                                 config.NpcNameToExpReward.Get(npc.GivenOrTypeName, npc.lifeMax) *
-                                                 (session.Class.ExpMultiplierOverride ?? 1.0) * config.ExpMultiplier);
-
-				//DISABLED DURING CONVERSION!!
-                //session.AddExpToReport(expAmount);
-                //session.GiveExp(expAmount);
-            }
-        }
-
+		
         private void LevelDown(CommandArgs args)
         {
             var parameters = args.Parameters;
@@ -940,11 +946,6 @@ namespace Leveling
                 }
             }
         }
-
-        //private void OnNpcKilled(NpcKilledEventArgs args)
-        //{
-        //    KillNpc(args.npc);
-        //}
 
         private void OnPlayerChat(PlayerChatEventArgs args)
         {
