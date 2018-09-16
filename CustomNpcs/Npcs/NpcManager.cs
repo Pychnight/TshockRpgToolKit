@@ -48,9 +48,7 @@ namespace CustomNpcs.Npcs
         private readonly ConditionalWeakTable<NPC, CustomNpc> _customNpcs = new ConditionalWeakTable<NPC, CustomNpc>();
         private readonly CustomNpcsPlugin _plugin;
         private readonly Random _random = new Random();
-					
-		internal NoTargetOperation NoTarget { get; set; }
-		
+				
         internal NpcManager(CustomNpcsPlugin plugin)
         {
             _plugin = plugin;
@@ -58,9 +56,7 @@ namespace CustomNpcs.Npcs
 			BasePath = "npcs";
 			ConfigPath = Path.Combine(BasePath, "npcs.json");
 			AssemblyNamePrefix = "Npc_";
-
-			NoTarget = new NoTargetOperation();
-			
+						
 			LoadDefinitions();
 
 			GeneralHooks.ReloadEvent += OnReload;
@@ -234,9 +230,7 @@ namespace CustomNpcs.Npcs
 		private void OnGameUpdate(EventArgs args)
         {
             Utils.TrySpawnForEachPlayer(TrySpawnCustomNpc);
-			           
-			NoTarget.Ensure();
-
+			
 			foreach (var npc in Main.npc.Where(n => n?.active == true))
             {
 				var customNpc = GetCustomNpc(npc);

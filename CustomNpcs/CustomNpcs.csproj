@@ -110,7 +110,6 @@
     <Compile Include="Config.cs" />
     <Compile Include="Invasions\InvasionDelegates.cs" />
     <Compile Include="Invasions\InvasionManager.cs" />
-    <Compile Include="NoTargetOperation.cs" />
     <Compile Include="Npcs\CustomNpc.cs" />
     <Compile Include="Npcs\NpcManager.cs" />
     <Compile Include="Npcs\NpcDefinition.cs" />

@@ -13,7 +13,7 @@ using Corruption;
 namespace CustomNpcs.Npcs
 {
 	/// <summary>
-	///     Represents a custom NPC.
+	///     Represents a Custom NPC, which is a wrapper around real Terraria NPC's. 
 	/// </summary>
 	public sealed class CustomNpc
 	{
