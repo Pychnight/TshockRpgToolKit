@@ -84,6 +84,7 @@ namespace RpgToolsEditor.Models.Leveling
 		/// </summary>
 		[JsonProperty(Order = 9)]
 		[Category("Multipliers")]
+		[Description("Optional Multiplier for changing exp rates per class. Leave blank to ignore.")]
 		public double? ExpMultiplierOverride { get; set; }
 
 		/// <summary>
