@@ -118,7 +118,28 @@ namespace Banking
 		/// Fast access to quadrants, by name.
 		/// </summary>
 		internal Dictionary<string, CurrencyQuadrant> NamesToQuadrants { get; private set; }
-		
+
+		/// <summary>
+		/// Fired before a Reward is sent to the player's BankAccount for this currency.
+		/// </summary>
+		public event EventHandler<RewardEventArgs> PreReward;
+
+		internal void FirePreRewardEvents(Reward reward, ref decimal rewardValue, string playerName)
+		{
+			if( PreReward == null )
+				return;
+
+			var args = new RewardEventArgs(reward,ref rewardValue,this, playerName);
+
+			//Debug.Print($"RewardIn: {rewardValue}");
+			
+			PreReward(this, args);
+
+			rewardValue = args.RewardValue;
+
+			//Debug.Print($"RewardOut: {rewardValue}");
+		}
+				
 		/// <summary>
 		/// Performs necessary setup and preprocessing to use a Currency in-game.  
 		/// </summary>

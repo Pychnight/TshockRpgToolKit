@@ -14,15 +14,10 @@ namespace Banking.Rewards
 	/// </summary>
 	public class RewardDistributor
 	{
-		IRewardModifier defaultRewardEvaluator;
-		public Dictionary<string, RewardModifierMap> CurrencyRewardModifiers { get; private set; }
 		ConcurrentQueue<Reward> rewardSourceQueue;
 
 		public RewardDistributor()
 		{
-			defaultRewardEvaluator = new DefaultRewardModifier();
-			CurrencyRewardModifiers = new Dictionary<string, RewardModifierMap>();
-
 			rewardSourceQueue = new ConcurrentQueue<Reward>();
 		}
 
@@ -62,34 +57,38 @@ namespace Banking.Rewards
 					reward.RewardReason == RewardReason.DeathPvP ||
 					reward.RewardReason == RewardReason.Undefined )
 				{
-					//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
-					var evaluator = GetRewardModifier(currency.InternalName, reward.RewardReason);
-
 					if(multiPlayerRewardSource!=null)
 					{
-						foreach( var pair in multiPlayerRewardSource.OnEvaluateMultiple(currency,evaluator) ) 
+						foreach( var pair in multiPlayerRewardSource.OnEvaluateMultiple(currency) ) 
 						{
 							var playerName = pair.Item1;
 							var rewardValue = pair.Item2;
 
-							ScriptHookOnPreReward(playerName, reward, currency, ref rewardValue);
-							if( TryUpdateBankAccount(playerName,currency.InternalName,ref rewardValue))
-							{
-								trySendCombatText(playerName, currency, ref rewardValue);
-							}
+							PostEvaluateReward(reward, ref rewardValue, currency, playerName);
 						}
 					}
 					else
 					{
-						var rewardValue = reward.OnEvaluate(currency,evaluator);
+						var rewardValue = reward.OnEvaluate(currency);
 
-						ScriptHookOnPreReward(reward.PlayerName, reward, currency, ref rewardValue);
-						if( TryUpdateBankAccount(reward.PlayerName, currency.InternalName, ref rewardValue) )
-						{
-							trySendCombatText(reward.PlayerName, currency, ref rewardValue);
-						}
+						PostEvaluateReward(reward, ref rewardValue, currency, reward.PlayerName);
 					}
 				}
+			}
+		}
+
+		/// <summary>
+		/// Actions taken after a reward has been evaluted on a player.
+		/// </summary>
+		private void PostEvaluateReward(Reward reward, ref decimal rewardValue, CurrencyDefinition currency, string playerName)
+		{
+			currency.FirePreRewardEvents(reward, ref rewardValue, playerName);
+
+			ScriptHookOnPreReward(playerName, reward, currency, ref rewardValue);
+
+			if( TryUpdateBankAccount(playerName, currency.InternalName, ref rewardValue) )
+			{
+				trySendCombatText(playerName, currency, ref rewardValue);
 			}
 		}
 
@@ -166,42 +165,6 @@ namespace Banking.Rewards
 				};
 
 				BankingPlugin.Instance.PlayerRewardNotificationDistributor.Add(notification);
-			}
-		}
-
-		public IRewardModifier GetRewardModifier(string currencyType, RewardReason reason)
-		{
-			if( CurrencyRewardModifiers.TryGetValue(currencyType, out var rewardEvaluatorMap) )
-			{
-				if( rewardEvaluatorMap.TryGetValue(reason, out var evaluator) )
-					return evaluator;
-			}
-
-			//otherwise, get a default evaluator
-			return defaultRewardEvaluator;
-		}
-
-		public void SetRewardModifier(string currencyType, RewardReason reason, IRewardModifier evaluator)
-		{
-			if( !CurrencyRewardModifiers.TryGetValue(currencyType, out var rewardEvaluatorMap) )
-			{
-				rewardEvaluatorMap = new RewardModifierMap();
-				CurrencyRewardModifiers.Add(currencyType, rewardEvaluatorMap);
-			}
-
-			rewardEvaluatorMap[reason] = evaluator;
-		}
-
-		public void ClearRewardModifiers()
-		{
-			CurrencyRewardModifiers.Clear();
-		}
-
-		private class DefaultRewardModifier : IRewardModifier
-		{
-			public decimal ModifyBaseRewardValue(RewardReason reason, string playerName, string currencyType, string itemName, decimal rewardValue)
-			{
-				return rewardValue;
 			}
 		}
 	}

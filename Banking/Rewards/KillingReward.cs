@@ -13,9 +13,9 @@ namespace Banking.Rewards
 	public class KillingReward : MultipleRewardBase
 	{
 		PlayerStrikeInfo StrikeInfo;
-		string NpcGivenOrTypeName;
+		public string NpcGivenOrTypeName { get; }
 		int npcHp;
-		bool NpcSpawnedFromStatue;
+		public bool NpcSpawnedFromStatue { get; }
 
 		//cached values
 		float totalDamage;
@@ -41,7 +41,7 @@ namespace Banking.Rewards
 			//}
 		}
 
-		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
+		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
 			if( NpcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
 				yield break;

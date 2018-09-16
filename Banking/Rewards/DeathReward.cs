@@ -25,7 +25,7 @@ namespace Banking.Rewards
 		}
 
 		//we cant easily use bankAccount.TransferTo() here, hence why we've gone with an iterator
-		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
+		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
 			var rewardAccount = BankingPlugin.Instance.Bank.GetBankAccount(PlayerName, currency.InternalName);
 

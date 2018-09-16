@@ -24,7 +24,7 @@ namespace Banking.Rewards
 			ItemId = itemId;
 		}
 
-		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
+		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
 			return currency.GetBaseFishingValue(ItemId, Prefix);// StackSize wont work-- it will be the sum of the previous slot + new items.
 		}

@@ -21,7 +21,7 @@ namespace Banking.Rewards
 			Currency = currency;
 		}
 		
-		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
+		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
 			if( currency != Currency )
 				return 0m;

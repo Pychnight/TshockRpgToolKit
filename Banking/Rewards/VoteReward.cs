@@ -15,7 +15,7 @@ namespace Banking
 			PlayerName = playerName;
 		}
 
-		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardModifier = null)
+		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
 			var bank = BankingPlugin.Instance.Bank;
 			var playerAccountMap = bank[PlayerName];

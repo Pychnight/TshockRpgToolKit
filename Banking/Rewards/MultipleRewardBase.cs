@@ -11,7 +11,7 @@ namespace Banking.Rewards
 	/// </summary>
 	public abstract class MultipleRewardBase : Reward
 	{
-		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardEvaluator = null)
+		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardEvaluator = null)
 		{
 			throw new NotImplementedException();
 		}
@@ -21,6 +21,6 @@ namespace Banking.Rewards
 		/// </summary>
 		/// <param name="currency"></param>
 		/// <returns></returns>
-		protected internal abstract IEnumerable<Tuple<string, decimal>> OnEvaluateMultiple(CurrencyDefinition currency, IRewardModifier rewardModifier = null);
+		protected internal abstract IEnumerable<Tuple<string, decimal>> OnEvaluateMultiple(CurrencyDefinition currency);//, IRewardModifier rewardModifier = null);
 	}
 }

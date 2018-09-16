@@ -27,9 +27,8 @@ namespace Banking.Rewards
 		/// Computes a decimal value, representing the value of this reward for the given Currency. The value is in generic units, and maybe positive or negative.
 		/// </summary>
 		/// <param name="currency"></param>
-		/// <param name="rewardModifier"></param> 
 		/// <returns>Computed value, in generic units.</returns>
 		/// <remarks>Implementations do not need to use the rewardModifier, but if they do, they should guard against null values.</remarks>
-		protected internal abstract decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardModifier = null);
+		protected internal abstract decimal OnEvaluate(CurrencyDefinition currency);
 	}
 }

@@ -32,7 +32,7 @@ namespace Banking.Rewards
 			//tile.wallFrameNumber();
 		}
 
-		protected internal override decimal OnEvaluate(CurrencyDefinition currency, IRewardModifier rewardEvaluator = null)
+		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardEvaluator = null)
 		{
 			decimal value;
 

@@ -117,6 +117,7 @@
     <Compile Include="Bank.cs" />
     <Compile Include="Configuration\VotingConfig.cs" />
     <Compile Include="Currency\GroupValueOverrides.cs" />
+    <Compile Include="Currency\RewardEventArgs.cs" />
     <Compile Include="Currency\PriceInfo.cs" />
     <Compile Include="Currency\ValueOverride.cs" />
     <Compile Include="Currency\ValueOverrideList.cs" />
@@ -147,8 +148,6 @@
     <Compile Include="BankCommands.cs" />
     <Compile Include="BankingPlugin.cs" />
     <Compile Include="Currency\CurrencyRewardDefinition.cs" />
-    <Compile Include="Rewards\IRewardModifier.cs" />
-    <Compile Include="Rewards\RewardModifierMap.cs" />
     <Compile Include="Rewards\RewardReason.cs" />
     <Compile Include="TileChangedEventArgs.cs" />
     <Compile Include="Configuration\Config.cs" />
