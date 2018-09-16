@@ -9,6 +9,9 @@ using Boo.Lang.Compiler.Steps;
 
 namespace BooTS
 {
+	/// <summary>
+	/// Injects a list of namespaces to import into a module. 
+	/// </summary>
 	public class InjectImportsStep : AbstractTransformerCompilerStep
 	{
 		public HashSet<string> Namespaces { get; private set; }

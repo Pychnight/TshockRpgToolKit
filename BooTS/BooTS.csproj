@@ -101,6 +101,7 @@
     <Compile Include="BooScriptAssemblyConfig.cs" />
     <Compile Include="BooScriptCompiler.cs" />
     <Compile Include="BooScriptingPlugin.cs" />
+    <Compile Include="XScript.cs" />
     <None Include="Configuration\Config.cs" />
     <Compile Include="ModuleManager.cs" />
     <Compile Include="ScriptHelpers.cs" />

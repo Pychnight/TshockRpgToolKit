@@ -22,6 +22,11 @@ namespace BooTS
 		}
 	}
 
+	/// <summary>
+	/// Represents a real method signature, thats used for script methods which use shorthand signatures. This is used by
+	/// the EnsureMethodSignaturesStep to insert the real method signatures at compile time, and avoid the runtime costs of
+	/// duck typing.
+	/// </summary>
 	public class EnsuredMethodSignature
 	{
 		public string Name { get; private set; }
@@ -97,6 +102,9 @@ namespace BooTS
 		}
 	}
 
+	/// <summary>
+	/// Inserts method signatures at compile time, to avoid the runtime costs of duck typing when not specifying parameter types.
+	/// </summary>
 	public class EnsureMethodSignaturesStep : AbstractTransformerCompilerStep
 	{
 		Dictionary<string,EnsuredMethodSignature> signatures;
