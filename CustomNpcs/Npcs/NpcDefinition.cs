@@ -199,8 +199,8 @@ namespace CustomNpcs.Npcs
             npc.lavaImmune = _baseOverride.IsImmuneToLava ?? npc.lavaImmune;
             npc.trapImmune = _baseOverride.IsTrapImmune ?? npc.trapImmune;
 			npc.dontTakeDamageFromHostiles = _baseOverride.DontTakeDamageFromHostiles ?? npc.dontTakeDamageFromHostiles;
-			// Don't set npc.lifeMax so that the correct life is always sent to clients.
 			npc.knockBackResist = _baseOverride.KnockbackMultiplier ?? npc.knockBackResist;
+			// Don't set npc.lifeMax so that the correct life is always sent to clients.
             npc.life = _baseOverride.MaxHp ?? npc.life;
             npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;

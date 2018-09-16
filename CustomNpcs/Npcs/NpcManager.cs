@@ -18,6 +18,7 @@ using BooTS;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler;
 using Corruption.PluginSupport;
+using Banking;
 
 namespace CustomNpcs.Npcs
 {
@@ -152,6 +153,15 @@ namespace CustomNpcs.Npcs
             var customNpc = new CustomNpc(npc, definition);
             _customNpcs.Remove(npc);
             _customNpcs.Add(npc, customNpc);
+
+			//HACK! Banking plugin tracks Npc Life, but will never see the custom set hp at spawn event(happens too early).
+			//So we have to set it ourselves here...
+			if(BankingPlugin.Instance!=null)
+			{
+				//Debug.Print("** Custom set life.");
+				BankingPlugin.Instance.NpcSpawnHP[npc.whoAmI] = customNpc.Hp;//dont use max hp, see the definition.Apply() for notes on life and clients.
+				//Debug.Print($"** newHp: {BankingPlugin.Instance.NpcSpawnHP[npc.whoAmI]}");
+			}
 
 			try
 			{

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Terraria;
 using TShockAPI;
@@ -52,7 +51,7 @@ namespace CustomNpcs.Npcs
 		/// <exception cref="ArgumentNullException">
 		///     Either <paramref name="npc" /> or <paramref name="definition" /> is <c>null</c>.
 		/// </exception>
-		public CustomNpc([NotNull] NPC npc, [NotNull] NpcDefinition definition)
+		public CustomNpc(NPC npc, NpcDefinition definition)
 		{
 			Npc = npc ?? throw new ArgumentNullException(nameof(npc));
 			Definition = definition ?? throw new ArgumentNullException(nameof(definition));
@@ -62,8 +61,17 @@ namespace CustomNpcs.Npcs
 		/// <summary>
 		///     Gets the custom NPC definition.
 		/// </summary>
-		[NotNull]
 		public NpcDefinition Definition { get; }
+
+		/// <summary>
+		///     Gets the index.
+		/// </summary>
+		public int Index => Npc.whoAmI;
+
+		/// <summary>
+		///     Gets the wrapped NPC.
+		/// </summary>
+		public NPC Npc { get; }
 
 		/// <summary>
 		///     Gets or sets the HP.
@@ -75,16 +83,10 @@ namespace CustomNpcs.Npcs
 		}
 
 		/// <summary>
-		///     Gets the index.
+		///		Gets the LifeMax.
 		/// </summary>
-		public int Index => Npc.whoAmI;
-
-		/// <summary>
-		///     Gets the wrapped NPC.
-		/// </summary>
-		[NotNull]
-		public NPC Npc { get; }
-
+		public int MaxHp => Npc.lifeMax; 
+		
 		/// <summary>
 		///     Gets the Center of the npc and sets it.
 		///     Useful for Custom AI
@@ -161,7 +163,6 @@ namespace CustomNpcs.Npcs
 		/// <summary>
 		///     Gets or sets the target.
 		/// </summary>
-		[CanBeNull]
 		public TSPlayer Target
 		{
 			get => Npc.target < 0 || Npc.target >= Main.maxPlayers ? null : TShock.Players[Npc.target];
@@ -221,7 +222,7 @@ namespace CustomNpcs.Npcs
 		/// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
-		public void CustomTransform([NotNull] string name)
+		public void CustomTransform(string name)
 		{
 			if( name == null )
 			{
@@ -270,8 +271,7 @@ namespace CustomNpcs.Npcs
 		/// <param name="defaultValue">The default value.</param>
 		/// <returns>The value, or <paramref name="defaultValue" /> if the variable does not exist.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		[CanBeNull]
-		public object GetVariable([NotNull] string variableName, object defaultValue = null)
+		public object GetVariable(string variableName, object defaultValue = null)
 		{
 			if( variableName == null )
 			{
@@ -294,7 +294,7 @@ namespace CustomNpcs.Npcs
 		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
 		/// <returns><c>true</c> if the variable exists; otherwise, <c>false</c>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public bool HasVariable([NotNull] string variableName)
+		public bool HasVariable(string variableName)
 		{
 			if( variableName == null )
 			{
@@ -312,7 +312,7 @@ namespace CustomNpcs.Npcs
 		/// <param name="tileRadius">The tile radius, which must be positive.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="tileRadius" /> is not positive.</exception>
-		public void MessageNearbyPlayers([NotNull] string message, Color color, int tileRadius = 50)
+		public void MessageNearbyPlayers(string message, Color color, int tileRadius = 50)
 		{
 			if( message == null )
 			{
@@ -387,7 +387,7 @@ namespace CustomNpcs.Npcs
 		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
 		/// <param name="value">The value.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public void SetVariable([NotNull] string variableName, object value)
+		public void SetVariable(string variableName, object value)
 		{
 			if( variableName == null )
 			{
@@ -459,7 +459,7 @@ namespace CustomNpcs.Npcs
 			Npc.Teleport(position);
 		}
 
-		//[Conditional("DEBUG")]
+		[Conditional("DEBUG")]
 		public void DebugDropIn()
 		{
 			var firstPlayer = TShock.Players.FirstOrDefault();
