@@ -15,7 +15,5 @@ Built on Tshock Api 2.1 with Terraria 1.3.5 Support
 Limitations introduced that did not previously exist.
 
 ```
-Lack of Custom Projectiles System / Proper projectile firing System.
 Spawn System uses global Spawn rate for all custom npcs using a weight system.
-*Previously you could set spawn rates and chance per Custom Npc.
 ```
