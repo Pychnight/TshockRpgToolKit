@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -80,6 +81,11 @@ namespace Leveling.Sessions
 
 		internal void initialize()
 		{
+            if(string.IsNullOrWhiteSpace(Config.Instance.DefaultClassName))
+            {
+                throw new Exception("Failed to initialize leveling session, DefaultClassName is null or empty.");
+            }
+
 			var defaultClassName = Config.Instance.DefaultClassName;
 			this.ClassNameToExp[defaultClassName] = 0;
 			this.ClassNameToLevelName[defaultClassName] = LevelingPlugin.Instance._classes.First(c => c.Name == defaultClassName).Levels[0].Name;

@@ -69,6 +69,7 @@ namespace Leveling
             ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
             //ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, int.MinValue);
             //ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
+            ServerApi.Hooks.ServerJoin.Register(this,OnServerJoin);
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 			
             Commands.ChatCommands.Add(new Command("leveling.addhp", AddHp, "addhp")
@@ -150,8 +151,9 @@ namespace Leveling
                 PlayerHooks.PlayerPermission -= OnPlayerPermission;
 				ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
 				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-				//ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
-				//ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
+                //ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+                //ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
+                ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
             }
 
@@ -180,8 +182,8 @@ namespace Leveling
 		{
 			if(BankingPlugin.Instance==null)
 			{
-				throw new Exception($"Unable to retrieve BankingPlugin.Instance.");
-				//ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: Unable to retrieve BankingPlugin.Instance", TraceLevel.Error);
+                //ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: Unable to retrieve BankingPlugin.Instance", TraceLevel.Error);
+                throw new Exception($"Unable to retrieve BankingPlugin.Instance.");
 			}
 						
 			var bank = BankingPlugin.Instance.Bank;
@@ -587,14 +589,14 @@ namespace Leveling
             {
 				var username = player.User?.Name ?? player.Name;
 				
-				//first try the database
-				SessionDefinition definition = SessionRepository.Load(username);
+                //first try the database
+                SessionDefinition definition = SessionRepository.Load(username);
 
-				//otherwise we need to create
-				if(definition==null)
-				{
+                //otherwise we need to create
+                if(definition==null)
+                {
                     definition = new SessionDefinition();
-					definition.initialize();
+                    definition.initialize();
                 }
 
                 session = new Session(player, definition);
@@ -973,8 +975,24 @@ namespace Leveling
             var session = GetOrCreateSession(args.Player);
             args.Handled |= session.PermissionsGranted.Contains(args.Permission);
         }
-				
-		private void OnServerLeave(LeaveEventArgs args)
+
+        //we handle the join event so that we can ensure were creating sessions at this point, and not during runtime.
+        private void OnServerJoin(JoinEventArgs args)
+        {
+            if (args.Who < 0 || args.Who >= Main.maxPlayers)
+            {
+                return;
+            }
+
+            var player = TShock.Players[args.Who];
+            if (player != null)
+            {
+                var session = GetOrCreateSession(player);
+                //session.Save();
+            }
+        }
+
+        private void OnServerLeave(LeaveEventArgs args)
         {
             if (args.Who < 0 || args.Who >= Main.maxPlayers)
             {
