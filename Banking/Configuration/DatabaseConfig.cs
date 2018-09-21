@@ -15,6 +15,6 @@ namespace Banking.Configuration
 		public string DatabaseType { get; set; } = "sqlite";
 
 		[JsonProperty(Order = 1)]
-		public string ConnectionString { get; set; } = $"uri=file://banking\\db.sqlite,Version=3";
+		public string ConnectionString { get; set; } = $"uri=file://banking/db.sqlite,Version=3";
 	}
 }

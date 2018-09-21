@@ -51,9 +51,6 @@ namespace Banking
 				
 		public BankingPlugin(Main game) : base(game)
 		{
-#if DEBUG
-			Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-#endif
 			Instance = this;
 		}
 
