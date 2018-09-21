@@ -15,6 +15,6 @@ namespace Housing
 		public string DatabaseType { get; set; } = "sqlite";
 
 		[JsonProperty(Order = 1)]
-		public string ConnectionString { get; set; } = $"uri=file://housing\\db.sqlite,Version=3";
+		public string ConnectionString { get; set; } = $"uri=file://housing/db.sqlite,Version=3";
 	}
 }
