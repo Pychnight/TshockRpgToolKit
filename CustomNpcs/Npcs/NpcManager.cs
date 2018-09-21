@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Terraria;
 using Terraria.ID;
@@ -125,7 +124,7 @@ namespace CustomNpcs.Npcs
         /// <param name="y">The Y coordinate.</param>
         /// <exception cref="ArgumentNullException"><paramref name="definition" /> is <c>null</c>.</exception>
         /// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
-        public CustomNpc SpawnCustomNpc([NotNull] NpcDefinition definition, int x, int y)
+        public CustomNpc SpawnCustomNpc( NpcDefinition definition, int x, int y)
         {
             if (definition == null)
             {

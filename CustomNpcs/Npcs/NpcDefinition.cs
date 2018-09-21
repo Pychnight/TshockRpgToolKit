@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Terraria;
 using CustomNpcs.Projectiles;
@@ -27,7 +26,6 @@ namespace CustomNpcs.Npcs
 		///     Gets the internal name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		[NotNull]
 		public override string Name { get; protected internal set; } = "example";
 
 		/// <summary>
@@ -36,7 +34,6 @@ namespace CustomNpcs.Npcs
 		[JsonProperty(Order = 1)]
 		public int BaseType { get; private set; }
 
-		[CanBeNull]
 		[JsonProperty(Order = 2)]
 		public override string ScriptPath { get; protected internal set; }
 		
@@ -52,8 +49,6 @@ namespace CustomNpcs.Npcs
         /// <summary>
         ///     Gets the loot entries.
         /// </summary>
-        [ItemNotNull]
-        [NotNull]
         public List<LootEntryDefinition> LootEntries => _loot.Entries;
 
 		/// <summary>
@@ -162,7 +157,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         /// <param name="npc">The NPC, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="npc" /> is <c>null</c>.</exception>
-        public void ApplyTo([NotNull] NPC npc)
+        public void ApplyTo(NPC npc)
         {
             if (npc == null)
             {

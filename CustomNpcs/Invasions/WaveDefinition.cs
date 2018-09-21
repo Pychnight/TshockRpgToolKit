@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Corruption.PluginSupport;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CustomNpcs.Invasions
@@ -17,7 +16,6 @@ namespace CustomNpcs.Invasions
 		///     Gets the NPC weights.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		[NotNull]
 		public Dictionary<string, int> NpcWeights { get; private set; } = new Dictionary<string, int>();
 
 		/// <summary>
@@ -42,14 +40,12 @@ namespace CustomNpcs.Invasions
 		///     Gets the start message.
 		/// </summary>
 		[JsonProperty(Order = 4)]
-		[NotNull]
 		public string StartMessage { get; private set; } = "The wave has started!";
 
 		/// <summary>
 		///     Gets the miniboss.
 		/// </summary>
-		[CanBeNull]
-        [JsonProperty(Order = 5)]
+		[JsonProperty(Order = 5)]
         public string Miniboss { get; private set; }
        
 		//[Obsolete]

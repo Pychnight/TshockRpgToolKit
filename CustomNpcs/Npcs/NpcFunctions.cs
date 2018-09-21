@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomNpcs.Npcs;
-using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using OTAPI.Tile;
 using Terraria;
@@ -16,7 +15,6 @@ namespace CustomNpcs
 	/// <summary>
 	///     Provides functions for NPC scripts.
 	/// </summary>
-	[PublicAPI]
 	public static class NpcFunctions
 	{
 		private static readonly Random Random = new Random();
@@ -28,7 +26,7 @@ namespace CustomNpcs
 		/// <param name="message">The color.</param>
 		/// <param name="message2">The color.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
-		public static void Ban([NotNull] TSPlayer player, string message, string message2)
+		public static void Ban(TSPlayer player, string message, string message2)
 		{
 			if( message == null )
 			{
@@ -45,7 +43,7 @@ namespace CustomNpcs
 		/// <param name="color">The color.</param>
 		/// <param name="position">The position.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="text" /> is <c>null</c>.</exception>
-		public static void CreateCombatText([NotNull] string text, Color color, Vector2 position)
+		public static void CreateCombatText(string text, Color color, Vector2 position)
 		{
 			if( text == null )
 			{
@@ -61,7 +59,7 @@ namespace CustomNpcs
 		/// <param name="name">The name, which must not be <c>null</c>.</param>
 		/// <returns>The array of custom NPCs.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		public static CustomNpc[] FindCustomNpcs([NotNull] string name)
+		public static CustomNpc[] FindCustomNpcs(string name)
 		{
 			if( name == null )
 			{
@@ -86,7 +84,7 @@ namespace CustomNpcs
 		/// <param name="name">The name, which must not be <c>null</c>.</param>
 		/// <returns>The array of NPCs.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		public static NPC[] FindNpcs([NotNull] string name)
+		public static NPC[] FindNpcs(string name)
 		{
 			if( name == null )
 			{
@@ -147,7 +145,7 @@ namespace CustomNpcs
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
 		/// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
-		public static CustomNpc SpawnCustomNpc([NotNull] string name, Vector2 position)
+		public static CustomNpc SpawnCustomNpc(string name, Vector2 position)
 		{
 			if( name == null )
 			{
@@ -171,7 +169,7 @@ namespace CustomNpcs
 		/// <exception cref="ArgumentNullException"><paramref name="nameOrType" /> is <c>null</c>.</exception>
 		/// <exception cref="FormatException"><paramref name="nameOrType" /> is not a valid NPC name.</exception>
 		/// <returns>The NPC, or <c>null</c> if spawning failed.</returns>
-		public static NPC SpawnNpc([NotNull] string nameOrType, Vector2 position)
+		public static NPC SpawnNpc(string nameOrType, Vector2 position)
 		{
 			if( nameOrType == null )
 			{

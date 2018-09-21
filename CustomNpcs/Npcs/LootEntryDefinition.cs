@@ -1,6 +1,5 @@
 ﻿using System;
 using Corruption.PluginSupport;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Terraria.ID;
 
@@ -16,7 +15,6 @@ namespace CustomNpcs.Npcs
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		[NotNull]
 		public string Name { get; internal set; } = "Dirt Block";
 
 		/// <summary>

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CustomNpcs.Npcs;
-using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
@@ -82,7 +81,7 @@ namespace CustomNpcs.Invasions
         ///     Starts the specified invasion.
         /// </summary>
         /// <param name="invasion">The invasion, or <c>null</c> to stop the current invasion.</param>
-        public void StartInvasion([CanBeNull] InvasionDefinition invasion)
+        public void StartInvasion(InvasionDefinition invasion)
         {
 			EndInvasion();
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using BooTS;
 using Corruption.PluginSupport;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CustomNpcs.Invasions
@@ -20,28 +19,24 @@ namespace CustomNpcs.Invasions
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		[NotNull]
 		public override string Name { get; protected internal set; } = "example";
 
 		/// <summary>
 		///     Gets the script path.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-        [CanBeNull]
         public override string ScriptPath { get; protected internal set; }
 		
         /// <summary>
         ///     Gets the NPC point values.
         /// </summary>
         [JsonProperty(Order = 2)]
-        [NotNull]
         public Dictionary<string, int> NpcPointValues { get; private set; } = new Dictionary<string, int>();
 
 		/// <summary>
 		///     Gets the completed message.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		[NotNull]
 		public string CompletedMessage { get; private set; } = "The example invasion has ended!";
 
 		/// <summary>
@@ -59,9 +54,7 @@ namespace CustomNpcs.Invasions
         /// <summary>
         ///     Gets the waves.
         /// </summary>
-        [ItemNotNull]
         [JsonProperty(Order = 6)]
-        [NotNull]
         public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
 
 		/// <summary>

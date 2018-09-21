@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomNpcs.Npcs;
-using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using OTAPI.Tile;
 using Terraria;
@@ -38,7 +37,7 @@ namespace CustomNpcs
 		/// <param name="player">The player, which must not be <c>null</c>.</param>
 		/// <param name="maxSpawns">The number of maximum spawns.</param>
 		/// <param name="spawnRate">The spawn rate.</param>
-		public static void GetSpawnData([NotNull] TSPlayer player, out double maxSpawns, out double spawnRate)
+		public static void GetSpawnData(TSPlayer player, out double maxSpawns, out double spawnRate)
         {
             maxSpawns = Config.Instance.MaxSpawns;
             spawnRate = Config.Instance.SpawnRate;
@@ -165,7 +164,7 @@ namespace CustomNpcs
         /// <typeparam name="TKey">The type of key.</typeparam>
         /// <param name="dictionary">The dictionary, which must not be <c>null</c>.</param>
         /// <returns>The key.</returns>
-        public static TKey PickRandomWeightedKey<TKey>([NotNull] IDictionary<TKey, int> dictionary)
+        public static TKey PickRandomWeightedKey<TKey>(IDictionary<TKey, int> dictionary)
         {
             var rand = Random.Next(dictionary.Values.Sum());
             var current = 0;
@@ -187,7 +186,7 @@ namespace CustomNpcs
         /// <param name="npcNameOrType">The NPC name or type.</param>
         /// <param name="tileX">The X tile coordinate.</param>
         /// <param name="tileY">The Y tile coordinate.</param>
-        public static void SpawnVanillaOrCustomNpc([NotNull] string npcNameOrType, int tileX, int tileY)
+        public static void SpawnVanillaOrCustomNpc(string npcNameOrType, int tileX, int tileY)
         {
             if (int.TryParse(npcNameOrType, out var npcType))
             {
@@ -208,7 +207,7 @@ namespace CustomNpcs
         /// <typeparam name="TKey">The type of key.</typeparam>
         /// <param name="dictionary">The dictionary, which must not be <c>null</c>.</param>
         /// <returns>The key, or a default value if nothing was picked.</returns>
-        public static TKey TryPickRandomKey<TKey>([NotNull] IDictionary<TKey, double> dictionary)
+        public static TKey TryPickRandomKey<TKey>(IDictionary<TKey, double> dictionary)
         {
             foreach (var kvp in dictionary)
             {

@@ -1,5 +1,4 @@
 ﻿using Corruption.PluginSupport;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CustomNpcs
@@ -13,7 +12,6 @@ namespace CustomNpcs
         /// <summary>
         ///     Gets the configuration instance.
         /// </summary>
-        [NotNull]
         public static Config Instance { get; internal set; } = new Config();
 
         /// <summary>
