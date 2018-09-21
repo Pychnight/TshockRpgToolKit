@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Custom top level RpgTools pattern for test servers
+*.Servers
+
 # User-specific files
 *.suo
 *.user

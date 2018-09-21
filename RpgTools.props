@@ -5,6 +5,14 @@
 		<TShockVersion>4.3.24</TShockVersion>
 		<TShockPath>bin\tshock_$(TShockVersion)</TShockPath>
 		<TShockPluginsPath>$(TShockPath)\ServerPlugins</TShockPluginsPath>
+	</PropertyGroup>
+
+	<!-- if RpgToolsServerPath is set, use it to override the output path. -->
+	<PropertyGroup Condition="'$(RpgToolsServerPath)' != ''">
+		<TShockPluginsPath>$(RpgToolsServerPath)\ServerPlugins</TShockPluginsPath>
+	</PropertyGroup>
+
+	<PropertyGroup>	
 		<OutputPath>$(TShockPluginsPath)\</OutputPath>
 		<!-- Keep intermediate cruft out of our project folders -->
 		<IntermediateOutputPath>$(SolutionDir)\obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
