@@ -78,20 +78,10 @@ namespace NpcShops.Shops
 				{
 					string key = null;
 
-					if(npcType is string)
-					{
-						key = (string)npcType;
-					}
-					else if(npcType is long)//json.net will generate longs, but we add an int branch in case this changes for some reason...
-					{
-						var intKey = (long)npcType;
-						key = intKey.ToString();
-					}
-					else if( npcType is int )
-					{
-						var intKey = (int)npcType;
-						key = intKey.ToString();
-					}
+                    if(npcType is string || npcType is long || npcType is int ) //json.net will generate longs, but we add an int branch in case this changes for some reason...
+                    {
+                        key = npcType.ToString();
+                    }
 					else
 					{
 						NpcShopsPlugin.Instance.LogPrint($"OverrideNpcType '{npcType.ToString()}' is not a string or int. Ignoring.", TraceLevel.Warning);
