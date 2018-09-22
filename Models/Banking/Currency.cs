@@ -187,6 +187,11 @@ namespace RpgToolsEditor.Models.Banking
 		[JsonProperty(Order = 24)]
 		public GroupValueOverrides<string> GroupPlayingOverrides { get; set; } = new GroupValueOverrides<string>();
 
+		[Category("Currency")]
+		[Description("Permission required for this player to send to another player. Optional. Blank or empty string will be ignored.")]
+		[JsonProperty(Order = 25)]
+		public string TradePermission { get; set; } = "";
+
 		//non serialized members.
 
 		//We want to reuse the GroupValueOverrides type, but GroupPlayingOverrides property doesn't need a specialized key.
@@ -231,6 +236,8 @@ namespace RpgToolsEditor.Models.Banking
 			GroupMiningOverrides = (GroupValueOverrides<TileKey>)source.GroupMiningOverrides?.Clone();
 			GroupPlacingOverrides = (GroupValueOverrides<TileKey>)source.GroupPlacingOverrides?.Clone();
 			GroupPlayingOverrides = (GroupValueOverrides<string>)source.GroupPlayingOverrides?.Clone();
+
+			TradePermission = source.TradePermission;
 		}
 
 		public object Clone()
