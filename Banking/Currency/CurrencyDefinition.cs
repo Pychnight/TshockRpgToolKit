@@ -100,6 +100,12 @@ namespace Banking
 		[JsonProperty(Order = 24)]
 		public GroupValueOverrides<string> GroupPlayingOverrides { get; set; } = new GroupValueOverrides<string>();
 
+		/// <summary>
+		/// Gets or sets the permission a player must have to trade this currency.
+		/// </summary>
+		[JsonProperty(Order = 25)]
+		public string TradePermission { get; set; }
+
 		//non serialized members.
 
 		//We want to reuse the GroupValueOverrides type, but GroupPlayingOverrides property doesn't need a specialized key.

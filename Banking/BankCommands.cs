@@ -290,6 +290,16 @@ namespace Banking
 				return;
 			}
 
+			if(client != TSPlayer.Server && !string.IsNullOrWhiteSpace(currency.TradePermission))
+			{
+				//is this player allowed to trade this currency
+				if(!client.HasPermission(currency.TradePermission))
+				{
+					client.SendErrorMessage($"You are not allowed to trade {currency.InternalName}.");
+					return;
+				}
+			}
+			
 			if( clientAccount == null )
 			{
 				client.SendErrorMessage($"Unable to find account for currency '{currencyType}'.");
