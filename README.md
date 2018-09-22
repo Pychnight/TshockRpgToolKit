@@ -1,6 +1,6 @@
 # TShockRpgToolKit
 
-TShockRpgToolKit is a collection of plugins and tools for the TShock Terraria server. They customize the stock Terraria experience with role playing game elements, like classes and levels.
+TShockRpgToolKit is a collection of plugins and tools for the TShock Terraria server. They customize the stock Terraria experience with role playing game elements, like classes and levels( among others ).
 
 ## Building
 
@@ -20,7 +20,7 @@ Linux:
 * MonoDevelop or Visual Studio Code
 * TShock 4.3.24
 
-Building and testing on Linux is still experiemental, mainly due to issues with MonoDevelop and limitations with Visual Studio Code.
+Building and testing on Linux is still experimental, mainly due to issues with MonoDevelop and limitations with Visual Studio Code.
 
 ### Grab the code
 
@@ -35,7 +35,7 @@ cd TshockRpgToolKit
 msbuild 
 ```
 
-This will build debug binaries, with each plugin being output to the projects bin/tshock_xxx/ServerPlugins folder. Note that currently, you'll need to manually unpack tshock for each location( so that it parents the "ServerPlugins" folder. ) 
+This will build debug binaries, with each plugin being output to the projects bin/tshock_xxx/ServerPlugins folder. Note that currently, you'll need to manually unpack tshock for each location( so that it parents the "ServerPlugins" folder. ). You may  also need to restore nuget packages first. 
 
 This works fine for testing individual plugins in isolation, but many times you'll want all plugins to be built in the same place. So for this scenario you can also override the path to the tshock folder by passing in an msbuild property, or via an environment variable.
 
@@ -45,7 +45,7 @@ MSBuild Property
 msbuild /p:RpgToolsServerPath="some/other/location"
 ```
 
-Its recommended to persist to set a persistent variable however.
+It is recommended to set a persistent env variable however.
 
 ### Run
 
