@@ -118,7 +118,7 @@ namespace CustomQuests.Triggers
 			}
 			
 			//ensure the item actually exists in the chest, with enough quantity.
-			chestItemCount = ItemFunctions.CountChestItem(chestX, chestY, itemId, itemPrefix);
+			chestItemCount = ChestFunctions.CountChestItem(chestX, chestY, itemId, itemPrefix);
 
 			if( chestItemCount < itemsRequired )
 			{
@@ -147,7 +147,7 @@ namespace CustomQuests.Triggers
 			{
 				if( chestItemChanges.TryDequeue(out var args) )
 				{
-					var newCount = ItemFunctions.CountChestItem(chestX, chestY, itemId, itemPrefix);
+					var newCount = ChestFunctions.CountChestItem(chestX, chestY, itemId, itemPrefix);
 
 					if( newCount < chestItemCount )
 					{
