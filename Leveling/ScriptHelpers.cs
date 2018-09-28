@@ -27,11 +27,13 @@ namespace Leveling
 				"Corruption.EmoteFunctions",
 				"Corruption.TimeFunctions",
 				"Corruption.TileFunctions",
+				"Corruption.SignFunctions",
 				"Corruption.PlayerFunctions",
 				"Corruption.PlayerCommandFunctions",
 				"Corruption.NpcFunctions",
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
+				"Corruption.ChestFunctions",
 				"Leveling.Classes"
 				//"CustomNpcs",
 				//"CustomNpcs.Invasions",
