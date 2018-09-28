@@ -27,11 +27,13 @@ namespace BooTS
 				"Corruption.EmoteFunctions",
 				"Corruption.TimeFunctions",
 				"Corruption.TileFunctions",
+				"Corruption.SignFunctions",
 				"Corruption.PlayerFunctions",
 				"Corruption.PlayerCommandFunctions",
 				"Corruption.NpcFunctions",
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
+				"Corruption.ChestFunctions"
 			} );
 		}
 
