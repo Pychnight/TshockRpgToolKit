@@ -33,15 +33,11 @@ namespace BooTS
 		public static BooScriptingPlugin Instance { get; private set; }
 
 		//public XScript ScriptStartup { get; set; }
-
 		public XScript ScriptServerJoin { get; set; }
 		public XScript ScriptServerLeave { get; set; }
 				
 		public BooScriptingPlugin(Main game) : base(game)
 		{
-#if DEBUG
-			Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-#endif
 			Instance = this;
 		}
 
@@ -51,10 +47,6 @@ namespace BooTS
 			
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			//ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
-			//ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
-			//ServerApi.Hooks.NpcSpawn.Register(this, OnNpcSpawn);
-			//ServerApi.Hooks.NpcStrike.Register(this, OnNpcStrike);
-			//ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 			//ServerApi.Hooks.WorldSave.Register(this, OnWorldSave);
@@ -101,7 +93,7 @@ namespace BooTS
 
 			Task.Run(() =>
 			{
-				var result = LoadScriptOnDemand(filePath,runArgs);//load script will automatically load from DataFolder.
+				var result = RunScriptOnDemand(filePath,runArgs);//load script will automatically load from DataFolder.
 
 				if(!result)
 					player?.SendErrorMessage("Script failed. Check logs for error information.");
@@ -115,16 +107,11 @@ namespace BooTS
 			if( disposing )
 			{
 				//JsonConfig.Save(this, Config.Instance, ConfigPath);
-				//Bank.Save();
-
+				
 				GeneralHooks.ReloadEvent -= OnReload;
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
 				//	PlayerHooks.PlayerPermission -= OnPlayerPermission;
 				//ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-				//ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
-				//ServerApi.Hooks.NpcSpawn.Deregister(this, OnNpcSpawn);
-				//ServerApi.Hooks.NpcStrike.Deregister(this, OnNpcStrike);
-				//ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
 				//ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
@@ -140,27 +127,7 @@ namespace BooTS
 			try
 			{
 				Directory.CreateDirectory(DataDirectory);
-
-				LoadScriptOnDemand("ServerLoad.boo");
-
-				//Debug.Print($"Loading Bank.");
-
-				//if( Bank == null )
-				//{
-				//	PlayerRewardNotificationDistributor = new PlayerRewardNotificationDistributor();
-				//	Bank = new Bank();
-				//	NpcSpawnHP = new Dictionary<int, int>();
-				//	NpcStrikeTracker = new NpcStrikeTracker();
-				//	NpcStrikeTracker.StruckNpcKilled += OnStruckNpcKilled;
-				//	PlayerFishingTracker = new PlayerFishingTracker();
-				//	PlayerTileTracker = new PlayerTileTracker(DataDirectory);
-				//	PlayerSessionTracker = new PlayingRewardTracker();
-				//	RewardDistributor = new RewardDistributor();
-				//	VoteChecker = new VoteChecker();
-				//}
-
-				//NpcStrikeTracker.Clear();
-				//Bank.Load();
+				RunScriptOnDemand("ServerLoad.boo");
 			}
 			catch( Exception ex )
 			{
@@ -193,212 +160,21 @@ namespace BooTS
 			var player = new TSPlayer(args.Who);
 		}
 
-		private void OnNetGetData(GetDataEventArgs args)
-		{
-			if( args.Handled )
-				return;
+		//private void OnGameUpdate(EventArgs args)
+		//{
+		//}
 
-			switch( args.MsgID )
-			{
-				//	case PacketTypes.Tile:
-				//		using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
-				//		{
-				//			var action = reader.ReadByte();
-
-				//			if( action >= 0 && action <= 3 )//0 kill, 1 place tile, 2 kill, 3 place wall
-				//			{
-				//				var tileX = reader.ReadInt16();
-				//				var tileY = reader.ReadInt16();
-				//				var var1 = reader.ReadInt16();//kill tile status
-				//				var var2 = reader.ReadInt16();//place tile
-
-				//				//Debug.Print($"action: {action}");
-				//				//Debug.Print($"tileX: {tileX}");
-				//				//Debug.Print($"tileY: {tileY}");
-				//				//Debug.Print($"var1: {var1}");
-				//				//Debug.Print($"var2: {var2}");
-
-				//				var player = TShock.Players[args.Msg.whoAmI];
-				//				TileSubTarget tileSubTarget;
-
-				//				if( action < 2 )
-				//					tileSubTarget = TileSubTarget.Tile;
-				//				else
-				//					tileSubTarget = TileSubTarget.Wall;
-
-				//				if( ( action == 0 || action == 2 ) && var1 == 0 )
-				//				{
-				//					var tile = Main.tile[tileX, tileY];
-
-				//					//kill tile
-				//					if( action == 2 || tile.collisionType > 0 ) //ignore grass
-				//					{
-				//						OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type, tile.wall, tileSubTarget));
-				//						return;
-				//					}
-				//				}
-				//				else if( action == 1 || action == 3 )// && var1 > 0)
-				//				{
-				//					//var1 should hold the type of the tile or wall we placed.
-
-				//					//place tile
-				//					OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, (ushort)var1, (byte)var1, tileSubTarget));
-				//					return;
-				//				}
-				//			}
-				//		}
-
-				//		break;
-
-				//	case PacketTypes.PlayerDeathV2:
-				//		//based off of MarioE's original code from the Leveling plugin...
-				//		using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
-				//		{
-				//			var player = TShock.Players[args.Msg.whoAmI];
-
-				//			reader.ReadByte();
-				//			var deathReason = PlayerDeathReason.FromReader(reader);
-				//			reader.ReadInt16();
-				//			reader.ReadByte();
-				//			var wasPvP = ( (BitsByte)reader.ReadByte() )[0];
-				//			if( wasPvP )
-				//			{
-				//				var otherPlayer = deathReason.SourcePlayerIndex >= 0
-				//					? TShock.Players[deathReason.SourcePlayerIndex]
-				//					: null;
-				//				if( otherPlayer == player )
-				//				{
-				//					return;
-				//				}
-
-				//				if( otherPlayer != null )
-				//				{
-				//					var reward = new DeathReward(player.Name, RewardReason.DeathPvP, otherPlayer.Name);
-				//					RewardDistributor.EnqueueReward(reward);
-
-				//				}
-				//				else
-				//				{
-				//					var reward = new DeathReward(player.Name, RewardReason.DeathPvP, "");
-				//					RewardDistributor.EnqueueReward(reward);
-				//				}
-				//			}
-				//			else
-				//			{
-				//				var reward = new DeathReward(player.Name, RewardReason.Death, "");
-				//				RewardDistributor.EnqueueReward(reward);
-
-				//			}
-				//		}
-
-				//		break;
-
-				//	case PacketTypes.ProjectileNew:
-				//		//Debug.Print("ProjectileNew!");
-
-				//		using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
-				//		{
-				//			var projectileId = reader.ReadInt16();
-				//			reader.ReadSingle();
-				//			reader.ReadSingle();
-				//			reader.ReadSingle();
-				//			reader.ReadSingle();
-				//			reader.ReadSingle();
-				//			reader.ReadInt16();
-				//			var playerId = reader.ReadByte();
-				//			var type = reader.ReadInt16();
-				//			//var aiFlags = reader.ReadByte();
-				//			//var ai0 = reader.ReadSingle();
-				//			//var ai1 = reader.ReadSingle();
-				//			//var projUUID = reader.ReadSingle();
-
-				//			PlayerFishingTracker.TryBeginFishing(playerId, projectileId, type);
-				//		}
-
-				//		break;
-
-				//	case PacketTypes.ProjectileDestroy:
-				//		//Debug.Print("ProjectileDestroy!");
-				//		using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
-				//		{
-				//			var projectileId = reader.ReadInt16();
-				//			var ownerId = reader.ReadByte();
-
-				//			PlayerFishingTracker.TryEndFishing(ownerId, projectileId);
-				//		}
-
-				//		break;
-
-				//	case PacketTypes.PlayerSlot:
-				//		//Debug.Print("PlayerSlot!");
-				//		using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
-				//		{
-				//			var playerId = reader.ReadByte();
-				//			var slotId = reader.ReadByte();
-				//			var stack = reader.ReadInt16();
-				//			var prefix = reader.ReadByte();
-				//			var itemId = reader.ReadInt16();
-
-				//			if( PlayerFishingTracker.IsItemFromFishing(playerId) )//, stack, prefix, itemId))
-				//			{
-				//				var player = TShock.Players[args.Msg.whoAmI];
-				//				var reward = new FishingReward(player.Name, stack, prefix, itemId);
-				//				RewardDistributor.EnqueueReward(reward);
-				//			}
-				//		}
-
-				//		break;
-
-				default:
-					break;
-			}
-		}
-
-		private void OnGameUpdate(EventArgs args)
+		internal void LoadScriptsByConvention()
 		{
 			
 		}
 
-		private void OnNpcSpawn(NpcSpawnEventArgs args)
-		{
-			var npc = Main.npc[args.NpcId];
-			//NpcSpawnHP[args.NpcId] = npc.life;
-		}
-
-		private void OnNpcStrike(NpcStrikeEventArgs args)
-		{
-			//Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
-
-			var item = args.Player.HeldItem;
-			//Debug.Print($"Strike NPC with {item.Name}!");
-		}
-
-		private void OnNpcKilled(NpcKilledEventArgs args)
-		{
-			//Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
-			//Debug.Print($"Value: {args.npc.value}");
-
-			//if( !NpcSpawnHP.TryGetValue(args.npc.whoAmI, out var spawnHp) )
-			//{
-			//	throw new Exception("Unable to retrieve NpcSpawnHP!");
-			//}
-
-			//Debug.Print($"NpcHP: {spawnHp}");
-			////NpcStrikeTracker.OnNpcKilled(args.npc);
-
-			//Task.Run(() =>
-			//{
-			//	//Debug.Print("Task.Run() => OnNpcKilled!");
-			//	NpcStrikeTracker.OnNpcKilled(args.npc, spawnHp);
-			//});
-		}
-
-		internal void LoadScriptsByConvention()
+		internal bool TryLoadScript(string fileName)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal bool LoadScriptOnDemand(string fileName, params string[] args)
+		internal bool RunScriptOnDemand(string fileName, params string[] args)
 		{
 			var path = Path.Combine(DataDirectory, fileName);
 
