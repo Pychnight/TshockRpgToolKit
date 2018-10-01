@@ -126,11 +126,13 @@ namespace CustomQuests.Quests
 			return SetLeader(memberIndex);
 		}
 		
+		[DebuggerStepThrough]
 		public IEnumerator<PartyMember> GetEnumerator()
 		{
 			return partyMembers.GetEnumerator();
 		}
 
+		[DebuggerStepThrough]
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
@@ -142,6 +144,9 @@ namespace CustomQuests.Quests
 			{
 				var session = CustomQuestsPlugin.Instance.GetSession(m);
 
+				session.IsAborting = false;
+				session.HasAborted = false;
+				
 				session.AddQuestAttempt(questInfo);
 				
 				//try to restore previous status
@@ -158,15 +163,6 @@ namespace CustomQuests.Quests
 					//copy sessions quest status to member.
 					m.QuestStatuses = statuses;
 				}
-			}
-		}
-
-		internal void OnAbort(QuestInfo questInfo)
-		{
-			foreach( var m in this )
-			{
-				var session = CustomQuestsPlugin.Instance.GetSession(m);
-				session.RemoveQuestAttempt(questInfo);
 			}
 		}
 	}

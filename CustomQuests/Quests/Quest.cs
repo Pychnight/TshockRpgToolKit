@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
 using TShockAPI;
+using Corruption.PluginSupport;
 
 namespace CustomQuests.Quests
 {
@@ -90,7 +91,10 @@ namespace CustomQuests.Quests
 		
 		internal void Run()
 		{
-			MainQuestTask = Task.Run(() => OnRun());
+			MainQuestTask = Task.Run(() =>
+			{
+				OnRun();
+			});
 		}
 
 		//this method gets overridden in boo, by transplanting the modules main method into it.
@@ -103,11 +107,28 @@ namespace CustomQuests.Quests
 			OnAbort();
 		}
 
-		protected internal virtual void OnAbort()
+		/// <summary>
+		/// Aborts a Quest, and optionally sends each party member an error message.
+		/// </summary>
+		/// <param name="partyAbortMessage">Optional message to send party members on abort, null ignores.</param>
+		protected internal virtual void OnAbort(string partyAbortMessage=null)
 		{
 			Debug.Print($"OnAbort()! for {QuestInfo.Name}");
 			Debug.Print("Cancelling...");
 			CancellationTokenSource.Cancel();
+
+			foreach( var member in party )
+			{
+				if(member!=null)
+				{
+					if( partyAbortMessage != null )
+						member.SendErrorMessage(partyAbortMessage);
+
+					var session = CustomQuestsPlugin.Instance.GetSession(member);
+					session.IsAborting = true;
+					session.HasAborted = true;
+				}
+			}
 		}
 		
 		/// <summary>
@@ -127,7 +148,7 @@ namespace CustomQuests.Quests
 		}
 		
         /// <summary>
-        ///     Updates the quest.
+        ///     Updates the quest's triggers and party state.
         /// </summary>
         internal void Update()
         {

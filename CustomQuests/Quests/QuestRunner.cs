@@ -60,43 +60,63 @@ namespace CustomQuests.Quests
 
 		public void Update()
 		{
-			var questsToRemove = new List<string>();
+			var currentQuests = quests.Values.ToArray();
 
-			foreach( var quest in quests.Values )
+			for( var i=0; i < currentQuests.Length; i++ )
 			{
+				var quest = currentQuests[i];
+
+				//HACK work around against a race condition?? MainQuest isn't always set by this point.
+				if( quest.MainQuestTask == null )
+					continue;
+
 				switch( quest.MainQuestTask.Status )
 				{
+					case TaskStatus.WaitingForChildrenToComplete:
+						quest.Update();
+						break;
+
 					case TaskStatus.Running:
 						quest.Update();
 						break;
 
 					case TaskStatus.RanToCompletion:
-						questsToRemove.Add(quest.party.Name);
+						RemoveQuest(quest.party.Name);
 
 						if( !quest.CalledComplete )
-						{
 							CustomQuestsPlugin.Instance.LogPrint($"'{quest.QuestInfo.Name}' MainQuestTask finished execution, but no call to Complete() was made. ( Did you forget to wait on a Task? )", TraceLevel.Error);
-						}
-
+							
 						break;
 
 					case TaskStatus.Canceled:
-						questsToRemove.Add(quest.party.Name);
+						RemoveQuest(quest.party.Name);
 						break;
 
 					case TaskStatus.Faulted:
-						questsToRemove.Add(quest.party.Name);
+						RemoveQuest(quest.party.Name);
+											
+						if(quest.MainQuestTask?.Exception!=null)
+						{
+							CustomQuestsPlugin.Instance.LogPrint($"'{quest.QuestInfo.Name}' MainQuestTask terminated due to errors or cancellation.", TraceLevel.Warning);
+
+							foreach( var ex in quest.MainQuestTask.Exception.InnerExceptions )
+								CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Warning );
+
+							//quest.OnAbort("Quest aborted due to error. Please let the server admin know.");
+						}
+						
+						quest.OnAbort();
+						
 						break;
 				}
 			}
+		}
 
-			//remove dead quests...
-			foreach( var name in questsToRemove )
+		private void RemoveQuest(string partyName)
+		{
+			if( quests.TryRemove(partyName, out var removedQuest) )
 			{
-				if(quests.TryRemove(name, out var removedQuest))
-				{
-					removedQuest.Dispose();
-				}
+				removedQuest.Dispose();
 			}
 		}
 

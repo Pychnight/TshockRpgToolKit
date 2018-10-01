@@ -376,7 +376,7 @@ namespace CustomQuests.Sessions
 			//ensure there is a party set, even if a solo player.
 			Party = Party ?? new Party(_player.Name, _player);
 			Party.OnPreStart(questInfo);
-						
+									
 			var result = CustomQuestsPlugin.Instance.QuestRunner.Start(questInfo, Party, this);
 
 			if(!result)
