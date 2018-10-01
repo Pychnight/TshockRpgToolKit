@@ -364,7 +364,7 @@ namespace Banking
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)
 		{
-			Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
+			//Debug.Print($"Banking - OnNpcStrike! Damage: {args.Damage}, Critical: {args.Critical}");
 
 			var item = args.Player.HeldItem;
 			//Debug.Print($"Strike NPC with {item.Name}!");
@@ -373,7 +373,7 @@ namespace Banking
 
 		private void OnNpcKilled(NpcKilledEventArgs args)
 		{
-			Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
+			//Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
 			//Debug.Print($"Value: {args.npc.value}");
 			
 			if(!NpcSpawnHP.TryGetValue(args.npc.whoAmI,out var spawnHp))
@@ -381,7 +381,7 @@ namespace Banking
 				throw new Exception("Unable to retrieve NpcSpawnHP!");
 			}
 
-			Debug.Print($"NpcHP: {spawnHp}");
+			//Debug.Print($"NpcHP: {spawnHp}");
 			//NpcStrikeTracker.OnNpcKilled(args.npc);
 
 			Task.Run(() =>
@@ -393,7 +393,7 @@ namespace Banking
 
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
-			Debug.Print("OnStruckNpcKilled!");
+			//Debug.Print("OnStruckNpcKilled!");
 		
 			var reward = new KillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcHitPoints, args.NpcSpawnedFromStatue);
 			RewardDistributor.EnqueueReward(reward);
@@ -401,7 +401,7 @@ namespace Banking
 
 		private void OnTileKilled(TileChangedEventArgs args)
 		{
-			Debug.Print("OnTileKilled!");
+			//Debug.Print("OnTileKilled!");
 
 			var player = args.Player;
 			
@@ -431,7 +431,7 @@ namespace Banking
 		
 		private void OnTilePlaced(TileChangedEventArgs args)
 		{
-			Debug.Print("OnTilePlaced!");
+			//Debug.Print("OnTilePlaced!");
 
 			var player = args.Player;
 			
