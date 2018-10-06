@@ -33,7 +33,8 @@ namespace BooTS
 				"Corruption.NpcFunctions",
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
-				"Corruption.ChestFunctions"
+				"Corruption.ChestFunctions",
+				"BooTS.Scheduler"
 			} );
 		}
 

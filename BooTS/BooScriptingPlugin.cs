@@ -35,6 +35,8 @@ namespace BooTS
 		internal Script ScriptServerStart { get; set; }
 		internal Script ScriptServerJoin { get; set; }
 		internal Script ScriptServerLeave { get; set; }
+
+		internal ConcurrentDictionary<string,Script> ScheduledScripts { get; set; }
 				
 		public BooScriptingPlugin(Main game) : base(game)
 		{
@@ -46,7 +48,7 @@ namespace BooTS
 			GeneralHooks.ReloadEvent += OnReload;
 			
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
-			//ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
+			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 			
@@ -64,7 +66,7 @@ namespace BooTS
 				
 				GeneralHooks.ReloadEvent -= OnReload;
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
-				//ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
+				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
 			}
@@ -79,8 +81,12 @@ namespace BooTS
 			try
 			{
 				Directory.CreateDirectory(DataDirectory);
+								
 				LoadScriptsByConvention();
 				RunScript(ScriptServerStart);
+
+				ScheduledScripts = new ConcurrentDictionary<string, Script>();
+				LoadScheduledScripts();			   
 			}
 			catch( Exception ex )
 			{
@@ -114,9 +120,22 @@ namespace BooTS
 			RunScript(ScriptServerLeave, player);
 		}
 
-		//private void OnGameUpdate(EventArgs args)
-		//{
-		//}
+		private void OnGameUpdate(EventArgs args)
+		{
+			if (ScheduledScripts != null)
+			{
+				var currentTime = TimeFunctions.GetTimeOfDay();
+
+				foreach (var script in ScheduledScripts.Values)
+				{
+					var scheduler = script.GetSchedulerObject();
+					var shouldRun = scheduler?.OnUpdate(currentTime);
+
+					if(shouldRun==true)
+						RunScript(script);
+				}
+			}
+		}
 
 		/// <summary>
 		/// Scans the scripts directory for convention based filenames, and attempts to compile and cache them.
@@ -129,13 +148,39 @@ namespace BooTS
 		}
 
 		/// <summary>
+		/// Scans the scheduled scripts directory for scripts, which will be run based off of their configured Scheduler.
+		/// </summary>
+		internal void LoadScheduledScripts()
+		{
+			var baseDirectory = Path.Combine(DataDirectory, "scheduled");
+
+			Directory.CreateDirectory(baseDirectory);
+
+			var booFiles = Directory.EnumerateFiles(baseDirectory,"*.boo");
+
+			foreach(var file in booFiles)
+			{
+				ScheduledScripts.TryGetValue(file, out var script);
+				script = TryReloadScript(file, script, isScheduled: true);
+				ScheduledScripts[file] = script;
+			}
+		}
+	
+		/// <summary>
 		/// Attempts to compile a Script, if it does not exist or is not up to date.
 		/// </summary>
 		/// <param name="fileName"></param>
 		/// <returns></returns>
-		internal Script TryReloadScript(string fileName, Script script)
+		internal Script TryReloadScript(string fileName, Script script, bool isScheduled = false)
 		{
-			var path = Path.Combine(DataDirectory, fileName);
+			string path;
+
+			//HACK quick fix since scheduled scripts are coming in with the data directory already tacked on...
+			if (fileName.StartsWith(DataDirectory))
+				path = fileName;
+			else
+				path = Path.Combine(DataDirectory, fileName);
+
 			script = script ?? new Script(path);
 
 			if( script.TryRebuild(Script.Compile, out var context))
@@ -143,6 +188,24 @@ namespace BooTS
 				if (context.Errors.Count != 0)// && context.GeneratedAssembly != null)
 				{
 					BooScriptingPlugin.Instance.LogPrint($"Boo script '{path}' compile failed with error(s).", TraceLevel.Error);
+				}
+
+				if(isScheduled && script.GetSchedule!=null)
+				{
+					try
+					{
+						var scheduler = script.GetSchedule();
+
+						if(scheduler!=null)
+						{
+							script.SetSchedulerObject(scheduler);	
+						}
+					}
+					catch(Exception ex)
+					{
+						//BooScriptingPlugin.Instance.LogPrint($"Boo script '{path}' GetSchedule() failed with error(s).", TraceLevel.Error);
+						BooScriptingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+					}
 				}
 			}
 			

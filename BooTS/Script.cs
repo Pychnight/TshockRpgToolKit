@@ -18,10 +18,44 @@ namespace BooTS
 	{
 		internal const string Prefix = "boots_";
 
+		object schedulerLocker = new object();
+
 		/// <summary>
 		/// Entry point for all Scripts.
 		/// </summary>
 		internal Action<object[]> OnRun { get; set; }
+		
+		/// <summary>
+		/// Optional method that configures when this script will run.
+		/// </summary>
+		internal Func<Scheduler> GetSchedule { get; set; }
+
+		//this could potentially be accessed by multiple threads! ...avoided property usage to be more explicit.
+		Scheduler scheduler;
+
+		/// <summary>
+		/// Gets the Scheduler object, if any, for the script.
+		/// </summary>
+		/// <returns></returns>
+		internal Scheduler GetSchedulerObject()
+		{
+			lock(schedulerLocker)
+			{
+				return scheduler;
+			}
+		}
+		
+		/// <summary>
+		/// Sets the Scheduler object, if any, for the script.
+		/// </summary>
+		/// <param name="value"></param>
+		internal void SetSchedulerObject(Scheduler value)
+		{
+			lock(schedulerLocker)
+			{
+				scheduler = value;
+			}
+		}
 				
 		internal Script(string filePath) :
 			base( new string[] { filePath })
@@ -90,7 +124,8 @@ namespace BooTS
 			var linker = new BooModuleLinker(ass, filePath);
 
 			OnRun = linker.TryCreateDelegate<Action<object[]>>("OnRun");
-
+			GetSchedule = linker.TryCreateDelegate<Func<Scheduler>>("GetSchedule");
+						
 			return true;
 		}
 		

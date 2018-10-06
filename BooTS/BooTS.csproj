@@ -101,6 +101,9 @@
     <Compile Include="BooScriptAssemblyConfig.cs" />
     <Compile Include="BooScriptCompiler.cs" />
     <Compile Include="BooScriptingPlugin.cs" />
+    <Compile Include="ScriptingSupport\IntervalScheduler.cs" />
+    <Compile Include="ScriptingSupport\ListScheduler.cs" />
+    <Compile Include="ScriptingSupport\Scheduler.cs" />
     <Compile Include="Script.cs" />
     <None Include="Configuration\Config.cs" />
     <Compile Include="ModuleManager.cs" />
