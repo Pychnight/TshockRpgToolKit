@@ -87,7 +87,6 @@ namespace BooTS
 			catch( Exception ex )
 			{
 				throw ex;
-				Debug.Print(ex.Message);
 			}
 
 			return result;

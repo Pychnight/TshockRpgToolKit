@@ -30,6 +30,12 @@ namespace BooTS
 			}
 		}
 
+		/// <summary>
+		/// Creates a BooModuleLinker for an assembly created from the given script file path.
+		/// </summary>
+		/// <param name="assembly"></param>
+		/// <param name="filePath"></param>
+		/// <param name="bindingFlags"></param>
 		public BooModuleLinker(Assembly assembly, string filePath, BindingFlags bindingFlags = BindingFlags.Static | BindingFlags.Public)
 		{
 			FilePath = filePath;
@@ -49,7 +55,7 @@ namespace BooTS
 			else
 				this.methods = new Dictionary<string, MethodInfo>();
 		}
-
+		
 		/// <summary>
 		/// Constructs a Boo module name for the given file path.
 		/// </summary>
@@ -65,8 +71,7 @@ namespace BooTS
 
 			return moduleName;
 		}
-
-
+		
 		/// <summary>
 		/// Attempts to find and creates a delegate for the named static method.
 		/// </summary>

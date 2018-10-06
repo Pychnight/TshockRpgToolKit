@@ -26,15 +26,15 @@ namespace BooTS
 		public override string Description => "Boo scripting for TShock.";
 		public override string Name => "BooTS";
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
 		internal static string DataDirectory { get; set; } = "scripting";
 		internal static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
 		public static BooScriptingPlugin Instance { get; private set; }
 
-		//public XScript ScriptStartup { get; set; }
-		public XScript ScriptServerJoin { get; set; }
-		public XScript ScriptServerLeave { get; set; }
+		//Convention based scripts
+		internal Script ScriptServerStart { get; set; }
+		internal Script ScriptServerJoin { get; set; }
+		internal Script ScriptServerLeave { get; set; }
 				
 		public BooScriptingPlugin(Main game) : base(game)
 		{
@@ -49,59 +49,13 @@ namespace BooTS
 			//ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-			//ServerApi.Hooks.WorldSave.Register(this, OnWorldSave);
-
+			
 			Commands.ChatCommands.Add(new Command("boots.control", CommandLoad, "boo")
 			{
 				HelpText = $"Syntax: {Commands.Specifier}boo run <script>"
 			});
 		}
-
-		private void CommandLoad(CommandArgs args)
-		{
-			var player = args.Player;
-			
-			if(args.Parameters.Count<2)
-			{
-				player.SendErrorMessage($"Not enough parameters.");
-				player.SendErrorMessage($"Format is: {Commands.Specifier}boo run <script>");
-			}
-
-			var sub = args.Parameters[0];
-			var filePath = args.Parameters[1];
-			
-			if(sub!="run")
-			{
-				player.SendErrorMessage($"Unknown sub command '{sub}'.");
-				return;
-			}
-
-			var fullFilePath = Path.Combine(DataDirectory, filePath);
-
-			if( !File.Exists(fullFilePath) )
-			{
-				player.SendErrorMessage($"Unknown to find script '{filePath}'.");
-				return;
-			}
-
-			string[] runArgs = null;
-
-			if( args.Parameters.Count > 2 )
-				runArgs = args.Parameters.GetRange(2, args.Parameters.Count - 2).ToArray();
-			else
-				runArgs = new string[0];
-
-			Task.Run(() =>
-			{
-				var result = RunScriptOnDemand(filePath,runArgs);//load script will automatically load from DataFolder.
-
-				if(!result)
-					player?.SendErrorMessage("Script failed. Check logs for error information.");
-			});
-						
-			//player.SendErrorMessage($"{Commands.Specifier}boo run <script>");
-		}
-
+		
 		protected override void Dispose(bool disposing)
 		{
 			if( disposing )
@@ -110,11 +64,9 @@ namespace BooTS
 				
 				GeneralHooks.ReloadEvent -= OnReload;
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
-				//	PlayerHooks.PlayerPermission -= OnPlayerPermission;
 				//ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
-				//ServerApi.Hooks.WorldSave.Deregister(this, OnWorldSave);
 			}
 
 			base.Dispose(disposing);
@@ -127,7 +79,8 @@ namespace BooTS
 			try
 			{
 				Directory.CreateDirectory(DataDirectory);
-				RunScriptOnDemand("ServerLoad.boo");
+				LoadScriptsByConvention();
+				RunScript(ScriptServerStart);
 			}
 			catch( Exception ex )
 			{
@@ -137,7 +90,6 @@ namespace BooTS
 
 		private void OnPostInitialize(EventArgs args)
 		{
-			//should we run a one time start up script here?
 			onLoad();
 		}
 
@@ -145,47 +97,148 @@ namespace BooTS
 		{
 			onLoad();
 		}
-
-		private void OnWorldSave(WorldSaveEventArgs args)
-		{
-		}
-
+		
 		private void OnServerJoin(JoinEventArgs args)
 		{
+			Debug.Print("OnServerJoin");
+
 			var player = TShock.Players[args.Who];
+			RunScript(ScriptServerJoin, player);
 		}
 
 		private void OnServerLeave(LeaveEventArgs args)
 		{
+			Debug.Print("OnServerLeave");
+
 			var player = new TSPlayer(args.Who);
+			RunScript(ScriptServerLeave, player);
 		}
 
 		//private void OnGameUpdate(EventArgs args)
 		//{
 		//}
 
+		/// <summary>
+		/// Scans the scripts directory for convention based filenames, and attempts to compile and cache them.
+		/// </summary>
 		internal void LoadScriptsByConvention()
 		{
-			
+			ScriptServerStart	= TryReloadScript("ServerStart.boo", ScriptServerStart);
+			ScriptServerJoin	= TryReloadScript("ServerJoin.boo", ScriptServerJoin);
+			ScriptServerLeave	= TryReloadScript("ServerLeave.boo", ScriptServerLeave);
 		}
 
-		internal bool TryLoadScript(string fileName)
+		/// <summary>
+		/// Attempts to compile a Script, if it does not exist or is not up to date.
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <returns></returns>
+		internal Script TryReloadScript(string fileName, Script script)
 		{
-			throw new NotImplementedException();
+			var path = Path.Combine(DataDirectory, fileName);
+			script = script ?? new Script(path);
+
+			if( script.TryRebuild(Script.Compile, out var context))
+			{
+				if (context.Errors.Count != 0)// && context.GeneratedAssembly != null)
+				{
+					BooScriptingPlugin.Instance.LogPrint($"Boo script '{path}' compile failed with error(s).", TraceLevel.Error);
+				}
+			}
+			
+			return script;
 		}
 
-		internal bool RunScriptOnDemand(string fileName, params string[] args)
+		/// <summary>
+		/// Runs a precompiled script, passing in the optional string arguments.
+		/// </summary>
+		/// <param name="script"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		internal bool RunScript(Script script, params object[] args)
+		{
+			if (script == null)
+				throw new ArgumentNullException("script");	
+
+			if(script.IsBuilt)
+				return script.Run(args);
+			
+			return false;
+		}
+
+		/// <summary>
+		/// Compiles and runs a Script, but does not cache the script assembly.
+		/// </summary>
+		/// <param name="fileName">Filepath to script.</param>
+		/// <param name="args">String args.</param>
+		/// <returns>True if the Script ran successfully, false if not.</returns>
+		internal bool RunScriptOnDemand(string fileName, params object[] args)
 		{
 			var path = Path.Combine(DataDirectory, fileName);
 
 			if( File.Exists(path) )
 			{
-				BooScriptingPlugin.Instance.LogPrint($"Running {path}...", TraceLevel.Info);
-				var startup = new XScript(path);
-				return startup.Run(args);
+				var script = new Script(path);
+				var context = script.Compile();
+
+				if (context!=null && context.Errors.Count == 0 && context.GeneratedAssembly != null)
+					return script.Run(args);
+				else
+				{
+					BooScriptingPlugin.Instance.LogPrint($"Boo script '{path}' compile failed with error(s).", TraceLevel.Error);
+					return false;
+				}
+			}
+			else
+			{
+				BooScriptingPlugin.Instance.LogPrint($"Unable to run boo script '{path}', file not found.", TraceLevel.Error);
+				return false;
+			}
+		}
+
+		private void CommandLoad(CommandArgs args)
+		{
+			var player = args.Player;
+
+			if (args.Parameters.Count < 2)
+			{
+				player.SendErrorMessage($"Not enough parameters.");
+				player.SendErrorMessage($"Format is: {Commands.Specifier}boo run <script>");
 			}
 
-			return false;
+			var sub = args.Parameters[0];
+			var filePath = args.Parameters[1];
+
+			if (sub != "run")
+			{
+				player.SendErrorMessage($"Unknown sub command '{sub}'.");
+				return;
+			}
+
+			var fullFilePath = Path.Combine(DataDirectory, filePath);
+
+			if (!File.Exists(fullFilePath))
+			{
+				player.SendErrorMessage($"Unknown to find script '{filePath}'.");
+				return;
+			}
+
+			string[] runArgs = null;
+
+			if (args.Parameters.Count > 2)
+				runArgs = args.Parameters.GetRange(2, args.Parameters.Count - 2).ToArray();
+			else
+				runArgs = new string[0];
+
+			Task.Run(() =>
+			{
+				var result = RunScriptOnDemand(filePath, runArgs);//load script will automatically load from DataFolder.
+
+				if (!result)
+					player?.SendErrorMessage("Script failed. Check logs for error information.");
+			});
+
+			//player.SendErrorMessage($"{Commands.Specifier}boo run <script>");
 		}
 	}
 }

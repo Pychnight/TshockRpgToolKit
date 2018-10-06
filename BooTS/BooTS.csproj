@@ -101,10 +101,11 @@
     <Compile Include="BooScriptAssemblyConfig.cs" />
     <Compile Include="BooScriptCompiler.cs" />
     <Compile Include="BooScriptingPlugin.cs" />
-    <Compile Include="XScript.cs" />
+    <Compile Include="Script.cs" />
     <None Include="Configuration\Config.cs" />
     <Compile Include="ModuleManager.cs" />
     <Compile Include="ScriptHelpers.cs" />
+    <Compile Include="SourceFile.cs" />
     <Compile Include="TerrariaPluginExtensions.cs" />
     <None Include="packages.config" />
     <Compile Include="Properties\AssemblyInfo.cs" />
