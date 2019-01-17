@@ -3,13 +3,15 @@
 	
 	<PropertyGroup>
 		<TShockVersion>4.3.24</TShockVersion>
-		<TShockPath>bin\tshock_$(TShockVersion)</TShockPath>
-		<TShockPluginsPath>$(TShockPath)\ServerPlugins</TShockPluginsPath>
+		<TShockString>tshock_$(TShockVersion)</TShockString>
+		<TShockServerPath>$(SolutionDir)\Servers\$(TShockString)</TShockServerPath>
+		<TShockPluginsPath>$(TShockServerPath)\ServerPlugins</TShockPluginsPath>
 	</PropertyGroup>
 
-	<!-- if RpgToolsServerPath is set, use it to override the output path. -->
+	<!-- Users may set their own paths to the tshock folder -->
 	<PropertyGroup Condition="'$(RpgToolsServerPath)' != ''">
-		<TShockPluginsPath>$(RpgToolsServerPath)\ServerPlugins</TShockPluginsPath>
+		<TShockServerPath>$(RpgToolsServerPath)</TShockServerPath>
+		<TShockPluginsPath>$(TShockServerPath)\ServerPlugins</TShockPluginsPath>
 	</PropertyGroup>
 
 	<PropertyGroup>	
@@ -20,22 +22,15 @@
 		<RpgToolsBaseDeployPath>$(SolutionDir)\bin\$(Configuration)</RpgToolsBaseDeployPath>
 	</PropertyGroup>
 
-	<!-- override default csproj props -->
-	<!-- ...or how to waste time with msbuild! Couldn't override the project props in anyway, unless I completely remove/comment them out in the csproj -->
-	<!--<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<OutputPath>$(TShockPluginsPath)\</OutputPath>
+	<!-- if this is a tool, it doesn't go with the plugins -->
+	<PropertyGroup Condition="'$(UseToolsFolder)' == 'true'">
+		<OutputPath>$(TShockServerPath)\RpgTools</OutputPath>
 	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<OutputPath>$(TShockPluginsPath)\</OutputPath>
-	</PropertyGroup>-->
 
 	<!-- Add group and target for packaging as a versioned zip -->
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
-		<!--<OutputPath>$(SolutionDir)\bin\Deploy\</OutputPath>-->
-		<!--<OutputPath>$(SolutionDir)\bin\$(Configuration)\$(MSBuildProjectName)\</OutputPath>-->
 		<OutputPath>$(RpgToolsBaseDeployPath)\ServerPlugins\</OutputPath>
 		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
