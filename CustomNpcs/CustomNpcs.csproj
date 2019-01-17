@@ -99,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomIDFunctions.cs" />
+    <Compile Include="CustomNpcsPlugin.Commands.cs" />
     <Compile Include="DefinitionLoading\CategoryPlaceholderDefinition.cs" />
     <Compile Include="DefinitionBase.cs" />
     <Compile Include="DefinitionLoading\DefinitionLoader.cs" />
