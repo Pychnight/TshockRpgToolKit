@@ -123,6 +123,7 @@
     <Compile Include="Database\MySqlSessionDatabase.cs" />
     <Compile Include="Database\SessionDatabaseFactory.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="LevelingPlugin.Commands.cs" />
     <Compile Include="LevelingPlugin.cs" />
     <Compile Include="Levels\Level.cs" />
     <Compile Include="Levels\LevelDefinition.cs" />
