@@ -60,9 +60,6 @@
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\refs\boo-custom\Boo.Lang.Useful.dll</HintPath>
     </Reference>
-    <Reference Include="JetBrains.Annotations, Version=10.4.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\JetBrains.Annotations.10.4.0\lib\net\JetBrains.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
       <Private>False</Private>

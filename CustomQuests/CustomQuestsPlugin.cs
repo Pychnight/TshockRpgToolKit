@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using CustomQuests.Quests;
 using CustomQuests.Sessions;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Terraria;
 using TerrariaApi.Server;
@@ -24,7 +23,6 @@ namespace CustomQuests
 	///     Represents the custom quests plugin.
 	/// </summary>
 	[ApiVersion(2, 1)]
-	[UsedImplicitly]
 	public sealed partial class CustomQuestsPlugin : TerrariaPlugin
 	{
 		private const int QuestsPerPage = 5;

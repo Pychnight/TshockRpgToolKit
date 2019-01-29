@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomQuests.Quests;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CustomQuests.Sessions
@@ -17,13 +16,11 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets the unlocked quest names.
         /// </summary>
-        [NotNull]
         public HashSet<string> UnlockedQuestNames { get; } = new HashSet<string>();
 
         /// <summary>
         ///     Gets the completed quest names.
         /// </summary>
-        [NotNull]
         public HashSet<string> CompletedQuestNames { get; } = new HashSet<string>();
 
         /// <summary>

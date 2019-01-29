@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CustomQuests.Quests;
-using JetBrains.Annotations;
 using TShockAPI;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -32,7 +31,7 @@ namespace CustomQuests.Sessions
         /// <exception cref="ArgumentNullException">
         ///     Either <paramref name="player" /> or <paramref name="sessionInfo" /> is <c>null</c>.
         /// </exception>
-        public Session([NotNull] TSPlayer player, SessionInfo sessionInfo)
+        public Session(TSPlayer player, SessionInfo sessionInfo)
         {
             _player = player ?? throw new ArgumentNullException(nameof(player));
             SessionInfo = sessionInfo ?? throw new ArgumentNullException(nameof(sessionInfo));
@@ -41,15 +40,11 @@ namespace CustomQuests.Sessions
         /// <summary>
         ///     Gets a read-only view of the unlocked quest names.
         /// </summary>
-        [ItemNotNull]
-        [NotNull]
         public IEnumerable<string> UnlockedQuestNames => SessionInfo.UnlockedQuestNames;
 
         /// <summary>
         ///     Gets a read-only view of the completed quest names.
         /// </summary>
-        [ItemNotNull]
-        [NotNull]
         public IEnumerable<string> CompletedQuestNames => SessionInfo.CompletedQuestNames;
 		
         /// <summary>
@@ -391,7 +386,7 @@ namespace CustomQuests.Sessions
 		/// </summary>
 		/// <param name="name">The quest name, which must not be <c>null</c>.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		public void RevokeQuest([NotNull] string name)
+		public void RevokeQuest(string name)
         {
             if (name == null)
             {
@@ -408,7 +403,7 @@ namespace CustomQuests.Sessions
         /// </summary>
         /// <param name="name">The quest name, which must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        public void UnlockQuest([NotNull] string name)
+        public void UnlockQuest(string name)
         {
             if (name == null)
             {
