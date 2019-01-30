@@ -29,12 +29,16 @@ namespace NpcShops
 		[JsonProperty(Order = 2)]
 		public int ShopNpcPauseDuration { get; internal set; } = 8000;
 
-		public override void Validate()
+		public override ValidationResult Validate()
 		{
-			//if(string.IsNullOrWhiteSpace(CurrencyType))
-			//{
-			//	throw new Exception("CurrencyType is not set.");
-			//}
+			var result = new ValidationResult();
+
+			if (ShopNpcMaxTalkRange<1)
+			{
+				result.Warnings.Add(new ValidationWarning($"{nameof(ShopNpcMaxTalkRange)} is less than 1. This may make it impossible to talk to the shop NPC."));
+			}
+
+			return result;
 		}
 	}
 }
