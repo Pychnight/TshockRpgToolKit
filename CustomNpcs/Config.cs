@@ -23,5 +23,17 @@ namespace CustomNpcs
         ///     Gets or sets the spawn rate.
         /// </summary>
         public int SpawnRate { get; set; } = 600;
-    }
+
+		public override ValidationResult Validate()
+		{
+			var result = new ValidationResult();
+
+			if(MaxSpawns<1)
+			{
+				result.Warnings.Add(new ValidationWarning($"{nameof(MaxSpawns)} is less than 1. Custom NPCs will not spawn naturally."));
+			}
+			
+			return result;
+		}
+	}
 }
