@@ -14,8 +14,7 @@ namespace CustomQuests.Configuration
     {
 		[JsonProperty(Order = 0)]
 		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
-
-
+		
 		[JsonProperty("DefaultQuests",Order = 1)]
         private readonly List<string> _defaultQuestNames = new List<string>();
 
@@ -29,5 +28,17 @@ namespace CustomQuests.Configuration
         /// </summary>
         [JsonProperty]
         public TimeSpan SavePeriod { get; private set; }
-    }
+
+		public override ValidationResult Validate()
+		{
+			var result = new ValidationResult();
+
+			if(_defaultQuestNames.Count<1)
+			{
+				result.Warnings.Add(new ValidationWarning("There are no DefaultQuestNames configured."));
+			}
+			
+			return result;
+		}
+	}
 }
