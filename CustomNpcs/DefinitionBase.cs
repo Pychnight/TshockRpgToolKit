@@ -40,8 +40,7 @@ namespace CustomNpcs
 			}
 			catch(Exception ex)
 			{
-				result = new ValidationResult();
-				result.AddError(ex.Message, FilePath);	
+				result.Errors.Add(new ValidationError(ex.Message, FilePath));
 			}
 						
 			return result;

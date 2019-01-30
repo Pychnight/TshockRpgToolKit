@@ -151,55 +151,19 @@ namespace CustomNpcs.Projectiles
 			return true;
 		}
 
-		//protected internal override void ThrowIfInvalid()
-		//{
-		//	if (Name == null)
-		//	{
-		//		throw new FormatException($"{nameof(Name)} is null.");
-		//	}
-		//	if( int.TryParse(Name, out _) )
-		//	{
-		//		throw new FormatException($"{nameof(Name)} cannot be a number.");
-		//	}
-		//	if( string.IsNullOrWhiteSpace(Name) )
-		//	{
-		//		throw new FormatException($"{nameof(Name)} is whitespace.");
-		//	}
-		//	//if (BaseType < -65)
-		//	//{
-		//	//	throw new FormatException($"{nameof(BaseType)} is too small.");
-		//	//}
-		//	if( BaseType >= Main.maxProjectileTypes )
-		//	{
-		//		throw new FormatException($"{nameof(BaseType)} is too large.");
-		//	}
-		//	if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
-		//	{
-		//		throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
-		//	}
-		//	if( BaseOverride == null )
-		//	{
-		//		throw new FormatException("BaseOverride is null.");
-		//	}
-		//	//_baseOverride.ThrowIfInvalid();
-		//}
-
 		protected override void OnValidate(ValidationResult result)
 		{
 			if( Name == null )
 			{
-				//throw new FormatException($"{nameof(Name)} is null.");
-				result.AddError($"{nameof(Name)} is null.");
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null."));
 			}
 			if( int.TryParse(Name, out _) )
 			{
-				//throw new FormatException($"{nameof(Name)} cannot be a number.");
-				result.AddError($"{nameof(Name)} cannot be a number.");
+				result.Errors.Add( new ValidationError($"{nameof(Name)} cannot be a number."));
 			}
 			if( string.IsNullOrWhiteSpace(Name) )
 			{
-				//throw new FormatException($"{nameof(Name)} is whitespace.");
-				result.AddError($"{nameof(Name)} is whitespace.");
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is whitespace."));
 			}
 			//if (BaseType < -65)
 			//{
@@ -207,18 +171,15 @@ namespace CustomNpcs.Projectiles
 			//}
 			if( BaseType >= Main.maxProjectileTypes )
 			{
-				//throw new FormatException($"{nameof(BaseType)} is too large.");
-				result.AddError($"{nameof(BaseType)} is too large.");
+				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too large."));
 			}
 			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
 			{
-				//throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
-				result.AddError($"{nameof(ScriptPath)} points to an invalid script file.");
+				result.Errors.Add( new ValidationError($"{nameof(ScriptPath)} points to an invalid script file."));
 			}
 			if( BaseOverride == null )
 			{
-				//throw new FormatException("BaseOverride is null.");
-				result.AddError("BaseOverride is null.");
+				result.Errors.Add( new ValidationError("BaseOverride is null."));
 			}
 			//_baseOverride.ThrowIfInvalid();
 			//var baseResult = BaseOverride.Validate();

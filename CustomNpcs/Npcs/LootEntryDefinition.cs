@@ -40,78 +40,38 @@ namespace CustomNpcs.Npcs
 		/// </summary>
 		[JsonProperty(Order = 4)]
         public double Chance { get; private set; }
-		
-		//[Obsolete]
-  //      internal void ThrowIfInvalid()
-  //      {
-  //          if (Name == null)
-  //          {
-  //              throw new FormatException($"{nameof(Name)} is null.");
-  //          }
-  //          if (MinStackSize < 0)
-  //          {
-  //              throw new FormatException($"{nameof(MinStackSize)} is negative.");
-  //          }
-  //          if (MaxStackSize < MinStackSize)
-  //          {
-  //              throw new FormatException($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
-  //          }
-  //          if (Chance <= 0)
-  //          {
-  //              throw new FormatException($"{nameof(Chance)} is not positive.");
-  //          }
-  //          if (Chance > 1)
-  //          {
-  //              throw new FormatException($"{nameof(Chance)} is greater than 1.");
-  //          }
-  //          if (Prefix <= -2)
-  //          {
-  //              throw new FormatException($"{nameof(Prefix)} is too small.");
-  //          }
-  //          if (Prefix >= PrefixID.Count)
-  //          {
-  //              throw new FormatException($"{nameof(Prefix)} is too large.");
-  //          }
-  //      }
-
+	
 		public ValidationResult Validate()
 		{
 			var result = new ValidationResult();
 
 			if( Name == null )
 			{
-				//throw new FormatException($"{nameof(Name)} is null.");
-				result.AddError($"{nameof(Name)} is null.");
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null."));
 			}
 			if( MinStackSize < 0 )
 			{
-				//throw new FormatException($"{nameof(MinStackSize)} is negative.");
-				result.AddError($"{nameof(MinStackSize)} is negative.");
+				result.Errors.Add( new ValidationError($"{nameof(MinStackSize)} is negative."));
 			}
 			if( MaxStackSize < MinStackSize )
 			{
-				//throw new FormatException($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
-				result.AddError($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}.");
+				result.Errors.Add( new ValidationError($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}."));
 			}
 			if( Chance <= 0 )
 			{
-				//throw new FormatException($"{nameof(Chance)} is not positive.");
-				result.AddError($"{nameof(Chance)} is not positive.");
+				result.Errors.Add( new ValidationError($"{nameof(Chance)} is not positive."));
 			}
 			if( Chance > 1 )
 			{
-				//throw new FormatException($"{nameof(Chance)} is greater than 1.");
-				result.AddError($"{nameof(Chance)} is greater than 1.");
+				result.Errors.Add( new ValidationError($"{nameof(Chance)} is greater than 1."));
 			}
 			if( Prefix <= -2 )
 			{
-				//throw new FormatException($"{nameof(Prefix)} is too small.");
-				result.AddError($"{nameof(Prefix)} is too small.");
+				result.Errors.Add( new ValidationError($"{nameof(Prefix)} is too small."));
 			}
 			if( Prefix >= PrefixID.Count )
 			{
-				//throw new FormatException($"{nameof(Prefix)} is too large.");
-				result.AddError($"{nameof(Prefix)} is too large.");
+				result.Errors.Add(new ValidationError($"{nameof(Prefix)} is too large."));
 			}
 
 			return result;

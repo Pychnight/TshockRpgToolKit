@@ -132,64 +132,16 @@ namespace CustomNpcs.Invasions
 			return true;
 		}
 
-		//protected internal override void ThrowIfInvalid()
-  //      {
-  //          if (Name == null)
-  //          {
-  //              throw new FormatException($"{nameof(Name)} is null.");
-  //          }
-  //          if (string.IsNullOrWhiteSpace(Name))
-  //          {
-  //              throw new FormatException($"{nameof(Name)} is whitespace.");
-  //          }
-
-		//	var rooted = Path.Combine(InvasionManager.InvasionsBasePath, ScriptPath);
-
-		//	if (ScriptPath != null && !File.Exists(rooted))
-  //          {
-  //              throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
-  //          }
-  //          if (NpcPointValues == null)
-  //          {
-  //              throw new FormatException($"{nameof(NpcPointValues)} is null.");
-  //          }
-  //          if (NpcPointValues.Count == 0)
-  //          {
-  //              throw new FormatException($"{nameof(NpcPointValues)} must not be empty.");
-  //          }
-  //          if (NpcPointValues.Any(kvp => kvp.Value <= 0))
-  //          {
-  //              throw new FormatException($"{nameof(NpcPointValues)} must contain positive values.");
-  //          }
-  //          if (CompletedMessage == null)
-  //          {
-  //              throw new FormatException($"{nameof(CompletedMessage)} is null.");
-  //          }
-  //          if (Waves == null)
-  //          {
-  //              throw new FormatException($"{nameof(Waves)} is null.");
-  //          }
-  //          if (Waves.Count == 0)
-  //          {
-  //              throw new FormatException($"{nameof(Waves)} must not be empty.");
-  //          }
-  //          foreach (var wave in Waves)
-  //          {
-  //              wave.ThrowIfInvalid();
-  //          }
-  //      }
-
 		protected override void OnValidate(ValidationResult result)
 		{
 			if( Name == null )
 			{
-				//throw new FormatException($"{nameof(Name)} is null.");
-				result.AddError($"{nameof(Name)} is null.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null.", FilePath, LineNumber, LinePosition));
 			}
+
 			if( string.IsNullOrWhiteSpace(Name) )
 			{
-				//throw new FormatException($"{nameof(Name)} is whitespace.");
-				result.AddError($"{nameof(Name)} is whitespace.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is whitespace.", FilePath, LineNumber, LinePosition));
 			}
 
 			//Disabling this check for rooted, because at the point this is ran, InvasionManager may not have been set yet, causing 
@@ -203,33 +155,27 @@ namespace CustomNpcs.Invasions
 			//}
 			if( NpcPointValues == null )
 			{
-				//throw new FormatException($"{nameof(NpcPointValues)} is null.");
-				result.AddError($"{nameof(NpcPointValues)} is null.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} is null.", FilePath, LineNumber, LinePosition));
 			}
 			if( NpcPointValues.Count == 0 )
 			{
-				//throw new FormatException($"{nameof(NpcPointValues)} must not be empty.");
-				result.AddError($"{nameof(NpcPointValues)} must not be empty.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must not be empty.", FilePath, LineNumber, LinePosition));
 			}
 			if( NpcPointValues.Any(kvp => kvp.Value <= 0) )
 			{
-				//throw new FormatException($"{nameof(NpcPointValues)} must contain positive values.");
-				result.AddError($"{nameof(NpcPointValues)} must contain positive values.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must contain positive values.", FilePath, LineNumber, LinePosition));
 			}
 			if( CompletedMessage == null )
 			{
-				//throw new FormatException($"{nameof(CompletedMessage)} is null.");
-				result.AddError($"{nameof(CompletedMessage)} is null.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(CompletedMessage)} is null.", FilePath, LineNumber, LinePosition));
 			}
 			if( Waves == null )
 			{
-				//throw new FormatException($"{nameof(Waves)} is null.");
-				result.AddError($"{nameof(Waves)} is null.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(Waves)} is null.", FilePath, LineNumber, LinePosition));
 			}
 			if( Waves.Count == 0 )
 			{
-				//throw new FormatException($"{nameof(Waves)} must not be empty.");
-				result.AddError($"{nameof(Waves)} must not be empty.", FilePath, LineNumber, LinePosition);
+				result.Errors.Add( new ValidationError($"{nameof(Waves)} must not be empty.", FilePath, LineNumber, LinePosition));
 			}
 			foreach( var wave in Waves )
 			{

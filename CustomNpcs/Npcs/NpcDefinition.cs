@@ -231,84 +231,35 @@ namespace CustomNpcs.Npcs
 			return true;
 		}
 
-		//protected internal override void ThrowIfInvalid()
-  //      {
-  //          if (Name == null)
-  //          {
-  //              throw new FormatException($"{nameof(Name)} is null.");
-  //          }
-  //          if (int.TryParse(Name, out _))
-  //          {
-  //              throw new FormatException($"{nameof(Name)} cannot be a number.");
-  //          }
-  //          if (string.IsNullOrWhiteSpace(Name))
-  //          {
-  //              throw new FormatException($"{nameof(Name)} is whitespace.");
-  //          }
-  //          if (BaseType < -65)
-  //          {
-  //              throw new FormatException($"{nameof(BaseType)} is too small.");
-  //          }
-  //          if (BaseType >= Main.maxNPCTypes)
-  //          {
-  //              throw new FormatException($"{nameof(BaseType)} is too large.");
-  //          }
-  //          if (ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)))
-  //          {
-  //              throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
-  //          }
-  //          if (_loot == null)
-  //          {
-  //              throw new FormatException("Loot is null.");
-  //          }
-  //          _loot.ThrowIfInvalid();
-  //          if (_spawning == null)
-  //          {
-  //              throw new FormatException("Spawning is null.");
-  //          }
-  //          if (_baseOverride == null)
-  //          {
-  //              throw new FormatException("BaseOverride is null.");
-  //          }
-  //          _baseOverride.ThrowIfInvalid();
-  //      }
-
 		protected override void OnValidate(ValidationResult result)
 		{
 			if( Name == null )
 			{
-				//throw new FormatException($"{nameof(Name)} is null.");
-				result.AddError($"{nameof(Name)} is null.", FilePath);
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null.", FilePath));
 			}
 			if( int.TryParse(Name, out _) )
 			{
-				//throw new FormatException($"{nameof(Name)} cannot be a number.");
-				result.AddError($"{nameof(Name)} cannot be a number.", FilePath);
+				result.Errors.Add( new ValidationError($"{nameof(Name)} cannot be a number.", FilePath));
 			}
 			if( string.IsNullOrWhiteSpace(Name) )
 			{
-				//throw new FormatException($"{nameof(Name)} is whitespace.");
-				result.AddError($"{nameof(Name)} is whitespace.", FilePath);
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is whitespace.", FilePath));
 			}
 			if( BaseType < -65 )
 			{
-				//throw new FormatException($"{nameof(BaseType)} is too small.");
-				result.AddError($"{nameof(BaseType)} is too small.", FilePath);
+				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too small.", FilePath));
 			}
 			if( BaseType >= Main.maxNPCTypes )
 			{
-				//throw new FormatException($"{nameof(BaseType)} is too large.");
-				result.AddError($"{nameof(BaseType)} is too large.", FilePath);
+				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too large.", FilePath));
 			}
 			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
 			{
-				//throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
-				result.AddError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath);
+				result.Errors.Add(new ValidationError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath));
 			}
 			if( _loot == null )
 			{
-				//throw new FormatException("Loot is null.");
-				result.AddError("Loot is null.", FilePath);
+				result.Errors.Add( new ValidationError("Loot is null.", FilePath));
 			}
 			//_loot.ThrowIfInvalid();
 			var lootResult = _loot.Validate();
@@ -317,13 +268,11 @@ namespace CustomNpcs.Npcs
 
 			if( _spawning == null )
 			{
-				//throw new FormatException("Spawning is null.");
-				result.AddError("Spawning is null.", FilePath);
+				result.Errors.Add( new ValidationError("Spawning is null.", FilePath));
 			}
 			if( _baseOverride == null )
 			{
-				//throw new FormatException("BaseOverride is null.");
-				result.AddError("BaseOverride is null.", FilePath);
+				result.Errors.Add(new ValidationError("BaseOverride is null.", FilePath));
 			}
 			//_baseOverride.ThrowIfInvalid();
 			var baseResult = _baseOverride.Validate();
@@ -381,51 +330,26 @@ namespace CustomNpcs.Npcs
 
 			[JsonProperty]
 			public bool? DontTakeDamageFromHostiles { get; private set; }
-
-			//[Obsolete]
-			//         internal void ThrowIfInvalid()
-			//         {
-			//             if (BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes))
-			//             {
-			//                 throw new FormatException($"{nameof(BuffImmunities)} must contain valid buff types.");
-			//             }
-			//             if (KnockbackMultiplier < 0)
-			//             {
-			//                 throw new FormatException($"{nameof(KnockbackMultiplier)} must be non-negative.");
-			//             }
-			//             if (MaxHp < 0)
-			//             {
-			//                 throw new FormatException($"{nameof(MaxHp)} must be non-negative.");
-			//             }
-			//             if (Value < 0)
-			//             {
-			//                 throw new FormatException($"{nameof(Value)} must be non-negative.");
-			//             }
-			//         }
-
+			
 			public ValidationResult Validate()
 			{
 				var result = new ValidationResult();
 
 				if( BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes) )
 				{
-					//throw new FormatException($"{nameof(BuffImmunities)} must contain valid buff types.");
-					result.AddError($"{nameof(BuffImmunities)} must contain valid buff types.");
+					result.Errors.Add( new ValidationError($"{nameof(BuffImmunities)} must contain valid buff types."));
 				}
 				if( KnockbackMultiplier < 0 )
 				{
-					//throw new FormatException($"{nameof(KnockbackMultiplier)} must be non-negative.");
-					result.AddError($"{nameof(KnockbackMultiplier)} must be non-negative.");
+					result.Errors.Add( new ValidationError($"{nameof(KnockbackMultiplier)} must be non-negative."));
 				}
 				if( MaxHp < 0 )
 				{
-					//throw new FormatException($"{nameof(MaxHp)} must be non-negative.");
-					result.AddError($"{nameof(MaxHp)} must be non-negative.");
+					result.Errors.Add( new ValidationError($"{nameof(MaxHp)} must be non-negative."));
 				}
 				if( Value < 0 )
 				{
-					//throw new FormatException($"{nameof(Value)} must be non-negative.");
-					result.AddError($"{nameof(Value)} must be non-negative.");
+					result.Errors.Add( new ValidationError($"{nameof(Value)} must be non-negative."));
 				}
 
 				return result;

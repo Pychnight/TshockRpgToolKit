@@ -35,7 +35,7 @@ namespace CustomNpcs
 						{
 							//throw new Exception($"A definition with the name '{definition.Name}' already exists.");
 							validationResult = new ValidationResult();
-							validationResult.AddError($"A definition with the name '{definition.Name}' already exists.", definition.FilePath, definition.LineNumber, definition.LinePosition);
+							validationResult.Errors.Add(new ValidationError($"A definition with the name '{definition.Name}' already exists.", definition.FilePath, definition.LineNumber, definition.LinePosition));
 						}
 						else
 						{
