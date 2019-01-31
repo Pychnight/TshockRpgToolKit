@@ -248,7 +248,7 @@ namespace NpcShops.Shops
             }
         }
 
-		public string GetQuantityRenderString(int quantity)
+		public static string GetQuantityRenderString(int quantity)
 		{
 			string stock;
 
@@ -260,12 +260,12 @@ namespace NpcShops.Shops
 			return $"[c/{Color.OrangeRed.Hex3()}:{stock}]";
 		}
 
-		public string GetItemRenderString(int itemId, int itemPrefixId, int quantity)
+		public static string GetItemRenderString(int itemId, int itemPrefixId, int quantity)
 		{
 			return $"[i/p{itemPrefixId}:{itemId}]x{GetQuantityRenderString(quantity)}";
 		}
 
-		public string GetMaterialsCostRenderString(ShopProduct product, int quantity)
+		public static string GetMaterialsCostRenderString(ShopProduct product, int quantity)
 		{
 			var result = "";
 

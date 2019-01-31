@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="NpcShopsPlugin.Commands.cs" />
     <Compile Include="NpcShopsPlugin.cs" />
     <Compile Include="NpcPauser.cs" />
     <Compile Include="Session.cs" />
@@ -76,10 +77,6 @@
     <Compile Include="Shops\ShopCommandDefinition.cs" />
     <Compile Include="Shops\ShopItem.cs" />
     <Compile Include="Shops\ShopItemDefinition.cs" />
-    <None Include="NpcShops.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Shops\PurchaseOrder.cs" />
     <Compile Include="Shops\ShopProduct.cs" />
   </ItemGroup>
   <ItemGroup>
