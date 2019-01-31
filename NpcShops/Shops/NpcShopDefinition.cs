@@ -11,7 +11,7 @@ namespace NpcShops.Shops
     ///     Represents an NPC shop definition.
     /// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-    public class NpcShopDefinition
+    public class NpcShopDefinition : IValidator
     {
 		/// <summary>
 		///     Gets the opening time.
@@ -86,6 +86,7 @@ namespace NpcShops.Shops
 
 			try
 			{
+				NpcShopsPlugin.Instance.LogPrint($"Loading NpcShop {filePath} ...", TraceLevel.Info);
 				var txt = File.ReadAllText(filePath);
 				result = JsonConvert.DeserializeObject<NpcShopDefinition>(txt);
 
@@ -106,5 +107,64 @@ namespace NpcShops.Shops
 
 			return result;
 		}
-    }
+
+		public ValidationResult Validate()
+		{
+			var result = new ValidationResult();
+
+			if(OverrideNpcTypes==null || OverrideNpcTypes.Count<1)
+			{
+				result.Warnings.Add(new ValidationWarning($"OverrideNpcTypes is null or empty. This shop will never be used."));
+			}
+
+			if (ShopItems.Count == 0 && ShopCommands.Count == 0)
+			{
+				result.Warnings.Add(new ValidationWarning($"There are no ShopItems or ShopCommands defined. This shop can never sell anything."));
+			}
+
+			if(ShopItems.Count>0)
+			{
+				//copy each item error and warning 
+				for(var i=0;i<ShopItems.Count;i++)
+				{
+					var item = ShopItems[i];
+
+					if(item == null)
+					{
+						result.Errors.Add(new ValidationError($"ShopItem at slot #{i} is null."));
+						continue;
+					}
+
+					var itemName = !string.IsNullOrWhiteSpace(item.ItemName) ? $" '{item.ItemName}'" : "";
+					var itemResult = item.Validate();
+
+					itemResult.SetSources($"ShopItem[{i}]{itemName}");
+					result.ChildResults.Add(itemResult);
+				}
+			}
+
+			if (ShopCommands.Count > 0)
+			{
+				//copy each item error and warning 
+				for (var i = 0; i < ShopCommands.Count; i++)
+				{
+					var cmd = ShopCommands[i];
+
+					if (cmd == null)
+					{
+						result.Errors.Add(new ValidationError($"ShopCommand at slot #{i} is null."));
+						continue;
+					}
+
+					var cmdName = !string.IsNullOrWhiteSpace(cmd.Name) ? $" '{cmd.Name}'" : "";
+					var cmdResult = cmd.Validate();
+
+					cmdResult.SetSources($"ShopCommand[{i}]{cmdName}");
+					result.ChildResults.Add(cmdResult);
+				}
+			}
+
+			return result;
+		}
+	}
 }

@@ -12,6 +12,10 @@ using TShockAPI;
 
 namespace NpcShops
 {
+	/// <summary>
+	/// Tracks and freezes NPC's in-place, for a configurable period of time.
+	/// </summary>
+	/// <remarks>For NpcPauser to work, <see cref="OnGameUpdate"/> must be called each server update.</remarks>
 	public class NpcPauser
 	{
 		Stopwatch clock;

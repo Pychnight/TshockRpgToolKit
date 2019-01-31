@@ -23,12 +23,14 @@ namespace NpcShops
 	[ApiVersion(2, 1)]
 	public sealed class NpcShopsPlugin : TerrariaPlugin
 	{
+        public override string Author => "MarioE, Timothy Barela";
+        public override string Description => "Adds an NPC shop system.";
+        public override string Name => "NpcShops";
+        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+
 		private const string SessionKey = "NpcShops_Session";
-
 		private static readonly string ConfigPath = Path.Combine("npcshops", "config.json");
-
 		internal static NpcShopsPlugin Instance { get; private set; }
-
         internal List<NpcShop> NpcShops = new List<NpcShop>();
 		internal NpcPauser NpcPauser = new NpcPauser();
 		
@@ -36,12 +38,7 @@ namespace NpcShops
         {
 			Instance = this;
         }
-
-        public override string Author => "MarioE, Timothy Barela";
-        public override string Description => "Adds an NPC shop system.";
-        public override string Name => "NpcShops";
-        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
+		
         public override void Initialize()
         {
 #if DEBUG
@@ -82,31 +79,14 @@ namespace NpcShops
             }
             return session;
         }
-
-		private void tryLoadConfig()
-		{
-			try
-			{
-				Directory.CreateDirectory("npcshops");
-				if( File.Exists(ConfigPath) )
-				{
-					Config.Instance = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigPath));
-				}
-			}
-			catch(Exception ex)
-			{
-				this.LogPrint("An error occured while trying to load shop config.", TraceLevel.Error);
-				this.LogPrint(ex.Message, TraceLevel.Error);
-			}
-		}
-
-		private void tryLoad()
+		
+		private void TryLoad()
 		{
 			var shops = new List<NpcShop>();
 
 			if( BankingPlugin.Instance == null )
 			{
-				this.LogPrint("BankingPlugin is required for NpcShopsPlugin to operate.",TraceLevel.Error);
+				this.LogPrint("BankingPlugin is not available. Banking is required for NpcShopsPlugin to operate.",TraceLevel.Error);
 				return;
 			}
 								
@@ -118,15 +98,34 @@ namespace NpcShops
 				
 				if( definition != null )
 				{
-					try
+					var errors = 0;
+					var warnings = 0;
+									   
+					var validationResult = definition.Validate();
+					validationResult.Source = $"NpcShop {file}.";
+					validationResult.GetTotals(ref errors, ref warnings);
+
+					if (errors>0 || warnings>0)
 					{
-						var shop = new NpcShop(definition);
-						shops.Add(shop);
+						this.LogPrint(validationResult);
 					}
-					catch( Exception ex )
+
+					if (errors==0)
 					{
-						this.LogPrint("An error occured while trying to create NpcShop.", TraceLevel.Error);
-						this.LogPrint(ex.Message, TraceLevel.Error);
+						try
+						{
+							var shop = new NpcShop(definition);
+							shops.Add(shop);
+						}
+						catch( Exception ex )
+						{
+							this.LogPrint($"An error occured while trying to create NpcShop {file}.", TraceLevel.Error);
+							this.LogPrint(ex.Message, TraceLevel.Error);
+						}
+					}
+					else
+					{
+						this.LogPrint($"Disabling NpcShop {file} due to errors.", TraceLevel.Error);
 					}
 				}
 			}
@@ -385,7 +384,7 @@ namespace NpcShops
         private void onGamePostInitialize(EventArgs args)
         {
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this,ConfigPath);
-			tryLoad();
+			TryLoad();
 	    }
 
 		private void onReload(ReloadEventArgs args)
@@ -397,7 +396,7 @@ namespace NpcShops
 							.ForEach(tp => tp.SetData<Session>(SessionKey, null));
 
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
-			tryLoad();
+			TryLoad();
 
 			args.Player.SendSuccessMessage("[NpcShops] Reloaded config!");
 		}
