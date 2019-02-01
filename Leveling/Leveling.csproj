@@ -111,14 +111,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Class.cs" />
-    <None Include="ClassExpRewardEvaluator.cs" />
     <Compile Include="Database\RedisSessionDatabase.cs" />
     <None Include="LoaderDsl\BooOutputter.cs" />
     <None Include="LoaderDsl\ClassCompiler.cs" />
     <Compile Include="Classes\ClassDefinition.cs" />
     <None Include="LoaderDsl\ClassDsl.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="DatabaseConfig.cs" />
     <Compile Include="Database\ISessionDatabase.cs" />
     <Compile Include="Database\MySqlSessionDatabase.cs" />
     <Compile Include="Database\SessionDatabaseFactory.cs" />

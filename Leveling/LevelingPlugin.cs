@@ -26,37 +26,27 @@ namespace Leveling
     [ApiVersion(2, 1)]
     public sealed partial class LevelingPlugin : TerrariaPlugin
     {
+		public override string Author => "MarioE, Timothy Barela";
+		public override string Description => "Provides RPG-styled leveling and classes.";
+		public override string Name => "Leveling";
+		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+
 		/// <summary>
 		/// The prefix used for BankAccounts created by this plugin.
 		/// </summary>
 		public const string BankAccountNamePrefix = "Exp_";
-
-        internal const string SessionKey = "Leveling_Session";
-
-		public static LevelingPlugin Instance { get; private set; }
-
-        public static readonly Dictionary<string, Level> ItemNameToLevelRequirements = new Dictionary<string, Level>();
-
+		internal const string SessionKey = "Leveling_Session";
         private static readonly string ConfigPath = Path.Combine("leveling", "config.json");
 
+		public static LevelingPlugin Instance { get; private set; }
+		public static readonly Dictionary<string, Level> ItemNameToLevelRequirements = new Dictionary<string, Level>();
 		internal ISessionDatabase SessionRepository;
-
-        private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages = new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
-
-        private List<ClassDefinition> _classDefinitions;
+		private readonly ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>> _npcDamages = new ConditionalWeakTable<NPC, Dictionary<TSPlayer, int>>();
+		private List<ClassDefinition> _classDefinitions;
         internal List<Class> _classes;
 		
-        public override string Author => "MarioE, Timothy Barela";
-        public override string Description => "Provides RPG-styled leveling and classes.";
-        public override string Name => "Leveling";
-        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
 		public LevelingPlugin(Main game) : base(game)
 		{
-			//#if DEBUG
-			//            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-			//#endif
-
 			Instance = this;
 		}
 
@@ -140,7 +130,6 @@ namespace Leveling
         {
             if (disposing)
             {
-                //File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
                 foreach (var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession))
                 {
                     session.Save();
@@ -162,12 +151,12 @@ namespace Leveling
 
 		private void OnGamePostInitialize(EventArgs args)
 		{
-			onLoad();
+			OnLoad();
 		}
 
 		private void OnReload(ReloadEventArgs args)
 		{
-			onLoad();
+			OnLoad();
 
 			// We have to resolve sessions again.
 			foreach( var session in TShock.Players.Where(p => p?.Active == true).Select(GetOrCreateSession) )
@@ -178,7 +167,7 @@ namespace Leveling
 			args.Player.SendSuccessMessage("[Leveling] Reloaded config!");
 		}
 
-		private void initializeBanking()
+		private void InitializeBanking()
 		{
 			if(BankingPlugin.Instance==null)
 			{
@@ -230,7 +219,7 @@ namespace Leveling
 			}
 		}
 		
-		private void onLoad()
+		private void OnLoad()
 		{
 			const string classDirectory = "leveling";
 						
@@ -239,22 +228,13 @@ namespace Leveling
 			var dbConfig = Config.Instance.DatabaseConfig;
 			SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
-			initializeBanking();
+			InitializeBanking();
 
 			Directory.CreateDirectory(classDirectory);
 
 			//var classDefs = loadClassDefinitions(classDirectory);
 			var classDefs = ClassDefinition.Load(classDirectory);
-			
-			//filter out duplicate names
-			//var classNames = new HashSet<string>(classDefs.Select(cd => cd.Name));
-			//var booDefs = loadBooClassDefinitions(classDirectory)
-			//				.Where(cd => !classNames.Contains(cd.Name))
-			//				.Select(cd => cd);
-										
-			//classDefs.AddRange(booDefs);
-			//classDefs.ForEach(cd => cd.ValidateAndFix());
-						
+									
 			_classDefinitions = classDefs;
 			_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
 						
@@ -319,32 +299,7 @@ namespace Leveling
 			//	}
 			//}
 		}
-		
-		//private List<ClassDefinition> loadBooClassDefinitions(string directoryPath)
-		//{
-		//	//Debug.Print("Loading boo classes...");
-		//	var fileNames = Directory.EnumerateFiles(directoryPath, "*.bclass", SearchOption.AllDirectories);
-		//	var classCompiler = new ClassCompiler();
-		//	var definitions = new List<ClassDefinition>();
-			
-		//	foreach( var classFile in fileNames )
-		//	{
-		//		try
-		//		{
-		//			var def = classCompiler.LoadClassDefinition(classFile);
-		//			var newClass = new Class(def);
-		//			definitions.Add(def);
-		//		}
-		//		catch(Exception ex)
-		//		{
-		//			Debug.Print($"Error while loading boo class '{classFile}'.");
-		//			Debug.Print($"{ex.Message}");
-		//		}
-		//	}
-			
-		//	return definitions;
-		//}
-		
+				
 		internal Session TryGetOrCreateSession(string playerName)
 		{
 			var tsPlayer = TShock.Utils.FindPlayer(playerName).FirstOrDefault();
@@ -369,7 +324,7 @@ namespace Leveling
                 if(definition==null)
                 {
                     definition = new SessionDefinition();
-                    definition.initialize();
+                    definition.Initialize();
                 }
 
                 session = new Session(player, definition);

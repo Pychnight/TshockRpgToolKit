@@ -20,7 +20,7 @@ namespace Leveling.Classes
     ///     Represents a class definition.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class ClassDefinition
+    public sealed class ClassDefinition : IValidator
     {
 		/// <summary>
 		///     Gets the name.
@@ -383,14 +383,6 @@ namespace Leveling.Classes
 			var booScripts = scriptedDefs.Select(d => Path.Combine(Path.GetDirectoryName(d.Item1), d.Item2.ScriptPath))
 											.ToList();
 
-			//var scriptedDefs	= classDefs.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath));
-			//var booScripts		= scriptedDefs.Select(d => Path.Combine(basePath, d.ScriptPath))
-			//									.ToList();
-
-			//var booScripts = classDefs.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
-			//							 .Select(d => Path.Combine(basePath, d.ScriptPath))
-			//							 .ToList();
-
 			var newModuleManager = new BooModuleManager(LevelingPlugin.Instance,
 													ScriptHelpers.GetReferences(),
 													ScriptHelpers.GetDefaultImports(),
@@ -469,6 +461,17 @@ namespace Leveling.Classes
 			};
 
 			return sigs;
+		}
+
+		public ValidationResult Validate()
+		{
+			var result = new ValidationResult();
+
+			if (string.IsNullOrWhiteSpace(Name))
+				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or empty."));
+
+
+			return result;
 		}
 	}
 }

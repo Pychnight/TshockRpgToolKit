@@ -79,11 +79,11 @@ namespace Leveling.Sessions
 			UsedClassNames = source.UsedClassNames == null ? null : new HashSet<string>(source.UsedClassNames);
 		}
 
-		internal void initialize()
+		internal void Initialize()
 		{
             if(string.IsNullOrWhiteSpace(Config.Instance.DefaultClassName))
             {
-                throw new Exception("Failed to initialize leveling session, DefaultClassName is null or empty.");
+                throw new Exception("Failed to initialize leveling session, the configured DefaultClassName is null or empty.");
             }
 
 			var defaultClassName = Config.Instance.DefaultClassName;

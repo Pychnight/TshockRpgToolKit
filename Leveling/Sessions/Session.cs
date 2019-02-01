@@ -65,7 +65,7 @@ namespace Leveling.Sessions
                 _class = value;
                 _definition.CurrentClassName = value.Name;
 				UpdateItemsAndPermissions();
-				setBankAccountForClass(_class);
+				SetBankAccountForClass(_class);
 
 				if( !_definition.UsedClassNames.Contains(value.Name))
 				{
@@ -349,7 +349,7 @@ namespace Leveling.Sessions
 			Level = Class.Levels.FirstOrDefault();
 			Exp = 0;
 
-			def.initialize();
+			def.Initialize();
 			Resolve(LevelingPlugin.Instance._classes);
 			Save();
 		}
@@ -468,7 +468,7 @@ namespace Leveling.Sessions
 
 			//ensure bank accounts..
 			EnsureBankAccounts(classes);
-			setBankAccountForClass(Class);
+			SetBankAccountForClass(Class);
 		}
 
 		/// <summary>
@@ -485,7 +485,7 @@ namespace Leveling.Sessions
 
 				foreach(var cl in classes)
 				{
-					var account = accountMap.GetOrCreateBankAccount(getBankAccountNameForClass(cl));
+					var account = accountMap.GetOrCreateBankAccount(GetBankAccountNameForClass(cl));
 				}
 			}
 		}
@@ -495,21 +495,21 @@ namespace Leveling.Sessions
 		/// </summary>
 		/// <remarks>For now, we remap the bank account name "Exp" to any number of user-hidden, "exp_class" bank accounts.</remarks>
 		/// <param name="klass">Class</param>
-		private void setBankAccountForClass(Class klass)
+		private void SetBankAccountForClass(Class klass)
 		{
 			var bank = BankingPlugin.Instance?.Bank;
 
 			if( bank != null )
 			{
 				var accountMap = bank[this._player.Name];
-				var currentClassAccountName = getBankAccountNameForClass(klass);
+				var currentClassAccountName = GetBankAccountNameForClass(klass);
 
 				//Debug.Print($"Overriding Exp to route to: {currentClassAccountName}");
 				accountMap.SetAccountNameOverride("Exp", currentClassAccountName);
 			}
 		}
 		
-		private string getBankAccountNameForClass(Class klass)
+		private static string GetBankAccountNameForClass(Class klass)
 		{
 			return $"Exp_{klass.Name}";
 		}

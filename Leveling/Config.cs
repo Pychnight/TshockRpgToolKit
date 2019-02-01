@@ -20,7 +20,7 @@ namespace Leveling
 		public static Config Instance { get; internal set; } = new Config();
 
 		[JsonProperty(Order = 0)]
-		public DatabaseConfig DatabaseConfig { get; private set; } = new DatabaseConfig();
+		public DatabaseConfig DatabaseConfig { get; private set; } = new DatabaseConfig("sqlite",$"uri=file://leveling/db.sqlite,Version=3");
 
 		/// <summary>
 		///     Gets the default class name.
@@ -59,12 +59,20 @@ namespace Leveling
         [JsonProperty("ExpMultiplier", Order = 3)]
         public double ExpMultiplier { get; set; } = 1.0;
 
-		public override void Validate()
+		public override ValidationResult Validate()
 		{
+			var result = new ValidationResult();
+
+			if (DatabaseConfig == null)
+				result.Errors.Add(new ValidationError("DatabaseConfig is null."));
+
 			if(string.IsNullOrWhiteSpace(DefaultClassName))
-			{
-				throw new Exception("DefaultClass is not set.");
-			}
+				result.Errors.Add(new ValidationError("DefaultClass is empty or null."));
+
+			if (ExpMultiplier == 0f || ExpMultiplier < 0.0f)
+				result.Warnings.Add(new ValidationWarning($"ExpMultiplier is {ExpMultiplier}. Experience may not be rewarded, or even deducted!"));
+
+			return result;
 		}
 	}
 }
