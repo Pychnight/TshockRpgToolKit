@@ -23,11 +23,11 @@ namespace CustomQuests.Configuration
         /// </summary>
         public ReadOnlyCollection<string> DefaultQuestNames => _defaultQuestNames.AsReadOnly();
 
-        /// <summary>
-        ///     Gets the save period.
-        /// </summary>
-        [JsonProperty]
-        public TimeSpan SavePeriod { get; private set; }
+		/// <summary>
+		///     Gets the save period.
+		/// </summary>
+		[JsonProperty]
+		public TimeSpan SavePeriod { get; private set; } = TimeSpan.FromMinutes(10.0);
 
 		public override ValidationResult Validate()
 		{
@@ -38,7 +38,10 @@ namespace CustomQuests.Configuration
 
 			if(_defaultQuestNames.Count<1)
 				result.Warnings.Add(new ValidationWarning("There are no DefaultQuestNames configured."));
-						
+
+			if (SavePeriod < TimeSpan.FromSeconds(20.0))
+				result.Warnings.Add(new ValidationWarning("SavePeriod is less than 20 seconds. This may severely impact server performance."));
+
 			return result;
 		}
 	}
