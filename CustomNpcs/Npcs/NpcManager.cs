@@ -80,10 +80,7 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void Dispose()
         {
-            foreach (var definition in Definitions)
-				definition.Dispose();
-            
-            Definitions.Clear();
+			ClearDefinitions();
 
             GeneralHooks.ReloadEvent -= OnReload;
             ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);
@@ -484,10 +481,7 @@ namespace CustomNpcs.Npcs
 
 		private void OnReload(ReloadEventArgs args)
         {
-			foreach( var definition in Definitions )
-				definition.Dispose();
-			
-			Definitions.Clear();
+			ClearDefinitions();
 
 			LoadDefinitions();
 			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded NPCs!");

@@ -68,11 +68,8 @@ namespace CustomNpcs.Invasions
             ServerApi.Hooks.NpcKilled.Deregister(_plugin, OnNpcKilled);
 
             CurrentInvasion = null;
-            foreach (var definition in Definitions)
-            {
-                definition.Dispose();
-            }
-            Definitions.Clear();
+
+			ClearDefinitions();
         }
 		        
         /// <summary>

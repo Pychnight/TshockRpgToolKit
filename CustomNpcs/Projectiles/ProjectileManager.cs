@@ -57,10 +57,7 @@ namespace CustomNpcs.Projectiles
 
 		public void Dispose()
 		{
-			foreach( var def in Definitions )
-				def.Dispose();
-			
-			Definitions.Clear();
+			ClearDefinitions();
 
 			GeneralHooks.ReloadEvent -= OnReload;
 			//ServerApi.Hooks.GameUpdate.Deregister(plugin, onGameUpdate);
@@ -396,10 +393,7 @@ namespace CustomNpcs.Projectiles
 		
 		private void OnReload(ReloadEventArgs args)
 		{
-			foreach( var definition in Definitions )
-				definition.Dispose();
-			
-			Definitions.Clear();
+			ClearDefinitions();
 
 			LoadDefinitions();
 			

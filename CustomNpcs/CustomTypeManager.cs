@@ -25,6 +25,9 @@ namespace CustomNpcs
 		/// </summary>
 		public IList<TCustomType> Definitions { get; protected set; }
 
+		//for fast access, instead of always doing a linear search through our definitions...
+		private Dictionary<string, TCustomType> definitionMap { get; set; }
+
 		/// <summary>
 		/// Gets or sets the Assembly name prefix to be applied during the next compile.
 		/// </summary>
@@ -45,7 +48,7 @@ namespace CustomNpcs
 		protected virtual void LoadDefinitions()
 		{
 			Definitions = DefinitionLoader.LoadFromFile<TCustomType>(ConfigPath);
-
+			
 			//get script files paths
 			var booScripts = Definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
 										 .Select(d => Path.Combine(BasePath, d.ScriptPath))
@@ -102,6 +105,21 @@ namespace CustomNpcs
 					}
 				}
 			}
+
+			definitionMap = new Dictionary<string, TCustomType>();
+
+			foreach(var def in Definitions)
+				definitionMap.Add(def.Name.ToLowerInvariant(), def);
+			
+		}
+
+		public void ClearDefinitions()
+		{
+			foreach (var def in Definitions)
+				def.OnDispose();
+
+			Definitions.Clear();
+			definitionMap.Clear();
 		}
 
 		/// <summary>
@@ -112,10 +130,14 @@ namespace CustomNpcs
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public virtual TCustomType FindDefinition(string name)
 		{
-			if( name == null )
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
-			
-			return Definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
+
+			var lowerName = name.ToLowerInvariant();
+
+			definitionMap.TryGetValue(lowerName, out var result);
+
+			return result;
 		}
 	}
 }

@@ -74,5 +74,9 @@ namespace CustomNpcs
 		{
 			return false;
 		}
+
+		public virtual void OnDispose()
+		{
+		}
 	}
 }
