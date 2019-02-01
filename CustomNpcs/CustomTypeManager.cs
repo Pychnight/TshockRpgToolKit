@@ -113,10 +113,8 @@ namespace CustomNpcs
 		public virtual TCustomType FindDefinition(string name)
 		{
 			if( name == null )
-			{
 				throw new ArgumentNullException(nameof(name));
-			}
-
+			
 			return Definitions.FirstOrDefault(d => name.Equals(d.Name, StringComparison.OrdinalIgnoreCase));
 		}
 	}

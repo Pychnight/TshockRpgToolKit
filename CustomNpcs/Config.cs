@@ -29,10 +29,8 @@ namespace CustomNpcs
 			var result = new ValidationResult();
 
 			if(MaxSpawns<1)
-			{
 				result.Warnings.Add(new ValidationWarning($"{nameof(MaxSpawns)} is less than 1. Custom NPCs will not spawn naturally."));
-			}
-			
+						
 			return result;
 		}
 	}

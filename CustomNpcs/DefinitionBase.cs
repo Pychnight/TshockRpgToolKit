@@ -40,6 +40,7 @@ namespace CustomNpcs
 			}
 			catch(Exception ex)
 			{
+				//exceptions are automatically flagged as errors
 				result.Errors.Add(new ValidationError(ex.Message, FilePath));
 			}
 						

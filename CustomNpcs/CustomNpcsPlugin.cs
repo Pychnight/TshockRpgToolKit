@@ -25,10 +25,6 @@ namespace CustomNpcs
 	[ApiVersion(2, 1)]
 	public sealed partial class CustomNpcsPlugin : TerrariaPlugin
 	{
-		private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
-
-		public static CustomNpcsPlugin Instance = null;
-		
 		/// <summary>
 		///     Gets the author.
 		/// </summary>
@@ -49,6 +45,9 @@ namespace CustomNpcs
 		/// </summary>
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
+		private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
+		public static CustomNpcsPlugin Instance = null;
+		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
 		/// </summary>
@@ -101,10 +100,10 @@ namespace CustomNpcs
 
 		private void OnGamePostInitialize(EventArgs args)
 		{
-			onLoad();
+			OnLoad();
 		}
 
-		private void onLoad()
+		private void OnLoad()
 		{
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 
@@ -182,7 +181,7 @@ namespace CustomNpcs
 
 		private void OnReload(ReloadEventArgs args)
         {
-			onLoad();
+			OnLoad();
             args.Player.SendSuccessMessage("[CustomNpcs] Reloaded config!");
         }
     }

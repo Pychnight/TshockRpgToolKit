@@ -80,12 +80,9 @@ namespace CustomNpcs.Npcs
         /// </summary>
         public void Dispose()
         {
-            //File.WriteAllText(NpcsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
-
             foreach (var definition in Definitions)
-            {
-                definition.Dispose();
-            }
+				definition.Dispose();
+            
             Definitions.Clear();
 
             GeneralHooks.ReloadEvent -= OnReload;
@@ -109,10 +106,8 @@ namespace CustomNpcs.Npcs
         public CustomNpc GetCustomNpc(NPC npc)
         {
             if (npc == null)
-            {
-                throw new ArgumentNullException(nameof(npc));
-            }
-
+				throw new ArgumentNullException(nameof(npc));
+            
             return _customNpcs.TryGetValue(npc, out var customNpc) ? customNpc : null;
         }
 
@@ -127,10 +122,8 @@ namespace CustomNpcs.Npcs
         public CustomNpc SpawnCustomNpc( NpcDefinition definition, int x, int y)
         {
             if (definition == null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
-
+				throw new ArgumentNullException(nameof(definition));
+            
             // The following code needs to be synchronized since SpawnCustomNpc may run on a different thread than the
             // main thread. Otherwise, there is a possible race condition where the newly-spawned custom NPC may be
             // erroneously checked for replacement.
@@ -234,15 +227,11 @@ namespace CustomNpcs.Npcs
             {
 				var customNpc = GetCustomNpc(npc);
                 if (customNpc?.Definition.ShouldAggressivelyUpdate == true)
-                {
-                    npc.netUpdate = true;
-                }
-
+					npc.netUpdate = true;
+                
 				if(customNpc?.HasChildren==true)
-				{
 					customNpc?.UpdateChildren();
-				}
-
+				
 				if(customNpc?.HasTransformed == true)
 				{
 					var id = customNpc.Npc.whoAmI;
@@ -282,10 +271,8 @@ namespace CustomNpcs.Npcs
 				var tplayer = player.TPlayer;
 				var playerHitbox = tplayer.Hitbox;
 				if( !tplayer.immune )
-				{
 					player.SetData(IgnoreCollisionKey, false);
-				}
-
+				
 				foreach( var npc in Main.npc.Where(n => n?.active == true) )
 				{
 					var customNpc = GetCustomNpc(npc);
@@ -353,16 +340,12 @@ namespace CustomNpcs.Npcs
         private void OnNpcAiUpdate(NpcAiUpdateEventArgs args)
         {
             if (args.Handled)
-            {
-                return;
-            }
-
+				return;
+            
             var customNpc = GetCustomNpc(args.Npc);
             if (customNpc == null)
-            {
-                return;
-            }
-
+				return;
+            
 			var definition = customNpc.Definition;
 
 			try
@@ -385,18 +368,14 @@ namespace CustomNpcs.Npcs
             var npc = args.npc;
             var customNpc = GetCustomNpc(npc);
             if (customNpc == null)
-            {
-                return;
-            }
-
+				return;
+            
             var definition = customNpc.Definition;
             foreach (var lootEntry in definition.LootEntries)
             {
                 if (_random.NextDouble() >= lootEntry.Chance)
-                {
-                    continue;
-                }
-
+					continue;
+                
                 var stackSize = _random.Next(lootEntry.MinStackSize, lootEntry.MaxStackSize);
                 var items = TShock.Utils.GetItemByIdOrName(lootEntry.Name);
                 if (items.Count == 1)
@@ -422,10 +401,8 @@ namespace CustomNpcs.Npcs
         private void OnNpcLootDrop(NpcLootDropEventArgs args)
         {
             if (args.Handled)
-            {
-                return;
-            }
-
+				return;
+            
             var customNpc = GetCustomNpc(Main.npc[args.NpcArrayIndex]);
             if (customNpc != null)
             {
@@ -436,10 +413,8 @@ namespace CustomNpcs.Npcs
         private void OnNpcSetDefaults(SetDefaultsEventArgs<NPC, int> args)
         {
             if (args.Handled)
-            {
-                return;
-            }
-
+				return;
+            
             // If an NPC has its defaults set while in the world (e.g., NPC.Transform, slimes, and the Eater of
             // Worlds), we need to check for replacement since the NPC since the NPC may turn into a replaceable NPC.
             var npc = args.Object;
@@ -452,10 +427,8 @@ namespace CustomNpcs.Npcs
         private void OnNpcSpawn(NpcSpawnEventArgs args)
         {
 			if (args.Handled)
-            {
-                return;
-            }
-
+				return;
+            
 			//Debug.Print($"OnNpcSpawn!! NpcId: {args.NpcId}");
 
 			var npcId = args.NpcId;
@@ -468,17 +441,13 @@ namespace CustomNpcs.Npcs
         private void OnNpcStrike(NpcStrikeEventArgs args)
         {
             if (args.Handled)
-            {
-                return;
-            }
-
+				return;
+            
             var npc = args.Npc;
             var customNpc = GetCustomNpc(npc);
             if (customNpc == null)
-            {
-                return;
-            }
-
+				return;
+            
             var definition = customNpc.Definition;
             var player = TShock.Players[args.Player.whoAmI];
             if (!definition.ShouldTallyKills)
@@ -508,19 +477,16 @@ namespace CustomNpcs.Npcs
 		{
 			var customNpc = GetCustomNpc(npc);
 			if( customNpc == null )
-			{
 				return;
-			}
-
+			
 			customNpc.HasTransformed = true;
 		}
 
 		private void OnReload(ReloadEventArgs args)
         {
 			foreach( var definition in Definitions )
-			{
 				definition.Dispose();
-			}
+			
 			Definitions.Clear();
 
 			LoadDefinitions();
@@ -563,12 +529,9 @@ namespace CustomNpcs.Npcs
 		{
 			Utils.GetSpawnData(player, out var maxSpawns, out var spawnRate);
 			if( player.TPlayer.activeNPCs >= maxSpawns )
-			{
 				return;
-			}
-
+			
 			var spawnViaGlobalRate = _random.Next((int)spawnRate) == 0;
-
 			var weights = new Dictionary<NpcDefinition, int>(Definitions.Count);
 			
 			foreach( var definition in Definitions )

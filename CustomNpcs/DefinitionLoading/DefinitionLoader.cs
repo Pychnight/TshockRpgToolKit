@@ -21,7 +21,7 @@ namespace CustomNpcs
 
 			if( File.Exists(filePath) )
 			{
-				var definitions = deserializeFromText<T>(filePath);
+				var definitions = DeserializeFromText<T>(filePath);
 				var usedNames = new HashSet<string>();
 				var failedDefinitions = new List<T>();
 
@@ -78,7 +78,7 @@ namespace CustomNpcs
 			return result;
 		}
 
-		static List<T> deserializeFromText<T>(string filePath) where T : DefinitionBase
+		static List<T> DeserializeFromText<T>(string filePath) where T : DefinitionBase
 		{
 			var expandedDefinitions = new List<T>();
 			

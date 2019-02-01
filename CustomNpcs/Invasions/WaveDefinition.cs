@@ -53,34 +53,26 @@ namespace CustomNpcs.Invasions
 			var result = new ValidationResult();
 
 			if( NpcWeights == null )
-			{
 				result.Errors.Add(new ValidationError($"{nameof(NpcWeights)} is null."));
-			}
+			
 			if( NpcWeights.Count == 0 )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(NpcWeights)} must not be empty."));
-			}
+			
 			if( NpcWeights.Any(kvp => kvp.Value <= 0) )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(NpcWeights)} must contain positive weights."));
-			}
+			
 			if( PointsRequired <= 0 )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(PointsRequired)} must be positive."));
-			}
+			
 			if( MaxSpawns <= 0 )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(MaxSpawns)} must be positive."));
-			}
+			
 			if( SpawnRate <= 0 )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(SpawnRate)} must be positive."));
-			}
+			
 			if( StartMessage == null )
-			{
 				result.Errors.Add(new ValidationError($"{nameof(StartMessage)} is null."));
-			}
-
+			
 			return result;
 		}
 	}

@@ -264,7 +264,7 @@ namespace CustomNpcs.Npcs
 			//_loot.ThrowIfInvalid();
 			var lootResult = _loot.Validate();
 			lootResult.SetSources(FilePath);
-			result.AddValidationResult(lootResult);
+			result.Concat(lootResult);
 
 			if( _spawning == null )
 			{
@@ -277,7 +277,7 @@ namespace CustomNpcs.Npcs
 			//_baseOverride.ThrowIfInvalid();
 			var baseResult = _baseOverride.Validate();
 			baseResult.SetSources(FilePath);
-			result.AddValidationResult(baseResult);
+			result.Concat(baseResult);
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
@@ -380,7 +380,7 @@ namespace CustomNpcs.Npcs
 				{
 					//entry.ThrowIfInvalid();
 					var res = entry.Validate();
-					result.AddValidationResult(res);
+					result.Concat(res);
 
 				}
 

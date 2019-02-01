@@ -50,19 +50,16 @@ namespace CustomNpcs.Projectiles
 			//ServerApi.Hooks.ProjectileSetDefaults.Register(plugin, onProjectileSetDefaults);
 			//ServerApi.Hooks.ProjectileAIUpdate.Register(plugin, onProjectileAiUpdate);
 
-			OTAPI.Hooks.Projectile.PreUpdate = onProjectilePreUpdate;
-			OTAPI.Hooks.Projectile.PreAI = onProjectilePreAi;
-			OTAPI.Hooks.Projectile.PreKill = onProjectilePreKill;
+			OTAPI.Hooks.Projectile.PreUpdate = OnProjectilePreUpdate;
+			OTAPI.Hooks.Projectile.PreAI = OnProjectilePreAi;
+			OTAPI.Hooks.Projectile.PreKill = OnProjectilePreKill;
 		}
 
 		public void Dispose()
 		{
-			//...we never wrote the definitions back, which is fine afaik -- why do the original managers do that? 
-
 			foreach( var def in Definitions )
-			{
 				def.Dispose();
-			}
+			
 			Definitions.Clear();
 
 			GeneralHooks.ReloadEvent -= OnReload;
@@ -196,7 +193,7 @@ namespace CustomNpcs.Projectiles
 		//	}
 		//}
 		
-		private HookResult onProjectilePreUpdate(Projectile projectile, ref int index)
+		private HookResult OnProjectilePreUpdate(Projectile projectile, ref int index)
 		{
 			var result = HookResult.Continue;
 			var customProjectile = GetCustomProjectile(projectile);
@@ -332,7 +329,7 @@ namespace CustomNpcs.Projectiles
 			return result;
 		}
 		
-		private HookResult onProjectilePreAi(Projectile projectile)
+		private HookResult OnProjectilePreAi(Projectile projectile)
 		{
 			var result = HookResult.Continue;//we usually let terraria handle ai
 			var customProjectile = GetCustomProjectile(projectile);
@@ -359,7 +356,7 @@ namespace CustomNpcs.Projectiles
 			return result;
 		}
 
-		private HookResult onProjectilePreKill(Projectile projectile)
+		private HookResult OnProjectilePreKill(Projectile projectile)
 		{
 			var customProjectile = GetCustomProjectile(projectile);
 			if( customProjectile != null )
@@ -400,9 +397,8 @@ namespace CustomNpcs.Projectiles
 		private void OnReload(ReloadEventArgs args)
 		{
 			foreach( var definition in Definitions )
-			{
 				definition.Dispose();
-			}
+			
 			Definitions.Clear();
 
 			LoadDefinitions();

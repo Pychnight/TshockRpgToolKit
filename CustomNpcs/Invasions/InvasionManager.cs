@@ -63,8 +63,6 @@ namespace CustomNpcs.Invasions
         /// </summary>
         public void Dispose()
         {
-            //File.WriteAllText(InvasionsConfigPath, JsonConvert.SerializeObject(_definitions, Formatting.Indented));
-
             GeneralHooks.ReloadEvent -= OnReload;
             ServerApi.Hooks.GameUpdate.Deregister(_plugin, OnGameUpdate);
             ServerApi.Hooks.NpcKilled.Deregister(_plugin, OnNpcKilled);
@@ -165,10 +163,8 @@ namespace CustomNpcs.Invasions
         private void OnGameUpdate(EventArgs args)
         {
             if (CurrentInvasion == null || CurrentInvasion.HasStarted == false)
-            {
-                return;
-            }
-						
+				return;
+            						
 			var activePlayers = TShock.Players.Where(p => p?.Active == true);
 
 			if(activePlayers.Count()<1)
@@ -223,10 +219,8 @@ namespace CustomNpcs.Invasions
 		private void OnNpcKilled(NpcKilledEventArgs args)
         {
             if (CurrentInvasion == null)
-            {
-                return;
-            }
-
+				return;
+            
             var npc = args.npc;
             var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
             var npcNameOrType = customNpc?.Definition.Name ?? npc.netID.ToString();
@@ -275,9 +269,8 @@ namespace CustomNpcs.Invasions
             CurrentInvasion = null;
             
 			foreach( var definition in Definitions )
-			{
 				definition.Dispose();
-			}
+			
 			Definitions.Clear();
 
 			LoadDefinitions();
@@ -339,16 +332,12 @@ namespace CustomNpcs.Invasions
         private void TrySpawnInvasionNpc(TSPlayer player, int tileX, int tileY)
         {
             if (!ShouldSpawnInvasionNpcs(player))
-            {
-                return;
-            }
-
+				return;
+            
             var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
             if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
-            {
-                return;
-            }
-
+				return;
+            
             if (_currentPoints >= _requiredPoints && _currentMiniboss != null)
             {
 				//only spawn mini boss if a current miniboss doesnt exist.

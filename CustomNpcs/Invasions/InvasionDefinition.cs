@@ -177,11 +177,11 @@ namespace CustomNpcs.Invasions
 			{
 				result.Errors.Add( new ValidationError($"{nameof(Waves)} must not be empty.", FilePath, LineNumber, LinePosition));
 			}
+
 			foreach( var wave in Waves )
 			{
-				//wave.ThrowIfInvalid();
-				var res = wave.Validate();
-				result.AddValidationResult(res);
+				var waveResult = wave.Validate();
+				result.ChildResults.Add(waveResult);
 			}
 		}
 	}
