@@ -151,7 +151,6 @@
     <Compile Include="Rewards\RewardReason.cs" />
     <Compile Include="TileChangedEventArgs.cs" />
     <Compile Include="Configuration\Config.cs" />
-    <Compile Include="Configuration\DatabaseConfig.cs" />
     <Compile Include="Currency\CurrencyConverter.cs" />
     <Compile Include="Currency\CurrencyDefinition.cs" />
     <Compile Include="Currency\CurrencyManager.cs" />
