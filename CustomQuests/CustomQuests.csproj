@@ -104,7 +104,6 @@
     <Compile Include="ChestItemChangedEventArgs.cs" />
     <Compile Include="ChestUnlockedEventArgs.cs" />
     <Compile Include="Configuration\Config.cs" />
-    <Compile Include="Configuration\DatabaseConfig.cs" />
     <Compile Include="CustomQuestsPlugin.Commands.cs" />
     <Compile Include="CustomQuestsPlugin.cs" />
     <Compile Include="Database\DatabaseFactory.cs" />
@@ -152,7 +151,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="utils.lua" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Corruption\Corruption\Corruption.csproj">

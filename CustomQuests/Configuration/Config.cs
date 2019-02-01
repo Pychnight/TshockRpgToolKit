@@ -13,7 +13,7 @@ namespace CustomQuests.Configuration
     public sealed class Config : JsonConfig
     {
 		[JsonProperty(Order = 0)]
-		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
+		public DatabaseConfig Database { get; private set; } = new DatabaseConfig("sqlite", $"uri=file://quests/db.sqlite,Version=3");
 		
 		[JsonProperty("DefaultQuests",Order = 1)]
         private readonly List<string> _defaultQuestNames = new List<string>();
@@ -33,11 +33,12 @@ namespace CustomQuests.Configuration
 		{
 			var result = new ValidationResult();
 
+			if (Database == null)
+				result.Errors.Add(new ValidationError($"Database config is null."));
+
 			if(_defaultQuestNames.Count<1)
-			{
 				result.Warnings.Add(new ValidationWarning("There are no DefaultQuestNames configured."));
-			}
-			
+						
 			return result;
 		}
 	}
