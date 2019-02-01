@@ -153,7 +153,7 @@ namespace CustomNpcs
 
 		private void sendPagedInfoMessage(TSPlayer player, IList<string> items, int page, int itemsPerPage)
 		{
-			if( player == null || items == null || itemsPerPage < 1 || page < 1 )
+			if( player == null || items == null || items.Count == 0 || itemsPerPage < 1 || page < 1 )
 				return;
 
 			var pageCount = ( items.Count / itemsPerPage ) +

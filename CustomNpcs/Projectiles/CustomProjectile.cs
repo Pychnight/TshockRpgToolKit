@@ -10,91 +10,20 @@ using TShockAPI;
 
 namespace CustomNpcs.Projectiles
 {
-	public class CustomProjectile
+	public class CustomProjectile : CustomEntity<Projectile,ProjectileDefinition>
 	{
-		private Dictionary<string, object> _variables = new Dictionary<string, object>();
-		public Projectile Projectile { get; private set; }
-		public ProjectileDefinition Definition { get; set; }
-
-		/// <summary>
-		/// Provides easy access to a CustomProjectile's embedded variables.
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		public object this[string key]
-		{
-			get
-			{
-				_variables.TryGetValue(key, out var result);
-				return result;
-			}
-			set
-			{
-				_variables[key] = value;
-			}
-		}
-
-		///// <summary>
-		/////     Gets the index.
-		///// </summary>
-		//public int Index => Projectile.whoAmI;
-
+		public Projectile Projectile => Entity;
+				
 		/// <summary>
 		///     Gets the index.
 		/// </summary>
-		public int Index => Projectile.identity;
+		public int Index => Projectile.identity;//we apparently use identity over whoAmI with projectiles(??) ...terraria.
 
 		public bool Active
 		{
 			get => Projectile.active;
 		}
-
-		/// <summary>
-		///     Gets the Center of the npc and sets it.
-		///     Useful for Custom AI
-		/// </summary>
-		public Vector2 Center
-		{
-			get => Projectile.Center;
-			set => Projectile.Center = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the old position.
-		/// </summary>
-		public Vector2 OldPosition
-		{
-			get => Projectile.oldPosition;
-			set => Projectile.oldPosition = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the position.
-		/// </summary>
-		public Vector2 Position
-		{
-			get => Projectile.position;
-			set => Projectile.position = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the old direction.
-		/// </summary>
-		public int OldDirection
-		{
-			get => Projectile.oldDirection;
-			set => Projectile.oldDirection = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the direction.
-		/// </summary>
-		public int Direction
-		{
-			get => Projectile.direction;
-			set => Projectile.direction = value;
-		}
-		
+				
 		/// <summary>
 		///     Gets or sets a value indicating whether to send a network update.
 		/// </summary>
@@ -102,15 +31,6 @@ namespace CustomNpcs.Projectiles
 		{
 			get => Projectile.netUpdate;
 			set => Projectile.netUpdate = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the velocity.
-		/// </summary>
-		public Vector2 Velocity
-		{
-			get => Projectile.velocity;
-			set => Projectile.velocity = value;
 		}
 
 		public int TimeLeft 
@@ -144,59 +64,10 @@ namespace CustomNpcs.Projectiles
 
 		public CustomProjectile(Projectile projectile, ProjectileDefinition definition)
 		{
-			Projectile = projectile;
+			Entity = projectile;
 			Definition = definition;
 		}
-
-		/// <summary>
-		///     Determines whether the variable with the specified name exists.
-		/// </summary>
-		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
-		/// <returns><c>true</c> if the variable exists; otherwise, <c>false</c>.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public bool HasVariable(string variableName)
-		{
-			if (variableName == null)
-			{
-				throw new ArgumentNullException(nameof(variableName));
-			}
-
-			return _variables.ContainsKey(variableName);
-		}
-
-		/// <summary>
-		///     Gets the variable with the specified name.
-		/// </summary>
-		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
-		/// <param name="defaultValue">The default value.</param>
-		/// <returns>The value, or <paramref name="defaultValue" /> if the variable does not exist.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public object GetVariable(string variableName, object defaultValue = null)
-		{
-			if (variableName == null)
-			{
-				throw new ArgumentNullException(nameof(variableName));
-			}
-
-			return _variables.TryGetValue(variableName, out var value) ? value : defaultValue;
-		}
-
-		/// <summary>
-		///     Sets the variable with the specified name.
-		/// </summary>
-		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
-		/// <param name="value">The value.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public void SetVariable(string variableName, object value)
-		{
-			if (variableName == null)
-			{
-				throw new ArgumentNullException(nameof(variableName));
-			}
-
-			_variables[variableName] = value;
-		}
-
+		
 		public void Kill()
 		{
 			Projectile.Kill();
@@ -210,11 +81,6 @@ namespace CustomNpcs.Projectiles
 			OldPosition = Position;
 			Position = Position + Velocity;
 		}
-
-		//public void AttachEmote(int emoteId, int lifeTime)
-		//{
-		//	EmoteFunctions.AttachEmote(EmoteFunctions.AnchorTypeProjectile, this.Index, emoteId, lifeTime);
-		//}
 
 		public bool CustomIDContains(string text)
 		{

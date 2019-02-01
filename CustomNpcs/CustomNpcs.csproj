@@ -98,6 +98,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomEntity.cs" />
     <Compile Include="CustomIDFunctions.cs" />
     <Compile Include="CustomNpcsPlugin.Commands.cs" />
     <Compile Include="DefinitionLoading\CategoryPlaceholderDefinition.cs" />

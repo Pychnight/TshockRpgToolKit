@@ -15,34 +15,14 @@ namespace CustomNpcs.Npcs
 	/// <summary>
 	///     Represents a Custom NPC, which is a wrapper around real Terraria NPC's. 
 	/// </summary>
-	public sealed class CustomNpc
+	public sealed class CustomNpc : CustomEntity<NPC,NpcDefinition>
 	{
-		private Dictionary<string, object> _variables = new Dictionary<string, object>();
-
 		internal bool IsNpcValid; // if false, the NPC wrapped by this CustomNpc is no longer valid for usage.
 
 		//OTAPI runs its post transform hook before names have changed. This flag is a work around so we can poll elsewhere, 
 		// and see if we want to do any truly post transform ops. Just make sure to reset it to false once any post ops have been performed.
 		internal bool HasTransformed;
-
-		/// <summary>
-		/// Provides easy access to a CustomNpc's embedded variables.
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		public object this[string key]
-		{
-			get
-			{
-				_variables.TryGetValue(key, out var result);
-				return result;
-			}
-			set
-			{
-				_variables[key] = value;
-			}
-		}
-
+		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomNpc" /> class with the specified NPC and definition.
 		/// </summary>
@@ -53,26 +33,21 @@ namespace CustomNpcs.Npcs
 		/// </exception>
 		public CustomNpc(NPC npc, NpcDefinition definition)
 		{
-			Npc = npc ?? throw new ArgumentNullException(nameof(npc));
+			Entity = npc ?? throw new ArgumentNullException(nameof(npc));
 			Definition = definition ?? throw new ArgumentNullException(nameof(definition));
 			IsNpcValid = true;
 		}
 
 		/// <summary>
-		///     Gets the custom NPC definition.
+		///     Gets the wrapped NPC.
 		/// </summary>
-		public NpcDefinition Definition { get; }
-
+		public NPC Npc => Entity;
+		
 		/// <summary>
 		///     Gets the index.
 		/// </summary>
-		public int Index => Npc.whoAmI;
-
-		/// <summary>
-		///     Gets the wrapped NPC.
-		/// </summary>
-		public NPC Npc { get; }
-
+		public int Index => Entity.whoAmI;
+		
 		/// <summary>
 		///     Gets or sets the HP.
 		/// </summary>
@@ -88,58 +63,12 @@ namespace CustomNpcs.Npcs
 		public int MaxHp => Npc.lifeMax; 
 		
 		/// <summary>
-		///     Gets the Center of the npc and sets it.
-		///     Useful for Custom AI
-		/// </summary>
-		public Vector2 Center
-		{
-			get => Npc.Center;
-			set => Npc.Center = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the old position.
-		/// </summary>
-		public Vector2 OldPosition
-		{
-			get => Npc.oldPosition;
-			set => Npc.oldPosition = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the position.
-		/// </summary>
-		public Vector2 Position
-		{
-			get => Npc.position;
-			set => Npc.position = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the old direction.
-		/// </summary>
-		public int OldDirection
-		{
-			get => Npc.oldDirection;
-			set => Npc.oldDirection = value;
-		}
-
-		/// <summary>
 		///     Gets or sets the old direction Y.
 		/// </summary>
 		public int OldDirectionY
 		{
 			get => Npc.oldDirectionY;
 			set => Npc.oldDirectionY = value;
-		}
-
-		/// <summary>
-		///     Gets or sets the direction.
-		/// </summary>
-		public int Direction
-		{
-			get => Npc.direction;
-			set => Npc.direction = value;
 		}
 
 		/// <summary>
@@ -168,16 +97,7 @@ namespace CustomNpcs.Npcs
 			get => Npc.target < 0 || Npc.target >= Main.maxPlayers ? null : TShock.Players[Npc.target];
 			set => Npc.target = value?.Index ?? -1;
 		}
-
-		/// <summary>
-		///     Gets or sets the velocity.
-		/// </summary>
-		public Vector2 Velocity
-		{
-			get => Npc.velocity;
-			set => Npc.velocity = value;
-		}
-
+		
 		public string GivenName
 		{
 			get => Npc._givenName;
@@ -187,35 +107,7 @@ namespace CustomNpcs.Npcs
 				TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", Npc.whoAmI);
 			}
 		}
-
-		/// <summary>
-		///     Buffs the nearby players within the specified tile radius.
-		/// </summary>
-		/// <param name="type">The type.</param>
-		/// <param name="seconds">The seconds, which must be positive.</param>
-		/// <param name="tileRadius">The tile radius, which must be positive.</param>
-		/// <exception cref="ArgumentOutOfRangeException">
-		///     Either <paramref name="seconds" /> or <paramref name="tileRadius" /> is not positive.
-		/// </exception>
-		public void BuffNearbyPlayers(int type, int seconds, int tileRadius = 50)
-		{
-			if( seconds <= 0 )
-			{
-				throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
-			}
-			if( tileRadius <= 0 )
-			{
-				throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
-			}
-
-			foreach( var player in TShock.Players.Where(
-				p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
-					 256 * tileRadius * tileRadius) )
-			{
-				player.SetBuff(type, 60 * seconds, true);
-			}
-		}
-
+		
 		/// <summary>
 		///     Transforms the NPC to the specified custom NPC.
 		/// </summary>
@@ -237,166 +129,14 @@ namespace CustomNpcs.Npcs
 
 			NpcManager.Instance.AttachCustomNpc(Npc, definition);
 		}
-
-		/// <summary>
-		///     Applies a callback to each player within the specified tile radius.
-		/// </summary>
-		/// <param name="callback">The callback, which must not be <c>null</c>.</param>
-		/// <param name="tileRadius">The tile radius, which must be positive.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="tileRadius" /> is not positive.</exception>
-		public void ForEachNearbyPlayer(Action<TSPlayer> callback, int tileRadius = 50)
-		{
-			if( callback == null )
-			{
-				throw new ArgumentNullException(nameof(callback));
-			}
-			if( tileRadius <= 0 )
-			{
-				throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
-			}
-
-			foreach( var player in TShock.Players.Where(
-				p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
-					 256 * tileRadius * tileRadius) )
-			{
-				callback?.Invoke(player);
-			}
-		}
-
-		/// <summary>
-		///     Gets the variable with the specified name.
-		/// </summary>
-		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
-		/// <param name="defaultValue">The default value.</param>
-		/// <returns>The value, or <paramref name="defaultValue" /> if the variable does not exist.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public object GetVariable(string variableName, object defaultValue = null)
-		{
-			if( variableName == null )
-			{
-				throw new ArgumentNullException(nameof(variableName));
-			}
-
-			return _variables.TryGetValue(variableName, out var value) ? value : defaultValue;
-		}
-
+				
 		/// <summary>
 		///     Determines whether the NPC has line of sight to the specified position.
 		/// </summary>
 		/// <param name="position">The position.</param>
 		/// <returns><c>true</c> if there is direct line of sight; otherwise, <c>false</c>.</returns>
 		public bool HasLineOfSight(Vector2 position) => Collision.CanHitLine(Position, 1, 1, position, 1, 1);
-
-		/// <summary>
-		///     Determines whether the variable with the specified name exists.
-		/// </summary>
-		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
-		/// <returns><c>true</c> if the variable exists; otherwise, <c>false</c>.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public bool HasVariable(string variableName)
-		{
-			if( variableName == null )
-			{
-				throw new ArgumentNullException(nameof(variableName));
-			}
-
-			return _variables.ContainsKey(variableName);
-		}
-
-		/// <summary>
-		///     Messages the nearby players within the specified tile radius.
-		/// </summary>
-		/// <param name="message">The message, which must not be <c>null</c>.</param>
-		/// <param name="color">The color.</param>
-		/// <param name="tileRadius">The tile radius, which must be positive.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="tileRadius" /> is not positive.</exception>
-		public void MessageNearbyPlayers(string message, Color color, int tileRadius = 50)
-		{
-			if( message == null )
-			{
-				throw new ArgumentNullException(nameof(message));
-			}
-			if( tileRadius <= 0 )
-			{
-				throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
-			}
-
-			foreach( var player in TShock.Players.Where(
-				p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
-					 256 * tileRadius * tileRadius) )
-			{
-				player.SendMessage(message, color);
-			}
-		}
-
-		/// <summary>
-		///     Ensures that the specified callback is run only once.
-		/// </summary>
-		/// <param name="key">The key, which must be unique.</param>
-		/// <param name="callback">The callback, which must not be <c>null</c>.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void OnlyOnce(int key, Action callback)
-		{
-			if( callback == null )
-			{
-				throw new ArgumentNullException(nameof(callback));
-			}
-
-			if( !HasVariable($"OnlyOnce{key}") )
-			{
-				SetVariable($"OnlyOnce{key}", true);
-				callback?.Invoke();
-			}
-		}
-
-		/// <summary>
-		///     Runs the specified callback periodically.
-		/// </summary>
-		/// <param name="key">The key, which must be unique.</param>
-		/// <param name="callback">The callback, which must not be <c>null</c>.</param>
-		/// <param name="period">The period, which must be positive.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="period" /> is not positive.</exception>
-		public void Periodically(int key, Action callback, int period)
-		{
-			if( callback == null )
-			{
-				throw new ArgumentNullException(nameof(callback));
-			}
-			if( period <= 0 )
-			{
-				throw new ArgumentOutOfRangeException(nameof(period), "Period must be positive.");
-			}
-
-			// ReSharper disable once PossibleNullReferenceException
-			var timer = (int)GetVariable($"Periodically{key}", 0);
-			if( timer++ == 0 )
-			{
-				callback?.Invoke();
-			}
-
-			timer %= period;
-			SetVariable($"Periodically{key}", timer);
-		}
-
-		/// <summary>
-		///     Sets the variable with the specified name.
-		/// </summary>
-		/// <param name="variableName">The name, which must not be <c>null</c>.</param>
-		/// <param name="value">The value.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="variableName" /> is <c>null</c>.</exception>
-		public void SetVariable(string variableName, object value)
-		{
-			if( variableName == null )
-			{
-				throw new ArgumentNullException(nameof(variableName));
-			}
-
-			_variables[variableName] = value;
-		}
-
+				
 		/// <summary>
 		///     Shoots a projectile at the specified position.
 		/// </summary>
