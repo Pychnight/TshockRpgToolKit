@@ -48,9 +48,6 @@ namespace Housing
 
 		public override void Initialize()
         {
-#if DEBUG
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-#endif
             GeneralHooks.ReloadEvent += OnReload;
             ServerApi.Hooks.NetGetData.Register(this, OnNetGetData, 10);
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);

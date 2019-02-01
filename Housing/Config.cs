@@ -18,9 +18,12 @@ namespace Housing
         ///     Gets the configuration instance.
         /// </summary>
         public static Config Instance { get; internal set; } = new Config();
-
+		
+		/// <summary>
+		///  Gets the <see cref="DatabaseConfig"/>. 
+		/// </summary>
 		[JsonProperty(Order = 0)]
-		public DatabaseConfig Database { get; private set; } = new DatabaseConfig();
+		public DatabaseConfig Database { get; private set; } = new DatabaseConfig("sqlite", $"uri=file://housing/db.sqlite,Version=3");
 
 		/// <summary>
 		///     Gets a value indicating whether houses require an admin region to build on.
@@ -138,6 +141,25 @@ namespace Housing
 			 }
 
 			 return cfg;
+		}
+
+		public override ValidationResult Validate()
+		{
+			var result = new ValidationResult();
+
+			if (Database == null)
+				result.Errors.Add(new ValidationError($"Database is null."));
+
+			if (MaxShopSize < MinShopSize)
+				result.Warnings.Add(new ValidationWarning($"MaxShopSize({MaxShopSize}) is less than MinShopSize({MinShopSize})."));
+
+			if (MaxHouseSize < MinHouseSize)
+				result.Warnings.Add(new ValidationWarning($"MaxHouseSize({MaxHouseSize}) is less than MinHouseSize({MinHouseSize})."));
+
+			if (MaxHouses < 1)
+				result.Warnings.Add(new ValidationWarning($"MaxHouses is less than 1. No houses are allowed!"));
+
+			return result;
 		}
 	}
 }
