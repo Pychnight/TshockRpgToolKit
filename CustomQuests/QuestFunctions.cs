@@ -425,30 +425,5 @@ namespace CustomQuests
 			
 			return projectiles;
 		}
-		
-		/// <summary>
-		///     Spawns a custom projectile with the specified name at a position.
-		/// </summary>
-		/// <param name="name">The name, which must be a valid projectile name and not <c>null</c>.</param>
-		/// <param name="position">The position.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
-		/// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
-		public static Projectile[] SpawnCustomProjectile(int owner, string name, float x, float y, float xSpeed, float ySpeed, int amount )
-		{
-			var projectiles = new Projectile[amount];
-						
-			for(var i = 0;i<projectiles.Length; i++)
-			{
-				var cp = CustomNpcs.ProjectileFunctions.SpawnCustomProjectile(owner, name, x, y, xSpeed, ySpeed);
-
-				if( cp != null )
-				{
-					projectiles[i] = cp.Projectile;
-				}
-			}
-			
-			return projectiles;
-		}
 	}
 }
