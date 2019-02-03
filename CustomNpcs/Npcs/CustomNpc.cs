@@ -31,7 +31,7 @@ namespace CustomNpcs.Npcs
 		/// <exception cref="ArgumentNullException">
 		///     Either <paramref name="npc" /> or <paramref name="definition" /> is <c>null</c>.
 		/// </exception>
-		public CustomNpc(NPC npc, NpcDefinition definition)
+		internal CustomNpc(NPC npc, NpcDefinition definition)
 		{
 			Entity = npc ?? throw new ArgumentNullException(nameof(npc));
 			Definition = definition ?? throw new ArgumentNullException(nameof(definition));

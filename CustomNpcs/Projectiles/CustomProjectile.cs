@@ -62,7 +62,7 @@ namespace CustomNpcs.Projectiles
 			get => Projectile.ai;
 		}
 
-		public CustomProjectile(Projectile projectile, ProjectileDefinition definition)
+		internal CustomProjectile(Projectile projectile, ProjectileDefinition definition)
 		{
 			Entity = projectile;
 			Definition = definition;
