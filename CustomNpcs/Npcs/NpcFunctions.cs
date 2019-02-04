@@ -103,8 +103,6 @@ namespace CustomNpcs
 			return npcs.ToArray();
 		}
 
-
-
 		///// <summary>
 		/////     Gets the tile at the specified coordinates.
 		///// </summary>
@@ -160,6 +158,49 @@ namespace CustomNpcs
 
 			return NpcManager.Instance.SpawnCustomNpc(definition, (int)position.X, (int)position.Y);
 		}
+
+		/// <summary>
+		///     Spawns a number of CustomNpc's around a given area.
+		/// </summary>
+		/// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
+		/// <param name="x">The X coordinate.</param>
+		/// <param name="y">The Y coordinate.</param>
+		/// <param name="radius">The radius, which must be positive.</param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <returns>The spawned NPCs.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
+		/// </exception>
+		/// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
+		public static CustomNpc[] SpawnCustomNpc(string name, int x, int y, int radius, int amount)
+		{
+			if (name == null)
+				throw new ArgumentNullException(nameof(name));
+			
+			if (radius <= 0)
+				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
+			
+			if (amount <= 0)
+				throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+			
+			var definition = NpcManager.Instance?.FindDefinition(name);
+			if (definition == null)
+				throw new FormatException($"Invalid CustomNpc name '{name}'.");
+			
+			var customNpcs = new List<CustomNpc>();
+			for (var i = 0; i < amount; ++i)
+			{
+				TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
+				var customNpc = NpcManager.Instance.SpawnCustomNpc(definition, 16 * spawnX, 16 * spawnY);
+				if (customNpc != null)
+					customNpcs.Add(customNpc);
+			}
+			return customNpcs.ToArray();
+		}
+
+		[Obsolete("SpawnCustomMob() is obsolete, and currently left in for backwards compatibility. Use SpawnCustomNpc() instead.")]
+		public static CustomNpc[] SpawnCustomMob(string name, int x, int y, int radius = 10, int amount = 1) => SpawnCustomNpc(name, x, y, radius, amount);
 
 		/// <summary>
 		///     Spawns an NPC with the specified name or type at a position.
