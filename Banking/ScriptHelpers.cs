@@ -35,6 +35,7 @@ namespace Banking
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
 				"Corruption.ChestFunctions",
+				"Corruption.MiscFunctions",
 				"Banking",
 				"Banking.Rewards"
 			} );
