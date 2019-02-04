@@ -34,6 +34,7 @@ namespace Leveling
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
 				"Corruption.ChestFunctions",
+				"Corruption.MiscFunctions",
 				"Leveling.Classes"
 				//"CustomNpcs",
 				//"CustomNpcs.Invasions",
