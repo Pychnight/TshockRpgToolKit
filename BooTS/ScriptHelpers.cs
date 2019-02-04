@@ -34,6 +34,7 @@ namespace BooTS
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
 				"Corruption.ChestFunctions",
+				"Corruption.MiscFunctions",
 				"BooTS.Scheduler"
 			} );
 		}
