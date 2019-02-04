@@ -289,54 +289,6 @@ namespace CustomQuests
         }
 		
         /// <summary>
-        ///     Spawns the custom mob with the specified name, coordinates, and amount.
-        /// </summary>
-        /// <param name="name">The name, which must be a valid NPC name and not <c>null</c>.</param>
-        /// <param name="x">The X coordinate.</param>
-        /// <param name="y">The Y coordinate.</param>
-        /// <param name="radius">The radius, which must be positive.</param>
-        /// <param name="amount">The amount, which must be positive.</param>
-        /// <returns>The spawned NPCs.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
-        /// </exception>
-        /// <exception cref="FormatException"><paramref name="name" /> is not a valid NPC name.</exception>
-        public static CustomNpc[] SpawnCustomMob(string name, int x, int y, int radius = 10, int amount = 1)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (radius <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-            }
-            if (amount <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-            }
-
-            var definition = NpcManager.Instance?.FindDefinition(name);
-            if (definition == null)
-            {
-                throw new FormatException($"Invalid custom NPC name '{name}'.");
-            }
-
-            var customNpcs = new List<CustomNpc>();
-            for (var i = 0; i < amount; ++i)
-            {
-                TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-                var customNpc = NpcManager.Instance.SpawnCustomNpc(definition, 16 * spawnX, 16 * spawnY);
-                if (customNpc != null)
-                {
-                    customNpcs.Add(customNpc);
-                }
-            }
-            return customNpcs.ToArray();
-        }
-
-        /// <summary>
         ///     Spawns the mob with the specified name, coordinates, and amount.
         /// </summary>
         /// <param name="nameOrType">The name or type, which must be a valid NPC name and not <c>null</c>.</param>
