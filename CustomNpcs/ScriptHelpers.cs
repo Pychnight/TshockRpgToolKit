@@ -34,6 +34,7 @@ namespace CustomNpcs
 				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
 				"Corruption.ChestFunctions",
+				"Corruption.MiscFunctions",
 				"CustomNpcs",
 				"CustomNpcs.Invasions",
 				"CustomNpcs.Npcs",

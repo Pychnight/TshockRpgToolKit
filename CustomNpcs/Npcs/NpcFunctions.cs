@@ -17,8 +17,6 @@ namespace CustomNpcs
 	/// </summary>
 	public static class NpcFunctions
 	{
-		private static readonly Random Random = new Random();
-		
 		/// <summary>
 		///     Finds all custom NPCs with the specified name.
 		/// </summary>
@@ -67,38 +65,6 @@ namespace CustomNpcs
 				}
 			}
 			return npcs.ToArray();
-		}
-
-		///// <summary>
-		/////     Gets the tile at the specified coordinates.
-		///// </summary>
-		///// <param name="x">The X coordinate, which must be in bounds.</param>
-		///// <param name="y">The Y coordinate, which must be in bounds.</param>
-		///// <returns>The tile.</returns>
-		//
-		//public static ITile GetTile(int x, int y) => Main.tile[x, y];
-
-		/// <summary>
-		///     Gets a random number between 0.0 and 1.0.
-		/// </summary>
-		/// <returns>The number.</returns>
-		public static double RandomDouble() => Random.NextDouble();
-
-		/// <summary>
-		///     Gets a random integer between the specified values.
-		/// </summary>
-		/// <param name="min">The minimum.</param>
-		/// <param name="max">The maximum, which must be at least <paramref name="min" />.</param>
-		/// <returns>The integer.</returns>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
-		public static int RandomInt(int min, int max)
-		{
-			if( max < min )
-			{
-				throw new ArgumentOutOfRangeException(nameof(max), "Maximum must be at least the minimum.");
-			}
-
-			return Random.Next(min, max);
 		}
 
 		/// <summary>
