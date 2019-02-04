@@ -125,7 +125,7 @@ namespace CustomNpcs.Projectiles
 			{
 				customProjectile.OldPosition = new Vector2(x, y);
 				//customProjectile.SendNetUpdate = true;
-				ProjectileManager.SendProjectileUpdate(projectileId);
+				SendProjectileUpdate(projectileId);
 				//Debug.Print($"Sent initial projectile for index #{projectileId}!");
 			}
 
@@ -320,7 +320,7 @@ namespace CustomNpcs.Projectiles
 
 			if(customProjectile.Active && customProjectile.SendNetUpdate)
 			{
-				ProjectileManager.SendProjectileUpdate(customProjectile.Index);
+				SendProjectileUpdate(customProjectile.Index);
 			}
 			
 			return result;
@@ -375,7 +375,7 @@ namespace CustomNpcs.Projectiles
 					
 					customProjectiles.Remove(projectile);
 					projectile.active = false;
-					ProjectileManager.SendProjectileKill(customProjectile.Index, customProjectile.Owner);
+					SendProjectileKill(customProjectile.Index, customProjectile.Owner);
 
 					return HookResult.Cancel;
 				}
