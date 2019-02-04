@@ -20,40 +20,6 @@ namespace CustomNpcs
 		private static readonly Random Random = new Random();
 		
 		/// <summary>
-		///     Bans Players
-		/// </summary>
-		/// <param name="player">The message, which must not be <c>null</c>.</param>
-		/// <param name="message">The color.</param>
-		/// <param name="message2">The color.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
-		public static void Ban(TSPlayer player, string message, string message2)
-		{
-			if( message == null )
-			{
-				throw new ArgumentNullException(nameof(player));
-			}
-
-			TShock.Utils.Ban(player, message, true, message2);
-		}
-
-		/// <summary>
-		///     Creates a combat text with the specified color and position.
-		/// </summary>
-		/// <param name="text">The text.</param>
-		/// <param name="color">The color.</param>
-		/// <param name="position">The position.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="text" /> is <c>null</c>.</exception>
-		public static void CreateCombatText(string text, Color color, Vector2 position)
-		{
-			if( text == null )
-			{
-				throw new ArgumentNullException(nameof(text));
-			}
-
-			TSPlayer.All.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
-		}
-
-		/// <summary>
 		///     Finds all custom NPCs with the specified name.
 		/// </summary>
 		/// <param name="name">The name, which must not be <c>null</c>.</param>
