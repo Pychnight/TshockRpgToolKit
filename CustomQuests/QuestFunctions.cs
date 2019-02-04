@@ -11,8 +11,6 @@ using System.Diagnostics;
 using Corruption;
 using Corruption.PluginSupport;
 
-// ReSharper disable InconsistentNaming
-
 namespace CustomQuests
 {
     /// <summary>
@@ -26,23 +24,7 @@ namespace CustomQuests
 		{
 			Debug.Print(txt);
 		}
-
-        /// <summary>
-        ///     Executes the specified command as the server.
-        /// </summary>
-        /// <param name="command">The command string, which must not be <c>null</c>.</param>
-        /// <returns><c>true</c> if the command was executed successfully; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="command" /> is <c>null</c>.</exception>
-        public static bool ExecuteCommand(string command)
-        {
-            if (command == null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
-
-            return Commands.HandleCommand(TSPlayer.Server, command);
-        }
-		
+			
         /// <summary>
         ///     Places a 1x2 object.
         /// </summary>
