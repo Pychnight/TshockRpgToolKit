@@ -18,9 +18,7 @@ namespace CustomQuests
     /// </summary>
     public static class QuestFunctions
     {
-        private static readonly Random Random = new Random();
-
-		public static void DebugLog(string txt)
+    	public static void DebugLog(string txt)
 		{
 			Debug.Print(txt);
 		}
@@ -251,23 +249,6 @@ namespace CustomQuests
         public static void PlaceObject(int x, int y, int type, int style)
         {
             WorldGen.PlaceObject(x, y, (ushort)type, false, style);
-        }
-		
-		/// <summary>
-		///     Returns a random integer in the specified range.
-		/// </summary>
-		/// <param name="min">The minimum.</param>
-		/// <param name="max">The maximum, which must be at least the minimum.</param>
-		/// <returns>The random integer.</returns>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
-		public static int RandomInt(int min, int max)
-        {
-            if (max < min)
-            {
-                throw new ArgumentOutOfRangeException(nameof(max), "Maximum is smaller than the minimum.");
-            }
-
-            return Random.Next(min, max);
         }
 	}
 }
