@@ -106,7 +106,7 @@ namespace NpcShops
 		public void OnGameUpdate()
 		{
 			var kvps = pausedNpcs.ToArray();
-			
+						
 			foreach(var kvp in kvps )
 			{
 				var npc = Main.npc[kvp.Key];

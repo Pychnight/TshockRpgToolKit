@@ -60,32 +60,24 @@ namespace NpcShops.Shops
 
 		public ValidationResult Validate()
 		{
-			var result = new ValidationResult();
+			var result = new ValidationResult(this);
 
 			if(string.IsNullOrWhiteSpace(ItemName))
-			{
-				result.Errors.Add(new ValidationError($"ItemName is null or empty."));
-			}
+				result.Errors.Add(new ValidationError($"{nameof(ItemName)} is null or empty."));
 			else
 			{
 				var itemFound = TShock.Utils.GetItemByIdOrName(ItemName).SingleOrDefault();
 
 				if(itemFound==null)
-				{
-					result.Errors.Add(new ValidationError($"Cound not find Terraria Id or Name matching ItemName '{ItemName}'."));
-				}
+					result.Errors.Add(new ValidationError($"Cound not find Terraria Id or Name matching {nameof(ItemName)} '{ItemName}'."));
 			}
 
 			if (StackSize == 0)
-			{
-				result.Warnings.Add(new ValidationWarning($"StackSize is 0."));
-			}
-
+				result.Warnings.Add(new ValidationWarning($"{nameof(StackSize)} is 0."));
+			
 			if (string.IsNullOrWhiteSpace(UnitPrice))
-			{
-				result.Warnings.Add(new ValidationWarning($"UnitPrice is null or empty."));
-			}
-
+				result.Warnings.Add(new ValidationWarning($"{nameof(UnitPrice)} is null or empty."));
+			
 			return result;
 		}
 	}

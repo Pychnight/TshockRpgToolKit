@@ -110,36 +110,34 @@ namespace NpcShops.Shops
 
 		public ValidationResult Validate()
 		{
-			var result = new ValidationResult();
+			var result = new ValidationResult(this);
 
 			if(OverrideNpcTypes==null || OverrideNpcTypes.Count<1)
-			{
 				result.Warnings.Add(new ValidationWarning($"OverrideNpcTypes is null or empty. This shop will never be used."));
-			}
-
-			if (ShopItems.Count == 0 && ShopCommands.Count == 0)
-			{
+			
+			if ((ShopItems==null || ShopItems.Count == 0) &&
+				(ShopCommands==null || ShopCommands.Count == 0))
 				result.Warnings.Add(new ValidationWarning($"There are no ShopItems or ShopCommands defined. This shop can never sell anything."));
-			}
-
+			
 			if(ShopItems.Count>0)
 			{
 				//copy each item error and warning 
 				for(var i=0;i<ShopItems.Count;i++)
 				{
 					var item = ShopItems[i];
-
-					if(item == null)
+									   					 				  
+					if(item != null)
 					{
-						result.Errors.Add(new ValidationError($"ShopItem at slot #{i} is null."));
-						continue;
+						var itemName = !string.IsNullOrWhiteSpace(item.ItemName) ? $" '{item.ItemName}'" : "";
+						var itemResult = item.Validate();
+
+						itemResult.Source = $"ShopItem[{i}]{itemName}";
+						result.Children.Add(itemResult);
 					}
-
-					var itemName = !string.IsNullOrWhiteSpace(item.ItemName) ? $" '{item.ItemName}'" : "";
-					var itemResult = item.Validate();
-
-					itemResult.SetSources($"ShopItem[{i}]{itemName}");
-					result.ChildResults.Add(itemResult);
+					else
+					{
+						result.Errors.Add(new ValidationError($"ShopItem at index #{i} is null."));
+					}
 				}
 			}
 
@@ -150,17 +148,18 @@ namespace NpcShops.Shops
 				{
 					var cmd = ShopCommands[i];
 
-					if (cmd == null)
+					if (cmd != null)
 					{
-						result.Errors.Add(new ValidationError($"ShopCommand at slot #{i} is null."));
-						continue;
+						var cmdName = !string.IsNullOrWhiteSpace(cmd.Name) ? $" '{cmd.Name}'" : "";
+						var cmdResult = cmd.Validate();
+
+						cmdResult.Source = $"ShopCommand[{i}]{cmdName}";
+						result.Children.Add(cmdResult);
 					}
-
-					var cmdName = !string.IsNullOrWhiteSpace(cmd.Name) ? $" '{cmd.Name}'" : "";
-					var cmdResult = cmd.Validate();
-
-					cmdResult.SetSources($"ShopCommand[{i}]{cmdName}");
-					result.ChildResults.Add(cmdResult);
+					else
+					{
+						result.Errors.Add(new ValidationError($"ShopCommand at index #{i} is null."));
+					}
 				}
 			}
 
