@@ -47,6 +47,8 @@ namespace CustomQuests.Quests
 
 		public void LoadQuests(string fileName)
 		{
+			CustomQuestsPlugin.Instance.LogPrint($"Loading quest info from {fileName}...", TraceLevel.Info);
+
 			try
 			{
 				if( File.Exists(fileName) )
@@ -66,15 +68,27 @@ namespace CustomQuests.Quests
 				CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				questInfoList = new List<QuestInfo>();
 			}
-
+			
 			Clear();
 
-			foreach( var qi in questInfoList )
-				questInfos.Add(qi.Name, qi);
+			//validation
+			var rootResult = new ValidationResult(fileName);
 
-			Debug.Print("Found the following quest infos:");
-			foreach( var qi in questInfoList )
-				Debug.Print($"Quest: {qi.Name},  {qi.FriendlyName} - {qi.Description}");
+			foreach (var qi in questInfoList)
+			{
+				var result = qi.Validate();
+				rootResult.Children.Add(result);
+
+				//only add quest info if its valid
+				if(result.Errors.Count==0)
+					questInfos.Add(qi.Name, qi);
+			}
+
+			CustomQuestsPlugin.Instance.LogPrint(rootResult);
+			
+			//Debug.Print("Found the following quest infos:");
+			//foreach( var qi in questInfoList )
+			//	Debug.Print($"Quest: {qi.Name},  {qi.FriendlyName} - {qi.Description}");
 		}
 		
 		public Quest CreateInstance(QuestInfo questInfo, Party party)

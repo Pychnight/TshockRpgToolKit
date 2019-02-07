@@ -1,16 +1,18 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using System;
+using TShockAPI;
 
 namespace CustomQuests.Quests
 {
     /// <summary>
     ///     Represents information about a quest.
     /// </summary>
-	public sealed class QuestInfo
+	public sealed class QuestInfo : IValidator
     {
 		/// <summary>
 		///     Gets or sets the name.
 		/// </summary>
-		public string Name { get; set; }
+		public string Name { get; set; } = "New Quest";
 
 		/// <summary>
 		///     Gets or sets the friendly name.
@@ -65,6 +67,30 @@ namespace CustomQuests.Quests
 		public override string ToString()
 		{
 			return $"{{{Name}|'{FriendlyName}'}}";
+		}
+
+		public ValidationResult Validate()
+		{
+			var result = new ValidationResult(this);
+
+			if (string.IsNullOrWhiteSpace(Name))
+				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or whitespace."));
+
+			if (MaxConcurrentParties<1)
+				result.Warnings.Add(new ValidationWarning($"{nameof(MaxConcurrentParties)} is less than 1. No parties can embark on this quest."));
+
+			if (MaxPartySize < 1)
+				result.Warnings.Add(new ValidationWarning($"{nameof(MaxPartySize)} is less than 1. No parties can embark on this quest."));
+
+			if(!string.IsNullOrWhiteSpace(RequiredRegionName))
+			{
+				var region = TShock.Regions.GetRegionByName(RequiredRegionName);
+
+				if (region == null)
+					result.Errors.Add(new ValidationError($"Cound not find {nameof(RequiredRegionName)}, '{RequiredRegionName}'."));
+			}
+			
+			return result;
 		}
 	}
 }
