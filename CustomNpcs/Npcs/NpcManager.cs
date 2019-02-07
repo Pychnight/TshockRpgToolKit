@@ -212,7 +212,7 @@ namespace CustomNpcs.Npcs
 		
 		protected override void LoadDefinitions()
 		{
-			CustomNpcsPlugin.Instance.LogPrint($"Compiling NPC scripts.", TraceLevel.Info);
+			CustomNpcsPlugin.Instance.LogPrint($"Loading CustomNpcs...", TraceLevel.Info);
 			base.LoadDefinitions();		
 		}
 

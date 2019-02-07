@@ -132,18 +132,13 @@ namespace CustomNpcs.Invasions
 			return true;
 		}
 
-		protected override void OnValidate(ValidationResult result)
+		public override ValidationResult Validate()
 		{
-			if( Name == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is null.", FilePath, LineNumber, LinePosition));
-			}
-
+			var result = new ValidationResult(DefinitionBase.CreateValidationSourceString(this));
+					
 			if( string.IsNullOrWhiteSpace(Name) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is whitespace.", FilePath, LineNumber, LinePosition));
-			}
-
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null or whitespace."));
+			
 			//Disabling this check for rooted, because at the point this is ran, InvasionManager may not have been set yet, causing 
 			//an NRE to get logged.
 			//var rooted = Path.Combine(InvasionManager.Instance.BasePath, ScriptPath ?? "");
@@ -154,35 +149,30 @@ namespace CustomNpcs.Invasions
 			//	result.AddError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath, LineNumber, LinePosition);
 			//}
 			if( NpcPointValues == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} is null.", FilePath, LineNumber, LinePosition));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} is null."));
+			
 			if( NpcPointValues.Count == 0 )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must not be empty.", FilePath, LineNumber, LinePosition));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must not be empty."));
+			
 			if( NpcPointValues.Any(kvp => kvp.Value <= 0) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must contain positive values.", FilePath, LineNumber, LinePosition));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must contain positive values."));
+			
 			if( CompletedMessage == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(CompletedMessage)} is null.", FilePath, LineNumber, LinePosition));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(CompletedMessage)} is null."));
+			
 			if( Waves == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Waves)} is null.", FilePath, LineNumber, LinePosition));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(Waves)} is null."));
+			
 			if( Waves.Count == 0 )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Waves)} must not be empty.", FilePath, LineNumber, LinePosition));
-			}
-
+				result.Errors.Add( new ValidationError($"{nameof(Waves)} must not be empty."));
+			
 			foreach( var wave in Waves )
 			{
 				var waveResult = wave.Validate();
-				result.ChildResults.Add(waveResult);
+				result.Children.Add(waveResult);
 			}
+
+			return result;
 		}
 	}
 }

@@ -144,7 +144,7 @@ namespace CustomNpcs.Invasions
 
 		protected override void LoadDefinitions()
 		{
-			CustomNpcsPlugin.Instance.LogPrint($"Compiling invasion scripts.", TraceLevel.Info);
+			CustomNpcsPlugin.Instance.LogPrint($"Loading CustomInvasions...", TraceLevel.Info);
 			base.LoadDefinitions();
 		}
 		

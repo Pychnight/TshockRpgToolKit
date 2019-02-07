@@ -13,17 +13,17 @@ namespace CustomNpcs
 {
 	internal static class DefinitionLoader
 	{
-		internal static List<T> LoadFromFile<T>(string filePath) where T : DefinitionBase
+		internal static List<TDefinition> LoadFromFile<TDefinition>(string filePath) where TDefinition : DefinitionBase
 		{
-			List<T> result = null;
-			var definitionType = typeof(T);
+			List<TDefinition> result = null;
+			var definitionType = typeof(TDefinition);
 			var typeName = definitionType.Name;
 
 			if( File.Exists(filePath) )
 			{
-				var definitions = DeserializeFromText<T>(filePath);
+				var definitions = DeserializeFile<TDefinition>(filePath);
 				var usedNames = new HashSet<string>();
-				var failedDefinitions = new List<T>();
+				var failedDefinitions = new List<TDefinition>();
 
 				foreach( var definition in definitions )
 				{
@@ -35,7 +35,7 @@ namespace CustomNpcs
 						{
 							//throw new Exception($"A definition with the name '{definition.Name}' already exists.");
 							validationResult = new ValidationResult();
-							validationResult.Errors.Add(new ValidationError($"A definition with the name '{definition.Name}' already exists.", definition.FilePath, definition.LineNumber, definition.LinePosition));
+							validationResult.Errors.Add(new ValidationError($"A definition with the name '{definition.Name}' already exists."));
 						}
 						else
 						{
@@ -62,7 +62,8 @@ namespace CustomNpcs
 					}
 					catch( Exception ex )
 					{
-						CustomNpcsPlugin.Instance.LogPrint($"{definition.FilePath}: An error occurred while trying to load {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						//CustomNpcsPlugin.Instance.LogPrint($"{definition.FilePath}: An error occurred while trying to load {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
+						CustomNpcsPlugin.Instance.LogPrint($"{definition.FilePosition.FilePath}: An error occurred while trying to load {typeName} '{definition.Name}': {ex.Message}", TraceLevel.Error);
 						failedDefinitions.Add(definition);
 					}
 				}
@@ -72,36 +73,49 @@ namespace CustomNpcs
 			else
 			{
 				CustomNpcsPlugin.Instance.LogPrint($"Configuration for {typeName} does not exist. Expected config file to be at: {filePath}", TraceLevel.Error);
-				result = new List<T>();
+				result = new List<TDefinition>();
 			}
 			
 			return result;
 		}
 
-		static List<T> DeserializeFromText<T>(string filePath) where T : DefinitionBase
+		static List<TDefinition> DeserializeFile<TDefinition>(string filePath) where TDefinition : DefinitionBase
 		{
-			var expandedDefinitions = new List<T>();
+			var expandedDefinitions = new List<TDefinition>();
 			
 			if( File.Exists(filePath) )
 			{
 				var json = File.ReadAllText(filePath);
-				var definitionType = typeof(T);
+				var definitionType = typeof(TDefinition);
 				var rawDefinitions = (List<DefinitionBase>)JsonConvert.DeserializeObject(json,
 																						typeof(List<DefinitionBase>),
 																						new DefinitionOrCategoryJsonConverter(definitionType));
-				foreach( var rawDef in rawDefinitions )
+
+				var settings = new JsonSerializerSettings();
+				
+				//settings.Error = (s, a) =>
+				//{
+				//	Debug.Print($"JsonError! CurrentObject: {a.CurrentObject}");
+				//	Debug.Print($"JsonError! ErrorContext.Path: {a.ErrorContext.Path}");
+				//};
+
+				//settings.Converters.Add(new DefinitionOrCategoryJsonConverter(definitionType));
+
+				//var rawDefinitions = (List<DefinitionBase>)JsonConvert.DeserializeObject(json, typeof(List<DefinitionBase>), settings);
+
+				foreach ( var rawDef in rawDefinitions )
 				{
-					if( rawDef is T )
+					if( rawDef is TDefinition )
 					{
 						//this is a real definition
-						rawDef.FilePath = filePath;
-						expandedDefinitions.Add(rawDef as T);
+						rawDef.FilePosition = new FilePosition(filePath);
+						expandedDefinitions.Add(rawDef as TDefinition);
 					}
-					else if( rawDef is CategoryPlaceholderDefinition )
+					else if( rawDef is CategoryDefinition )
 					{
 						//this is a placeholder definition, which points to included definitions.
-						var placeholder = rawDef as CategoryPlaceholderDefinition;
-						var includedDefinitions = placeholder.TryLoadIncludes<T>(filePath);
+						var placeholder = rawDef as CategoryDefinition;
+						var includedDefinitions = placeholder.TryLoadIncludes<TDefinition>(filePath);
 
 						expandedDefinitions.AddRange(includedDefinitions);
 					}

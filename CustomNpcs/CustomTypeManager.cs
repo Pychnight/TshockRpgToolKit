@@ -1,6 +1,7 @@
 ﻿using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using BooTS;
+using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -47,8 +48,34 @@ namespace CustomNpcs
 		/// </summary>
 		protected virtual void LoadDefinitions()
 		{
-			Definitions = DefinitionLoader.LoadFromFile<TCustomType>(ConfigPath);
+			//CustomNpcsPlugin.Instance.LogPrint("Using new definition loading, include paths aren't 100% reliable yet!",TraceLevel.Warning);
+
+			var include = DefinitionInclude.Load<TCustomType>(ConfigPath);
+			Definitions = DefinitionInclude.Flatten<TCustomType>(include);
 			
+			var rootResult = new ValidationResult(ConfigPath);
+			rootResult.Source = ConfigPath;
+
+			foreach(var def in Definitions)
+			{
+				var name = "";
+				var result = def.Validate();
+
+				if (!string.IsNullOrWhiteSpace(def.Name))
+					name = $" - '{def.Name}'";
+
+				//result.Source = $"{def.FilePath}[{def.LineNumber},{def.LinePosition}]{name}";
+				
+				//CustomNpcsPlugin.Instance.LogPrint(result);
+				rootResult.Children.Add(result);
+			}
+
+			CustomNpcsPlugin.Instance.LogPrint(rootResult);
+
+			//Definitions = DefinitionLoader.LoadFromFile<TCustomType>(ConfigPath);
+
+			CustomNpcsPlugin.Instance.LogPrint("Compiling scripts...", TraceLevel.Info);
+
 			//get script files paths
 			var booScripts = Definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath))
 										 .Select(d => Path.Combine(BasePath, d.ScriptPath))

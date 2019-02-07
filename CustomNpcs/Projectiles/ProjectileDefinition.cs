@@ -151,43 +151,40 @@ namespace CustomNpcs.Projectiles
 			return true;
 		}
 
-		protected override void OnValidate(ValidationResult result)
+		public override ValidationResult Validate()
 		{
-			if( Name == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is null."));
-			}
-			if( int.TryParse(Name, out _) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} cannot be a number."));
-			}
-			if( string.IsNullOrWhiteSpace(Name) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is whitespace."));
-			}
+			var result = new ValidationResult(DefinitionBase.CreateValidationSourceString(this));
+
+			if (string.IsNullOrWhiteSpace(Name))
+				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or whitespace."));
+
+			if (int.TryParse(Name, out _))
+				result.Errors.Add(new ValidationError($"{nameof(Name)} cannot be a number."));
+
 			//if (BaseType < -65)
 			//{
 			//	throw new FormatException($"{nameof(BaseType)} is too small.");
 			//}
-			if( BaseType >= Main.maxProjectileTypes )
+			if (BaseType >= Main.maxProjectileTypes)
+				result.Errors.Add(new ValidationError($"{nameof(BaseType)} is greater than {Main.maxProjectileTypes}."));
+
+			if (ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)))
+				result.Errors.Add(new ValidationError($"{nameof(ScriptPath)} points to invalid script file, '{ScriptPath}'."));
+
+			if (BaseOverride != null)
 			{
-				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too large."));
+				var baseResult = BaseOverride.Validate();
+				baseResult.Source = result.Source;
+				result.Children.Add(baseResult);
 			}
-			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(ScriptPath)} points to an invalid script file."));
-			}
-			if( BaseOverride == null )
-			{
-				result.Errors.Add( new ValidationError("BaseOverride is null."));
-			}
-			//_baseOverride.ThrowIfInvalid();
-			//var baseResult = BaseOverride.Validate();
-			//result.AddValidationResult(baseResult);
+			else
+				result.Errors.Add( new ValidationError($"{nameof(BaseOverride)} is null."));
+
+			return result;
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
-		public sealed class BaseOverrideDefinition //: IValidator
+		public sealed class BaseOverrideDefinition : IValidator
 		{
 			[JsonProperty]
 			public int? AiStyle { get; set; }
@@ -239,13 +236,19 @@ namespace CustomNpcs.Projectiles
 
 			[JsonProperty]
 			public bool? IgnoreWater { get; set; }
-			
-		/* 	[JsonProperty]
-			public bool? Wet { get; set; } */
+
+			public ValidationResult Validate()
+			{
+				var result = new ValidationResult();
+				return result;
+			}
+
+			/* 	[JsonProperty]
+				public bool? Wet { get; set; } */
 
 			//[JsonProperty]
 			//public bool? Bobber { get; set; }
-			
+
 			//[JsonProperty]
 			//public bool? Counterweight { get; set; }
 		}

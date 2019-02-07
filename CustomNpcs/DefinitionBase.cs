@@ -9,49 +9,38 @@ using System.Threading.Tasks;
 
 namespace CustomNpcs
 {
-	public abstract class DefinitionBase : IValidator, IJsonLineInfo
+	/// <summary>
+	/// Base class for custom definitions and pseudo definitions, like <see cref="CategoryDefinition"/>.
+	/// </summary>
+	public abstract class DefinitionBase : IValidator
 	{
 		public abstract string Name { get; protected internal set; } //only marking this as abstract so that derived classes override it, so we can apply json attributes. not sure if they'll work otherwise.
 		public abstract string ScriptPath { get; protected internal set; }
 
-		/// <summary>
-		/// Gets or sets the path to the file that this Definition is defined in.
-		/// </summary>
-		public string FilePath { get; set; } = "";
-		public int LineNumber { get; set; }
-		public int LinePosition { get; set; }
-
-		bool IJsonLineInfo.HasLineInfo()
-		{
-			return true;
-		}
-
+		[JsonIgnore]
+		public FilePosition FilePosition { get; set; }
+				
 		/// <summary>
 		/// Runs validation for the definition, to check for and report on any error or warning conditions.
 		/// </summary>
 		/// <returns>A ValidationResult.</returns>
-		public ValidationResult Validate()
+		public virtual ValidationResult Validate()
 		{
 			var result = new ValidationResult();
-
-			try
-			{
-				OnValidate(result);
-			}
-			catch(Exception ex)
-			{
-				//exceptions are automatically flagged as errors
-				result.Errors.Add(new ValidationError(ex.Message, FilePath));
-			}
-						
 			return result;
 		}
 
 		/// <summary>
-		/// Allows a DefinitionBase derived class to run customized validation checks.
+		/// Helper method that creates a string with the format FILENAME LINENUMBER,LINE {'DEFINITION.NAME'}.
 		/// </summary>
-		protected virtual void OnValidate(ValidationResult result)
+		/// <param name="definition"></param>
+		/// <returns></returns>
+		internal static string CreateValidationSourceString(DefinitionBase definition)
 		{
+			var namePart = definition.Name != null ? $" '{definition.Name}'" : "";
+			var result = $"{definition.FilePosition}{namePart}";
+
+			return result;
 		}
 
 		/// <summary>

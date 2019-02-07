@@ -43,37 +43,29 @@ namespace CustomNpcs.Npcs
 	
 		public ValidationResult Validate()
 		{
-			var result = new ValidationResult();
+			var result = new ValidationResult(this);
 
-			if( Name == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is null."));
-			}
+			if( string.IsNullOrWhiteSpace(Name) )
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null or whitespace."));
+			
 			if( MinStackSize < 0 )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(MinStackSize)} is negative."));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(MinStackSize)} is less than 0."));
+			
 			if( MaxStackSize < MinStackSize )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(MaxStackSize)} is less than {nameof(MinStackSize)}."));
-			}
+			
 			if( Chance <= 0 )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Chance)} is not positive."));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(Chance)} is less than 1."));
+			
 			if( Chance > 1 )
-			{
 				result.Errors.Add( new ValidationError($"{nameof(Chance)} is greater than 1."));
-			}
+			
 			if( Prefix <= -2 )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Prefix)} is too small."));
-			}
+				result.Errors.Add( new ValidationError($"{nameof(Prefix)} is too small. Value cannot be less than -2."));
+			
 			if( Prefix >= PrefixID.Count )
-			{
-				result.Errors.Add(new ValidationError($"{nameof(Prefix)} is too large."));
-			}
-
+				result.Errors.Add(new ValidationError($"{nameof(Prefix)} is too large. Value cannot be greater than {PrefixID.Count}."));
+			
 			return result;
 		}
 	}

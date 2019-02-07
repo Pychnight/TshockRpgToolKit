@@ -101,9 +101,10 @@
     <Compile Include="CustomEntity.cs" />
     <Compile Include="CustomIDFunctions.cs" />
     <Compile Include="CustomNpcsPlugin.Commands.cs" />
-    <Compile Include="DefinitionLoading\CategoryPlaceholderDefinition.cs" />
+    <Compile Include="DefinitionLoading\CategoryDefinition.cs" />
     <Compile Include="DefinitionBase.cs" />
-    <Compile Include="DefinitionLoading\DefinitionLoader.cs" />
+    <None Include="DefinitionLoading\DefinitionLoader.cs" />
+    <Compile Include="DefinitionLoading\DefinitionInclude.cs" />
     <Compile Include="DefinitionLoading\DefinitionOrCategoryJsonConverter.cs" />
     <Compile Include="Npcs\NpcDelegates.cs" />
     <Compile Include="Config.cs" />

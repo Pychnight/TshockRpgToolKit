@@ -12,11 +12,14 @@ namespace CustomNpcs
 {
 	//HACK - we create a "dummy" Definition, solely for the purpose of holding category and other definition include information( within our initial, "raw" def list )
 	//later this will get all get transformed into a single list of deserialized definitions
+	/// <summary>
+	/// Pseudo definition for Categories and Includes. This type is only used for deserialization of Categories, and never backs a CustomType. 
+	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public class CategoryPlaceholderDefinition : DefinitionBase
+	public class CategoryDefinition : DefinitionBase
 	{
 		[JsonIgnore]//...in case later down the road, DefinitionBase opts in on this property!
-		public override string Name { get => throw new NotImplementedException(); protected internal set => throw new NotImplementedException(); }
+		public override string Name { get => Category; protected internal set => Category = value; }
 
 		[JsonIgnore]
 		public override string ScriptPath { get => throw new NotImplementedException(); protected internal set => throw new NotImplementedException(); }
@@ -27,14 +30,12 @@ namespace CustomNpcs
 		[JsonProperty(Order = 1)]
 		public List<string> Includes { get; set; }
 
-		//protected internal override void ThrowIfInvalid()
-		//{
-		//	throw new NotImplementedException();
-		//}
-		
-		internal List<T> TryLoadIncludes<T>(string parentFilePath) where T : DefinitionBase
+		[JsonIgnore]
+		public Dictionary<string, DefinitionInclude> DefinitionIncludes { get; set; } = new Dictionary<string, DefinitionInclude>();
+				
+		internal List<TDefinition> TryLoadIncludes<TDefinition>(string parentFilePath) where TDefinition : DefinitionBase
 		{
-			var result = new List<T>();
+			var result = new List<TDefinition>();
 			var basePath = Path.GetDirectoryName(parentFilePath);
 
 			foreach( var includeName in Includes )
@@ -44,10 +45,10 @@ namespace CustomNpcs
 				try
 				{
 					var json = File.ReadAllText(includePath);
-					var definitions = JsonConvert.DeserializeObject<List<T>>(json);
+					var definitions = JsonConvert.DeserializeObject<List<TDefinition>>(json);
 
 					foreach( var def in definitions )
-						def.FilePath = includePath;
+						def.FilePosition = new FilePosition(includePath);
 
 					result.AddRange(definitions);
 				}

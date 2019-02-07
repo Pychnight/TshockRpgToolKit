@@ -34,12 +34,17 @@ namespace CustomNpcs
 			if( category != null )
 			{
 				//this is a category object, with includes
-				return item.ToObject<CategoryPlaceholderDefinition>();
+				var result = item.ToObject<CategoryDefinition>();
+
+				//result.JsonPath = reader.Path;
+
+				return result;
 			}
 			else
 			{
 				// is definition
-				return item.ToObject(definitionType);
+				var result = item.ToObject(definitionType);
+				return result;
 			}
 		}
 

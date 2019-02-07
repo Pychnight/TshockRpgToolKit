@@ -99,7 +99,7 @@ namespace CustomNpcs.Projectiles
 		
 		protected override void LoadDefinitions()
 		{
-			CustomNpcsPlugin.Instance.LogPrint($"Compiling Projectile scripts.", TraceLevel.Info);
+			CustomNpcsPlugin.Instance.LogPrint($"Loading CustomProjectiles...", TraceLevel.Info);
 			base.LoadDefinitions();
 		}
 

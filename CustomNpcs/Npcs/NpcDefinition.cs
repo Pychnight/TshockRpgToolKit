@@ -231,53 +231,68 @@ namespace CustomNpcs.Npcs
 			return true;
 		}
 
-		protected override void OnValidate(ValidationResult result)
+		public override ValidationResult Validate()
 		{
-			if( Name == null )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is null.", FilePath));
-			}
-			if( int.TryParse(Name, out _) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} cannot be a number.", FilePath));
-			}
-			if( string.IsNullOrWhiteSpace(Name) )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is whitespace.", FilePath));
-			}
-			if( BaseType < -65 )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too small.", FilePath));
-			}
-			if( BaseType >= Main.maxNPCTypes )
-			{
-				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too large.", FilePath));
-			}
-			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
-			{
-				result.Errors.Add(new ValidationError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath));
-			}
-			if( _loot == null )
-			{
-				result.Errors.Add( new ValidationError("Loot is null.", FilePath));
-			}
-			//_loot.ThrowIfInvalid();
-			var lootResult = _loot.Validate();
-			lootResult.SetSources(FilePath);
-			result.Concat(lootResult);
+			var result = new ValidationResult(DefinitionBase.CreateValidationSourceString(this));
 
-			if( _spawning == null )
+			if( string.IsNullOrWhiteSpace(Name) )
+				result.Errors.Add( new ValidationError($"{nameof(Name)} is null or whitespace."));
+			
+			if( int.TryParse(Name, out _) )
+				result.Errors.Add( new ValidationError($"{nameof(Name)} cannot be a number."));
+						
+			if( BaseType < -65 )
+				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too small. Value must be greater than -65."));
+			
+			if( BaseType >= Main.maxNPCTypes )
+				result.Errors.Add( new ValidationError($"{nameof(BaseType)} is too large. Value must be less than {Main.maxNPCTypes}."));
+			
+			if( ScriptPath != null && !File.Exists(Path.Combine("npcs", ScriptPath)) )
+				result.Errors.Add(new ValidationError($"{nameof(ScriptPath)} points to invalid script file, '{ScriptPath}'."));
+
+			//BaseOverride
+			if (_baseOverride != null)
 			{
-				result.Errors.Add( new ValidationError("Spawning is null.", FilePath));
+				var baseResult = _baseOverride.Validate();
+				baseResult.Source = result.Source;
+				result.Children.Add(baseResult);
 			}
-			if( _baseOverride == null )
+			else
+				result.Errors.Add(new ValidationError("BaseOverride is null."));
+
+			//Loot
+			if ( _loot != null )
 			{
-				result.Errors.Add(new ValidationError("BaseOverride is null.", FilePath));
+				var lootResult = _loot.Validate();
+				lootResult.Source = result.Source;
+				result.Children.Add(lootResult);
 			}
-			//_baseOverride.ThrowIfInvalid();
-			var baseResult = _baseOverride.Validate();
-			baseResult.SetSources(FilePath);
-			result.Concat(baseResult);
+			else
+				result.Errors.Add( new ValidationError("Loot is null."));
+			
+			//Spawning
+			if( _spawning != null )
+			{
+				var spawnResult = _spawning.Validate();
+				spawnResult.Source = result.Source;
+				result.Children.Add(spawnResult);
+			}	
+			else
+				result.Errors.Add( new ValidationError("Spawning is null."));
+			
+			//var source = "";
+
+			//if (!string.IsNullOrWhiteSpace(Name))
+			//	source =  $"{FilePath} {LineNumber},{LinePosition}: in '{Name}'";
+			//else
+			//	source = $"{FilePath} {LineNumber},{LinePosition}:";
+
+			//result.Children.Add(baseResult);
+			//baseResult.SetSources(source);
+			
+			//result.SetSources(source);
+
+			return result;
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
@@ -333,25 +348,20 @@ namespace CustomNpcs.Npcs
 			
 			public ValidationResult Validate()
 			{
-				var result = new ValidationResult();
+				var result = new ValidationResult(this);
 
 				if( BuffImmunities != null && BuffImmunities.Any(i => i <= 0 || i >= Main.maxBuffTypes) )
-				{
 					result.Errors.Add( new ValidationError($"{nameof(BuffImmunities)} must contain valid buff types."));
-				}
+				
 				if( KnockbackMultiplier < 0 )
-				{
 					result.Errors.Add( new ValidationError($"{nameof(KnockbackMultiplier)} must be non-negative."));
-				}
+				
 				if( MaxHp < 0 )
-				{
 					result.Errors.Add( new ValidationError($"{nameof(MaxHp)} must be non-negative."));
-				}
+				
 				if( Value < 0 )
-				{
 					result.Errors.Add( new ValidationError($"{nameof(Value)} must be non-negative."));
-				}
-
+				
 				return result;
 			}
 		}
@@ -370,26 +380,27 @@ namespace CustomNpcs.Npcs
 
 			public ValidationResult Validate()
 			{
-				var result = new ValidationResult();
+				var result = new ValidationResult(this);
 
-				if( Entries == null )
+				if (Entries != null)
 				{
-					throw new FormatException($"{nameof(Entries)} is null.");
+					foreach (var entry in Entries)
+					{
+						var res = entry.Validate();
+						result.Children.Add(res);
+					}
 				}
-				foreach( var entry in Entries )
+				else
 				{
-					//entry.ThrowIfInvalid();
-					var res = entry.Validate();
-					result.Concat(res);
-
+					result.Errors.Add(new ValidationError($"{nameof(Entries)} is null."));
 				}
-
+				
 				return result;
 			}
 		}
 
         [JsonObject(MemberSerialization.OptIn)]
-        internal sealed class SpawningDefinition
+        internal sealed class SpawningDefinition : IValidator
         {
             [JsonProperty(Order = 1)]
             public bool ShouldReplace { get; private set; }
@@ -399,6 +410,12 @@ namespace CustomNpcs.Npcs
 
 			[JsonProperty(Order = 2)]
 			public int? SpawnRateOverride { get; private set; }
+
+			public ValidationResult Validate()
+			{
+				var result = new ValidationResult(this);
+				return result;
+			}
 		}
     }
 }

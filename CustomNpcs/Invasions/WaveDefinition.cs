@@ -50,7 +50,7 @@ namespace CustomNpcs.Invasions
     
 		public ValidationResult Validate()
 		{
-			var result = new ValidationResult();
+			var result = new ValidationResult(this);
 
 			if( NpcWeights == null )
 				result.Errors.Add(new ValidationError($"{nameof(NpcWeights)} is null."));
