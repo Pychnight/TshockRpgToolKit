@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Corruption.PluginSupport;
 using Newtonsoft.Json;
 
 namespace Leveling.Levels
@@ -7,7 +8,7 @@ namespace Leveling.Levels
     ///     Represents a level definition.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class LevelDefinition
+    public sealed class LevelDefinition : IValidator
     {
 		/// <summary>
 		///     Gets the name.
@@ -68,5 +69,26 @@ namespace Leveling.Levels
 		/// </summary>
 		[JsonProperty("CommandsOnLevelDown", Order = 9)]
 		public IList<string> CommandsOnLevelDown { get; internal set; } = new List<string>();
+
+		public ValidationResult Validate()
+		{
+			string source = Name;
+
+			if (string.IsNullOrWhiteSpace(Name))
+				source = DisplayName;
+
+			var result = new ValidationResult(source);
+
+			if (string.IsNullOrWhiteSpace(Name))
+				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or whitespace."));
+
+			if (string.IsNullOrWhiteSpace(DisplayName))
+				result.Warnings.Add(new ValidationWarning($"{nameof(DisplayName)} is null or whitespace."));
+
+			if (ExpRequired<1)
+				result.Errors.Add(new ValidationError($"{nameof(ExpRequired)} is less than 1."));
+
+			return result;
+		}
 	}
 }

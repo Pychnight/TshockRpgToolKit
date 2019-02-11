@@ -64,13 +64,13 @@ namespace Leveling
 			var result = new ValidationResult();
 
 			if (DatabaseConfig == null)
-				result.Errors.Add(new ValidationError("DatabaseConfig is null."));
+				result.Errors.Add(new ValidationError($"{nameof(DatabaseConfig)} is null."));
 
 			if(string.IsNullOrWhiteSpace(DefaultClassName))
-				result.Errors.Add(new ValidationError("DefaultClass is empty or null."));
+				result.Errors.Add(new ValidationError($"DefaultClassName is empty or null."));
 
 			if (ExpMultiplier == 0f || ExpMultiplier < 0.0f)
-				result.Warnings.Add(new ValidationWarning($"ExpMultiplier is {ExpMultiplier}. Experience may not be rewarded, or even deducted!"));
+				result.Warnings.Add(new ValidationWarning($"{nameof(ExpMultiplier)} is {ExpMultiplier}. Experience may not be rewarded, or even deducted!"));
 
 			return result;
 		}

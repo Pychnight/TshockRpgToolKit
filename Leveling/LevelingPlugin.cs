@@ -26,17 +26,17 @@ namespace Leveling
     [ApiVersion(2, 1)]
     public sealed partial class LevelingPlugin : TerrariaPlugin
     {
-		public override string Author => "MarioE, Timothy Barela";
-		public override string Description => "Provides RPG-styled leveling and classes.";
 		public override string Name => "Leveling";
+		public override string Description => "Provides RPG-styled leveling and classes.";
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+		public override string Author => "MarioE, Timothy Barela";
 
+        private static readonly string ConfigPath = Path.Combine("leveling", "config.json");
 		/// <summary>
 		/// The prefix used for BankAccounts created by this plugin.
 		/// </summary>
 		public const string BankAccountNamePrefix = "Exp_";
 		internal const string SessionKey = "Leveling_Session";
-        private static readonly string ConfigPath = Path.Combine("leveling", "config.json");
 
 		public static LevelingPlugin Instance { get; private set; }
 		public static readonly Dictionary<string, Level> ItemNameToLevelRequirements = new Dictionary<string, Level>();
@@ -231,8 +231,7 @@ namespace Leveling
 			InitializeBanking();
 
 			Directory.CreateDirectory(classDirectory);
-
-			//var classDefs = loadClassDefinitions(classDirectory);
+						
 			var classDefs = ClassDefinition.Load(classDirectory);
 									
 			_classDefinitions = classDefs;
@@ -273,31 +272,6 @@ namespace Leveling
 					ItemNameToLevelRequirements[itemName] = level;
 				}
 			}
-
-			//disabled during multi currency conversion
-			//BankingPlugin.Instance.RewardDistributor.SetRewardModifier(ExpCurrency.InternalName, RewardReason.Killing, new ClassExpRewardEvaluator());
-
-			//_classDefinitions = Directory.EnumerateFiles("leveling", "*.class", SearchOption.AllDirectories)
-			//  .Select(p => JsonConvert.DeserializeObject<ClassDefinition>(File.ReadAllText(p))).ToList();
-			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
-
-			//ItemNameToLevelRequirements.Clear();
-			//var levels = _classes.SelectMany(c => c.Levels).ToList();
-			//foreach( var @class in _classes )
-			//{
-			//	@class.Resolve(levels, 0);
-			//}
-			//foreach( var @class in _classes )
-			//{
-			//	@class.Resolve(levels, 1);
-			//}
-			//foreach( var level in levels )
-			//{
-			//	foreach( var itemName in level.ItemNamesAllowed )
-			//	{
-			//		ItemNameToLevelRequirements[itemName] = level;
-			//	}
-			//}
 		}
 				
 		internal Session TryGetOrCreateSession(string playerName)

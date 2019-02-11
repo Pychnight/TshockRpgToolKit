@@ -22,6 +22,8 @@ namespace Leveling.Classes
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class ClassDefinition : IValidator
     {
+		internal FilePosition FilePosition { get; set; } = new FilePosition();
+
 		/// <summary>
 		///     Gets the name.
 		/// </summary>
@@ -148,49 +150,52 @@ namespace Leveling.Classes
 
 		public static List<ClassDefinition> Load(string directoryPath)
 		{
+			LevelingPlugin.Instance.LogPrint("Loading Classes...");
+
 			var results = new List<ClassDefinition>();
 			var filesAndDefs = new List<Tuple<string, ClassDefinition>>();//needed by LoadScripts.
-			var files = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
+			var classFiles = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
 			
-			foreach( var f in files )
+			foreach( var file in classFiles )
 			{
 				try
 				{
-					var json = File.ReadAllText(f);
+					var json = File.ReadAllText(file);
 					var def = JsonConvert.DeserializeObject<ClassDefinition>(json);
+					var result = def.Validate();
+					result.Source = file;
 
-					if( def.Initialize() )
+					def.FilePosition = new FilePosition(file);
+
+					LevelingPlugin.Instance.LogPrint(result);
+
+					if(result.Errors.Count<1)
 					{
-						results.Add(def);
+						if (def.Initialize())
+						{
+							results.Add(def);
 
-						var fd = new Tuple<string, ClassDefinition>(f, def);
-						filesAndDefs.Add(fd);
+							var fd = new Tuple<string, ClassDefinition>(file, def);
+							filesAndDefs.Add(fd);
+						}
 					}
 				}
 				catch(Exception ex)
 				{
+					LevelingPlugin.Instance.LogPrint($"{file}", TraceLevel.Error);
 					LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 				}
 			}
 			
 			LoadScripts(filesAndDefs);
 			
-			//filter out duplicate names
-			//var classNames = new HashSet<string>(results.Select(cd => cd.Name));
-			//var booDefs = loadBooClassDefinitions(classDirectory)
-			//				.Where(cd => !classNames.Contains(cd.Name))
-			//				.Select(cd => cd);
-
-			//classDefs.AddRange(booDefs);
-			//classDefs.ForEach(cd => cd.ValidateAndFix());
-			//_classDefinitions = classDefs;
-			//_classes = _classDefinitions.Select(cd => new Class(cd)).ToList();
+			//additional checks...
 
 			//if default class file does not exist, we're in an error state
 			if( results.Select(cd => cd.Name)
 						.FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
 			{
-				LevelingPlugin.Instance.LogPrint($"DefaultClassName: '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
+				LevelingPlugin.Instance.LogPrint($"A class matching the DefaultClassName '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
 			}
 			
 			return results;
@@ -204,6 +209,20 @@ namespace Leveling.Classes
 			PreParseRewardValues();
 
 			return true;//in future, we can check whether the class is actually valid, or needs to be rejected.
+		}
+
+		/// <summary>
+		/// Class specific filename formatting for errors, warnings and exceptions.
+		/// </summary>
+		/// <returns></returns>
+		private string GetFileStringForError()
+		{
+			var result = "";
+
+			if (!string.IsNullOrWhiteSpace(FilePosition.FilePath))
+				result = $"{FilePosition.FilePath}: ";
+
+			return result;
 		}
 
 		/// <summary>
@@ -222,9 +241,11 @@ namespace Leveling.Classes
 					return true;
 				}
 			}
+
+			var fileInfo = GetFileStringForError();
 			
-			LevelingPlugin.Instance.LogPrint($"Could not determine currency or value for switching to class '{Name}'.", TraceLevel.Warning);//not an error, in the strict sense of the word.
-			LevelingPlugin.Instance.LogPrint($"Ensure that the 'Cost' property has a properly formatted currency string set.", TraceLevel.Info);
+			LevelingPlugin.Instance.LogPrint($"{fileInfo}Could not determine currency or value for switching to class '{Name}'.", TraceLevel.Warning);//not an error, in the strict sense of the word.
+			LevelingPlugin.Instance.LogPrint($"{fileInfo}Ensure that the 'Cost' property has a properly formatted currency string set.", TraceLevel.Info);
 
 			return false;
 		}
@@ -236,6 +257,7 @@ namespace Leveling.Classes
 		{
 			//determine leveling currency
 			var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
+			var fileInfo = GetFileStringForError();
 			
 			foreach( var lvl in LevelDefinitions )
 			{
@@ -259,26 +281,26 @@ namespace Leveling.Classes
 								lvl.ExpRequired = (long)requiredValue;
 							else
 							{
-								LevelingPlugin.Instance.LogPrint($"Currency '{lvlCurrency.InternalName}' used in 'CurrencyRequired' in level '{lvl.Name}' in class '{Name}' does not match previously set currency '{LevelingCurrency.InternalName}'. Falling back to 'ExpLevel'.", TraceLevel.Error);
+								LevelingPlugin.Instance.LogPrint($"{fileInfo}Currency '{lvlCurrency.InternalName}' used in 'CurrencyRequired' in level '{lvl.Name}' in class '{Name}' does not match previously set currency '{LevelingCurrency.InternalName}'. Falling back to 'ExpLevel'.", TraceLevel.Error);
 							}
 						}
 					}
 					else
 					{
-						LevelingPlugin.Instance.LogPrint($"Couldn't parse 'CurrencyRequired' in level '{lvl.Name}' in class '{Name}'. Using 'ExpLevel' instead.", TraceLevel.Error);
+						LevelingPlugin.Instance.LogPrint($"{fileInfo}Couldn't parse 'CurrencyRequired' in level '{lvl.Name}' in class '{Name}'. Using 'ExpLevel' instead.", TraceLevel.Error);
 					}
 				}
 				else
 				{
-					LevelingPlugin.Instance.LogPrint($"Couldn't determine currency type in level '{lvl.Name}' in class '{Name}'. Using 'ExpLevel' instead.", TraceLevel.Error);
-					LevelingPlugin.Instance.LogPrint($"Ensure that the 'CurrencyRequired' property has a properly formatted currency string set, or that 'ExpLevel' is set instead.", TraceLevel.Info);
+					LevelingPlugin.Instance.LogPrint($"{fileInfo}Couldn't determine currency type in level '{lvl.Name}' in class '{Name}'. Using 'ExpLevel' instead.", TraceLevel.Error);
+					LevelingPlugin.Instance.LogPrint($"{fileInfo}Ensure that the 'CurrencyRequired' property has a properly formatted currency string set, or that 'ExpLevel' is set instead.", TraceLevel.Info);
 				}
 			}
 
 			if(LevelingCurrency==null)
 			{
-				LevelingPlugin.Instance.LogPrint($"Could not determine a LevelingCurrency for class '{Name}'. Members of this class will be unable to change levels.", TraceLevel.Error);
-				LevelingPlugin.Instance.LogPrint($"Ensure that at least one Level has a 'CurrencyRequired' property with a properly formatted currency string set.", TraceLevel.Info);
+				LevelingPlugin.Instance.LogPrint($"{fileInfo}Could not determine a LevelingCurrency for class '{Name}'. Members of this class will be unable to change levels.", TraceLevel.Error);
+				LevelingPlugin.Instance.LogPrint($"{fileInfo}Ensure that at least one Level has a 'CurrencyRequired' property with a properly formatted currency string set.", TraceLevel.Info);
 			}
 
 			return true;//just pass it for now, future iterations can handle this better.
@@ -302,30 +324,7 @@ namespace Leveling.Classes
 				//}
 			}
 		}
-
-		///// <summary>
-		/////		Preparse Reward strings to numeric values.
-		///// </summary>
-		///// <param name="currency">Banking.Currency used for Experience.</param>
-		//internal void PreParseRewardValues(CurrencyDefinition currency)
-		//{
-		//	ParsedNpcNameToExpValues.Clear();
-
-		//	foreach( var kvp in NpcNameToExpReward )
-		//	{
-		//		decimal unitValue;
-
-		//		if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
-		//		{
-		//			ParsedNpcNameToExpValues.Add(kvp.Key, unitValue);
-		//		}
-		//		else
-		//		{
-		//			Debug.Print($"Failed to parse Npc reward value '{kvp.Key}' for class '{Name}'. Setting value to 0.");
-		//		}
-		//	}
-		//}
-
+		
 		/// <summary>
 		/// Checks that the ClassDefinition is valid, and it not, attempts to bring it into a valid state.
 		/// </summary>
@@ -333,12 +332,13 @@ namespace Leveling.Classes
 		{
 			var levelNames = new HashSet<string>();
 			var duplicateLevelDefinitions = new List<LevelDefinition>();
+			var fileInfo = GetFileStringForError();
 
-			foreach( var def in LevelDefinitions )
+			foreach ( var def in LevelDefinitions )
 			{
 				if(!levelNames.Add(def.Name))
 				{
-					LevelingPlugin.Instance.LogPrint($"Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
+					LevelingPlugin.Instance.LogPrint($"{fileInfo}Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
 					duplicateLevelDefinitions.Add(def);
 				}
 			}
@@ -465,11 +465,27 @@ namespace Leveling.Classes
 
 		public ValidationResult Validate()
 		{
-			var result = new ValidationResult();
+			var result = new ValidationResult(); //dont set source, so that errors and warnings fallback to Parent Source after we call Validate(). 
 
 			if (string.IsNullOrWhiteSpace(Name))
-				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or empty."));
+				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or whitespace."));
 
+			if (string.IsNullOrWhiteSpace(DisplayName))
+				result.Errors.Add(new ValidationError($"{nameof(DisplayName)} is null or whitespace."));
+
+			if ((LevelDefinitions != null && LevelDefinitions.Count>0))
+			{
+				var i = 0;
+
+				foreach(var levelDef in LevelDefinitions)
+				{
+					var levelResult = levelDef.Validate();
+					levelResult.Source = $"Level[{i++}] {levelResult.Source?.ToString()}";//insert level index, in case name strings arent set.
+					result.Children.Add(levelResult);
+				}
+			}
+			else
+				result.Errors.Add(new ValidationError($"{nameof(LevelDefinitions)} is null or empty."));
 
 			return result;
 		}

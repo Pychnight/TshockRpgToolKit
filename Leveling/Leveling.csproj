@@ -112,10 +112,7 @@
   <ItemGroup>
     <Compile Include="Classes\Class.cs" />
     <Compile Include="Database\RedisSessionDatabase.cs" />
-    <None Include="LoaderDsl\BooOutputter.cs" />
-    <None Include="LoaderDsl\ClassCompiler.cs" />
     <Compile Include="Classes\ClassDefinition.cs" />
-    <None Include="LoaderDsl\ClassDsl.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Database\ISessionDatabase.cs" />
     <Compile Include="Database\MySqlSessionDatabase.cs" />
@@ -125,7 +122,6 @@
     <Compile Include="LevelingPlugin.cs" />
     <Compile Include="Levels\Level.cs" />
     <Compile Include="Levels\LevelDefinition.cs" />
-    <None Include="LoaderDsl\LevelDsl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptHelpers.cs" />
     <Compile Include="Sessions\Session.cs" />
