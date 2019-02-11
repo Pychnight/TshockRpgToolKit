@@ -405,7 +405,7 @@ namespace Banking
 
 			var player = args.Player;
 			
-			if(!canBuild(args.TileX,args.TileY,player))
+			if(!CanBuild(args.TileX,args.TileY,player))
 			{
 				Debug.Print("Cannot build here.");
 				return;
@@ -435,7 +435,7 @@ namespace Banking
 
 			var player = args.Player;
 			
-			if( !canBuild(args.TileX, args.TileY, player) )
+			if( !CanBuild(args.TileX, args.TileY, player) )
 			{
 				Debug.Print("Cannot build here.");
 				return;
@@ -455,7 +455,7 @@ namespace Banking
 				Debug.Print("Already placed.");
 		}
 
-		private bool canBuild(int tileX, int tileY, TSPlayer player)
+		private bool CanBuild(int tileX, int tileY, TSPlayer player)
 		{
 			if( AreaFunctions.InSpawn(tileX, tileY) )
 				return false;

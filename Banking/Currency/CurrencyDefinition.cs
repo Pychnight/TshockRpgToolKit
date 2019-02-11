@@ -19,7 +19,7 @@ namespace Banking
 	/// Provides configuration and internal support for a Currency. 
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public class CurrencyDefinition
+	public class CurrencyDefinition : IValidator
 	{
 		[JsonProperty(Order = 0)]
 		public string InternalName { get; set; }
@@ -369,15 +369,11 @@ namespace Banking
 			return DefaultPlayingValue;
 		}
 
-		public override string ToString()
-		{
-			return InternalName;
-		}
-
+		public override string ToString() => InternalName;
+		
 		public static IList<CurrencyDefinition> LoadCurrencys(string currencyDirectoryPath)
 		{
-			Debug.Print($"Loading CurrencyDefinitions at: {currencyDirectoryPath}");
-
+			//Debug.Print($"Loading CurrencyDefinitions at: {currencyDirectoryPath}");
 			var currencyFiles = Directory.EnumerateFiles(currencyDirectoryPath, "*.currency");
 			var results = new List<CurrencyDefinition>();
 			
@@ -394,19 +390,25 @@ namespace Banking
 			
 			foreach(var file in currencyFiles)
 			{
-				Debug.Print($"Attempting to load {file}...");
-
 				try
 				{
 					var json = File.ReadAllText(file);
 					var currency = JsonConvert.DeserializeObject<CurrencyDefinition>(json);
-					
-					results.Add(currency);
-					Debug.Print($"Success!");
+					var validationResult = currency.Validate();
+					int totalErrors = 0, totalWarnings = 0;
+										
+					validationResult.GetTotals(ref totalErrors, ref totalWarnings);
+
+					BankingPlugin.Instance.LogPrint(validationResult);
+									   
+					if (totalErrors == 0)
+						results.Add(currency);
+					else
+						BankingPlugin.Instance.LogPrint($"{file}: Disabling Currency due to errors.",TraceLevel.Error);
 				}
 				catch(Exception ex)
 				{
-					BankingPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
+					BankingPlugin.Instance.LogPrint($"{file}: {ex.Message}", TraceLevel.Error);
 				}
 			}
 
@@ -477,6 +479,33 @@ namespace Banking
 			q.Abbreviation = "p";
 
 			result.Quadrants.Add(q);
+
+			return result;
+		}
+
+		public ValidationResult Validate()
+		{
+			var result = new ValidationResult(this);
+
+			if (string.IsNullOrWhiteSpace(InternalName))
+				result.Errors.Add(new ValidationError($"{nameof(InternalName)} is null or whitespace."));
+
+			if (Quadrants==null || Quadrants.Count<1)
+				result.Errors.Add(new ValidationError($"{nameof(Quadrants)} is null or empty."));
+			else
+			{
+				var i = 0;
+
+				foreach(var quad in Quadrants)
+				{
+					var quadResult = quad.Validate();
+					quadResult.Source = $"Quadrant[{i++}]";
+					result.Children.Add(quadResult);
+				}
+			}
+
+			if (GainBy == null || GainBy.Count < 1)
+				result.Warnings.Add(new ValidationWarning($"{nameof(GainBy)} is null or empty."));
 
 			return result;
 		}

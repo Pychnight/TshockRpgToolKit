@@ -13,7 +13,7 @@ namespace Banking
 	/// Provides configuration and internal support for a quadrant of a Currency.
 	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-	public class CurrencyQuadrant
+	public class CurrencyQuadrant : IValidator
 	{
 		[JsonProperty(Order = 0)]
 		public int BaseUnitMultiplier { get; set; } = 1;
@@ -52,6 +52,22 @@ namespace Banking
 		public override string ToString()
 		{
 			return FullName;// ('{Abbreviation}')";
+		}
+
+		public ValidationResult Validate()
+		{
+			var result = new ValidationResult(this);
+
+			if (string.IsNullOrWhiteSpace(FullName))
+				result.Errors.Add(new ValidationError($"{nameof(FullName)} is null or whitespace."));
+
+			if (string.IsNullOrWhiteSpace(Abbreviation))
+				result.Errors.Add(new ValidationError($"{nameof(Abbreviation)} is null or whitespace."));
+
+			if (BaseUnitMultiplier==0)
+				result.Warnings.Add(new ValidationWarning($"{nameof(BaseUnitMultiplier)} is 0."));
+
+			return result;
 		}
 	}
 }

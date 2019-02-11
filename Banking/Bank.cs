@@ -112,10 +112,8 @@ namespace Banking
 			playerAccountMaps.Clear();
 
 			if(!string.IsNullOrWhiteSpace(Config.Instance.ScriptPath) )
-			{
 				LoadScripts(Path.Combine(BankingPlugin.DataDirectory,Config.Instance.ScriptPath));
-			}
-			
+						
 			var cfg = Config.Instance.Database;
 			
 			//Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
@@ -221,9 +219,7 @@ namespace Banking
 			//lets set/reset a default mapping from currency's to bank accounts for reward purposes. Anything subscribed to EnsuringPlayerAccounts event
 			//will have a chance to change the mapping again.
 			foreach(var name in currencyNames)
-			{
 				playerAccountMap.SetAccountNameOverride(name, name);
-			}
 		}
 		
 		/// <summary>
@@ -237,10 +233,8 @@ namespace Banking
 			BankAccount bankAccount = null;
 
 			if(playerAccountMaps.TryGetValue(playerName, out var accountMap))
-			{
 				bankAccount = accountMap.TryGetBankAccount(accountName);
-			}
-			
+						
 			return bankAccount;
 		}
 
