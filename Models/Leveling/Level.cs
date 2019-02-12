@@ -81,6 +81,7 @@ namespace RpgToolsEditor.Models.Leveling
 		/// <summary>
 		///     Gets the set of item names allowed.
 		/// </summary>
+		[DisplayName("ItemsAllowed")]
 		[JsonProperty("ItemsAllowed", Order = 5)]
 		public BindingList<TerrariaItemStringHolder> ItemNamesAllowed { get; set; } = new BindingList<TerrariaItemStringHolder>();
 			
