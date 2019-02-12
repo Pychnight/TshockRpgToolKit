@@ -35,7 +35,7 @@ namespace CustomQuests.Scripting
 				"Corruption.PlayerFunctions",
 				"Corruption.CommandFunctions",
 				"Corruption.NpcFunctions",
-				"Corruption.ProjectileFunctiions",
+				"Corruption.ProjectileFunctions",
 				"Corruption.ItemFunctions",
 				"Corruption.ChestFunctions",
 				"Corruption.MiscFunctions",
