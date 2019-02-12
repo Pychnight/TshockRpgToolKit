@@ -68,7 +68,7 @@ namespace RpgToolsEditor.Models.Leveling
 
 				var classPath = Path.Combine(directory, classModel.Name + ".class");
 
-				var json = JsonConvert.SerializeObject(classModel);
+				var json = JsonConvert.SerializeObject(classModel, Formatting.Indented);
 				File.WriteAllText(classPath, json);
 			}
 		}
