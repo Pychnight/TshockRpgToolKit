@@ -23,6 +23,7 @@ namespace BooTS
 				"Microsoft.Xna.Framework",
 				"TShockAPI",
 				"Terraria",
+				"Corruption",
 				"Corruption.AreaFunctions",
 				"Corruption.EmoteFunctions",
 				"Corruption.TimeFunctions",
@@ -35,6 +36,7 @@ namespace BooTS
 				"Corruption.ItemFunctions",
 				"Corruption.ChestFunctions",
 				"Corruption.MiscFunctions",
+				"Corruption.TEdit.Schematic",
 				"BooTS.Scheduler"
 			} );
 		}
