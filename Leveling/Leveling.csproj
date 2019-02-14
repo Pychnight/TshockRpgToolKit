@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{820672D1-4296-42A7-8814-C9963185FCE6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Leveling</RootNamespace>
+    <AssemblyName>Leveling</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
+    <RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <!-- <OutputPath>$(TShockPluginsPath)\</OutputPath> -->
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <!-- <OutputPath>bin\Deploy\</OutputPath> -->
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Lang">
+      <HintPath>..\refs\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.CodeDom">
+      <HintPath>..\refs\Boo.Lang.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>..\refs\Boo.Lang.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Extensions">
+      <HintPath>..\refs\Boo.Lang.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Interpreter">
+      <HintPath>..\refs\Boo.Lang.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\refs\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\refs\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\refs\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.10.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MySql.Data.6.10.6\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="OTAPI">
+      <HintPath>..\refs\OTAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.2.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\StackExchange.Redis.1.2.6\lib\net45\StackExchange.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TerrariaServer">
+      <HintPath>..\refs\TerrariaServer.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TShockAPI">
+      <HintPath>..\refs\TShockAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\Class.cs" />
+    <Compile Include="Database\RedisSessionDatabase.cs" />
+    <Compile Include="Classes\ClassDefinition.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Database\ISessionDatabase.cs" />
+    <Compile Include="Database\MySqlSessionDatabase.cs" />
+    <Compile Include="Database\SessionDatabaseFactory.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="LevelingPlugin.Commands.cs" />
+    <Compile Include="LevelingPlugin.cs" />
+    <Compile Include="Levels\Level.cs" />
+    <Compile Include="Levels\LevelDefinition.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptHelpers.cs" />
+    <Compile Include="Sessions\Session.cs" />
+    <Compile Include="Sessions\SessionDefinition.cs" />
+    <Compile Include="Database\SqliteSessionDatabase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="docs\MySqlCommand.xml" />
+    <Content Include="docs\MySqlCommandBuilder.xml" />
+    <Content Include="docs\MySqlConnection.xml" />
+    <Content Include="docs\MySqlConnectionStringBuilder.xml" />
+    <Content Include="docs\MySqlDataAdapter.xml" />
+    <Content Include="docs\MySqlDataReader.xml" />
+    <Content Include="docs\MySqlException.xml" />
+    <Content Include="docs\MySqlHelper.xml" />
+    <Content Include="docs\MySqlParameter.xml" />
+    <Content Include="docs\MySqlParameterCollection.xml" />
+    <Content Include="docs\MySqlTransaction.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CurrencyX\Banking\Banking.csproj">
+      <Project>{89faffb0-5bfd-4548-876e-e863d2be3e82}</Project>
+      <Name>Banking</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Corruption\Corruption\Corruption.csproj">
+      <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
+      <Name>Corruption</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Custom-Npcs-2\CustomNpcs\CustomNpcs.csproj">
+      <Project>{b96b0ad7-6ff5-4ecc-ad22-00ce7fdc3177}</Project>
+      <Name>CustomNpcs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Terraria-Boo\BooTS\BooTS.csproj">
+      <Project>{a74d2d6c-99ab-465b-bc81-935b9139bfba}</Project>
+      <Name>BooTS</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
+  </Target>
+  <Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
+</Project>
