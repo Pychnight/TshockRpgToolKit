@@ -122,7 +122,6 @@
     <Compile Include="Quests\Quest.Dsl.cs" />
     <Compile Include="Quests\Team.cs" />
     <Compile Include="Quests\TeamManager.cs" />
-    <Compile Include="QuestFunctions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quests\Quest.cs" />
     <Compile Include="Quests\QuestInfo.cs" />
