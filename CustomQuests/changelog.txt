@@ -1,0 +1,4 @@
+﻿work in progress:
+
+* Boo scripting, to replace lua soon.
+* Improvement and revisions to Party and Quest scripting api. 
