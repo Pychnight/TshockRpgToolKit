@@ -24,6 +24,8 @@ namespace CustomQuests.Quests
 		public PartyMember leader => party.Leader;
 		public TeamManager teams => party.Teams;
 		
+		//the Delay methods have been ported to Corruption -- HOWEVER, quest scripts resolve to these versions, and should continue doing so
+		//since these versions make use of the QuestCancellationToken.
 		protected void Delay(int milliseconds)
 		{
 			Task.Delay(milliseconds,QuestCancellationToken).Wait();

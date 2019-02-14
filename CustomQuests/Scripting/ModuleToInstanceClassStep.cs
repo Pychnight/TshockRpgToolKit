@@ -75,7 +75,8 @@ namespace CustomQuests.Scripting
 
 			node.Members.Add(klass);
 
-			Debug.Print(klass.ToCodeString());
+			//to preview our generated boo code, uncomment below..
+			//Debug.Print(klass.ToCodeString());
 		}
 	}
 }
