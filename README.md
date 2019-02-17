@@ -27,7 +27,7 @@ Note: .NET Core is not supported, due to missing API's required by Boo.
 ### Grab the code
 
 ```bash
-git clone --recurse-submodules https://github.com/Pychnight/TshockRpgToolKit
+git clone https://github.com/Pychnight/TshockRpgToolKit
 ```
 
 ### Build

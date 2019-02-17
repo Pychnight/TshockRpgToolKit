@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B61502A6-8CF5-4EE4-B236-6C451799DDB1}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>RpgToolsEditor</RootNamespace>
+    <AssemblyName>RpgToolsEditor</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>-->
+  <PropertyGroup>
+    <RpgToolsPropsPath>..\..\RpgTools.props</RpgToolsPropsPath>
+    <RpgToolsTargetsPath>..\..\RpgTools.targets</RpgToolsTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Props defaults output to 'plugins', and all plugins get thrown in together. This overrides it and puts it in a name folder under Tools.-->
+    <UseToolsFolder>true</UseToolsFolder>
+  </PropertyGroup>
+  <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <!--<OutputPath>bin\Debug\</OutputPath>-->
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <!--<OutputPath>bin\Release\</OutputPath>-->
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Corrupt_Bunny.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GenericDictionaryEditor, Version=1.1.0.0, Culture=neutral, PublicKeyToken=7f1cce5280f1f8eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\GenDictEdit.1.1.0\lib\net20\GenericDictionaryEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\CategoryItemControls.cs" />
+    <Compile Include="Controls\CategoryLoader.cs" />
+    <Compile Include="Controls\CategoryModel.cs" />
+    <Compile Include="Controls\FolderTreeNode.cs" />
+    <Compile Include="Controls\IExtendedControlItems.cs" />
+    <Compile Include="Controls\IModel.cs" />
+    <Compile Include="Controls\IModelExtensions.cs" />
+    <Compile Include="Controls\IncludeModel.cs" />
+    <Compile Include="Controls\ModelTree.cs" />
+    <Compile Include="Controls\ModelTreeNode.cs" />
+    <Compile Include="Controls\ModelTreeStaticContainerNode.cs" />
+    <Compile Include="Controls\ModelTreeEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ModelTreeEditor.Designer.cs">
+      <DependentUpon>ModelTreeEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Banking\Currency.cs" />
+    <Compile Include="Models\Banking\ItemKeyConverter.cs" />
+    <Compile Include="Models\Banking\Nodes\BankingModelTree.cs" />
+    <Compile Include="Models\Banking\Nodes\CurrencyTreeNode.cs" />
+    <Compile Include="Models\Banking\CurrencyQuadrant.cs" />
+    <Compile Include="Models\Banking\GroupValueOverrides.cs" />
+    <Compile Include="Models\Banking\ItemKey.cs" />
+    <Compile Include="Models\Banking\OverrideCollectionEditors.cs" />
+    <Compile Include="Models\Banking\RewardReason.cs" />
+    <Compile Include="Models\Banking\TileSubTarget.cs" />
+    <Compile Include="Models\Banking\ValueOverrideList.cs" />
+    <Compile Include="Models\Banking\ValueOverride.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\CategoryTreeNode.cs" />
+    <Compile Include="Controls\IncludeModelExtensions.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\IncludeTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\InvasionModelTree.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\InvasionTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\LootEntryContainerTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\LootEntryTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\NpcTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\ProjectileTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\WavesContainerTreeNode.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\WaveTreeNode.cs" />
+    <Compile Include="Models\CustomQuests\QuestInfo.cs" />
+    <Compile Include="Models\CustomQuests\QuestInfoModelTree.cs" />
+    <Compile Include="Models\Leveling\Nodes\ClassModelTree.cs" />
+    <Compile Include="Models\Leveling\Nodes\ClassTreeNode.cs" />
+    <Compile Include="Models\Leveling\Nodes\LevelsContainerTreeNode.cs" />
+    <Compile Include="Models\Leveling\Nodes\LevelTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\CommandsContainerTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\CommandTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\ItemsContainerTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\ItemTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\ProductTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\NpcShopsModelTree.cs" />
+    <Compile Include="Models\NpcShops\Nodes\NpcShopTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\RequiredItemsContainerTreeNode.cs" />
+    <Compile Include="Models\NpcShops\Nodes\RequiredItemTreeNode.cs" />
+    <Compile Include="Models\StringHolder.cs" />
+    <Compile Include="Controls\TreeNodeExtensions.cs" />
+    <Compile Include="EditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorForm.Designer.cs">
+      <DependentUpon>EditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditorForm1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EditorForm.resx</DependentUpon>
+    </Compile>
+    <None Include="Etc\ItemExtract.cs" />
+    <Compile Include="Models\CustomNpcs\Invasion.cs" />
+    <Compile Include="Models\CustomNpcs\LootEntry.cs" />
+    <Compile Include="Models\CustomNpcs\Npc.cs" />
+    <Compile Include="Models\Leveling\Class.cs" />
+    <Compile Include="Models\Leveling\Level.cs" />
+    <Compile Include="Models\NpcShops\NpcShop.cs" />
+    <Compile Include="Models\NpcShops\RequiredItem.cs" />
+    <Compile Include="Models\CustomNpcs\Projectile.cs" />
+    <Compile Include="Models\NpcShops\ShopCommand.cs" />
+    <Compile Include="Models\NpcShops\ShopItem.cs" />
+    <Compile Include="Models\CustomNpcs\Wave.cs" />
+    <Compile Include="Models\StringHolderJsonConverter.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\NpcsModelTree.cs" />
+    <Compile Include="Models\Banking\TileKey.cs" />
+    <Compile Include="Models\TileKeyConverter.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Models\CustomNpcs\Nodes\ProjectilesModelTree.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\ModelTreeEditor.resx">
+      <DependentUpon>ModelTreeEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorForm.resx">
+      <DependentUpon>EditorForm.cs</DependentUpon>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EditorForm1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Corrupt_Bunny.ico" />
+    <Content Include="Etc\item-names.txt" />
+    <Content Include="Etc\items.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="Models\ItemNameStringConverter.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
+  </Target>
+  <Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
+</Project>

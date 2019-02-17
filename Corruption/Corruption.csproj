@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BE70224B-39C2-4274-BFF6-4096FA664857}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Corruption</RootNamespace>
+    <AssemblyName>Corruption</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RpgToolsPropsPath>..\RpgTools.props</RpgToolsPropsPath>
+    <RpgToolsTargetsPath>..\RpgTools.targets</RpgToolsTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <!--  <OutputPath>bin\Debug\</OutputPath> -->
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <!-- <OutputPath>bin\Release\</OutputPath> -->
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OTAPI">
+      <HintPath>..\refs\OTAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TerrariaServer">
+      <HintPath>..\refs\TerrariaServer.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TShockAPI">
+      <HintPath>..\refs\TShockAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AreaFunctions.cs" />
+    <Compile Include="ChestFunctions.cs" />
+    <Compile Include="EmoteFunctions.cs" />
+    <Compile Include="MiscFunctions.cs" />
+    <Compile Include="PluginSupport\ColorHelpers.cs" />
+    <Compile Include="ItemFunctions.cs" />
+    <Compile Include="ItemPrefix.cs" />
+    <Compile Include="NpcFunctions.cs" />
+    <Compile Include="CommandFunctions.cs" />
+    <Compile Include="PlayerFunctions.cs" />
+    <Compile Include="PluginSupport\DatabaseConfig.cs" />
+    <Compile Include="PluginSupport\FilePosition.cs" />
+    <Compile Include="PluginSupport\OutputExtensions.cs" />
+    <Compile Include="PluginSupport\TileNameMap.cs" />
+    <Compile Include="ProjectileFunctions.cs" />
+    <Compile Include="SignFunctions.cs" />
+    <Compile Include="SignTypes.cs" />
+    <Compile Include="TEdit\ITileExtensions.cs" />
+    <Compile Include="TEdit\SchematicReaderV2.cs" />
+    <Compile Include="TEdit\SchematicReaderV5.cs" />
+    <Compile Include="TEdit\Terraria\Chest.cs" />
+    <Compile Include="TEdit\Terraria\Objects\FrameProperty.cs" />
+    <Compile Include="TEdit\Geometry\Primitives\Vectors.cs" />
+    <Compile Include="TEdit\Terraria\Item.cs" />
+    <Compile Include="TEdit\Terraria\Objects\ITile.cs" />
+    <Compile Include="TEdit\Terraria\Objects\ItemProperty.cs" />
+    <Compile Include="TEdit\Schematic.cs" />
+    <Compile Include="TEdit\Schematic.Operations.cs" />
+    <Compile Include="TEdit\SchematicReader.cs" />
+    <Compile Include="TEdit\Terraria\Sign.cs" />
+    <Compile Include="TEdit\Terraria\Tile.cs" />
+    <Compile Include="TEdit\Terraria\Objects\TileProperty.cs" />
+    <Compile Include="TEdit\Terraria\World.cs" />
+    <Compile Include="TEdit\Terraria\World.FileV1.cs" />
+    <Compile Include="TEdit\Terraria\World.FileV2.cs" />
+    <Compile Include="TEdit\Terraria\World.Properties.cs" />
+    <Compile Include="TEdit\Terraria\World.Settings.cs" />
+    <Compile Include="Types\InventoryGroup.cs" />
+    <Compile Include="Types\InventorySlot.cs" />
+    <Compile Include="Types\PlayerInventoryManager.cs" />
+    <Compile Include="PluginSupport\IValidator.cs" />
+    <Compile Include="PluginSupport\JsonConfigLoader.cs" />
+    <Compile Include="PluginSupport\PluginExtensions.cs" />
+    <Compile Include="PluginSupport\ValidationResult.cs" />
+    <Compile Include="PluginSupport\ValidationResultItems.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TileFunctions.cs" />
+    <Compile Include="TimeFunctions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="tedit.settings.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <!--<Error Condition="!Exists('..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />-->
+    <Error Condition="!Exists('..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
+  </Target>
+  <Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
+</Project>
