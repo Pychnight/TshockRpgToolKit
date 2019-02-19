@@ -17,10 +17,10 @@ namespace CustomNpcs.Projectiles
 	public class ProjectileDefinition : DefinitionBase, IDisposable
 	{
 		[JsonProperty(Order = 0)]
-		public override string Name { get; protected internal set; }
+		public override string Name { get; set; } = "NewProjectileDefinition";
 		
 		[JsonProperty(Order = 1)]
-		public override string ScriptPath { get; protected internal set; }
+		public override string ScriptPath { get; set; }
 
 		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }

@@ -19,37 +19,37 @@ namespace CustomNpcs.Invasions
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		public override string Name { get; protected internal set; } = "example";
+		public override string Name { get; set; } = "NewInvasionDefinition";
 
 		/// <summary>
 		///     Gets the script path.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-        public override string ScriptPath { get; protected internal set; }
+        public override string ScriptPath { get; set; }
 		
         /// <summary>
         ///     Gets the NPC point values.
         /// </summary>
         [JsonProperty(Order = 2)]
-        public Dictionary<string, int> NpcPointValues { get; private set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> NpcPointValues { get; set; } = new Dictionary<string, int>();
 
 		/// <summary>
 		///     Gets the completed message.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		public string CompletedMessage { get; private set; } = "The example invasion has ended!";
+		public string CompletedMessage { get; set; } = "The example invasion has ended!";
 
 		/// <summary>
 		///     Gets a value indicating whether the invasion should occur at spawn only.
 		/// </summary>
 		[JsonProperty(Order = 4)]
-		public bool AtSpawnOnly { get; private set; }
+		public bool AtSpawnOnly { get; set; }
 
 		/// <summary>
 		///     Gets a value indicating whether the invasion should scale by the number of players.
 		/// </summary>
 		[JsonProperty(Order = 5)]
-        public bool ScaleByPlayers { get; private set; }
+        public bool ScaleByPlayers { get; set; }
 
         /// <summary>
         ///     Gets the waves.

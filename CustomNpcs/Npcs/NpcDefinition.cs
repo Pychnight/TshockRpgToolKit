@@ -26,25 +26,25 @@ namespace CustomNpcs.Npcs
 		///     Gets the internal name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
-		public override string Name { get; protected internal set; } = "example";
+		public override string Name { get; set; } = "NewNpcDefinition";
 
 		/// <summary>
 		///     Gets the base type.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-		public int BaseType { get; private set; }
+		public int BaseType { get; set; }
 
 		[JsonProperty(Order = 2)]
-		public override string ScriptPath { get; protected internal set; }
+		public override string ScriptPath { get; set; }
 		
 		[JsonProperty("BaseOverride", Order = 3)]
-        internal BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
+        public BaseOverrideDefinition _baseOverride = new BaseOverrideDefinition();
 
         [JsonProperty("Loot", Order = 4)]
-        private LootDefinition _loot = new LootDefinition();
+        public LootDefinition _loot = new LootDefinition();
 
         [JsonProperty("Spawning", Order = 5)]
-        private SpawningDefinition _spawning = new SpawningDefinition();
+        public SpawningDefinition _spawning = new SpawningDefinition();
 		
         /// <summary>
         ///     Gets the loot entries.
@@ -296,55 +296,55 @@ namespace CustomNpcs.Npcs
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
-        internal sealed class BaseOverrideDefinition : IValidator
+        public sealed class BaseOverrideDefinition : IValidator
         {
             [JsonProperty]
-            public int? AiStyle { get; private set; }
+            public int? AiStyle { get; set; }
 
             [JsonProperty]
-            public int[] BuffImmunities { get; private set; }
+            public int[] BuffImmunities { get; set; }
 
             [JsonProperty]
-            public int? Defense { get; private set; }
+            public int? Defense { get; set; }
 
             [JsonProperty]
-            public bool? HasNoCollision { get; private set; }
+            public bool? HasNoCollision { get; set; }
 
             [JsonProperty]
-            public bool? HasNoGravity { get; private set; }
+            public bool? HasNoGravity { get; set; }
 
             [JsonProperty]
-            public bool? IsBoss { get; private set; }
+            public bool? IsBoss { get; set; }
 
             [JsonProperty]
-            public bool? IsImmortal { get; private set; }
+            public bool? IsImmortal { get; set; }
 
             [JsonProperty]
-            public bool? IsImmuneToLava { get; private set; }
+            public bool? IsImmuneToLava { get; set; }
 
             [JsonProperty]
-            public bool? IsTrapImmune { get; private set; }
+            public bool? IsTrapImmune { get; set; }
 
             [JsonProperty]
-            public float? KnockbackMultiplier { get; private set; }
+            public float? KnockbackMultiplier { get; set; }
 
             [JsonProperty]
-            public int? MaxHp { get; private set; }
+            public int? MaxHp { get; set; }
 
             [JsonProperty]
-            public string Name { get; private set; }
+            public string Name { get; set; }
 
             [JsonProperty]
-            public float? NpcSlots { get; private set; }
+            public float? NpcSlots { get; set; }
 
             [JsonProperty]
-            public float? Value { get; private set; }
+            public float? Value { get; set; }
 
 			[JsonProperty]
-			public bool? BehindTiles { get; private set; }
+			public bool? BehindTiles { get; set; }
 
 			[JsonProperty]
-			public bool? DontTakeDamageFromHostiles { get; private set; }
+			public bool? DontTakeDamageFromHostiles { get; set; }
 			
 			public ValidationResult Validate()
 			{
@@ -367,16 +367,16 @@ namespace CustomNpcs.Npcs
 		}
 
         [JsonObject(MemberSerialization.OptIn)]
-        internal sealed class LootDefinition : IValidator
+        public sealed class LootDefinition : IValidator
         {
             [JsonProperty(Order = 2)]
-            public List<LootEntryDefinition> Entries { get; private set; } = new List<LootEntryDefinition>();
+            public List<LootEntryDefinition> Entries { get; set; } = new List<LootEntryDefinition>();
 
             [JsonProperty(Order = 1)]
-            public bool IsOverride { get; private set; }
+            public bool IsOverride { get; set; }
 
             [JsonProperty(Order = 0)]
-            public bool TallyKills { get; private set; }
+            public bool TallyKills { get; set; }
 
 			public ValidationResult Validate()
 			{
@@ -400,16 +400,16 @@ namespace CustomNpcs.Npcs
 		}
 
         [JsonObject(MemberSerialization.OptIn)]
-        internal sealed class SpawningDefinition : IValidator
+        public sealed class SpawningDefinition : IValidator
         {
             [JsonProperty(Order = 1)]
-            public bool ShouldReplace { get; private set; }
+            public bool ShouldReplace { get; set; }
 
             [JsonProperty(Order = 0)]
-            public bool ShouldSpawn { get; private set; }
+            public bool ShouldSpawn { get; set; }
 
 			[JsonProperty(Order = 2)]
-			public int? SpawnRateOverride { get; private set; }
+			public int? SpawnRateOverride { get; set; }
 
 			public ValidationResult Validate()
 			{

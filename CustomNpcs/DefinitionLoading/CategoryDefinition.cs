@@ -19,10 +19,10 @@ namespace CustomNpcs
 	public class CategoryDefinition : DefinitionBase
 	{
 		[JsonIgnore]//...in case later down the road, DefinitionBase opts in on this property!
-		public override string Name { get => Category; protected internal set => Category = value; }
+		public override string Name { get => Category; set => Category = value; }
 
 		[JsonIgnore]
-		public override string ScriptPath { get => throw new NotImplementedException(); protected internal set => throw new NotImplementedException(); }
+		public override string ScriptPath { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 			
 		[JsonProperty(Order = 0)]
 		public string Category { get; set; }
