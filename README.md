@@ -60,4 +60,25 @@ On first run, the plugins will create their directories, each containing plugin 
 
 ### Issues
 
-If building on the commandline under windows, and you get an error like "GetReferenceNearestTargetFrameworkTask" task was not found, run the Visual Studio Build Tools 2017 installer, and ensure that "Nuget targets and build tasks" are ticked. See https://developercommunity.visualstudio.com/content/problem/160494/msbuild-broken-getreferencenearesttargetframeworkt.html 
+If building on the commandline under windows, and you get an error like "GetReferenceNearestTargetFrameworkTask" task was not found, run the Visual Studio Build Tools 2017 installer, and ensure that "Nuget targets and build tasks" are ticked. See https://developercommunity.visualstudio.com/content/problem/160494/msbuild-broken-getreferencenearesttargetframeworkt.html
+
+### Legal
+
+Rpg Tool kit is a prenium plugin set supported by patreon and for release only on
+https://www.patreon.com/Psysky and other authorized sites.
+
+Distrubion of the source code is not allowed.
+
+IF you use RPG Tool Kit for profit on your own server for selling items, armor, monsters or other features this is at your own risk.
+You may provide this project with code or commits to help improve the overall experience.
+
+All changes must be submited to this repo.
+
+### Rules of Conduct
+
+- Code commited must be in working condition
+- all code must be well documented
+- User End documention must be upaded to match plugin usage and features.
+- Must obey all Tshock policies regarding plugin standards
+
+
