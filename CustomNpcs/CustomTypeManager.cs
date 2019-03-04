@@ -2,6 +2,7 @@
 using Boo.Lang.Compiler.IO;
 using BooTS;
 using Corruption.PluginSupport;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,7 +49,11 @@ namespace CustomNpcs
 		/// </summary>
 		protected virtual void LoadDefinitions()
 		{
-			//CustomNpcsPlugin.Instance.LogPrint("Using new definition loading, include paths aren't 100% reliable yet!",TraceLevel.Warning);
+			if(!File.Exists(ConfigPath))
+			{
+				CustomNpcsPlugin.Instance.LogPrint($"Unable to find definition file, creating default file at {ConfigPath}.", TraceLevel.Warning);
+				SaveDefaultFile(ConfigPath);	
+			}
 
 			var include = DefinitionInclude.Load<TCustomType>(ConfigPath);
 			Definitions = DefinitionInclude.Flatten<TCustomType>(include);
@@ -165,6 +170,18 @@ namespace CustomNpcs
 			definitionMap.TryGetValue(lowerName, out var result);
 
 			return result;
+		}
+
+		/// <summary>
+		/// Creates and writes default definition data to a file. Used when no file can be found.
+		/// </summary>
+		/// <param name="filePath"></param>
+		internal virtual void SaveDefaultFile(string filePath)
+		{
+			var array = new TCustomType[0];
+			var json = JsonConvert.SerializeObject(array);
+
+			File.WriteAllText(filePath,json);
 		}
 	}
 }
