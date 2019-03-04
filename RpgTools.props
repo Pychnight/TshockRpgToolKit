@@ -24,8 +24,10 @@
 
 	<!-- if this is a tool, it doesn't go with the plugins -->
 	<PropertyGroup Condition="'$(UseToolsFolder)' == 'true'">
-		<OutputPath>$(TShockServerPath)\RpgTools</OutputPath>
+		<OutputPath>$(TShockServerPath)\Tools</OutputPath>
 	</PropertyGroup>
+
+	<!-- Deployment / Packaging follows -->
 
 	<!-- Add group and target for packaging as a versioned zip -->
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
@@ -37,7 +39,7 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 
-	<!-- For tools -->
+	<!-- For tools ...UseToolsFolder is set within csproj's -->
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' and '$(UseToolsFolder)' == 'true'">
 		<OutputPath>$(RpgToolsBaseDeployPath)\Tools\$(MSBuildProjectName)\</OutputPath>
 	</PropertyGroup>
