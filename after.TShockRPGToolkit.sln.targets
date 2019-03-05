@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<RpgToolsPropsPath>RpgTools.props</RpgToolsPropsPath>
+		<PackageDir>$(SolutionDir)bin\</PackageDir>
+	</PropertyGroup>
+
+	<Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
+
+	<Import Project="packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
+		
+	<Target Name="DeployZip" AfterTargets="Build" Condition=" '$(Configuration)' == 'Deploy' ">
+		<Message Text="Packaging $(SolutionName)..." Importance="high" />
+
+		<!-- get assembly version -->
+		<Message Text="Getting version from Corruption.dll." Importance="high" />
+		
+		<GetAssemblyIdentity
+			AssemblyFiles="$(RpgToolsBaseDeployPath)\ServerPlugins\Corruption.dll">
+			<Output
+				TaskParameter="Assemblies"
+				ItemName="MyAssemblyIdentities"/>
+		</GetAssemblyIdentity>
+
+		<CreateProperty
+            Value="$(SolutionName)-v%(MyAssemblyIdentities.Version)">
+			<Output
+                TaskParameter="Value"
+                PropertyName="PackageName" />
+		</CreateProperty>
+		
+		<!-- <Message Text="Creating zip $(PackageDir)$(PackageName).zip" Importance="high" /> -->
+
+			<!-- Exclude="$(SourceDirectory).XYZ\**\*" -->
+		<!-- <ItemGroup>
+			<ZipFiles Include="$(RpgToolsBaseDeployPath)\*">
+			</ZipFiles>
+		</ItemGroup> -->
+
+		<MSBuild.ExtensionPack.Compression.Zip TaskAction="Create" CompressionLevel="BestCompression" CompressPath="$(RpgToolsBaseDeployPath)" RemoveRoot="$(RpgToolsBaseDeployPath)" ZipFileName="$(PackageDir)$(PackageName).zip"/>
+	
+	</Target>
+</Project>

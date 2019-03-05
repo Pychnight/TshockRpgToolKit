@@ -22,15 +22,15 @@ Linux:
 
 Building and testing on Linux is still experimental, mainly due to issues with MonoDevelop and limitations with Visual Studio Code.
 
-Note: .NET Core is not supported, due to missing API's required by Boo.
+Note: .NET Core is not supported at this time, due to missing API's required by Boo.
 
-### Grab the code
+### Grab the source
 
 ```bash
 git clone https://github.com/Pychnight/TshockRpgToolKit
 ```
 
-### Build
+### Development build
 
 ```bash
 cd TshockRpgToolKit
@@ -39,12 +39,12 @@ msbuild
 
 Newer versions of msbuild should download necessary packages, but if not, make sure you have nuget installed and on your path. Then run `nuget restore`. 
 
-This will build debug binaries, with each plugin being output to Servers/tshock_4.3.24/ServerPlugins. Note that you'll need to manually unzip tshock over this location, the build does not do it for you.
-Any sub project with the UseToolsFolder property set, will be output to the RpgTools directory, and not ServerPlugins.
+This will build debug binaries, with each plugin being output to `Servers/tshock_4.3.24/ServerPlugins`. Note that you'll need to manually unzip tshock over this location, the build does not do it for you.
+Any sub project with the `UseToolsFolder` property set, will be output to the RpgTools directory, and not ServerPlugins.
 
 You may override the path to the tshock folder by passing in an msbuild property, or via an environment variable.
 
-MSBuild Property
+Using an MSBuild Property:
 
 ```bash
 msbuild /p:RpgToolsServerPath="some/other/location"
@@ -52,29 +52,39 @@ msbuild /p:RpgToolsServerPath="some/other/location"
 
 It is recommended to set a persistent env variable however.
 
+### To generate a release zip
+
+Note that you *MUST* run msbuild from the commandline, and set configuration property to `Deploy` in order to automatically package the binaries as a zip:
+
+```bash
+msbuild /p:Configuration="Deploy"
+```
+
+You can build the `Deploy` configuration within Visual Studio, but the packaging process will not run. Release binaries will still be output to `bin/TShockRPGToolkit`.
+
+### Build issues
+
+If building on the commandline under windows, and you get an error like "GetReferenceNearestTargetFrameworkTask" task was not found, run the Visual Studio Build Tools 2017 installer, and ensure that "Nuget targets and build tasks" are ticked. See https://developercommunity.visualstudio.com/content/problem/160494/msbuild-broken-getreferencenearesttargetframeworkt.html
+
 ### Run
 
 Once the plugins are available in the tshock ServerPlugins folder, you can start the server as normal.
 
 On first run, the plugins will create their directories, each containing plugin specific configuration and data. Note that some plugins will require additional configuration in order to operate correctly.
 
-### Issues
+## Legal
 
-If building on the commandline under windows, and you get an error like "GetReferenceNearestTargetFrameworkTask" task was not found, run the Visual Studio Build Tools 2017 installer, and ensure that "Nuget targets and build tasks" are ticked. See https://developercommunity.visualstudio.com/content/problem/160494/msbuild-broken-getreferencenearesttargetframeworkt.html
-
-### Legal
-
-Rpg Tool kit is a prenium plugin set supported by patreon and for release only on
+Rpg Tool kit is a premium plugin set supported by patreon and for release only on
 https://www.patreon.com/Psysky and other authorized sites.
 
-Distrubion of the source code is not allowed.
+Distribution of the source code is not allowed.
 
 IF you use RPG Tool Kit for profit on your own server for selling items, armor, monsters or other features this is at your own risk.
 You may provide this project with code or commits to help improve the overall experience.
 
 All changes must be submited to this repo.
 
-### Rules of Conduct
+## Rules of Conduct
 
 - Code commited must be in working condition
 - all code must be well documented

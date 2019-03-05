@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	
+	<!-- Basic Properties -->
 	<PropertyGroup>
 		<TShockVersion>4.3.24</TShockVersion>
-		<TShockString>tshock_$(TShockVersion)</TShockString>
-		<TShockServerPath>$(SolutionDir)\Servers\$(TShockString)</TShockServerPath>
+		<TShockFolderName>tshock_$(TShockVersion)</TShockFolderName>
+		<TShockServerPath>$(SolutionDir)\Servers\$(TShockFolderName)</TShockServerPath>
 		<TShockPluginsPath>$(TShockServerPath)\ServerPlugins</TShockPluginsPath>
+		<!-- shut c# up about our cpu arch mismatch, we know. Terraria is x86, but in the future we may reference our plugins in 64bit tools -->
+		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 	</PropertyGroup>
 
-	<!-- Users may set their own paths to the tshock folder -->
+	<!-- Users may optionally set their own paths to the tshock folder for development and testing -->
 	<PropertyGroup Condition="'$(RpgToolsServerPath)' != ''">
 		<TShockServerPath>$(RpgToolsServerPath)</TShockServerPath>
 		<TShockPluginsPath>$(TShockServerPath)\ServerPlugins</TShockPluginsPath>
@@ -19,7 +22,7 @@
 		<!-- Keep intermediate cruft out of our project folders -->
 		<IntermediateOutputPath>$(SolutionDir)\obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
 		<!-- Root folder for Deploy target-->
-		<RpgToolsBaseDeployPath>$(SolutionDir)\bin\$(Configuration)</RpgToolsBaseDeployPath>
+		<RpgToolsBaseDeployPath>$(SolutionDir)\bin\$(SolutionName)</RpgToolsBaseDeployPath>
 	</PropertyGroup>
 
 	<!-- if this is a tool, it doesn't go with the plugins -->
@@ -29,7 +32,7 @@
 
 	<!-- Deployment / Packaging follows -->
 
-	<!-- Add group and target for packaging as a versioned zip -->
+	<!-- Add group and target for packaging plugins into a versioned zip -->
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
@@ -39,7 +42,7 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 
-	<!-- For tools ...UseToolsFolder is set within csproj's -->
+	<!-- And for packaging tools ...UseToolsFolder is set within csproj's -->
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' and '$(UseToolsFolder)' == 'true'">
 		<OutputPath>$(RpgToolsBaseDeployPath)\Tools\$(MSBuildProjectName)\</OutputPath>
 	</PropertyGroup>

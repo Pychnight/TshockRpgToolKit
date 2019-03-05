@@ -133,5 +133,4 @@
     <!--<Error Condition="!Exists('..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\AllPlugins\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />-->
     <Error Condition="!Exists('..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-  <Import Project="$(RpgToolsTargetsPath)" Condition="Exists('$(RpgToolsTargetsPath)')" />
 </Project>
