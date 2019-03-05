@@ -49,7 +49,6 @@ namespace CustomQuests.Scripting
 				"CustomNpcs.CustomIDFunctions",
 				"CustomQuests",
 				"CustomQuests.Quests",
-				"CustomQuests.QuestFunctions",
 				"CustomQuests.Triggers"
 			} );
 		}
