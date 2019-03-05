@@ -2,9 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 using TShockAPI.Localization;
@@ -63,7 +60,7 @@ namespace Corruption
 			if (amount <= 0)
 				throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 
-			var npcs = new List<NPC>();
+			var npcs = new List<NPC>(amount);
 			for (var i = 0; i < amount; ++i)
 			{
 				TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
@@ -158,13 +155,15 @@ namespace Corruption
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
 
-			for( var i = 0; i<200; i++ )
+			//normally, we'd use npc.Length to avoid bounds checks... but we're in Terraria, where nothing is as it should be.
+			//maxNPCs = 200, but the npc array is sized at 201. ?!?!
+			for( var i = 0; i < Main.maxNPCs; i++ )
 			{ 
 				var npc = Main.npc[i];
 				if( npc.active && npc.position.X > 16 * minX && npc.position.X< 16 * maxX &&
 				   npc.position.Y> 16 * minY && npc.position.Y< 16 * maxY && npc.GivenOrTypeName == name)
 				{
-					count = count + 1;
+					count++;
 				}
 			}
 			return count;
@@ -176,7 +175,7 @@ namespace Corruption
 		/// <returns>NPC if found, null if not.</returns>
 		public static NPC FindNpcByName(string name)
 		{ 
-			for( var i = 0; i < 200; i++ )
+			for( var i = 0; i < Main.maxNPCs; i++ )
 			{
 				var npc = Main.npc[i];
 				if( npc.active && npc.GivenOrTypeName == name )
@@ -193,7 +192,7 @@ namespace Corruption
 		/// <returns>NPC if found, null if not.</returns>
 		public static NPC FindNpcByType(int type)
 		{
-			for( var i = 0; i<200; i++ )
+			for( var i = 0; i < Main.maxNPCs; i++ )
 			{
 				var npc = Main.npc[i];
 				if( npc.active && npc.netID == type )
