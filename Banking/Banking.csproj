@@ -115,6 +115,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="BalanceChangedEventArgs.cs" />
     <Compile Include="BankAccount.cs" />
     <Compile Include="Bank.cs" />

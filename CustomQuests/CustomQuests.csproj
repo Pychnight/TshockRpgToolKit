@@ -102,6 +102,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="CatchNpcEventArgs.cs" />
     <Compile Include="ChestItemChangedEventArgs.cs" />
     <Compile Include="ChestUnlockedEventArgs.cs" />

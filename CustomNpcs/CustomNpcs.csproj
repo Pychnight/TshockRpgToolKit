@@ -97,6 +97,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="CustomEntity.cs" />
     <Compile Include="CustomIDFunctions.cs" />
     <Compile Include="CustomNpcsPlugin.Commands.cs" />
