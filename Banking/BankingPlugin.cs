@@ -358,8 +358,16 @@ namespace Banking
 			//if( customNpc != null )
 			//	life = customNpc.MaxHp;
 
-			//Debug.Print("** Regular set life.");
-			NpcSpawnHP[args.NpcId] = life;
+			//TODO throws exceptions when generating a new world, why?
+			try
+			{
+				//Debug.Print("** Regular set life.");
+				NpcSpawnHP[args.NpcId] = life;
+			}
+			catch(Exception ex)
+			{
+				Debug.Print(ex.ToString());
+			}
 		}
 
 		private void OnNpcStrike(NpcStrikeEventArgs args)

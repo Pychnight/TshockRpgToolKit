@@ -56,8 +56,12 @@ namespace Banking
 
 			Task.Run(() =>
 			{
-				Debug.Print($"Updating {accounts.Count} BankAccounts.");
-				bank.Database.Update(accounts);
+				//TODO bank can be null and throw during new world generation...
+				if(bank!=null)
+				{
+					Debug.Print($"Updating {accounts.Count} BankAccounts.");
+					bank.Database.Update(accounts);
+				}
 			});
 		}
 
