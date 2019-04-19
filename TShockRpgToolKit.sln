@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B16FA70F-D3D6-4175-BEED-229C67DC37FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGToolsEditor", "Tools\RPGToolsEditor\RPGToolsEditor.csproj", "{B61502A6-8CF5-4EE4-B236-6C451799DDB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGToolsEditor", "Tools\RpgToolsEditor\RPGToolsEditor.csproj", "{B61502A6-8CF5-4EE4-B236-6C451799DDB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corruption", "Corruption\Corruption.csproj", "{BE70224B-39C2-4274-BFF6-4096FA664857}"
 EndProject
