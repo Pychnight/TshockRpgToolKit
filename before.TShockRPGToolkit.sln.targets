@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
+
+	<PropertyGroup>
+		<!-- This will be the globally set AssemblyFileVersion, that the build process overrides  below -->
+		<RpgToolsFileVersion>1.0.0.0</RpgToolsFileVersion>
+	</PropertyGroup>
+
+	<Target Name="SetAssemblyFileVersion" BeforeTargets="Build">
+		<Message Text="Setting SharedAssemblyInfo.cs AssemblyFileVersion to RpgToolsFileVersion..." Importance="high" />
+
+		<ItemGroup>
+			<AssemblyInfoFiles Include="SharedAssemblyInfo.cs" />
+		</ItemGroup>
+
+		<!-- set our version -->
+		<MSBuild.ExtensionPack.Framework.AssemblyInfo AssemblyInfoFiles="@(AssemblyInfoFiles)"
+														 AssemblyFileBuildNumberType="YearWeekDay" FirstDayOfWeek="Sunday" UseUtc="true" AssemblyFileRevisionType="AutoIncrement">
+			<Output TaskParameter="MaxAssemblyFileVersion" PropertyName="RpgToolsFileVersion" />
+		</MSBuild.ExtensionPack.Framework.AssemblyInfo>
+
+		<Message Text="RpgToolsFileVersion: $(RpgToolsFileVersion)" Importance="high" />
+
+	</Target>
+</Project>

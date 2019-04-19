@@ -22,11 +22,12 @@ using System.Runtime.InteropServices;
 //      Revision
 //
 
-//version for the entire product as a whole, NOT used in any meaningful way by the CLR. 
-[assembly: AssemblyInformationalVersion("1.0.1729.0")]
+//version for the entire product as a whole, NOT used in any meaningful way by the CLR. Safe to hand edit, or even add custom strings( compiler will complain, but safe to ignore )
+[assembly: AssemblyInformationalVersion("1.0.0.0")]
 
-//version for individual assemblies; in our case, we version all assemblies together. Not used by the CLR. 
-[assembly: AssemblyFileVersion("1.0.1729.0")]
+//version for individual assemblies; in our case, we version all assemblies together. Not used by the CLR. Defaults to AssemblyVersion, but our build "Deploy" target changes this value.
+[assembly: AssemblyFileVersion("1.0.19165.0")]
 
-//version actually used by the CLR, this should only be changed with breaking changes( not bug fixes, not backwards compatible changes! )
+//version actually used by the CLR. Ideally this should only be changed with breaking changes, but for our scenario we let it auto increment <build>.<revision>, as our plugins
+// are to be distributed as a whole unit, and not relied upon by other assemblies.
 [assembly: AssemblyVersion("1.0.0.0")]
