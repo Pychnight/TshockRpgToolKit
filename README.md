@@ -1,6 +1,6 @@
-# TShockRpgToolKit
+# TShockRpgToolkit
 
-TShockRpgToolKit is a collection of plugins and tools for the TShock Terraria server. They customize the stock Terraria experience with role playing game elements, like classes and levels( among others ).
+TShockRpgToolkit is a collection of plugins and tools for the TShock Terraria server. They customize the stock Terraria experience with role playing game elements, like classes and levels( among others ).
 
 ## Building
 
@@ -54,7 +54,9 @@ It is recommended to set a persistent env variable however.
 
 ### To generate a release zip
 
-Note that you *MUST* run msbuild from the commandline, and set configuration property to `Deploy` in order to automatically package the binaries as a zip:
+Note: Packaged builds can only be generated on Windows currently. The before and after steps are not executing, and at first glance this appears to be an msbuild and/or mono thing. ( Needs investigation ) 
+
+You *MUST* run msbuild from the commandline, and set configuration property to `Deploy` in order to automatically package the binaries as a zip.:
 
 ```bash
 msbuild /p:Configuration="Deploy"
@@ -74,21 +76,19 @@ On first run, the plugins will create their directories, each containing plugin 
 
 ## Legal
 
-Rpg Tool kit is a premium plugin set supported by patreon and for release only on
+Rpg Toolkit is a premium plugin set supported by patreon and for release only on
 https://www.patreon.com/Psysky and other authorized sites.
 
 Distribution of the source code is not allowed.
 
-IF you use RPG Tool Kit for profit on your own server for selling items, armor, monsters or other features this is at your own risk.
+IF you use RPG Toolkit for profit on your own server for selling items, armor, monsters or other features this is at your own risk.
 You may provide this project with code or commits to help improve the overall experience.
 
 All changes must be submited to this repo.
 
 ## Rules of Conduct
 
-- Code commited must be in working condition
-- all code must be well documented
+- Code commited must be in working condition.
+- All code must be well documented.
 - User End documention must be upaded to match plugin usage and features.
-- Must obey all Tshock policies regarding plugin standards
-
-
+- Must obey all Tshock policies regarding plugin standards.
