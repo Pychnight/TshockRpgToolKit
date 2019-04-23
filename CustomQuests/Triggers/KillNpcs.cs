@@ -6,6 +6,7 @@ using TerrariaApi.Server;
 using System.Diagnostics;
 using TShockAPI.Localization;
 using CustomQuests.Quests;
+using System.Collections.Concurrent;
 
 namespace CustomQuests.Triggers
 {
@@ -18,8 +19,37 @@ namespace CustomQuests.Triggers
 		private HashSet<string> npcTypes;
 		private IEnumerable<PartyMember> partyMembers;
 		private int _amount;
+		private Action<PartyMember, int> tallyChangedAction;                    //optional action to take when a member gains items.
+		private ConcurrentQueue<PartyTallyChangedEventArgs> tallyChangesQueue;  //we use a concurrent queue to avoid running on the thread that listens/handles the ItemDrop
+		
+		private bool AnyNcpType => npcTypes == null;
 
-		private bool AnyNcpType => npcTypes == null; 
+		/// <summary>
+		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
+		/// </summary>
+		/// <param name="partyMembers">The party, which must not be <c>null</c>.</param>
+		/// <param name="tallyChangedAction"></param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <param name="npcTypes">Object containing NPC type names or type ids, or <c>null</c> for any NPC.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public KillNpcs(IEnumerable<PartyMember> partyMembers, Action<PartyMember, int> tallyChangedAction, int amount, params object[] npcTypes)
+		{
+			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
+			this.npcTypes = BuildNpcNameHashSet(npcTypes);
+
+			_amount = amount > 0
+				? amount
+				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+
+			if (tallyChangedAction != null)
+			{
+				this.tallyChangedAction = tallyChangedAction;
+				tallyChangesQueue = new ConcurrentQueue<PartyTallyChangedEventArgs>();
+			}
+		}
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
@@ -45,16 +75,10 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes)
+		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes) : this(partyMembers,null,amount,npcTypes)
 		{
-			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
-			this.npcTypes = BuildNpcNameHashSet(npcTypes);
-			
-			_amount = amount > 0
-				? amount
-				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 		}
-
+		
 		/// <summary>
 		///		Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party and amount, accepting any NPC type.
 		/// </summary>
@@ -93,8 +117,21 @@ namespace CustomQuests.Triggers
             ServerApi.Hooks.NpcStrike.Register(CustomQuestsPlugin.Instance, OnNpcStrike);
         }
 
-        /// <inheritdoc />
-        protected internal override TriggerStatus UpdateImpl() => (_amount <= 0).ToTriggerStatus();
+		/// <inheritdoc />
+		protected internal override TriggerStatus UpdateImpl()
+		{
+			//process any queued tally event info
+			if (tallyChangedAction != null)
+			{
+				while (!tallyChangesQueue.IsEmpty)
+				{
+					if (tallyChangesQueue.TryDequeue(out var args))
+						tallyChangedAction(args.PartyMember, args.TallyChange);
+				}
+			}
+
+			return (_amount <= 0).ToTriggerStatus();
+		}
 
         private void OnNpcKilled(NpcKilledEventArgs args)
         {
@@ -118,6 +155,17 @@ namespace CustomQuests.Triggers
 			if( LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) && partyMembers.Any(m => m.Player.Index == lastStruck) )
 			{
 				Debug.Print("Kill counted!");
+
+				//add player tally event info?
+				if (tallyChangedAction != null)
+				{
+					var member = partyMembers.FirstOrDefault(pm => pm.Player.Index == lastStruck);
+					if (member != null)
+					{
+						var tallyArgs = new PartyTallyChangedEventArgs(member, 1);
+						tallyChangesQueue.Enqueue(tallyArgs);
+					}
+				}
 
 				LastStrucks.Remove(npc.whoAmI);
 				--_amount;

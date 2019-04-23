@@ -27,14 +27,14 @@ namespace CustomQuests.Triggers
 		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
 		/// </summary>
 		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
+		/// <param name="tallyChangedAction">An action to run each time a PartyMember gathers items.</param>
 		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
 		/// <param name="amount">The amount, which must be positive.</param>
-		/// <param name="tallyChangedAction">An action to run each time a PartyMember gathers items.</param>
 		/// <exception cref="ArgumentNullException">
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount, Action<PartyMember,int> tallyChangedAction)
+		public GatherItems( IEnumerable<PartyMember> partyMembers, Action<PartyMember, int> tallyChangedAction, string itemName, int amount )
 		{
 			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 
@@ -60,7 +60,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount ) : this(partyMembers,itemName,amount,null)
+		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount ) : this(partyMembers, null, itemName, amount)
 		{
 		}
 
