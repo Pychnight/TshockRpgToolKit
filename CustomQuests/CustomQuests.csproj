@@ -115,6 +115,7 @@
     <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\MySqlJsonDatabase.cs" />
     <Compile Include="Database\SqliteJsonDatabase.cs" />
+    <Compile Include="PartyTallyChangedEventArgs.cs" />
     <Compile Include="Quests\QuestLoader.cs" />
     <Compile Include="Quests\QuestRunner.cs" />
     <Compile Include="ReleaseNpcEventArgs.cs" />

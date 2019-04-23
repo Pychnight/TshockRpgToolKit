@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,6 +20,35 @@ namespace CustomQuests.Triggers
         private readonly string _itemName;
 		private IEnumerable<PartyMember> partyMembers;
 		private int itemsRequired;
+		private Action<PartyMember,int> tallyChangedAction;						//optional action to take when a member gains items.
+		private ConcurrentQueue<PartyTallyChangedEventArgs> tallyChangesQueue;	//we use a concurrent queue to avoid running on the thread that listens/handles the ItemDrop
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
+		/// </summary>
+		/// <param name="partyMembers">The party members, which must not be <c>null</c>.</param>
+		/// <param name="itemName">The item name, or <c>null</c> for any item.</param>
+		/// <param name="amount">The amount, which must be positive.</param>
+		/// <param name="tallyChangedAction">An action to run each time a PartyMember gathers items.</param>
+		/// <exception cref="ArgumentNullException">
+		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
+		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount, Action<PartyMember,int> tallyChangedAction)
+		{
+			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
+
+			_itemName = itemName;
+			itemsRequired = amount > 0
+				? amount
+				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
+			
+			if(tallyChangedAction!=null)
+			{
+				this.tallyChangedAction = tallyChangedAction;
+				tallyChangesQueue = new ConcurrentQueue<PartyTallyChangedEventArgs>();
+			}
+		}
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
@@ -30,14 +60,8 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount)
+		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount ) : this(partyMembers,itemName,amount,null)
 		{
-			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
-
-			_itemName = itemName;
-			itemsRequired = amount > 0
-				? amount
-				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 		}
 
 		/// <summary>
@@ -112,8 +136,21 @@ namespace CustomQuests.Triggers
             GetDataHandlers.ItemDrop += OnItemDrop;
         }
 
-        /// <inheritdoc />
-        protected internal override TriggerStatus UpdateImpl() => (itemsRequired <= 0).ToTriggerStatus();
+		/// <inheritdoc />
+		protected internal override TriggerStatus UpdateImpl()
+		{
+			//process any queued tally event info
+			if(tallyChangedAction!=null)
+			{
+				while(!tallyChangesQueue.IsEmpty)
+				{
+					if(tallyChangesQueue.TryDequeue(out var args))
+						tallyChangedAction(args.PartyMember, args.TallyChange);
+				}
+			}
+			
+			return (itemsRequired <= 0).ToTriggerStatus();
+		}
 
 		private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
 		{
@@ -137,11 +174,24 @@ namespace CustomQuests.Triggers
 			var index = args.ID;
 			var item = Main.item[index];
 			if(_itemName?.Equals(item.Name, StringComparison.OrdinalIgnoreCase) ?? true)
-			{	
-				if(_blacklistedIndexes.Contains(index))
+			{
+				if (_blacklistedIndexes.Contains(index))
 					_blacklistedIndexes.Remove(index);
 				else
+				{
 					itemsRequired = Math.Max(0, itemsRequired - item.stack);
+
+					//add player tally event info?
+					if(tallyChangedAction!=null)
+					{
+						var member = partyMembers.FirstOrDefault(pm => pm.Player == args.Player);
+						if( member!=null)
+						{
+							var tallyArgs = new PartyTallyChangedEventArgs(member, item.stack);
+							tallyChangesQueue.Enqueue(tallyArgs); 
+						}
+					}
+				}
 			}
 		}
 
