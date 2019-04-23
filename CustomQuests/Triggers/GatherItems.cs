@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Corruption;
 using CustomQuests.Quests;
@@ -17,8 +18,8 @@ namespace CustomQuests.Triggers
         private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
         private readonly string _itemName;
 		private IEnumerable<PartyMember> partyMembers;
-		private int _amount;
-		
+		private int itemsRequired;
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
 		/// </summary>
@@ -34,7 +35,7 @@ namespace CustomQuests.Triggers
 			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 
 			_itemName = itemName;
-			_amount = amount > 0
+			itemsRequired = amount > 0
 				? amount
 				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 		}
@@ -112,63 +113,69 @@ namespace CustomQuests.Triggers
         }
 
         /// <inheritdoc />
-        protected internal override TriggerStatus UpdateImpl() => (_amount <= 0).ToTriggerStatus();
+        protected internal override TriggerStatus UpdateImpl() => (itemsRequired <= 0).ToTriggerStatus();
 
-        private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
-        {
-            var player = args.Player;
-            if (args.Handled)
-            {
-                return;
-            }
+		private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
+		{
+			if(args.Handled)
+				return;
 
-            if (args.ID == Main.maxItems)
-            {
-                var itemIdName = EnglishLanguage.GetItemNameById(args.Type);
-                if (_itemName?.Equals(itemIdName, StringComparison.OrdinalIgnoreCase) ?? true)
-                {
-                    var index = Main.maxItems;
-                    for (var i = 0; i < Main.maxItems; ++i)
-                    {
-                        if (!Main.item[i].active && Main.itemLockoutTime[i] == 0)
-                        {
-                            index = i;
-                            break;
-                        }
-                    }
-                    if (index == Main.maxItems)
-                    {
-                        var minTimeDiff = 0;
-                        for (var i = 0; i < Main.maxItems; ++i)
-                        {
-                            var timeDiff = Main.item[i].spawnTime - Main.itemLockoutTime[i];
-                            if (timeDiff > minTimeDiff)
-                            {
-                                minTimeDiff = timeDiff;
-                                index = i;
-                            }
-                        }
-                    }
-                    _blacklistedIndexes.Add(index);
-                }
-            }
-            else if (partyMembers.Any(p => p.IsValidMember && p.Player.Index == player.Index))
-            {
-                var index = args.ID;
-                var item = Main.item[index];
-                if (_itemName?.Equals(item.Name, StringComparison.OrdinalIgnoreCase) ?? true)
-                {
-                    if (_blacklistedIndexes.Contains(index))
-                    {
-                        _blacklistedIndexes.Remove(index);
-                    }
-                    else
-                    {
-                        var difference = item.stack - args.Stacks;
-                        _amount = Math.Max(0, _amount - difference);
-                    }
-                }
-            }
-        }
+			if(args.ID == Main.maxItems)
+				ItemDropped(args);
+			else if(partyMembers.Any(p => p.IsValidMember && p.Player.Index == args.Player.Index))
+				ItemGathered(args);
+		}
+
+		private void ItemGathered(GetDataHandlers.ItemDropEventArgs args )
+		{
+			//Debug.Print("Gathered Item!");
+
+			//only continue if an entire Item(stack) is being removed
+			if (args.Stacks != 0)
+				return;
+
+			var index = args.ID;
+			var item = Main.item[index];
+			if(_itemName?.Equals(item.Name, StringComparison.OrdinalIgnoreCase) ?? true)
+			{	
+				if(_blacklistedIndexes.Contains(index))
+					_blacklistedIndexes.Remove(index);
+				else
+					itemsRequired = Math.Max(0, itemsRequired - item.stack);
+			}
+		}
+
+		private void ItemDropped(GetDataHandlers.ItemDropEventArgs args)
+		{
+			//Debug.Print("Dropped Item!");
+			
+			var itemIdName = EnglishLanguage.GetItemNameById(args.Type);
+			if (_itemName?.Equals(itemIdName, StringComparison.OrdinalIgnoreCase) ?? true)
+			{
+				var index = Main.maxItems;
+				for (var i = 0; i < Main.maxItems; ++i)
+				{
+					if (!Main.item[i].active && Main.itemLockoutTime[i] == 0)
+					{
+						index = i;
+						break;
+					}
+				}
+				if (index == Main.maxItems)
+				{
+					var minTimeDiff = 0;
+					for (var i = 0; i < Main.maxItems; ++i)
+					{
+						var timeDiff = Main.item[i].spawnTime - Main.itemLockoutTime[i];
+						if (timeDiff > minTimeDiff)
+						{
+							minTimeDiff = timeDiff;
+							index = i;
+						}
+					}
+				}
+				_blacklistedIndexes.Add(index);
+			}
+		}
     }
 }
