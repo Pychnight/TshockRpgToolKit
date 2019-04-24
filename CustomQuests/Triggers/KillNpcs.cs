@@ -7,6 +7,7 @@ using System.Diagnostics;
 using TShockAPI.Localization;
 using CustomQuests.Quests;
 using System.Collections.Concurrent;
+using Corruption;
 
 namespace CustomQuests.Triggers
 {
@@ -129,7 +130,7 @@ namespace CustomQuests.Triggers
 			Debug.Print($"NpcKilled type: {npc.type}");
 			//Debug.Print($"Contains name? {npcTypes.Contains(npc.GivenOrTypeName)}");
 
-			if(!AnyNcpType && !npcTypes.Contains(npc.GivenOrTypeName) )
+			if(!AnyNcpType && !npcTypes.Contains(MiscFunctions.StripTags(npc.GivenOrTypeName)))
 				return;
 
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
@@ -162,7 +163,7 @@ namespace CustomQuests.Triggers
 			var npcId = npc.whoAmI;
 
 			//if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
-			if( args.Handled || (!AnyNcpType && !npcTypes.Contains(npc.GivenOrTypeName )) )
+			if( args.Handled || (!AnyNcpType && !npcTypes.Contains(MiscFunctions.StripTags(npc.GivenOrTypeName ))) )
 				return;
 			
 			if( partyMembers.All(m => m.Player.Index != playerIndex) )

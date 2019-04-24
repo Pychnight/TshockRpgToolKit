@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Corruption
@@ -39,5 +40,45 @@ namespace Corruption
 		/// <returns>The random integer.</returns>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
 		public static int RandomInt(int max) => RandomInt(0, max);
+		
+		private static Regex StripTagsRegex = new Regex(@"\[(?<tag>.+?)(:(?<text>.+?))?\]", RegexOptions.Compiled);
+
+		/// <summary>
+		/// Looks for and replaces chat tags within a string.
+		/// </summary>
+		/// <param name="txt">Input text.</param>
+		/// <returns>Transformed text.</returns>
+		public static string StripTags(string txt)
+		{
+			if(txt!=null)
+			{
+				Match match = null;
+
+				while((match = StripTagsRegex.Match(txt)).Success)
+				{
+					var tag = match.Groups["tag"].Value;
+
+					if(!string.IsNullOrWhiteSpace(tag))
+					{
+						//tags that we must replace with the decorated text... 
+						switch(tag[0])
+						{
+							case 'c'://color
+							case 'C':
+							case 'n'://name
+							case 'N':
+								var text = match.Groups["text"].Value;
+								txt = txt.Replace(match.Value, text);
+								continue;
+						}
+					}
+
+					//for any other tags, we just need to strip them altogether
+					txt = txt.Replace(match.Value, "");
+				}
+			}
+			
+			return txt;
+		}
 	}
 }
