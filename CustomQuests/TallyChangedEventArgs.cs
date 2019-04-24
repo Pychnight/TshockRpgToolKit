@@ -11,7 +11,7 @@ namespace CustomQuests
 	/// Provides information on a <see cref="CustomQuests.Quests.PartyMember"/>'s contribution( or losses )
 	/// for Triggers that require a quota to be met. 
 	/// </summary>
-	public class PartyTallyChangedEventArgs : EventArgs
+	public class TallyChangedEventArgs : EventArgs
 	{
 		/// <summary>
 		/// Gets the <see cref="CustomQuests.Quests.PartyMember"/> who made the gain or loss.
@@ -23,7 +23,7 @@ namespace CustomQuests
 		/// </summary>
 		public int TallyChange { get; private set; }
 
-		public PartyTallyChangedEventArgs(PartyMember partyMember, int tallyChange )
+		public TallyChangedEventArgs(PartyMember partyMember, int tallyChange )
 		{
 			PartyMember = partyMember;
 			TallyChange = tallyChange;

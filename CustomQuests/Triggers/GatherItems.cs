@@ -14,15 +14,13 @@ namespace CustomQuests.Triggers
     /// <summary>
     ///     Represents a gather items trigger.
     /// </summary>
-    public sealed class GatherItems : Trigger
+    public sealed class GatherItems : TallyTrigger
     {
         private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
         private readonly string _itemName;
 		private IEnumerable<PartyMember> partyMembers;
 		private int itemsRequired;
-		private Action<PartyMember,int> tallyChangedAction;						//optional action to take when a member gains items.
-		private ConcurrentQueue<PartyTallyChangedEventArgs> tallyChangesQueue;	//we use a concurrent queue to avoid running on the thread that listens/handles the ItemDrop
-
+		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
 		/// </summary>
@@ -42,12 +40,8 @@ namespace CustomQuests.Triggers
 			itemsRequired = amount > 0
 				? amount
 				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-			
-			if(tallyChangedAction!=null)
-			{
-				this.tallyChangedAction = tallyChangedAction;
-				tallyChangesQueue = new ConcurrentQueue<PartyTallyChangedEventArgs>();
-			}
+
+			SetTallyChangedAction(tallyChangedAction);
 		}
 
 		/// <summary>
@@ -139,15 +133,7 @@ namespace CustomQuests.Triggers
 		/// <inheritdoc />
 		protected internal override TriggerStatus UpdateImpl()
 		{
-			//process any queued tally event info
-			if(tallyChangedAction!=null)
-			{
-				while(!tallyChangesQueue.IsEmpty)
-				{
-					if(tallyChangesQueue.TryDequeue(out var args))
-						tallyChangedAction(args.PartyMember, args.TallyChange);
-				}
-			}
+			TryProcessTallyChanges();
 			
 			return (itemsRequired <= 0).ToTriggerStatus();
 		}
@@ -167,7 +153,7 @@ namespace CustomQuests.Triggers
 		{
 			//Debug.Print("Gathered Item!");
 
-			//only continue if an entire Item(stack) is being removed
+			//only continue if an entire Item(stack) is being removed. ( We have to account for multiple item stacks combining into a single stack. ) 
 			if (args.Stacks != 0)
 				return;
 
@@ -181,15 +167,11 @@ namespace CustomQuests.Triggers
 				{
 					itemsRequired = Math.Max(0, itemsRequired - item.stack);
 
-					//add player tally event info?
-					if(tallyChangedAction!=null)
+					if(HasTallyChangedAction)
 					{
 						var member = partyMembers.FirstOrDefault(pm => pm.Player == args.Player);
-						if( member!=null)
-						{
-							var tallyArgs = new PartyTallyChangedEventArgs(member, item.stack);
-							tallyChangesQueue.Enqueue(tallyArgs); 
-						}
+						if (member != null)
+							TryEnqueueTallyChange(member,item.stack);
 					}
 				}
 			}

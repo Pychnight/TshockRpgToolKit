@@ -115,7 +115,7 @@
     <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\MySqlJsonDatabase.cs" />
     <Compile Include="Database\SqliteJsonDatabase.cs" />
-    <Compile Include="PartyTallyChangedEventArgs.cs" />
+    <Compile Include="TallyChangedEventArgs.cs" />
     <Compile Include="Quests\QuestLoader.cs" />
     <Compile Include="Quests\QuestRunner.cs" />
     <Compile Include="ReleaseNpcEventArgs.cs" />
@@ -150,6 +150,7 @@
     <Compile Include="Triggers\KillNpcs.cs" />
     <Compile Include="Triggers\ReadSign.cs" />
     <Compile Include="Triggers\ReleaseNpcs.cs" />
+    <Compile Include="Triggers\TallyTrigger.cs" />
     <Compile Include="Triggers\Trigger.cs" />
     <Compile Include="Triggers\TriggerStatus.cs" />
   </ItemGroup>

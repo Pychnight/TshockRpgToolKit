@@ -13,15 +13,12 @@ namespace CustomQuests.Triggers
     /// <summary>
     ///     Represents a kill NPCs trigger.
     /// </summary>
-	public sealed class KillNpcs : Trigger
+	public sealed class KillNpcs : TallyTrigger
     {
 		private Dictionary<int, int> LastStrucks = new Dictionary<int, int>();
 		private HashSet<string> npcTypes;
 		private IEnumerable<PartyMember> partyMembers;
 		private int _amount;
-		private Action<PartyMember, int> tallyChangedAction;                    //optional action to take when a member gains items.
-		private ConcurrentQueue<PartyTallyChangedEventArgs> tallyChangesQueue;  //we use a concurrent queue to avoid running on the thread that listens/handles the ItemDrop
-		
 		private bool AnyNcpType => npcTypes == null;
 
 		/// <summary>
@@ -44,11 +41,7 @@ namespace CustomQuests.Triggers
 				? amount
 				: throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 
-			if (tallyChangedAction != null)
-			{
-				this.tallyChangedAction = tallyChangedAction;
-				tallyChangesQueue = new ConcurrentQueue<PartyTallyChangedEventArgs>();
-			}
+			SetTallyChangedAction(tallyChangedAction);
 		}
 
 		/// <summary>
@@ -120,15 +113,7 @@ namespace CustomQuests.Triggers
 		/// <inheritdoc />
 		protected internal override TriggerStatus UpdateImpl()
 		{
-			//process any queued tally event info
-			if (tallyChangedAction != null)
-			{
-				while (!tallyChangesQueue.IsEmpty)
-				{
-					if (tallyChangesQueue.TryDequeue(out var args))
-						tallyChangedAction(args.PartyMember, args.TallyChange);
-				}
-			}
+			TryProcessTallyChanges();
 
 			return (_amount <= 0).ToTriggerStatus();
 		}
@@ -154,17 +139,13 @@ namespace CustomQuests.Triggers
 						
 			if( LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) && partyMembers.Any(m => m.Player.Index == lastStruck) )
 			{
-				Debug.Print("Kill counted!");
-
-				//add player tally event info?
-				if (tallyChangedAction != null)
+				//Debug.Print("Kill counted!");
+				
+				if(HasTallyChangedAction)
 				{
 					var member = partyMembers.FirstOrDefault(pm => pm.Player.Index == lastStruck);
 					if (member != null)
-					{
-						var tallyArgs = new PartyTallyChangedEventArgs(member, 1);
-						tallyChangesQueue.Enqueue(tallyArgs);
-					}
+						TryEnqueueTallyChange(member,1);
 				}
 
 				LastStrucks.Remove(npc.whoAmI);
