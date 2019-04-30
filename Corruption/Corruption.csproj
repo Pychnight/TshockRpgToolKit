@@ -76,6 +76,7 @@
     <Compile Include="NpcFunctions.cs" />
     <Compile Include="CommandFunctions.cs" />
     <Compile Include="PlayerFunctions.cs" />
+    <Compile Include="PluginSupport\CommandArgsExtensions.cs" />
     <Compile Include="PluginSupport\DatabaseConfig.cs" />
     <Compile Include="PluginSupport\FilePosition.cs" />
     <Compile Include="PluginSupport\OutputExtensions.cs" />

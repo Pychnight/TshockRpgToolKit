@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text;
 using TShockAPI;
 
 namespace Corruption.PluginSupport
@@ -42,6 +41,17 @@ namespace Corruption.PluginSupport
 			pageCount += itemCount % itemsPerPage > 0 ? 1 : 0;
 
 			return pageCount;
+		}
+
+		/// <summary>
+		/// Common method to send a TSPlayer the correct syntax for a command.
+		/// </summary>
+		/// <param name="player">TSPlayer.</param>
+		/// <param name="syntax">String containing the correct syntax.</param>
+		/// <param name="commandSpecifier">Optional command specifier.</param>
+		public static void SendSyntaxMessage(this TSPlayer player, string syntax, string commandSpecifier = null)
+		{
+			player?.SendErrorMessage($"Syntax: {commandSpecifier ?? Commands.Specifier}{syntax}");
 		}
 	}
 }
