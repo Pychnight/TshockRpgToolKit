@@ -65,6 +65,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\Config.cs" />
+    <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

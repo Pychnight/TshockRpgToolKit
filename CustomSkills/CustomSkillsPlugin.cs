@@ -63,6 +63,7 @@ namespace CustomSkills
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
 
 			//register commands here...
+			Commands.ChatCommands.Add(new Command("customskills.skill", SkillCommand, "skill"));
 		}
 
 		/// <summary>
