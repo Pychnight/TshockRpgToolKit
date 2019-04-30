@@ -45,6 +45,8 @@ namespace CustomSkills
 		private static readonly string ConfigPath = Path.Combine("skills", "config.json");
 		public static CustomSkillsPlugin Instance = null;
 
+		internal CustomSkillManager CustomSkillManager { get; private set; }
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomSkillsPlugin" /> class using the specified Main instance.
 		/// </summary>
@@ -89,6 +91,8 @@ namespace CustomSkills
 		private void OnLoad()
 		{
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+
+			CustomSkillManager = new CustomSkillManager();
 		}
 
 		private void OnReload(ReloadEventArgs args)
