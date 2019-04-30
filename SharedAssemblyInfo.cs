@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Part of the RPG Toolkit")]
-[assembly: AssemblyCopyright("Copyright © 2017-2018")]
+[assembly: AssemblyCopyright("Copyright © 2017-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("1.0.0.0")]
 
 //version for individual assemblies; in our case, we version all assemblies together. Not used by the CLR. Defaults to AssemblyVersion, but our build "Deploy" target changes this value.
-[assembly: AssemblyFileVersion("1.0.19173.2")]
+[assembly: AssemblyFileVersion("1.0.19182.4")]
 
 //version actually used by the CLR. Ideally this should only be changed with breaking changes, but for our scenario we let it auto increment <build>.<revision>, as our plugins
 // are to be distributed as a whole unit, and not relied upon by other assemblies.

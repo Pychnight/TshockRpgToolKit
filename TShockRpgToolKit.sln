@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leveling", "Leveling\Leveli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NpcShops", "NpcShops\NpcShops.csproj", "{CC6C3BA2-2702-45A5-851D-D4EF3B15311C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomSkills", "CustomSkills\CustomSkills.csproj", "{5183E383-2D10-4F4B-AF6A-D09B544343BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,12 @@ Global
 		{CC6C3BA2-2702-45A5-851D-D4EF3B15311C}.Deploy|Any CPU.Build.0 = Deploy|Any CPU
 		{CC6C3BA2-2702-45A5-851D-D4EF3B15311C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC6C3BA2-2702-45A5-851D-D4EF3B15311C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5183E383-2D10-4F4B-AF6A-D09B544343BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5183E383-2D10-4F4B-AF6A-D09B544343BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5183E383-2D10-4F4B-AF6A-D09B544343BD}.Deploy|Any CPU.ActiveCfg = Deploy|Any CPU
+		{5183E383-2D10-4F4B-AF6A-D09B544343BD}.Deploy|Any CPU.Build.0 = Deploy|Any CPU
+		{5183E383-2D10-4F4B-AF6A-D09B544343BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5183E383-2D10-4F4B-AF6A-D09B544343BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
