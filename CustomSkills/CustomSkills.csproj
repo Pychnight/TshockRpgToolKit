@@ -68,6 +68,7 @@
     <Compile Include="CustomSkill.cs" />
     <Compile Include="CustomSkillCategory.cs" />
     <Compile Include="CustomSkillCategoryJsonConverter.cs" />
+    <Compile Include="CustomSkillLevelDefinition.cs" />
     <Compile Include="CustomSkillManager.cs" />
     <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
