@@ -66,8 +66,12 @@
     </Compile>
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="CustomSkill.cs" />
+    <Compile Include="CustomSkillCategory.cs" />
+    <Compile Include="CustomSkillCategoryJsonConverter.cs" />
+    <Compile Include="CustomSkillManager.cs" />
     <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
+    <Compile Include="DataDefinitionFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

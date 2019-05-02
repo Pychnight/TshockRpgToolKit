@@ -41,8 +41,10 @@ namespace CustomSkills
 		///     Gets the version.
 		/// </summary>
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
-		private static readonly string ConfigPath = Path.Combine("skills", "config.json");
+		
+		public static readonly string DataDirectory = "skills";
+		public static readonly string ConfigPath = Path.Combine(DataDirectory, "config.json");
+				
 		public static CustomSkillsPlugin Instance = null;
 
 		internal CustomSkillManager CustomSkillManager { get; private set; }
@@ -90,9 +92,10 @@ namespace CustomSkills
 
 		private void OnLoad()
 		{
-			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+			var cfg = Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 
-			CustomSkillManager = new CustomSkillManager();
+			//CustomSkillManager = new CustomSkillManager();
+			CustomSkillManager = CustomSkillManager.Load(Path.Combine(DataDirectory,cfg.DefinitionFilepath), cfg.AutoCreateDefinitionFile);
 		}
 
 		private void OnReload(ReloadEventArgs args)
