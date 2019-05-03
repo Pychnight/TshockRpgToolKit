@@ -16,6 +16,7 @@ namespace CustomSkills
 		internal const string SyntaxSkillLearnSub	= "skill learn <name>";
 		internal const string SyntaxSkillListSub	= "skill list [category]";
 		internal const string SyntaxSkillInfoSub	= "skill info <name>";
+		internal const string SyntaxSkillCancelSub	= "skill cancel";
 
 		private void SkillCommand(CommandArgs args)
 		{
@@ -43,6 +44,11 @@ namespace CustomSkills
 						SkillInfoSubCommand(player,skillName,categoryName);
 						return;
 
+					case "cancel":
+						//ParseCategoryAndSkill(args, 1, out skillName, out categoryName);
+						SkillCancelSubCommand(player);
+						return;
+
 					default:
 						ParseCategoryAndSkill(args, 0, out skillName, out categoryName);
 						SkillSubCommand(player, skillName, categoryName);
@@ -52,7 +58,7 @@ namespace CustomSkills
 			
 			SendSkillSyntax(player);
 		}
-
+		
 		private void ParseCategoryAndSkill(CommandArgs args, int parameterStartIndex, out string skillName, out string categoryName)
 		{
 			skillName = null;
@@ -82,9 +88,9 @@ namespace CustomSkills
 			}
 
 			if(!string.IsNullOrWhiteSpace(categoryName))
-				category = CustomSkillManager.TryGetCategory(categoryName);
+				category = CustomSkillDefinitionLoader.TryGetCategory(categoryName);
 			else
-				category = CustomSkillManager.TryGetCategory();//get default "uncategorized" category...
+				category = CustomSkillDefinitionLoader.TryGetCategory();//get default "uncategorized" category...
 
 			if(category == null)
 			{
@@ -108,7 +114,10 @@ namespace CustomSkills
 			if(!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			player.SendInfoMessage($"You invoke {skillName}, but nothing happens.");
+			var currentLevel = 0;
+
+			CustomSkillRunner.AddActiveSkill(player, definition, currentLevel);
+			//player.SendInfoMessage($"You invoke {skillName}, but nothing happens.");
 		}
 
 		private void SkillLearnSubCommand(TSPlayer player, string skillName, string categoryName = null)
@@ -125,7 +134,7 @@ namespace CustomSkills
 			
 			if(!string.IsNullOrWhiteSpace(categoryName))
 			{
-				category = CustomSkillManager.TryGetCategory(categoryName);
+				category = CustomSkillDefinitionLoader.TryGetCategory(categoryName);
 
 				if(category!=null)
 				{
@@ -160,7 +169,7 @@ namespace CustomSkills
 			}
 			else
 			{
-				category = CustomSkillManager.TryGetCategory(null);
+				category = CustomSkillDefinitionLoader.TryGetCategory(null);
 
 				foreach (var def in category.Values)
 					player.SendInfoMessage(def.Name);
@@ -172,7 +181,13 @@ namespace CustomSkills
 			if(!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			player.SendInfoMessage($"You find no information on {skillName}.");
+			player.SendInfoMessage($"{skillName}, level 0 - {definition.Description ?? ""}");
+			player.SendInfoMessage($"DamageRange: ??, MP Cost: ??, ChargeTime: ??");
+		}
+
+		private void SkillCancelSubCommand(TSPlayer player)
+		{
+			player.SendInfoMessage($"You attempt to cancel whatever skill you were using... but have a sudden lapse in memory.");
 		}
 
 		private void SendSkillSyntax(TSPlayer player)
@@ -181,6 +196,7 @@ namespace CustomSkills
 			player.SendSyntaxMessage(SyntaxSkillLearnSub);
 			player.SendSyntaxMessage(SyntaxSkillListSub);
 			player.SendSyntaxMessage(SyntaxSkillInfoSub);
+			player.SendSyntaxMessage(SyntaxSkillCancelSub);
 		}
 	}
 }

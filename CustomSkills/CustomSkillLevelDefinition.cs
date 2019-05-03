@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
+using System;
+using TShockAPI;
 
 namespace CustomSkills
 {
+	/// <summary>
+	/// Configuration and stats for an individual level of progression in a CustomSkillDefinition.
+	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
 	public class CustomSkillLevelDefinition
 	{
-		//public int Level { get; set; }
-
 		/// <summary>
 		/// Gets or sets a one time cost to cast this level of spell.
 		/// </summary>
@@ -17,7 +20,7 @@ namespace CustomSkills
 		/// Gets or sets an interval of time that must pass between repeat usages for this level of spell.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-		public int CastingCooldown { get; set; }
+		public TimeSpan CastingCooldown { get; set; } = TimeSpan.FromSeconds(1);
 
 		/// <summary>
 		/// Gets or sets a cost deducted while charging this level of spell.
@@ -29,13 +32,13 @@ namespace CustomSkills
 		/// Gets or sets the duration of time required to charge this level of spell.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		public int ChargingDuration { get; set; }
+		public TimeSpan ChargingDuration { get; set; } = TimeSpan.FromSeconds(3);
 
 		/// <summary>
 		/// Gets or sets the interval of time between charging cost deductions for this level of spell.
 		/// </summary>
 		[JsonProperty(Order = 4)]
-		public int ChargingCostInterval { get; set; }
+		public TimeSpan ChargingCostInterval { get; set; } = TimeSpan.FromSeconds(1);
 
 		/// <summary>
 		/// Gets or sets whether this level of spell can be interrupted.
@@ -54,5 +57,15 @@ namespace CustomSkills
 		/// </summary>
 		[JsonProperty(Order = 7)]
 		public int UsesToLevelUp { get; set; } = 0;
+		
+		//callbacks
+		internal Action<TSPlayer> OnCast { get; set; }
+
+		internal Action<TSPlayer> OnCharge { get; set; }
+
+		internal Action<TSPlayer> OnFire { get; set; }
+
+		//hook to notify player about gaining new level?
+		//internal Action<TSPlayer> OnLevelUp { get; set; }
 	}
 }

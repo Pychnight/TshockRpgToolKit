@@ -1,53 +1,152 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace CustomSkills
 {
 	/// <summary>
-	/// Properties that make up a CustomSkill.
+	/// Represents a CustomSkill, "in action".
 	/// </summary>
-	[JsonObject(MemberSerialization.OptIn)]
-	public class CustomSkillDefinition
+	internal class CustomSkill
 	{
-		/// <summary>
-		/// Gets or sets a unique identifier to reference this skill type.
-		/// </summary>
-		[JsonProperty(Order = 0)]
-		public string Name { get; set; } = "NewCustomSkill";
-		//public string CustomID { get; set; }
-
-		/// <summary>
-		/// Gets or sets a user readable summary of this skill.
-		/// </summary>
-		[JsonProperty(Order = 1)]
-		public string Description { get; set; } = "No description.";
-
-		/// <summary>
-		/// Gets or sets a comma separated list of permissions required to learn this skill.
-		/// </summary>
-		[JsonProperty(Order = 2)]
-		public string PermissionsToLearn { get; set; } = "";
-
-		/// <summary>
-		/// Gets or sets a comma separated list of permissions required to use this skill.
-		/// </summary>
-		[JsonProperty(Order = 3)]
-		public string PermissionsToUse { get; set; } = "";
+		internal TSPlayer Player { get; set; }
+		internal CustomSkillDefinition Definition { get; set; }
+		internal int LevelIndex { get; set; }
+		internal CustomSkillLevelDefinition LevelDefinition => Definition.Levels[LevelIndex];
+		internal SkillPhase Phase { get; set; }
+		DateTime ChargeStartTime;
+		DateTime CooldownStartTime;
 		
-		/// <summary>
-		/// Gets or sets whether to notify the user that this skill is ready to use again.
-		/// </summary>
-		[JsonProperty(Order = 4)]
-		public bool NotifyUserOnCooldown { get; set; } = false;
+		internal CustomSkill()
+		{
+		}
 
-		/// <summary>
-		/// Gets or sets the list of CustomSkillLevelDefinitions for this skill.
-		/// </summary>
-		[JsonProperty(Order = 5)]
-		public List<CustomSkillLevelDefinition> Levels { get; set; } = new List<CustomSkillLevelDefinition>();
+		internal CustomSkill(TSPlayer player, CustomSkillDefinition skillDefinition, int levelIndex)
+		{
+			Player = player;
+			Definition = skillDefinition;
+			LevelIndex = levelIndex;
+
+			if(levelIndex < 0 || levelIndex >= skillDefinition.Levels.Count)
+				throw new ArgumentOutOfRangeException($"{nameof(levelIndex)}");
+			
+			//OnCast += (p) => Player.SendInfoMessage($"You begin to cast {skillDefinition.Name}...");
+			//OnCharge += (p) => Player.SendInfoMessage($"{skillDefinition.Name} is charging!");
+			//OnFire += (p) => Player.SendInfoMessage($"Alas! {skillDefinition.Name} fires.");
+		}
+		
+		internal void Update()
+		{
+			if(!Player.ConnectionAlive)
+			{
+				Phase = SkillPhase.Cancelled;
+				return;
+			}
+
+			switch(Phase)
+			{
+				case SkillPhase.Casting:
+					RunOnCast();
+					break;
+
+				case SkillPhase.Charging:
+					RunOnCharging();
+					break;
+
+				case SkillPhase.Firing:
+					RunOnFiring();
+					break;
+
+				case SkillPhase.Cooldown:
+					RunCooldown();
+					break;
+			}
+		}
+
+		void RunOnCast()
+		{
+			try
+			{
+				var levelDef = LevelDefinition;
+
+				Debug.Print($"Casting {Definition.Name}.");
+
+				levelDef.OnCast?.Invoke(Player);
+				//only fires one time
+
+				ChargeStartTime = DateTime.Now;
+				Phase = SkillPhase.Charging;
+			}
+			catch(Exception ex)
+			{
+				Phase = SkillPhase.Failed;
+				throw ex;
+			}
+		}
+
+		void RunOnCharging()
+		{
+			try
+			{
+				var levelDef = LevelDefinition;
+
+				Debug.Print($"Charging {Definition.Name}.");
+
+				levelDef.OnCharge?.Invoke(Player);
+				
+				//can fire continuously...
+				if(DateTime.Now - ChargeStartTime >= levelDef.ChargingDuration)
+					Phase = SkillPhase.Firing;
+			}
+			catch(Exception ex)
+			{
+				Phase = SkillPhase.Failed;
+				throw ex;
+			}
+		}
+
+		void RunOnFiring()
+		{
+			try
+			{
+				var levelDef = LevelDefinition;
+
+				Debug.Print($"Firing {Definition.Name}.");
+
+				levelDef.OnFire?.Invoke(Player);
+				//only fires once, but should spark something that can continue for some time afterwards.
+				//check if we moved up a level..
+
+				CooldownStartTime = DateTime.Now;
+				Phase = SkillPhase.Cooldown;
+			}
+			catch(Exception ex)
+			{
+				Phase = SkillPhase.Failed;
+				throw ex;
+			}
+		}
+
+		void RunCooldown()
+		{
+			try
+			{
+				var levelDef = LevelDefinition;
+
+				Debug.Print($"Cooling down {Definition.Name}.");
+
+				if(DateTime.Now - CooldownStartTime >= levelDef.CastingCooldown)
+					Phase = SkillPhase.Completed;
+			}
+			catch(Exception ex)
+			{
+				Phase = SkillPhase.Failed;
+				throw ex;
+			}
+		}
 	}
 }

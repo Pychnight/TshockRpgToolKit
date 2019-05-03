@@ -47,7 +47,8 @@ namespace CustomSkills
 				
 		public static CustomSkillsPlugin Instance = null;
 
-		internal CustomSkillManager CustomSkillManager { get; private set; }
+		internal CustomSkillDefinitionLoader CustomSkillDefinitionLoader { get; private set; }
+		internal CustomSkillRunner CustomSkillRunner { get; private set; }
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomSkillsPlugin" /> class using the specified Main instance.
@@ -65,21 +66,23 @@ namespace CustomSkills
 		{
 			GeneralHooks.ReloadEvent += OnReload;
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
+			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 
 			//register commands here...
 			Commands.ChatCommands.Add(new Command("customskills.skill", SkillCommand, "skill"));
 		}
-
+		
 		/// <summary>
 		///     Disposes the plugin.
 		/// </summary>
 		/// <param name="disposing"><c>true</c> to dispose managed resources; otherwise, <c>false</c>.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing)
+			if(disposing)
 			{
 				GeneralHooks.ReloadEvent -= OnReload;
 				ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
+				ServerApi.Hooks.GameUpdate.Deregister(this,OnGameUpdate);
 			}
 
 			base.Dispose(disposing);
@@ -94,14 +97,19 @@ namespace CustomSkills
 		{
 			var cfg = Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
 
-			//CustomSkillManager = new CustomSkillManager();
-			CustomSkillManager = CustomSkillManager.Load(Path.Combine(DataDirectory,cfg.DefinitionFilepath), cfg.AutoCreateDefinitionFile);
+			CustomSkillDefinitionLoader = CustomSkillDefinitionLoader.Load(Path.Combine(DataDirectory,cfg.DefinitionFilepath), cfg.AutoCreateDefinitionFile);
+			CustomSkillRunner = new CustomSkillRunner();
 		}
 
 		private void OnReload(ReloadEventArgs args)
 		{
 			OnLoad();
 			args.Player.SendSuccessMessage("[CustomSkills] Reloaded config!");
+		}
+
+		private void OnGameUpdate(EventArgs args)
+		{
+			CustomSkillRunner.UpdateActiveSkills();
 		}
 	}
 }

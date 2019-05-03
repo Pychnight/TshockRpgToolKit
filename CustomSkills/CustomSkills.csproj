@@ -65,15 +65,18 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\Config.cs" />
-    <Compile Include="CustomSkill.cs" />
+    <Compile Include="CustomSkillDefinition.cs" />
     <Compile Include="CustomSkillCategory.cs" />
     <Compile Include="CustomSkillCategoryJsonConverter.cs" />
     <Compile Include="CustomSkillLevelDefinition.cs" />
-    <Compile Include="CustomSkillManager.cs" />
+    <Compile Include="CustomSkillLoader.cs" />
+    <Compile Include="CustomSkillRunner.cs" />
     <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
     <Compile Include="DataDefinitionFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CustomSkill.cs" />
+    <Compile Include="SkillPhase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Corruption\Corruption.csproj">
