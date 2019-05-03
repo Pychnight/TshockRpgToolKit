@@ -49,6 +49,7 @@ namespace CustomSkills
 
 		internal CustomSkillDefinitionLoader CustomSkillDefinitionLoader { get; private set; }
 		internal CustomSkillRunner CustomSkillRunner { get; private set; }
+		internal SessionManager SessionManager { get; private set; }
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomSkillsPlugin" /> class using the specified Main instance.
@@ -67,6 +68,8 @@ namespace CustomSkills
 			GeneralHooks.ReloadEvent += OnReload;
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
+			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
+			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 
 			//register commands here...
 			Commands.ChatCommands.Add(new Command("customskills.skill", SkillCommand, "skill"));
@@ -83,6 +86,8 @@ namespace CustomSkills
 				GeneralHooks.ReloadEvent -= OnReload;
 				ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
 				ServerApi.Hooks.GameUpdate.Deregister(this,OnGameUpdate);
+				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
+				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
 			}
 
 			base.Dispose(disposing);
@@ -99,6 +104,8 @@ namespace CustomSkills
 
 			CustomSkillDefinitionLoader = CustomSkillDefinitionLoader.Load(Path.Combine(DataDirectory,cfg.DefinitionFilepath), cfg.AutoCreateDefinitionFile);
 			CustomSkillRunner = new CustomSkillRunner();
+			SessionManager = new SessionManager();
+			//FIXME: we must rebuild sessions here, since session creation currently only happens on server join... 
 		}
 
 		private void OnReload(ReloadEventArgs args)
@@ -110,6 +117,37 @@ namespace CustomSkills
 		private void OnGameUpdate(EventArgs args)
 		{
 			CustomSkillRunner.UpdateActiveSkills();
+		}
+
+		//we handle the join event so that we can ensure were creating sessions at this point, and not during runtime.
+		private void OnServerJoin(JoinEventArgs args)
+		{
+			if(args.Who < 0 || args.Who >= Main.maxPlayers)
+			{
+				return;
+			}
+
+			var player = TShock.Players[args.Who];
+			if(player != null)
+			{
+				var session = SessionManager.GetOrCreateSession(player);
+				//session.Save();
+			}
+		}
+
+		private void OnServerLeave(LeaveEventArgs args)
+		{
+			if(args.Who < 0 || args.Who >= Main.maxPlayers)
+			{
+				return;
+			}
+
+			var player = TShock.Players[args.Who];
+			if(player != null)
+			{
+				var session = SessionManager.GetOrCreateSession(player);
+				//session.Save();
+			}
 		}
 	}
 }

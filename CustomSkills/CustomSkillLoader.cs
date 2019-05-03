@@ -106,12 +106,18 @@ namespace CustomSkills
 
 								switch(name)
 								{
-									case "WindBreaker":
+									case "WindBreaker1":
 										level.OnCast = DevScripts.WindBreaker.OnCast;
 										level.OnCharge = DevScripts.WindBreaker.OnCharging;
 										level.OnFire = DevScripts.WindBreaker.OnFire;
 										break;
-																			
+
+									case "WindBreaker2":
+										level.OnCast = DevScripts.WindBreaker2.OnCast;
+										level.OnCharge = DevScripts.WindBreaker2.OnCharging;
+										level.OnFire = DevScripts.WindBreaker2.OnFire;
+										break;
+
 									default:
 										level.OnCast = DevScripts.TestSkill.OnCast;
 										level.OnCharge = DevScripts.TestSkill.OnCharging;

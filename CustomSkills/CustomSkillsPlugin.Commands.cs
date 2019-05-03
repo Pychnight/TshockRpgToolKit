@@ -181,8 +181,17 @@ namespace CustomSkills
 			if(!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			player.SendInfoMessage($"{skillName}, level 0 - {definition.Description ?? ""}");
-			player.SendInfoMessage($"DamageRange: ??, MP Cost: ??, ChargeTime: ??");
+			var session = SessionManager.GetOrCreateSession(player);
+
+			if(!session.SkillLevelInfo.TryGetValue(skillName, out var levelInfo))
+			{
+				levelInfo = new Session.LevelInfo();
+			}
+
+			var level = definition.Levels[levelInfo.CurrentLevel];
+
+			player.SendInfoMessage($"{skillName} - {definition.Description ?? ""}");
+			player.SendInfoMessage($"Level: {levelInfo.CurrentLevel}, DamageRange: ??, MP Cost: ??, ChargeTime: {level.ChargingDuration}");
 		}
 
 		private void SkillCancelSubCommand(TSPlayer player)

@@ -53,10 +53,10 @@ namespace CustomSkills
 				//player.SendMessage("BRWWAAAAAAPPPPPPPPPP!", Color.Green);
 				PlayerFunctions.Broadcast("BRWWAAAAAAPPPPPPPPPP!", Color.Green);
 
-				var radius = 16 * 16;
+				var radius = 128;
 				var pos = player.TPlayer.position;
 				var npcs = NpcFunctions.FindNpcsInRadius(pos.X, pos.Y, radius);
-				var seconds = 25;
+				var seconds = 15;
 
 				player.SetBuff(120, 10 * 60);
 
@@ -84,7 +84,75 @@ namespace CustomSkills
 					var newVelocity = (npc.position - pos);
 
 					newVelocity.Normalize();
-					newVelocity *= 50;
+					newVelocity *= 30;
+
+					npc.velocity = newVelocity;
+
+					//npc.oldPosition = npc.position;
+					//npc.position = npc.position + newVelocity;
+
+					try
+					{
+						TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", i);//, npcPos.X, npcPos.Y, newVelocity.X, newVelocity.Y);
+					}
+					catch(Exception ex)
+					{
+						Debugger.Break();
+					}
+
+				}
+			}
+		}
+
+		public static class WindBreaker2
+		{
+			public static void OnCast(TSPlayer player)
+			{
+				player.SendMessage("You feel an evil force stir inside you...", Color.Purple);
+			}
+
+			public static void OnCharging(TSPlayer player, float completion)
+			{
+				if((int)completion % 10 == 0)
+					player.SendMessage("Aaargh!!...", Color.Purple);
+			}
+
+			public static void OnFire(TSPlayer player)
+			{
+				PlayerFunctions.Broadcast("BRWWAAAAAAPPPPPPPPPP BRAP BRAP BRAP!!!!", Color.Green);
+
+				var radius = 256;
+				var pos = player.TPlayer.position;
+				var npcs = NpcFunctions.FindNpcsInRadius(pos.X, pos.Y, radius);
+				var seconds = 30;
+
+				player.SetBuff(120, 10 * 60);
+
+				//var confuseCounter = 3;
+
+				for(var i = 0; i < Main.maxNPCs; i++)
+				{
+					var npc = Main.npc[i];
+
+					if(!npc.active)
+						continue;
+
+					//confuseCounter--;
+
+					//if(confuseCounter==0)
+					//{
+					//	confuseCounter = 3;
+					//	npc.AddBuff(31, seconds * 60);
+					//}
+					//else
+					npc.AddBuff(30, seconds * 60);
+
+					var npcPos = npc.position;
+
+					var newVelocity = (npc.position - pos);
+
+					newVelocity.Normalize();
+					newVelocity *= 60;
 
 					npc.velocity = newVelocity;
 
