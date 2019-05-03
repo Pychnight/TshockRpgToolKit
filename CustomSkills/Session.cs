@@ -33,7 +33,10 @@ namespace CustomSkills
 		public Session(TSPlayer player)
 		{
 			Player = player;
+			SkillsLearned.Add("WindBreaker");
 		}
+
+		public bool HasLearned(string skillName) => SkillsLearned.Contains(skillName);
 
 		public class LevelInfo
 		{

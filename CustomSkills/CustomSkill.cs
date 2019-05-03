@@ -33,10 +33,6 @@ namespace CustomSkills
 
 			if(levelIndex < 0 || levelIndex >= skillDefinition.Levels.Count)
 				throw new ArgumentOutOfRangeException($"{nameof(levelIndex)}");
-			
-			//OnCast += (p) => Player.SendInfoMessage($"You begin to cast {skillDefinition.Name}...");
-			//OnCharge += (p) => Player.SendInfoMessage($"{skillDefinition.Name} is charging!");
-			//OnFire += (p) => Player.SendInfoMessage($"Alas! {skillDefinition.Name} fires.");
 		}
 		
 		internal void Update()

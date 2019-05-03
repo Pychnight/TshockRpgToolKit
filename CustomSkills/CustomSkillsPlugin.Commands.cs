@@ -114,10 +114,18 @@ namespace CustomSkills
 			if(!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
+			var session = SessionManager.GetOrCreateSession(player);
+
+			if(!session.HasLearned(skillName))
+			{
+				player.SendErrorMessage($"You have not learned {skillName}.");
+				return;
+			}
+
 			var currentLevel = 0;
 
 			CustomSkillRunner.AddActiveSkill(player, definition, currentLevel);
-			//player.SendInfoMessage($"You invoke {skillName}, but nothing happens.");
+			
 		}
 
 		private void SkillLearnSubCommand(TSPlayer player, string skillName, string categoryName = null)
@@ -125,7 +133,24 @@ namespace CustomSkills
 			if (!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			player.SendInfoMessage($"You try to learn {skillName}, but nothing happens.");
+			var session = SessionManager.GetOrCreateSession(player);
+
+			if(session.HasLearned(skillName))
+			{
+				player.SendInfoMessage($"You have already learned {skillName}.");
+				return;
+			}
+
+			//...can we learn this skill?
+			//...
+			//player.SendInfoMessage($"You try to learn {skillName}, but nothing happens.");
+
+			if(session.SkillsLearned.Add(skillName))
+				player.SendInfoMessage($"You have learned {skillName}.");
+			else
+			{
+				player.SendErrorMessage($"You try to learn {skillName}, but nothing happens. ( This is a bug. )");
+			}
 		}
 
 		private void SkillListSubCommand(TSPlayer player, string categoryName = null)
@@ -183,6 +208,12 @@ namespace CustomSkills
 
 			var session = SessionManager.GetOrCreateSession(player);
 
+			if(!session.HasLearned(skillName))
+			{
+				player.SendErrorMessage($"You have not learned {skillName}.");
+				return;
+			}
+			
 			if(!session.SkillLevelInfo.TryGetValue(skillName, out var levelInfo))
 			{
 				levelInfo = new Session.LevelInfo();
