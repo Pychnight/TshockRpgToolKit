@@ -41,8 +41,10 @@ namespace CustomSkills
 					Categories.Add(srcCategory.Name, srcCategory);
 				}
 			}
-		}
 
+			LoadScripts();
+		}
+		
 		internal CustomSkillCategory TryGetCategory(string categoryName = null)
 		{
 			categoryName = string.IsNullOrWhiteSpace(categoryName) ? DefaultCategoryName : categoryName;
@@ -84,8 +86,43 @@ namespace CustomSkills
 
 			//convert file def into a customskillmanager...
 			var mgr = new CustomSkillDefinitionLoader(fileDef.Data);
-
+			
 			return mgr;
+		}
+		
+		private void LoadScripts()
+		{
+			foreach(var cat in Categories.Values)
+			{
+				foreach(var skill in cat.Values)
+				{
+					foreach(var level in skill.Levels)
+					{
+						if(!string.IsNullOrWhiteSpace(level.ScriptPath))
+						{
+							if(level.ScriptPath.StartsWith("[dev]/"))
+							{
+								var name = level.ScriptPath.Replace("[dev]/", "");
+
+								switch(name)
+								{
+									case "WindBreaker":
+										level.OnCast = DevScripts.WindBreaker.OnCast;
+										level.OnCharge = DevScripts.WindBreaker.OnCharging;
+										level.OnFire = DevScripts.WindBreaker.OnFire;
+										break;
+																			
+									default:
+										level.OnCast = DevScripts.TestSkill.OnCast;
+										level.OnCharge = DevScripts.TestSkill.OnCharging;
+										level.OnFire = DevScripts.TestSkill.OnFire;
+										break;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 
 		private static DataDefinitionFile<List<CustomSkillCategory>> CreateDefaultDataDefinition()
@@ -111,11 +148,7 @@ namespace CustomSkills
 								{
 									new CustomSkillLevelDefinition()
 									{
-										//CastingCost = "fixme",
-										//CastingCooldown = TimeSpan.FromMilliseconds(500),
-										//ChargingCost = "fixmetoo",
-										//ChargingDuration = TimeSpan.FromSeconds(3),
-										//ChargingCostInterval = 1000,
+										ScriptPath = "[dev]/Test",
 										CanInterrupt = true,
 										CanCasterMove = true,
 										UsesToLevelUp = 0
@@ -130,4 +163,6 @@ namespace CustomSkills
 			return fileDef;
 		}
 	}
+
+
 }

@@ -1,5 +1,6 @@
 ﻿//#define USE_FAST_ID_LOOKUP
 
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -168,6 +169,52 @@ namespace Corruption
 			}
 			return count;
 		}
+
+		///// <summary>
+		///// Finds all NPCs in the area.
+		///// </summary>
+		//public static IList<NPC> FindNpcs(int x, int y, int x2, int y2)
+		//{
+		//	var result = new List<NPC>();
+		//	var minX = Math.Min(x, x2);
+		//	var maxX = Math.Max(x, x2);
+		//	var minY = Math.Min(y, y2);
+		//	var maxY = Math.Max(y, y2);
+
+		//	//normally, we'd use npc.Length to avoid bounds checks... but we're in Terraria, where nothing is as it should be.
+		//	//maxNPCs = 200, but the npc array is sized at 201. ?!?!
+		//	for(var i = 0; i < Main.maxNPCs; i++)
+		//	{
+		//		var npc = Main.npc[i];
+		//		if(npc.active && npc.position.X > 16 * minX && npc.position.X < 16 * maxX &&
+		//		   npc.position.Y > 16 * minY && npc.position.Y < 16 * maxY )// && npc.GivenOrTypeName == name)
+		//		{
+		//			result.Add(npc);
+		//		}
+		//	}
+		//	return result;
+		//}
+
+		public static List<NPC> FindNpcsInRadius(float x, float y, float radius)
+		{
+			var results = new List<NPC>();
+			var center = new Vector2(x, y);
+
+			foreach(var npc in Main.npc)
+			{
+				if(npc?.active == true)
+				{
+					var pos = npc.position;
+					var delta = pos - center;
+
+					if(delta.LengthSquared() <= (radius * radius))
+						results.Add(npc);
+				}
+			}
+
+			return results;//.AsReadOnly();
+		}
+
 		/// <summary>
 		/// Finds an NPC by name. (Uses GivenOrTypeName) 
 		/// </summary>

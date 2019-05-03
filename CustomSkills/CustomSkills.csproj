@@ -74,6 +74,7 @@
     <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
     <Compile Include="DataDefinitionFile.cs" />
+    <Compile Include="DevScripts\DevScripts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomSkill.cs" />
     <Compile Include="SkillPhase.cs" />
