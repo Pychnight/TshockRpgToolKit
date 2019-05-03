@@ -61,7 +61,7 @@ namespace CustomSkills
 		//callbacks
 		internal Action<TSPlayer> OnCast { get; set; }
 
-		internal Action<TSPlayer> OnCharge { get; set; }
+		internal Action<TSPlayer,float> OnCharge { get; set; }
 
 		internal Action<TSPlayer> OnFire { get; set; }
 

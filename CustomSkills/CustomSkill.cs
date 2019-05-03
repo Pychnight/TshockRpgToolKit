@@ -94,12 +94,18 @@ namespace CustomSkills
 			{
 				var levelDef = LevelDefinition;
 
-				Debug.Print($"Charging {Definition.Name}.");
-
-				levelDef.OnCharge?.Invoke(Player);
+				var elapsed = DateTime.Now - ChargeStartTime;
+				var completed = (float)(elapsed.TotalMilliseconds / levelDef.ChargingDuration.TotalMilliseconds) * 100.0f;
+				completed = Math.Min(completed, 100.0f);
 				
+				Debug.Print($"Charging {Definition.Name}. ({completed}%)");
+
+				levelDef.OnCharge?.Invoke(Player,completed);
+
 				//can fire continuously...
-				if(DateTime.Now - ChargeStartTime >= levelDef.ChargingDuration)
+				//if(DateTime.Now - ChargeStartTime >= levelDef.ChargingDuration)
+				//	Phase = SkillPhase.Firing;
+				if(completed >= 100.0f)
 					Phase = SkillPhase.Firing;
 			}
 			catch(Exception ex)
