@@ -16,7 +16,11 @@ namespace CustomSkills
 		internal static ConcurrentDictionary<string, Session> ActiveSessions { get; private set; } = new ConcurrentDictionary<string, Session>();
 		
 		public TSPlayer Player { get; set; }
-		internal Dictionary<string, PlayerSkillInfo> PlayerSkillInfos { get; set; } = new Dictionary<string, PlayerSkillInfo>(); 
+		internal Dictionary<string, PlayerSkillInfo> PlayerSkillInfos { get; set; } = new Dictionary<string, PlayerSkillInfo>();
+
+		//DO NOT PERSIST THIS... it should be regenerated on join/reload...
+		internal Dictionary<string,CustomSkillDefinition> TriggerWordsToSkillDefinitions { get; set; } = new Dictionary<string, CustomSkillDefinition>();
+		//internal HashSet<string> ActiveTriggerWords { get; set; } = new HashSet<string>();
 
 		public Session(TSPlayer player)
 		{
@@ -48,10 +52,20 @@ namespace CustomSkills
 			if(!HasLearned(skillName))
 			{
 				PlayerSkillInfos.Add(skillName, new PlayerSkillInfo());
+				UpdateTriggerWords(skillName);
 				return true;
 			}
 
 			return false;
+		}
+
+		private void UpdateTriggerWords(string skillName)
+		{
+			if(CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TriggeredDefinitions.TryGetValue(skillName, out var skill))
+			{
+				foreach(var word in skill.TriggerWords)
+					TriggerWordsToSkillDefinitions[word] = skill;
+			}
 		}
 	}
 }

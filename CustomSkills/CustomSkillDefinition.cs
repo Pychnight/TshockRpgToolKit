@@ -37,20 +37,28 @@ namespace CustomSkills
 		/// </summary>
 		[JsonProperty(Order = 3)]
 		public List<string> PermissionsToUse { get; set; } = new List<string>();
+
+		/// <summary>
+		/// Gets or sets a list of words that when spoken by the player, will cast the skill.
+		/// </summary>
+		[JsonProperty(Order = 4)]
+		public List<string> TriggerWords { get; set; } = new List<string>();
 		
 		/// <summary>
 		/// Gets or sets whether to notify the user that this skill is ready to use again.
 		/// </summary>
-		[JsonProperty(Order = 4)]
+		[JsonProperty(Order = 5)]
 		public bool NotifyUserOnCooldown { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the list of CustomSkillLevelDefinitions for this skill.
 		/// </summary>
-		[JsonProperty(Order = 5)]
+		[JsonProperty(Order = 6)]
 		public List<CustomSkillLevelDefinition> Levels { get; set; } = new List<CustomSkillLevelDefinition>();
 
 		//helpers
+		public bool HasTriggerWords => (TriggerWords?.Count > 0 == true);
+
 		public bool CanLevelUp(int currentLevel) => currentLevel < Levels?.Count - 1;
 	}
 }

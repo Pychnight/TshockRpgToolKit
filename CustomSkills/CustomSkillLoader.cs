@@ -16,6 +16,8 @@ namespace CustomSkills
 		internal const string DefaultCategoryName = "uncategorized";
 
 		internal Dictionary<string, CustomSkillCategory> Categories { get; private set; }
+		internal Dictionary<string, CustomSkillDefinition> TriggeredDefinitions { get; private set; }
+		//internal Dictionary<string, CustomSkillDefinition> TriggerWordsToDefinitions { get; private set; }
 
 		internal CustomSkillDefinitionLoader()
 		{
@@ -42,9 +44,51 @@ namespace CustomSkills
 				}
 			}
 
+			//TriggerWordsToDefinitions = MapTriggerWords();
+			TriggeredDefinitions = MapTriggeredDefinitions();
 			LoadScripts();
 		}
-		
+
+		private Dictionary<string,CustomSkillDefinition> MapTriggeredDefinitions()
+		{
+			var result = new Dictionary<string, CustomSkillDefinition>();
+
+			foreach(var cat in Categories.Values)
+			{
+				foreach(var skill in cat.Values)
+				{
+					if(skill.HasTriggerWords)
+					{
+						result[skill.Name] = skill;
+					}
+				}
+			}
+			
+			return result;
+		}
+
+		//private Dictionary<string,CustomSkillDefinition> MapTriggerWords()
+		//{
+		//	var result = new Dictionary<string, CustomSkillDefinition>();
+
+		//	foreach(var cat in Categories.Values)
+		//	{
+		//		foreach(var skill in cat.Values)
+		//		{
+		//			if(skill.HasTriggerWords)
+		//			{
+		//				foreach(var word in skill.TriggerWords)
+		//				{
+		//					if(!string.IsNullOrWhiteSpace(word))
+		//						result[word] = skill;
+		//				}
+		//			}
+		//		}
+		//	}
+
+		//	return result;
+		//}
+
 		internal CustomSkillCategory TryGetCategory(string categoryName = null)
 		{
 			categoryName = string.IsNullOrWhiteSpace(categoryName) ? DefaultCategoryName : categoryName;

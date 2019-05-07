@@ -13,6 +13,7 @@ using TShockAPI;
 using TShockAPI.Hooks;
 using System.Diagnostics;
 using Corruption.PluginSupport;
+using Corruption;
 
 namespace CustomSkills
 {
@@ -44,7 +45,9 @@ namespace CustomSkills
 		
 		public static readonly string DataDirectory = "skills";
 		public static readonly string ConfigPath = Path.Combine(DataDirectory, "config.json");
-				
+
+		public const string SkillPermission = "customskills.skill";
+		
 		public static CustomSkillsPlugin Instance = null;
 
 		internal CustomSkillDefinitionLoader CustomSkillDefinitionLoader { get; private set; }
@@ -70,10 +73,12 @@ namespace CustomSkills
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 
+			PlayerHooks.PlayerChat += OnPlayerChat;
+
 			//register commands here...
-			Commands.ChatCommands.Add(new Command("customskills.skill", SkillCommand, "skill"));
+			Commands.ChatCommands.Add(new Command(SkillPermission, SkillCommand, "skill"));
 		}
-		
+
 		/// <summary>
 		///     Disposes the plugin.
 		/// </summary>
@@ -87,6 +92,8 @@ namespace CustomSkills
 				ServerApi.Hooks.GameUpdate.Deregister(this,OnGameUpdate);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
+
+				PlayerHooks.PlayerChat -= OnPlayerChat;
 			}
 
 			base.Dispose(disposing);
@@ -147,6 +154,43 @@ namespace CustomSkills
 				var session = Session.GetOrCreateSession(player);
 				//session.Save();
 			}
+		}
+		
+		private void OnPlayerChat(PlayerChatEventArgs e)
+		{
+			//don't check commands
+			if(e.RawText.StartsWith(Commands.Specifier))
+				return;
+
+			if(!e.Player.HasPermission(SkillPermission))
+				return;
+
+			var session = Session.GetOrCreateSession(e.Player);
+
+			if(session.TriggerWordsToSkillDefinitions.Count > 0)
+			{
+				foreach(var kvp in session.TriggerWordsToSkillDefinitions)
+				{
+					var triggerWord = kvp.Key;
+					var definition = kvp.Value;
+
+					if(e.RawText.Contains(triggerWord))
+					{
+						//can we use this skill?
+						if(definition.PermissionsToUse != null && !PlayerFunctions.PlayerHasPermission(e.Player, definition.PermissionsToUse))
+							continue;
+
+						if(session.PlayerSkillInfos.TryGetValue(definition.Name, out var playerSkillInfo))
+						{
+							CustomSkillRunner.AddActiveSkill(e.Player, definition, playerSkillInfo.CurrentLevel);
+							return;
+						}
+					}
+				}
+			}
+			
+			//Debug.Print($"Chat: raw: {e.RawText}");
+			//Debug.Print($"Chat: formatted: {e.TShockFormattedText}");
 		}
 	}
 }
