@@ -49,8 +49,7 @@ namespace CustomSkills
 
 		internal CustomSkillDefinitionLoader CustomSkillDefinitionLoader { get; private set; }
 		internal CustomSkillRunner CustomSkillRunner { get; private set; }
-		internal SessionManager SessionManager { get; private set; }
-
+		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomSkillsPlugin" /> class using the specified Main instance.
 		/// </summary>
@@ -104,7 +103,7 @@ namespace CustomSkills
 
 			CustomSkillDefinitionLoader = CustomSkillDefinitionLoader.Load(Path.Combine(DataDirectory,cfg.DefinitionFilepath), cfg.AutoCreateDefinitionFile);
 			CustomSkillRunner = new CustomSkillRunner();
-			SessionManager = new SessionManager();
+			//Session.ActiveSessions.Clear();
 			//FIXME: we must rebuild sessions here, since session creation currently only happens on server join... 
 		}
 
@@ -130,7 +129,7 @@ namespace CustomSkills
 			var player = TShock.Players[args.Who];
 			if(player != null)
 			{
-				var session = SessionManager.GetOrCreateSession(player);
+				var session = Session.GetOrCreateSession(player);
 				//session.Save();
 			}
 		}
@@ -145,7 +144,7 @@ namespace CustomSkills
 			var player = TShock.Players[args.Who];
 			if(player != null)
 			{
-				var session = SessionManager.GetOrCreateSession(player);
+				var session = Session.GetOrCreateSession(player);
 				//session.Save();
 			}
 		}

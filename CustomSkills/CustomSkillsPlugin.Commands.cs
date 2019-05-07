@@ -114,7 +114,7 @@ namespace CustomSkills
 			if(!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			var session = SessionManager.GetOrCreateSession(player);
+			var session = Session.GetOrCreateSession(player);
 
 			if(!session.HasLearned(skillName))
 			{
@@ -133,7 +133,7 @@ namespace CustomSkills
 			if (!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			var session = SessionManager.GetOrCreateSession(player);
+			var session = Session.GetOrCreateSession(player);
 
 			if(session.HasLearned(skillName))
 			{
@@ -145,7 +145,7 @@ namespace CustomSkills
 			//...
 			//player.SendInfoMessage($"You try to learn {skillName}, but nothing happens.");
 
-			if(session.SkillsLearned.Add(skillName))
+			if(session.LearnSkill(skillName))
 				player.SendInfoMessage($"You have learned {skillName}.");
 			else
 			{
@@ -206,7 +206,7 @@ namespace CustomSkills
 			if(!GetCategoryAndSkill(player, skillName, categoryName, out var category, out var definition))
 				return;
 
-			var session = SessionManager.GetOrCreateSession(player);
+			var session = Session.GetOrCreateSession(player);
 
 			if(!session.HasLearned(skillName))
 			{
@@ -214,9 +214,10 @@ namespace CustomSkills
 				return;
 			}
 			
-			if(!session.SkillLevelInfo.TryGetValue(skillName, out var levelInfo))
+			if(!session.PlayerSkillInfos.TryGetValue(skillName, out var levelInfo))
 			{
-				levelInfo = new Session.LevelInfo();
+				player.SendErrorMessage($"Failed to retrieve skill info for '{skillName}'. Please notify the server admin.");
+				return;
 			}
 
 			var level = definition.Levels[levelInfo.CurrentLevel];

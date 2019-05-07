@@ -56,19 +56,22 @@ namespace CustomSkills
 		public bool CanCasterMove { get; set; } = false;
 
 		/// <summary>
-		/// Gets or sets the number of uses before this spell levels up.
+		/// Gets or sets the number of uses before this spell levels up. Less than 1 stops leveling.
 		/// </summary>
 		[JsonProperty(Order = 8)]
 		public int UsesToLevelUp { get; set; } = 0;
-		
+
+		//helpers
+		public bool CanLevelUp => UsesToLevelUp > 0;
+
 		//callbacks
+		//hook for notifying player about gaining new level
+		internal Action<TSPlayer> OnLevelUp { get; set; }
+
 		internal Action<TSPlayer> OnCast { get; set; }
 
 		internal Action<TSPlayer,float> OnCharge { get; set; }
 
 		internal Action<TSPlayer> OnFire { get; set; }
-
-		//hook to notify player about gaining new level?
-		//internal Action<TSPlayer> OnLevelUp { get; set; }
 	}
 }

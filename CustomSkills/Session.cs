@@ -8,40 +8,50 @@ using TShockAPI;
 
 namespace CustomSkills
 {
-	public class SessionManager
-	{
-		ConcurrentDictionary<string, Session> sessions = new ConcurrentDictionary<string, Session>();
-
-		public Session GetOrCreateSession(TSPlayer player)
-		{
-			if(!sessions.TryGetValue(player.Name, out var playerSession))
-			{
-				playerSession = new Session(player);
-				sessions.TryAdd(player.Name, playerSession);
-			}
-
-			return playerSession;
-		}
-	}
-
+	/// <summary>
+	/// Represents a logged in players current skill state. 
+	/// </summary>
 	public class Session
 	{
-		public TSPlayer Player { get; internal set; }
-		public HashSet<string> SkillsLearned { get; set; } = new HashSet<string>();
-		public Dictionary<string, LevelInfo> SkillLevelInfo { get; set; } = new Dictionary<string, LevelInfo>(); 
+		internal static ConcurrentDictionary<string, Session> ActiveSessions { get; private set; } = new ConcurrentDictionary<string, Session>();
+		
+		public TSPlayer Player { get; set; }
+		internal Dictionary<string, PlayerSkillInfo> PlayerSkillInfos { get; set; } = new Dictionary<string, PlayerSkillInfo>(); 
 
 		public Session(TSPlayer player)
 		{
 			Player = player;
-			SkillsLearned.Add("WindBreaker");
+			LearnSkill("WindBreaker");
 		}
 
-		public bool HasLearned(string skillName) => SkillsLearned.Contains(skillName);
-
-		public class LevelInfo
+		public static Session GetOrCreateSession(TSPlayer player)
 		{
-			public int CurrentLevel { get; set; }
-			public int CurrentUses { get; set; }
+			if(!ActiveSessions.TryGetValue(player.Name, out var playerSession))
+			{
+				playerSession = new Session(player);
+				ActiveSessions.TryAdd(player.Name, playerSession);
+			}
+
+			return playerSession;
+		}
+
+		public static void OnReload()
+		{
+			//nop for now...but may need to reset/clear some per session data, unsure yet.
+			//ActiveSessions.Values.ForEach(s => s.PlayerSkillInfos.OnReload());
+		}
+
+		public bool HasLearned(string skillName) => PlayerSkillInfos.ContainsKey(skillName);
+
+		public bool LearnSkill(string skillName)
+		{
+			if(!HasLearned(skillName))
+			{
+				PlayerSkillInfos.Add(skillName, new PlayerSkillInfo());
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

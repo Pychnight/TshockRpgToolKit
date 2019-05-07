@@ -106,6 +106,11 @@ namespace CustomSkills
 
 		public static class WindBreaker2
 		{
+			public static void OnLevelUp(TSPlayer player)
+			{
+				player.SendMessage("Your ability to control the mighty wind has grown stronger!",Color.Pink);
+			}
+
 			public static void OnCast(TSPlayer player)
 			{
 				player.SendMessage("You feel an evil force stir inside you...", Color.Purple);

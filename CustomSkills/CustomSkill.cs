@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -122,6 +123,31 @@ namespace CustomSkills
 				levelDef.OnFire?.Invoke(Player);
 				//only fires once, but should spark something that can continue for some time afterwards.
 				//check if we moved up a level..
+
+				var session = Session.GetOrCreateSession(Player);
+
+				if(session.PlayerSkillInfos.TryGetValue(Definition.Name, out var playerSkillInfo))
+				{
+					playerSkillInfo.CurrentUses++;
+
+					if(Definition.CanLevelUp(playerSkillInfo.CurrentLevel))
+					{
+						if(playerSkillInfo.CurrentUses >= levelDef.UsesToLevelUp)
+						{
+							//level up
+							playerSkillInfo.CurrentLevel++;
+							playerSkillInfo.CurrentUses = 0;
+
+							var nextLevelDef = Definition.Levels[playerSkillInfo.CurrentLevel];
+							nextLevelDef.OnLevelUp?.Invoke(Player);
+						}
+					}
+				}
+				else
+				{
+					Phase = SkillPhase.Failed;
+					throw new KeyNotFoundException($"Tried to get PlayerSkillInfo for key '{Definition.Name}', but none was found.");
+				}
 
 				CooldownStartTime = DateTime.Now;
 				Phase = SkillPhase.Cooldown;

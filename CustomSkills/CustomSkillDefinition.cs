@@ -49,5 +49,8 @@ namespace CustomSkills
 		/// </summary>
 		[JsonProperty(Order = 5)]
 		public List<CustomSkillLevelDefinition> Levels { get; set; } = new List<CustomSkillLevelDefinition>();
+
+		//helpers
+		public bool CanLevelUp(int currentLevel) => currentLevel < Levels?.Count - 1;
 	}
 }

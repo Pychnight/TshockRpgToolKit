@@ -113,6 +113,7 @@ namespace CustomSkills
 										break;
 
 									case "WindBreaker2":
+										level.OnLevelUp = DevScripts.WindBreaker2.OnLevelUp;
 										level.OnCast = DevScripts.WindBreaker2.OnCast;
 										level.OnCharge = DevScripts.WindBreaker2.OnCharging;
 										level.OnFire = DevScripts.WindBreaker2.OnFire;
