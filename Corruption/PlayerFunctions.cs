@@ -281,15 +281,26 @@ namespace Corruption
 		/// <returns></returns>
 		public static bool PlayerHasPermission(TSPlayer player, params string[] permissions)
 		{
-			if(permissions==null || permissions.Length < 1 )
+			return PlayerHasPermission(player, permissions);
+		}
+
+		/// <summary>
+		/// Returns whether the player has all of the supplied permissions.
+		/// </summary>
+		/// <param name="player">TSPlayer instance.</param>
+		/// <param name="permissions">IEnumerable of permission strings.</param>
+		/// <returns></returns>
+		public static bool PlayerHasPermission(TSPlayer player, IEnumerable<string> permissions)
+		{
+			if(permissions==null) // || permissions.Length < 1 )
 				return false;
 
-			if( player == null )
+			if(player == null )
 				return false;
 
 			foreach( var perm in permissions )
 			{
-				if( perm != null && player?.HasPermission(perm) != true )
+				if( string.IsNullOrWhiteSpace(perm) || !player.HasPermission(perm) )
 					return false;
 			}
 
