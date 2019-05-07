@@ -437,6 +437,7 @@ namespace Leveling
                                                      args.RawText);
         }
 
+		//mystery method. why is this here? I noticed this on the callstack when debugging permissions in CustomSkillsPlugin...-Tim
         private void OnPlayerPermission(PlayerPermissionEventArgs args)
         {
             var player = args.Player;

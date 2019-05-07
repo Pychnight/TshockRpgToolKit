@@ -1,4 +1,5 @@
-﻿using Corruption.PluginSupport;
+﻿using Corruption;
+using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -122,10 +123,16 @@ namespace CustomSkills
 				return;
 			}
 
+			//can we use this skill?
+			if(definition.PermissionsToUse != null && !PlayerFunctions.PlayerHasPermission(player, definition.PermissionsToUse))
+			{
+				player.SendInfoMessage($"You try, but are unable to use {skillName}.");
+				return;
+			}
+
 			var currentLevel = 0;
 
 			CustomSkillRunner.AddActiveSkill(player, definition, currentLevel);
-			
 		}
 
 		private void SkillLearnSubCommand(TSPlayer player, string skillName, string categoryName = null)
@@ -140,10 +147,13 @@ namespace CustomSkills
 				player.SendInfoMessage($"You have already learned {skillName}.");
 				return;
 			}
-
-			//...can we learn this skill?
-			//...
-			//player.SendInfoMessage($"You try to learn {skillName}, but nothing happens.");
+			
+			//can we learn this skill?
+			if(definition.PermissionsToLearn!=null && !PlayerFunctions.PlayerHasPermission(player, definition.PermissionsToLearn))
+			{
+				player.SendInfoMessage($"You try, but are unable to learn {skillName}.");
+				return;
+			}			
 
 			if(session.LearnSkill(skillName))
 				player.SendInfoMessage($"You have learned {skillName}.");

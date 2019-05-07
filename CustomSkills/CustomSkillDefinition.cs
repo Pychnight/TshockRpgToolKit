@@ -27,16 +27,16 @@ namespace CustomSkills
 		public string Description { get; set; } = "No description.";
 
 		/// <summary>
-		/// Gets or sets a comma separated list of permissions required to learn this skill.
+		/// Gets or sets a list of permissions required to learn this skill.
 		/// </summary>
 		[JsonProperty(Order = 2)]
-		public string PermissionsToLearn { get; set; } = "";
+		public List<string> PermissionsToLearn { get; set; } = new List<string>();
 
 		/// <summary>
-		/// Gets or sets a comma separated list of permissions required to use this skill.
+		/// Gets or sets a list of permissions required to use this skill.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		public string PermissionsToUse { get; set; } = "";
+		public List<string> PermissionsToUse { get; set; } = new List<string>();
 		
 		/// <summary>
 		/// Gets or sets whether to notify the user that this skill is ready to use again.
