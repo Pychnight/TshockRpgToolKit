@@ -73,7 +73,6 @@
     <Compile Include="CustomSkillRunner.cs" />
     <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
-    <Compile Include="DataDefinitionFile.cs" />
     <Compile Include="DevScripts\DevScripts.cs" />
     <Compile Include="PlayerSkillInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

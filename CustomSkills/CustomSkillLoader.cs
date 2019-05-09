@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Corruption.PluginSupport;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -110,7 +111,7 @@ namespace CustomSkills
 
 		internal static CustomSkillDefinitionLoader Load(string filePath, bool createIfNeeded = true)
 		{
-			DataDefinitionFile<List<CustomSkillCategory>> fileDef = null;
+			DefinitionFile<List<CustomSkillCategory>> fileDef = null;
 
 			if(!File.Exists(filePath))
 			{
@@ -125,7 +126,7 @@ namespace CustomSkills
 			else
 			{
 				var json = File.ReadAllText(filePath);
-				fileDef = JsonConvert.DeserializeObject<DataDefinitionFile<List<CustomSkillCategory>>>(json);
+				fileDef = JsonConvert.DeserializeObject<DefinitionFile<List<CustomSkillCategory>>>(json);
 			}
 
 			//convert file def into a customskillmanager...
@@ -176,9 +177,9 @@ namespace CustomSkills
 			}
 		}
 
-		private static DataDefinitionFile<List<CustomSkillCategory>> CreateDefaultDataDefinition()
+		private static DefinitionFile<List<CustomSkillCategory>> CreateDefaultDataDefinition()
 		{
-			var fileDef = new DataDefinitionFile<List<CustomSkillCategory>>()
+			var fileDef = new DefinitionFile<List<CustomSkillCategory>>()
 			{
 				Version = 0.1f,
 				Metadata = new Dictionary<string, object>()

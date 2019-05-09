@@ -78,6 +78,7 @@
     <Compile Include="PlayerFunctions.cs" />
     <Compile Include="PluginSupport\CommandArgsExtensions.cs" />
     <Compile Include="PluginSupport\DatabaseConfig.cs" />
+    <Compile Include="PluginSupport\DefinitionFile.cs" />
     <Compile Include="PluginSupport\FilePosition.cs" />
     <Compile Include="PluginSupport\OutputExtensions.cs" />
     <Compile Include="PluginSupport\TileNameMap.cs" />
