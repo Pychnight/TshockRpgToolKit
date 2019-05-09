@@ -37,6 +37,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Boo.Lang, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -77,10 +79,15 @@
     <Compile Include="PlayerSkillInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomSkill.cs" />
+    <Compile Include="ScriptHelpers.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SkillPhase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BooTS\BooTS.csproj">
+      <Project>{A74D2D6C-99AB-465B-BC81-935B9139BFBA}</Project>
+      <Name>BooTS</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Corruption\Corruption.csproj">
       <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
       <Name>Corruption</Name>

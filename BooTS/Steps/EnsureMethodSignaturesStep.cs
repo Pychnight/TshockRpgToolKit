@@ -20,6 +20,11 @@ namespace BooTS
 			DefaultName = defaultName;
 			Type = type;
 		}
+
+		public override string ToString()
+		{
+			return $"{DefaultName} as {Type}";
+		}
 	}
 
 	/// <summary>
@@ -99,6 +104,11 @@ namespace BooTS
 					method.Parameters[i].Type = typeRef;
 				}
 			}
+		}
+
+		public override string ToString()
+		{
+			return $"{Name}() as {ReturnType}";
 		}
 	}
 

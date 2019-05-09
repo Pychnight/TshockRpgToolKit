@@ -62,6 +62,23 @@ namespace CustomSkills
 			Instance = this;
 		}
 
+		//This type of functionality should be made global, and should have been in the plugins from the beginning... 
+		/// <summary>
+		/// Transforms a relative path string to be relative to the plugins DataDirectory.
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns>Transformed string if path is not null, and not an absolute path.</returns>
+		public string PluginRelativePath(string path)
+		{
+			if(string.IsNullOrWhiteSpace(path))
+				return path;
+			
+			if(Path.IsPathRooted(path))
+				return path;
+
+			return Path.Combine(DataDirectory, path);
+		}
+
 		/// <summary>
 		///     Initializes the plugin.
 		/// </summary>
