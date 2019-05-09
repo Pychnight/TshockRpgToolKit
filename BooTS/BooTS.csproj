@@ -109,7 +109,7 @@
     <Compile Include="ScriptingSupport\Scheduler.cs" />
     <Compile Include="Script.cs" />
     <None Include="Configuration\Config.cs" />
-    <Compile Include="ModuleManager.cs" />
+    <Compile Include="BooModuleManager.cs" />
     <Compile Include="ScriptHelpers.cs" />
     <Compile Include="SourceFile.cs" />
     <Compile Include="TerrariaPluginExtensions.cs" />
