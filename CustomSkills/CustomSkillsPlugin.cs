@@ -14,6 +14,7 @@ using TShockAPI.Hooks;
 using System.Diagnostics;
 using Corruption.PluginSupport;
 using Corruption;
+using CustomSkills.Database;
 
 namespace CustomSkills
 {
@@ -45,13 +46,12 @@ namespace CustomSkills
 		
 		public static readonly string DataDirectory = "skills";
 		public static readonly string ConfigPath = Path.Combine(DataDirectory, "config.json");
-
 		public const string SkillPermission = "customskills.skill";
 		
 		public static CustomSkillsPlugin Instance = null;
-
 		internal CustomSkillDefinitionLoader CustomSkillDefinitionLoader { get; private set; }
 		internal CustomSkillRunner CustomSkillRunner { get; private set; }
+		internal ISessionDatabase SessionRepository { get; set; }
 		
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomSkillsPlugin" /> class using the specified Main instance.
@@ -124,15 +124,29 @@ namespace CustomSkills
 		private void OnLoad()
 		{
 			var cfg = Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
+			var dbConfig = cfg.DatabaseConfig;
+			
+			SessionRepository = SessionDatabaseFactory.LoadOrCreateDatabase(dbConfig.DatabaseType, dbConfig.ConnectionString);
 
 			CustomSkillDefinitionLoader = CustomSkillDefinitionLoader.Load(Path.Combine(DataDirectory,cfg.DefinitionFilepath), cfg.AutoCreateDefinitionFile);
 			CustomSkillRunner = new CustomSkillRunner();
-			//Session.ActiveSessions.Clear();
-			//FIXME: we must rebuild sessions here, since session creation currently only happens on server join... 
+			
+			//connected players need sessions regenerated, in case this was a reload
+			foreach(var player in TShock.Players)
+			{
+				if(player?.Active==true)
+				{
+					var session = Session.GetOrCreateSession(player);
+					//... may not need to actually do anything here
+				}
+			}
 		}
-
+		
 		private void OnReload(ReloadEventArgs args)
 		{
+			Session.SaveAll();
+			Session.ActiveSessions.Clear();
+
 			OnLoad();
 			args.Player.SendSuccessMessage("[CustomSkills] Reloaded config!");
 		}
@@ -146,10 +160,8 @@ namespace CustomSkills
 		private void OnServerJoin(JoinEventArgs args)
 		{
 			if(args.Who < 0 || args.Who >= Main.maxPlayers)
-			{
 				return;
-			}
-
+			
 			var player = TShock.Players[args.Who];
 			if(player != null)
 			{
@@ -161,15 +173,13 @@ namespace CustomSkills
 		private void OnServerLeave(LeaveEventArgs args)
 		{
 			if(args.Who < 0 || args.Who >= Main.maxPlayers)
-			{
 				return;
-			}
-
+			
 			var player = TShock.Players[args.Who];
 			if(player != null)
 			{
-				var session = Session.GetOrCreateSession(player);
-				//session.Save();
+				Session.ActiveSessions.TryRemove(player.Name, out var session);
+				session?.Save();
 			}
 		}
 		

@@ -15,7 +15,7 @@ namespace CustomSkills
 		public static Config Instance { get; internal set; } = new Config();
 
 		[JsonProperty(Order = 0)]
-		public DatabaseConfig Database { get; private set; } = new DatabaseConfig("sqlite", $"uri=file://skills/db.sqlite,Version=3");
+		public DatabaseConfig DatabaseConfig { get; private set; } = new DatabaseConfig("sqlite", $"uri=file://skills/db.sqlite,Version=3");
 
 		/// <summary>
 		/// Gets or sets the file path to the json file containing skill definitions. Relative to 'skills' folder.

@@ -39,6 +39,7 @@
   <ItemGroup>
     <Reference Include="Boo.Lang, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
     <Reference Include="Boo.Lang.Compiler, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -75,6 +76,9 @@
     <Compile Include="CustomSkillRunner.cs" />
     <Compile Include="CustomSkillsPlugin.Commands.cs" />
     <Compile Include="CustomSkillsPlugin.cs" />
+    <Compile Include="Database\ISessionDatabase.cs" />
+    <Compile Include="Database\SessionDatabaseFactory.cs" />
+    <Compile Include="Database\SqliteSessionDatabase.cs" />
     <Compile Include="DevScripts\DevScripts.cs" />
     <Compile Include="PlayerSkillInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

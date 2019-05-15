@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using CustomSkills.Database;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,38 +15,82 @@ namespace CustomSkills
 	/// <summary>
 	/// Represents a logged in players current skill state. 
 	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
 	public class Session
 	{
 		internal static ConcurrentDictionary<string, Session> ActiveSessions { get; private set; } = new ConcurrentDictionary<string, Session>();
 		
-		public TSPlayer Player { get; set; }
+		/// <summary>
+		/// Gets the CustomSkillsPlugin.Instance.SessionRepository
+		/// </summary>
+		internal static ISessionDatabase SessionRepository => CustomSkillsPlugin.Instance.SessionRepository;
+		
+		//Player can be wiped by the time we save(), so its best to store the name string.
+		public string PlayerName { get; set; }
+
+		//public TSPlayer Player { get; set; }
+
+		/// <summary>
+		/// Dictionary of all learned skills, and their status.
+		/// </summary>
+		[JsonProperty(Order = 0)]
 		internal Dictionary<string, PlayerSkillInfo> PlayerSkillInfos { get; set; } = new Dictionary<string, PlayerSkillInfo>();
 
 		//DO NOT PERSIST THIS... it should be regenerated on join/reload...
+		/// <summary>
+		/// Maps trigger words to skills.
+		/// </summary>
 		internal Dictionary<string,CustomSkillDefinition> TriggerWordsToSkillDefinitions { get; set; } = new Dictionary<string, CustomSkillDefinition>();
-		//internal HashSet<string> ActiveTriggerWords { get; set; } = new HashSet<string>();
+
+		public Session() { }
 
 		public Session(TSPlayer player)
 		{
-			Player = player;
-			LearnSkill("WindBreaker");
+			PlayerName = player.Name;
+			//Player = player;
 		}
 
 		public static Session GetOrCreateSession(TSPlayer player)
 		{
 			if(!ActiveSessions.TryGetValue(player.Name, out var playerSession))
 			{
-				playerSession = new Session(player);
+				//session is not active, try to get it from the db
+				playerSession = SessionRepository.Load(player.Name);
+
+				if(playerSession==null)
+				{
+					//otherwise, create new
+					playerSession = new Session(player);
+				}
+				else
+				{
+					//update all trigger words
+					foreach(var skillName in playerSession.PlayerSkillInfos.Keys)
+						playerSession.UpdateTriggerWords(skillName);
+				}
+
 				ActiveSessions.TryAdd(player.Name, playerSession);
 			}
 
 			return playerSession;
 		}
-
-		public static void OnReload()
+				
+		public static void SaveAll()
 		{
-			//nop for now...but may need to reset/clear some per session data, unsure yet.
-			//ActiveSessions.Values.ForEach(s => s.PlayerSkillInfos.OnReload());
+			foreach(var session in ActiveSessions.Values)
+				session?.Save();
+		}
+
+		public void Save()
+		{
+			try
+			{
+				SessionRepository.Save(PlayerName, this);
+			}
+			catch(Exception ex)
+			{
+				CustomSkillsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+			}
 		}
 
 		public bool HasLearned(string skillName) => PlayerSkillInfos.ContainsKey(skillName);
