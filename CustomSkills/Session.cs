@@ -41,7 +41,7 @@ namespace CustomSkills
 		/// Maps trigger words to skills.
 		/// </summary>
 		internal Dictionary<string,CustomSkillDefinition> TriggerWordsToSkillDefinitions { get; set; } = new Dictionary<string, CustomSkillDefinition>();
-
+		
 		public Session() { }
 
 		public Session(TSPlayer player)
@@ -102,6 +102,23 @@ namespace CustomSkills
 				PlayerSkillInfos.Add(skillName, new PlayerSkillInfo());
 				UpdateTriggerWords(skillName);
 				return true;
+			}
+
+			return false;
+		}
+
+		public bool IsSkillReady(string skillName)
+		{
+			var definition = CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TryGetDefinition(skillName);
+
+			if(definition!=null)
+			{
+				if(PlayerSkillInfos.TryGetValue(skillName, out var skillInfo))
+				{
+					var levelDef = definition.Levels[skillInfo.CurrentLevel];
+
+					return (DateTime.Now - skillInfo.CooldownStartTime) > levelDef.CastingCooldown;
+				}
 			}
 
 			return false;

@@ -124,16 +124,27 @@ namespace CustomSkills
 				return;
 			}
 
-			//can we use this skill?
+			//are we allowed to use this skill?
 			if(definition.PermissionsToUse != null && !PlayerFunctions.PlayerHasPermission(player, definition.PermissionsToUse))
 			{
 				player.SendInfoMessage($"You try, but are unable to use {skillName}.");
 				return;
 			}
+						
+			if(!session.IsSkillReady(definition.Name))
+			{
+				player.SendInfoMessage($"{skillName} is not ready yet.");
+				return;
+			}
 
-			var currentLevel = 0;
+			session.PlayerSkillInfos.TryGetValue(skillName, out var playerSkillInfo);
 
-			CustomSkillRunner.AddActiveSkill(player, definition, currentLevel);
+			var skillAdded = CustomSkillRunner.AddActiveSkill(player, definition, playerSkillInfo.CurrentLevel);
+			if(!skillAdded)
+			{
+				player.SendInfoMessage($"You cannot use {skillName} right now.");
+				return;
+			}
 		}
 
 		private void SkillLearnSubCommand(TSPlayer player, string skillName, string categoryName = null)

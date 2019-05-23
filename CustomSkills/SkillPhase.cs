@@ -10,7 +10,7 @@
 		Cancelled,
 		Casting,
 		Charging,
-		Firing,
-		Cooldown
+		Firing
+		//Cooldown
 	}
 }

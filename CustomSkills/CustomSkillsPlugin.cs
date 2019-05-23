@@ -207,6 +207,9 @@ namespace CustomSkills
 						if(definition.PermissionsToUse != null && !PlayerFunctions.PlayerHasPermission(e.Player, definition.PermissionsToUse))
 							continue;
 
+						if(!session.IsSkillReady(definition.Name))
+							continue;
+
 						if(session.PlayerSkillInfos.TryGetValue(definition.Name, out var playerSkillInfo))
 						{
 							CustomSkillRunner.AddActiveSkill(e.Player, definition, playerSkillInfo.CurrentLevel);

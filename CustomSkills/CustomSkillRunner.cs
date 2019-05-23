@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using TShockAPI;
 
 namespace CustomSkills
@@ -8,23 +9,42 @@ namespace CustomSkills
 	/// </summary>
 	internal class CustomSkillRunner
 	{
-		internal static HashSet<CustomSkill> ActiveSkills { get; set; } = new HashSet<CustomSkill>();
+		//internal static HashSet<CustomSkill> ActiveSkills { get; set; } = new HashSet<CustomSkill>();
+		internal static Dictionary<string, CustomSkill> ActiveSkills = new Dictionary<string, CustomSkill>();
+		//internal static List<CustomSkill> CoolingDownSkills = new List<CustomSkill>(); 
 
-		internal static void AddActiveSkill(TSPlayer player, CustomSkillDefinition skillDefinition, int level)
+		internal static bool AddActiveSkill(TSPlayer player, CustomSkillDefinition skillDefinition, int level)
 		{
+			if(ActiveSkills.ContainsKey(player.Name))
+			{
+				//cant add skill, the player already has an active skill running
+				return false;
+			}
+									
 			var skill = new CustomSkill(player, skillDefinition, level);
 
 			skill.Phase = SkillPhase.Casting;
-			ActiveSkills.Add(skill);
+			ActiveSkills.Add(player.Name,skill);
+
+			return true;
 		}
 
 		internal static void UpdateActiveSkills()
 		{
-			foreach(var skill in ActiveSkills)
+			var removalList = new List<CustomSkill>();
+
+			foreach(var skill in ActiveSkills.Values)
+			{
 				skill.Update();
 
-			ActiveSkills.RemoveWhere(s => s.Phase == SkillPhase.Completed ||
-											s.Phase == SkillPhase.Failed);
+				if(skill.Phase == SkillPhase.Completed || skill.Phase == SkillPhase.Failed)
+					removalList.Add(skill);
+			}
+
+			foreach(var skill in removalList)
+			{
+				ActiveSkills.Remove(skill.PlayerName);
+			}
 		}
 	}
 }

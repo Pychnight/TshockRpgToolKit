@@ -15,13 +15,14 @@ namespace CustomSkills
 	/// </summary>
 	internal class CustomSkill
 	{
+		internal string PlayerName { get; set; }
 		internal TSPlayer Player { get; set; }
 		internal CustomSkillDefinition Definition { get; set; }
 		internal int LevelIndex { get; set; }
 		internal CustomSkillLevelDefinition LevelDefinition => Definition.Levels[LevelIndex];
 		internal SkillPhase Phase { get; set; }
 		DateTime ChargeStartTime;
-		DateTime CooldownStartTime;
+		//DateTime CooldownStartTime;
 		internal Vector2 StartLocation;
 		
 		internal CustomSkill()
@@ -30,6 +31,7 @@ namespace CustomSkills
 
 		internal CustomSkill(TSPlayer player, CustomSkillDefinition skillDefinition, int levelIndex)
 		{
+			PlayerName = player.Name;
 			Player = player;
 			Definition = skillDefinition;
 			LevelIndex = levelIndex;
@@ -50,7 +52,7 @@ namespace CustomSkills
 		{
 			if(!Player.ConnectionAlive)
 			{
-				Phase = SkillPhase.Cancelled;
+				Phase = SkillPhase.Failed;
 				return;
 			}
 
@@ -68,9 +70,9 @@ namespace CustomSkills
 					RunOnFiring();
 					break;
 
-				case SkillPhase.Cooldown:
-					RunCooldown();
-					break;
+				//case SkillPhase.Cooldown:
+				//	RunCooldown();
+				//	break;
 
 				case SkillPhase.Cancelled:
 					RunCancelled();
@@ -151,7 +153,7 @@ namespace CustomSkills
 				//check if we moved up a level..
 
 				var session = Session.GetOrCreateSession(Player);
-
+				
 				if(session.PlayerSkillInfos.TryGetValue(Definition.Name, out var playerSkillInfo))
 				{
 					playerSkillInfo.CurrentUses++;
@@ -168,15 +170,15 @@ namespace CustomSkills
 							nextLevelDef.OnLevelUp?.Invoke(Player);
 						}
 					}
+
+					playerSkillInfo.CooldownStartTime = DateTime.Now;
+					Phase = SkillPhase.Completed;
 				}
 				else
 				{
 					Phase = SkillPhase.Failed;
 					throw new KeyNotFoundException($"Tried to get PlayerSkillInfo for key '{Definition.Name}', but none was found.");
 				}
-
-				CooldownStartTime = DateTime.Now;
-				Phase = SkillPhase.Cooldown;
 			}
 			catch(Exception ex)
 			{
@@ -185,23 +187,23 @@ namespace CustomSkills
 			}
 		}
 
-		void RunCooldown()
-		{
-			try
-			{
-				var levelDef = LevelDefinition;
+		//void RunCooldown()
+		//{
+		//	try
+		//	{
+		//		var levelDef = LevelDefinition;
 
-				//Debug.Print($"Cooling down {Definition.Name}.");
+		//		//Debug.Print($"Cooling down {Definition.Name}.");
 
-				if(DateTime.Now - CooldownStartTime >= levelDef.CastingCooldown)
-					Phase = SkillPhase.Completed;
-			}
-			catch(Exception ex)
-			{
-				Phase = SkillPhase.Failed;
-				throw ex;
-			}
-		}
+		//		if(DateTime.Now - CooldownStartTime >= levelDef.CastingCooldown)
+		//			Phase = SkillPhase.Completed;
+		//	}
+		//	catch(Exception ex)
+		//	{
+		//		Phase = SkillPhase.Failed;
+		//		throw ex;
+		//	}
+		//}
 
 		private void RunCancelled()
 		{
@@ -209,10 +211,12 @@ namespace CustomSkills
 
 			try
 			{
+				var session = Session.GetOrCreateSession(Player);
 				var levelDef = LevelDefinition;
 				
 				levelDef.OnCancelled?.Invoke(Player);
 
+				session.PlayerSkillInfos[Definition.Name].CooldownStartTime = DateTime.Now;
 				Phase = SkillPhase.Failed;
 			}
 			catch(Exception ex)

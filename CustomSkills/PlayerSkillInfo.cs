@@ -13,11 +13,7 @@ namespace CustomSkills
 	{
 		public int CurrentLevel { get; set; }
 		public int CurrentUses { get; set; }
-		public DateTime LastFireTime { get; set; }
-
-		//public void OnReload()
-		//{
-		//	LastFireTime 
-		//}
+		//used for cooldown calculation
+		public DateTime CooldownStartTime { get; set; }
 	}
 }
