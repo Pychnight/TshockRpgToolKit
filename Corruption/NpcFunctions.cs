@@ -276,5 +276,27 @@ namespace Corruption
 			npc.AddBuff(buffType, buffTime, quiet);
 			TSPlayer.All.SendData(PacketTypes.NpcAddBuff, "", npc.whoAmI, (float)buffType, (float)buffTime, 0f, 0);
 		}
+
+		/// <summary>
+		/// Sends an npc update packet to all players for the given npc.
+		/// </summary>
+		/// <param name="npc"></param>
+		public static void SendNpcUpdate(NPC npc) => SendNpcUpdate(TSPlayer.All, npc);
+		
+		/// <summary>
+		/// Sends an npc update packet to the specified player, for the given npc.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="npc"></param>
+		public static void SendNpcUpdate(TSPlayer player, NPC npc)
+		{
+			if(player == null)
+				return;
+
+			if(npc == null || npc.active == false)
+				return;
+
+			player.SendData(PacketTypes.NpcUpdate, "", npc.whoAmI);
+		}
 	}
 }
