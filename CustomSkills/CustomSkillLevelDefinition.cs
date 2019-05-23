@@ -66,6 +66,9 @@ namespace CustomSkills
 
 		//callbacks
 		//hook for notifying player about gaining new level
+
+		internal Action<TSPlayer> OnCancelled { get; set; }
+
 		internal Action<TSPlayer> OnLevelUp { get; set; }
 
 		internal Action<TSPlayer> OnCast { get; set; }

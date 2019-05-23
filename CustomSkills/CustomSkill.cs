@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,6 +22,7 @@ namespace CustomSkills
 		internal SkillPhase Phase { get; set; }
 		DateTime ChargeStartTime;
 		DateTime CooldownStartTime;
+		internal Vector2 StartLocation;
 		
 		internal CustomSkill()
 		{
@@ -31,9 +33,17 @@ namespace CustomSkills
 			Player = player;
 			Definition = skillDefinition;
 			LevelIndex = levelIndex;
+			StartLocation = new Vector2(player.X, player.Y);
 
 			if(levelIndex < 0 || levelIndex >= skillDefinition.Levels.Count)
 				throw new ArgumentOutOfRangeException($"{nameof(levelIndex)}");
+		}
+
+		private bool HasCasterMoved()
+		{
+			var currentLocation = new Vector2(Player.X, Player.Y);
+
+			return currentLocation != StartLocation;
 		}
 		
 		internal void Update()
@@ -61,16 +71,20 @@ namespace CustomSkills
 				case SkillPhase.Cooldown:
 					RunCooldown();
 					break;
+
+				case SkillPhase.Cancelled:
+					RunCancelled();
+					break;
 			}
 		}
-
+		
 		void RunOnCast()
 		{
 			try
 			{
 				var levelDef = LevelDefinition;
 
-				Debug.Print($"Casting {Definition.Name}.");
+				//Debug.Print($"Casting {Definition.Name}.");
 
 				levelDef.OnCast?.Invoke(Player);
 				//only fires one time
@@ -95,7 +109,13 @@ namespace CustomSkills
 				var completed = (float)(elapsed.TotalMilliseconds / levelDef.ChargingDuration.TotalMilliseconds) * 100.0f;
 				completed = Math.Min(completed, 100.0f);
 				
-				Debug.Print($"Charging {Definition.Name}. ({completed}%)");
+				//Debug.Print($"Charging {Definition.Name}. ({completed}%)");
+
+				if(!levelDef.CanCasterMove && HasCasterMoved())
+				{
+					Phase = SkillPhase.Cancelled;
+					return;
+				}
 
 				levelDef.OnCharge?.Invoke(Player,completed);
 
@@ -118,8 +138,14 @@ namespace CustomSkills
 			{
 				var levelDef = LevelDefinition;
 
-				Debug.Print($"Firing {Definition.Name}.");
+				//Debug.Print($"Firing {Definition.Name}.");
 
+				if(!levelDef.CanCasterMove && HasCasterMoved())
+				{
+					Phase = SkillPhase.Cancelled;
+					return;
+				}
+				
 				levelDef.OnFire?.Invoke(Player);
 				//only fires once, but should spark something that can continue for some time afterwards.
 				//check if we moved up a level..
@@ -165,10 +191,29 @@ namespace CustomSkills
 			{
 				var levelDef = LevelDefinition;
 
-				Debug.Print($"Cooling down {Definition.Name}.");
+				//Debug.Print($"Cooling down {Definition.Name}.");
 
 				if(DateTime.Now - CooldownStartTime >= levelDef.CastingCooldown)
 					Phase = SkillPhase.Completed;
+			}
+			catch(Exception ex)
+			{
+				Phase = SkillPhase.Failed;
+				throw ex;
+			}
+		}
+
+		private void RunCancelled()
+		{
+			//Debug.Print($"Skill {Definition.Name} was Cancelled.");
+
+			try
+			{
+				var levelDef = LevelDefinition;
+				
+				levelDef.OnCancelled?.Invoke(Player);
+
+				Phase = SkillPhase.Failed;
 			}
 			catch(Exception ex)
 			{

@@ -185,6 +185,9 @@ namespace CustomSkills
 							{
 								var linker = new BooModuleLinker(compilerContext.GeneratedAssembly, level.ScriptPath);
 
+								if(level.OnCancelled == null)
+									level.OnCancelled = linker.TryCreateDelegate<Action<TSPlayer>>("OnCancelled");
+
 								if(level.OnLevelUp==null)
 									level.OnLevelUp = linker.TryCreateDelegate<Action<TSPlayer>>("OnLevelUp");
 
@@ -219,33 +222,6 @@ namespace CustomSkills
 			return booModuleManager;
 		}
 
-		private void SetFromDev(CustomSkillLevelDefinition level)
-		{
-			var name = level.ScriptPath.Replace("[dev]/", "");
-
-			switch(name)
-			{
-				case "WindBreaker1":
-					level.OnCast = DevScripts.WindBreaker.OnCast;
-					level.OnCharge = DevScripts.WindBreaker.OnCharging;
-					level.OnFire = DevScripts.WindBreaker.OnFire;
-					break;
-
-				case "WindBreaker2":
-					level.OnLevelUp = DevScripts.WindBreaker2.OnLevelUp;
-					level.OnCast = DevScripts.WindBreaker2.OnCast;
-					level.OnCharge = DevScripts.WindBreaker2.OnCharging;
-					level.OnFire = DevScripts.WindBreaker2.OnFire;
-					break;
-
-				default:
-					level.OnCast = DevScripts.TestSkill.OnCast;
-					level.OnCharge = DevScripts.TestSkill.OnCharging;
-					level.OnFire = DevScripts.TestSkill.OnFire;
-					break;
-			}
-		}
-
 		private static DefinitionFile<List<CustomSkillCategory>> CreateDefaultDataDefinition()
 		{
 			var fileDef = new DefinitionFile<List<CustomSkillCategory>>()
@@ -269,7 +245,7 @@ namespace CustomSkills
 								{
 									new CustomSkillLevelDefinition()
 									{
-										ScriptPath = "[dev]/Test",
+										ScriptPath = "script.boo",
 										CanInterrupt = true,
 										CanCasterMove = true,
 										UsesToLevelUp = 0

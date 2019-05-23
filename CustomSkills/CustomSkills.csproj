@@ -94,7 +94,6 @@
     <Compile Include="Database\MySqlSessionDatabase.cs" />
     <Compile Include="Database\SessionDatabaseFactory.cs" />
     <Compile Include="Database\SqliteSessionDatabase.cs" />
-    <Compile Include="DevScripts\DevScripts.cs" />
     <Compile Include="PlayerSkillInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomSkill.cs" />

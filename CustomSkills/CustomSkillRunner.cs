@@ -24,8 +24,7 @@ namespace CustomSkills
 				skill.Update();
 
 			ActiveSkills.RemoveWhere(s => s.Phase == SkillPhase.Completed ||
-										s.Phase == SkillPhase.Cancelled ||
-										s.Phase == SkillPhase.Failed);
+											s.Phase == SkillPhase.Failed);
 		}
 	}
 }

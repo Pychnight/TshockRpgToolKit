@@ -83,6 +83,9 @@ namespace CustomSkills
 		{
 			var sigs = new List<EnsuredMethodSignature>()
 			{
+				new EnsuredMethodSignature("OnCancelled")
+					.AddParameter("player",typeof(TSPlayer)),
+
 				new EnsuredMethodSignature("OnLevelUp")
 					.AddParameter("player",typeof(TSPlayer)),
 

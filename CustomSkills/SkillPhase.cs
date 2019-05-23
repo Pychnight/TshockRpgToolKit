@@ -5,13 +5,12 @@
 	/// </summary>
 	internal enum SkillPhase
 	{
-		Failed = -1,
-		None = 0,
+		Failed,
+		Completed,
+		Cancelled,
 		Casting,
 		Charging,
 		Firing,
-		Cooldown,
-		Completed = 0,
-		Cancelled = 0,
+		Cooldown
 	}
 }
