@@ -14,15 +14,15 @@ namespace CustomSkills.Database
 
             switch(databaseType)
             {
-                //case "redis":
-                //    db = new RedisSessionDatabase(connectionString);
-                //    break;
+				//case "redis":
+				//    db = new RedisSessionDatabase(connectionString);
+				//    break;
 
-                //case "mysql":
-                //    db = new MySqlSessionDatabase(connectionString);
-                //    break;
+				case "mysql":
+					db = new MySqlSessionDatabase(connectionString);
+					break;
 
-                case "sqlite":
+				case "sqlite":
                 default:
                     db = new SqliteSessionDatabase(connectionString);
                     break;
