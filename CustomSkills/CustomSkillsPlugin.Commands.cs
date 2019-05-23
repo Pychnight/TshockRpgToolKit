@@ -3,6 +3,7 @@ using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -153,10 +154,22 @@ namespace CustomSkills
 			{
 				player.SendInfoMessage($"You try, but are unable to learn {skillName}.");
 				return;
-			}			
+			}
 
 			if(session.LearnSkill(skillName))
+			{
 				player.SendInfoMessage($"You have learned {skillName}.");
+
+				//try to run the first OnLevelUp
+				try
+				{
+					definition.Levels?[0]?.OnLevelUp?.Invoke(player);
+				}
+				catch(Exception ex)
+				{
+					CustomSkillsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
+				}
+			}
 			else
 			{
 				player.SendErrorMessage($"You try to learn {skillName}, but nothing happens. ( This is a bug. )");
