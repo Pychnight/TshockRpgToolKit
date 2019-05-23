@@ -191,7 +191,13 @@ namespace Corruption
 			}
 		}
 
-		//not sure if we should expose to scripts...
+		/// <summary>
+		/// Finds all players within a given radius of x, y.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="radius"></param>
+		/// <returns></returns>
 		public static List<TSPlayer> FindPlayersInRadius(float x, float y, float radius)
 		{
 			var results = new List<TSPlayer>();

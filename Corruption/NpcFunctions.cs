@@ -195,6 +195,13 @@ namespace Corruption
 		//	return result;
 		//}
 
+		/// <summary>
+		/// Finds all npcs within a given radius of x, y.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="radius"></param>
+		/// <returns></returns>
 		public static List<NPC> FindNpcsInRadius(float x, float y, float radius)
 		{
 			var results = new List<NPC>();
@@ -247,6 +254,27 @@ namespace Corruption
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Sets a buff on an NPC.
+		/// </summary>
+		/// <param name="npc"></param>
+		/// <param name="buffType"></param>
+		/// <param name="buffTime"></param>
+		public static void SetNpcBuff(NPC npc, int buffType, int buffTime) => SetNpcBuff(npc, buffType, buffTime, false);
+
+		/// <summary>
+		/// Sets a buff on an NPC.
+		/// </summary>
+		/// <param name="npc"></param>
+		/// <param name="buffType"></param>
+		/// <param name="buffTime"></param>
+		/// <param name="quiet"></param>
+		public static void SetNpcBuff(NPC npc, int buffType, int buffTime, bool quiet)
+		{
+			npc.AddBuff(buffType, buffTime, quiet);
+			TSPlayer.All.SendData(PacketTypes.NpcAddBuff, "", npc.whoAmI, (float)buffType, (float)buffTime, 0f, 0);
 		}
 	}
 }
