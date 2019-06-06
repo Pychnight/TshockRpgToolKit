@@ -9,10 +9,14 @@ namespace CustomSkills
 	/// </summary>
 	internal class CustomSkillRunner
 	{
-		//internal static HashSet<CustomSkill> ActiveSkills { get; set; } = new HashSet<CustomSkill>();
 		internal static Dictionary<string, CustomSkill> ActiveSkills = new Dictionary<string, CustomSkill>();
-		//internal static List<CustomSkill> CoolingDownSkills = new List<CustomSkill>(); 
-
+                
+        /// <summary>
+        /// For skills that notify the player on cooldown, we keep this separate list.  
+        /// </summary>
+        internal static List<CustomSkill> CooldownNotificationList = new List<CustomSkill>();
+        
+		//each player can only have a single skill active!
 		internal static bool AddActiveSkill(TSPlayer player, CustomSkillDefinition skillDefinition, int level)
 		{
 			if(ActiveSkills.ContainsKey(player.Name))
@@ -29,7 +33,7 @@ namespace CustomSkills
 			return true;
 		}
 
-		internal static void UpdateActiveSkills()
+		internal static void Update()
 		{
 			var removalList = new List<CustomSkill>();
 
@@ -41,10 +45,39 @@ namespace CustomSkills
 					removalList.Add(skill);
 			}
 
+			//clean up active skills
 			foreach(var skill in removalList)
 			{
 				ActiveSkills.Remove(skill.PlayerName);
+
+				if(skill.NotifyUserOnCooldown)
+					CooldownNotificationList.Add(skill);
 			}
+
+            //check for cooldown notifications...
+            removalList.Clear();
+            
+			foreach(var skill in CooldownNotificationList)
+			{
+				if(skill.HasCooldownCompleted())
+				{
+					if(skill.Player.Active)
+					{
+						var message = skill.Definition.CooldownNotification;
+
+						if(string.IsNullOrWhiteSpace(message))
+							message = $"{skill.Definition.Name} is ready.";
+
+						skill.Player.SendInfoMessage(message);
+					}
+
+					removalList.Add(skill);
+				}
+			}
+
+			//clean up notifications
+			foreach(var skill in removalList)
+				CooldownNotificationList.Remove(skill);
 		}
 	}
 }

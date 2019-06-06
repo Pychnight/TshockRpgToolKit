@@ -11,7 +11,7 @@ using TShockAPI;
 namespace CustomSkills
 {
 	/// <summary>
-	/// Represents a CustomSkill, "in action".
+	/// Represents a CustomSkill, that is currently "in action".
 	/// </summary>
 	internal class CustomSkill
 	{
@@ -24,7 +24,8 @@ namespace CustomSkills
 		DateTime ChargeStartTime;
 		//DateTime CooldownStartTime;
 		internal Vector2 StartLocation;
-		
+        internal bool NotifyUserOnCooldown => Definition.NotifyUserOnCooldown;
+        		
 		internal CustomSkill()
 		{
 		}
@@ -41,12 +42,21 @@ namespace CustomSkills
 				throw new ArgumentOutOfRangeException($"{nameof(levelIndex)}");
 		}
 
-		private bool HasCasterMoved()
+		internal bool HasCasterMoved()
 		{
 			var currentLocation = new Vector2(Player.X, Player.Y);
 
 			return currentLocation != StartLocation;
 		}
+
+        internal bool HasCooldownCompleted()
+        {
+			var session = Session.GetOrCreateSession(Player);
+			var skillInfo = session.PlayerSkillInfos[Definition.Name];
+			var result = (DateTime.Now - skillInfo.CooldownStartTime) >= LevelDefinition.CastingCooldown;
+			
+            return result;
+        }
 		
 		internal void Update()
 		{

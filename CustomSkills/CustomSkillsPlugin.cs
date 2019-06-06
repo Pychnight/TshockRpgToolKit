@@ -153,7 +153,7 @@ namespace CustomSkills
 
 		private void OnGameUpdate(EventArgs args)
 		{
-			CustomSkillRunner.UpdateActiveSkills();
+			CustomSkillRunner.Update();
 		}
 
 		//we handle the join event so that we can ensure were creating sessions at this point, and not during runtime.

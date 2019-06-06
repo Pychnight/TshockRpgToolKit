@@ -50,15 +50,23 @@ namespace CustomSkills
 		[JsonProperty(Order = 5)]
 		public bool NotifyUserOnCooldown { get; set; } = false;
 
-		/// <summary>
-		/// Gets or sets the list of CustomSkillLevelDefinitions for this skill.
-		/// </summary>
-		[JsonProperty(Order = 6)]
+        /// <summary>
+        /// Gets or sets a string that will override the default cooldown notification, if notifications are enabled.
+        /// </summary>
+        [JsonProperty(Order = 6)]
+        public string CooldownNotification { get; set; } = "";
+
+        /// <summary>
+        /// Gets or sets the list of CustomSkillLevelDefinitions for this skill.
+        /// </summary>
+        [JsonProperty(Order = 7)]
 		public List<CustomSkillLevelDefinition> Levels { get; set; } = new List<CustomSkillLevelDefinition>();
 
 		//helpers
 		public bool HasTriggerWords => (TriggerWords?.Count > 0 == true);
 
-		public bool CanLevelUp(int currentLevel) => currentLevel < Levels?.Count - 1;
+        
+
+        public bool CanLevelUp(int currentLevel) => currentLevel < Levels?.Count - 1;
 	}
 }
