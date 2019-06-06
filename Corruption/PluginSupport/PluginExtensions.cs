@@ -18,11 +18,18 @@ namespace Corruption.PluginSupport
 		/// <param name="kind"></param>
 		public static void LogPrint(this TerrariaPlugin plugin, string message, TraceLevel kind = TraceLevel.Info )
 		{
-			//try safeguard against occasional NREs thrown on abrupt shutdown.
-			if( plugin == null )
-				return;
+			try
+			{
+				//try safeguard against occasional NREs thrown on abrupt shutdown.
+				if(plugin == null)
+					return;
 
-			ServerApi.LogWriter?.PluginWriteLine(plugin, message, kind);
+				ServerApi.LogWriter?.PluginWriteLine(plugin, message, kind);
+			}
+			catch(Exception ex)
+			{
+				Debug.Print(ex.ToString());
+			}
 		}
 
 		/// <summary>
