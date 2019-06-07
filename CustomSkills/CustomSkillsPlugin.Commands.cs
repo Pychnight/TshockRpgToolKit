@@ -255,10 +255,13 @@ namespace CustomSkills
 			}
 
 			var level = definition.Levels[levelInfo.CurrentLevel];
-			var damageRange = level.DamageRangeEstimate ?? "??"; 
+			var damageRange = level.DamageRangeEstimate ?? "??";
+			var castingCost = level.CastingCost?.ToString() ?? "None";
+			var chargingCost = level.ChargingCost?.ToString() ?? "None";
 
-			player.SendInfoMessage($"{skillName} - {definition.Description ?? ""}");
-			player.SendInfoMessage($"Level: {levelInfo.CurrentLevel}, DamageRange: {damageRange}, MP Cost: ??, ChargeTime: {level.ChargingDuration}");
+			player.SendInfoMessage($"{skillName}, level {levelInfo.CurrentLevel} - {definition.Description ?? ""}");
+			player.SendInfoMessage($"Damage Range: {damageRange}, Casting Cost: {castingCost}");
+			player.SendInfoMessage($"Charge Time: {level.ChargingDuration}, Charging Cost: {chargingCost}");
 		}
 
 		private void SkillCancelSubCommand(TSPlayer player)

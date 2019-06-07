@@ -17,7 +17,7 @@ namespace CustomSkills
 		/// Gets or sets a one time cost to cast this level of spell.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-		public string CastingCost { get; set; }
+		public CustomSkillCost CastingCost { get; set; } = new CustomSkillCost();
 
 		/// <summary>
 		/// Gets or sets an interval of time that must pass between repeat usages for this level of spell.
@@ -29,7 +29,7 @@ namespace CustomSkills
 		/// Gets or sets a cost deducted while charging this level of spell.
 		/// </summary>
 		[JsonProperty(Order = 3)]
-		public string ChargingCost { get; set; }
+		public CustomSkillCost ChargingCost { get; set; } = new CustomSkillCost();
 
 		/// <summary>
 		/// Gets or sets the duration of time required to charge this level of spell.
