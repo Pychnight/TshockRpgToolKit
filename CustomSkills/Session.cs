@@ -28,7 +28,7 @@ namespace CustomSkills
 		//Player can be wiped by the time we save(), so its best to store the name string.
 		public string PlayerName { get; set; }
 
-		//public TSPlayer Player { get; set; }
+		public TSPlayer Player { get; set; }
 
 		/// <summary>
 		/// Dictionary of all learned skills, and their status.
@@ -47,7 +47,7 @@ namespace CustomSkills
 		public Session(TSPlayer player)
 		{
 			PlayerName = player.Name;
-			//Player = player;
+			Player = player;
 		}
 
 		public static Session GetOrCreateSession(TSPlayer player)
@@ -67,6 +67,10 @@ namespace CustomSkills
 					//update all trigger words
 					foreach(var skillName in playerSession.PlayerSkillInfos.Keys)
 						playerSession.UpdateTriggerWords(skillName);
+
+					//have to re-add these
+					playerSession.Player = player;
+					playerSession.PlayerName = player.Name;
 				}
 
 				ActiveSessions.TryAdd(player.Name, playerSession);
@@ -91,6 +95,30 @@ namespace CustomSkills
 			{
 				CustomSkillsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 			}
+		}
+
+		/// <summary>
+		/// Attempts to get both the requested skill definition, and its current level definition for the current session.
+		/// </summary>
+		/// <param name="skillName"></param>
+		/// <param name="skillDefinition"></param>
+		/// <param name="levelDefinition"></param>
+		/// <returns>True if both skill and level could be retrieved</returns>
+		internal bool TryGetSkillAndLevel(string skillName, out CustomSkillDefinition skillDefinition, out CustomSkillLevelDefinition levelDefinition)
+		{
+			skillDefinition = CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TryGetDefinition(skillName);
+			levelDefinition = null;
+
+			if(skillDefinition != null)
+			{
+				if(PlayerSkillInfos.TryGetValue(skillName, out var skillInfo))
+				{
+					levelDefinition = skillDefinition.Levels[skillInfo.CurrentLevel];
+					return true;
+				}
+			}
+			
+			return false;
 		}
 
 		public bool HasLearned(string skillName) => PlayerSkillInfos.ContainsKey(skillName);
@@ -120,6 +148,75 @@ namespace CustomSkills
 					return (DateTime.Now - skillInfo.CooldownStartTime) > levelDef.CastingCooldown;
 				}
 			}
+
+			return false;
+		}
+
+		public bool CanAfford(TSPlayer player, CustomSkillCost cost)
+		{
+			if(cost == null)
+				return true;
+			else
+			{
+				if(cost.RequiresHp)
+				{
+					if(Player.TPlayer.statLife < cost.Hp)
+						return false;
+				}
+
+				if(cost.RequiresMp)
+				{
+					if(Player.TPlayer.statMana < cost.Mp)
+						return false;
+				}
+
+				return true;
+			}
+		}
+
+		public bool TryDeductCost(TSPlayer player, CustomSkillCost cost)
+		{
+			if(!CanAfford(player, cost))
+				return false;
+
+			if(cost == null)
+				return true;
+			else
+			{
+				var tPlayer = Player.TPlayer;
+
+				if(cost.RequiresHp)
+				{
+					tPlayer.statLife = Math.Max(0, tPlayer.statLife - cost.Hp);
+
+					//send player life packet
+					TSPlayer.All.SendData(PacketTypes.PlayerHp, "", Player.Index);//, tPlayer.statLife, tPlayer.statLifeMax );
+				}
+
+				if(cost.RequiresMp)
+				{
+					tPlayer.statMana = Math.Max(0, tPlayer.statMana - cost.Mp);
+
+					//send player mana packet
+					TSPlayer.All.SendData(PacketTypes.PlayerMana, "", Player.Index);//, tPlayer.statMana, tPlayer.statManaMax);
+				}
+				
+				return true;
+			}
+		}
+
+		public bool CanAffordCastingSkill(string skillName)
+		{
+			if(TryGetSkillAndLevel(skillName,out var skillDef, out var levelDef))
+				return CanAfford(Player,levelDef.CastingCost);
+
+			return false;
+		}
+
+		public bool CanAffordChargingSkill(string skillName)
+		{
+			if(TryGetSkillAndLevel(skillName, out var skillDef, out var levelDef))
+				return CanAfford(Player, levelDef.ChargingCost);
 
 			return false;
 		}

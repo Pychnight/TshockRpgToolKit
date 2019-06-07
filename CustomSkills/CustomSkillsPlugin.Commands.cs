@@ -130,7 +130,14 @@ namespace CustomSkills
 				player.SendInfoMessage($"You try, but are unable to use {skillName}.");
 				return;
 			}
-						
+
+			//do we have enough "funds" to use this skill?
+			if(!session.CanAffordCastingSkill(skillName))
+			{
+				player.SendInfoMessage($"You try, but are unable to afford using {skillName}.");
+				return;
+			}
+
 			if(!session.IsSkillReady(definition.Name))
 			{
 				player.SendInfoMessage($"{skillName} is not ready yet.");

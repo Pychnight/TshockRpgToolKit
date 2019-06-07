@@ -24,7 +24,14 @@ namespace CustomSkills
 				//cant add skill, the player already has an active skill running
 				return false;
 			}
-									
+
+			var session = Session.GetOrCreateSession(player);
+			if(!session.CanAffordCastingSkill(skillDefinition.Name))
+			{
+				//cant afford it, abort
+				return false;
+			}
+												
 			var skill = new CustomSkill(player, skillDefinition, level);
 
 			skill.Phase = SkillPhase.Casting;

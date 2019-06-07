@@ -94,10 +94,17 @@ namespace CustomSkills
 		{
 			try
 			{
-				var levelDef = LevelDefinition;
 
 				//Debug.Print($"Casting {Definition.Name}.");
 
+				var levelDef = LevelDefinition;
+				var session = Session.GetOrCreateSession(Player);
+
+				if(!session.TryDeductCost(Player,levelDef.CastingCost))
+				{
+					Debug.Print("Player was unable to afford casting cost, after casting started. Ignoring.");
+				}
+				
 				levelDef.OnCast?.Invoke(Player);
 				//only fires one time
 
