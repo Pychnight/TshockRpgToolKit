@@ -56,9 +56,15 @@ namespace CustomSkills
 		public bool CanCasterMove { get; set; } = false;
 
 		/// <summary>
-		/// Gets or sets the number of uses before this spell levels up. Less than 1 stops leveling.
+		/// Gets or sets a user readable string containing damage range estimates.
 		/// </summary>
 		[JsonProperty(Order = 8)]
+		public string DamageRangeEstimate { get; set; } = "";
+
+		/// <summary>
+		/// Gets or sets the number of uses before this spell levels up. Less than 1 stops leveling.
+		/// </summary>
+		[JsonProperty(Order = 9)]
 		public int UsesToLevelUp { get; set; } = 0;
 
 		//helpers

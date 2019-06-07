@@ -255,9 +255,10 @@ namespace CustomSkills
 			}
 
 			var level = definition.Levels[levelInfo.CurrentLevel];
+			var damageRange = level.DamageRangeEstimate ?? "??"; 
 
 			player.SendInfoMessage($"{skillName} - {definition.Description ?? ""}");
-			player.SendInfoMessage($"Level: {levelInfo.CurrentLevel}, DamageRange: ??, MP Cost: ??, ChargeTime: {level.ChargingDuration}");
+			player.SendInfoMessage($"Level: {levelInfo.CurrentLevel}, DamageRange: {damageRange}, MP Cost: ??, ChargeTime: {level.ChargingDuration}");
 		}
 
 		private void SkillCancelSubCommand(TSPlayer player)
