@@ -136,7 +136,11 @@ namespace CustomSkills
 					return;
 				}
 
-				levelDef.OnCharge?.Invoke(Player,completed);
+				if(levelDef.OnCharge?.Invoke(Player,completed)==false)
+                {
+                    Phase = SkillPhase.Cancelled;
+                    return;
+                }
 
 				//can fire continuously...
 				//if(DateTime.Now - ChargeStartTime >= levelDef.ChargingDuration)

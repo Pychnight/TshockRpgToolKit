@@ -79,7 +79,7 @@ namespace CustomSkills
 
 		internal Action<TSPlayer> OnCast { get; set; }
 
-		internal Action<TSPlayer,float> OnCharge { get; set; }
+		internal Func<TSPlayer,float,bool> OnCharge { get; set; }
 
 		internal Action<TSPlayer> OnFire { get; set; }
 	}

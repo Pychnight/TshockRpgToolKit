@@ -195,7 +195,7 @@ namespace CustomSkills
 									level.OnCast = linker.TryCreateDelegate<Action<TSPlayer>>("OnCast");
 
 								if(level.OnCharge == null)
-									level.OnCharge = linker.TryCreateDelegate<Action<TSPlayer,float>>("OnCharge");
+									level.OnCharge = linker.TryCreateDelegate<Func<TSPlayer,float,bool>>("OnCharge");
 
 								if(level.OnFire == null)
 									level.OnFire = linker.TryCreateDelegate<Action<TSPlayer>>("OnFire");

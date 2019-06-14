@@ -92,7 +92,7 @@ namespace CustomSkills
 				new EnsuredMethodSignature("OnCast")
 					.AddParameter("player",typeof(TSPlayer)),
 
-				new EnsuredMethodSignature("OnCharge")
+				new EnsuredMethodSignature("OnCharge",typeof(bool))
 					.AddParameter("player",typeof(TSPlayer))
 					.AddParameter("completion",typeof(float)),
 
