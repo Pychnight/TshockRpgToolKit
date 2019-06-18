@@ -23,6 +23,7 @@ namespace CustomSkills
 		internal SkillPhase Phase { get; set; }
 		internal DateTime CastStartTime;
 		internal DateTime ChargeStartTime;
+		internal DateTime ChargeIntervalStartTime;
 		//DateTime CooldownStartTime;
 		internal Vector2 StartLocation;
         internal bool NotifyUserOnCooldown => Definition.NotifyUserOnCooldown;
@@ -83,10 +84,6 @@ namespace CustomSkills
 					RunOnFiring();
 					break;
 
-				//case SkillPhase.Cooldown:
-				//	RunCooldown();
-				//	break;
-
 				case SkillPhase.Cancelled:
 					RunCancelled();
 					break;
@@ -122,6 +119,7 @@ namespace CustomSkills
 				if(completed >= 100.0f)
 				{
 					ChargeStartTime = DateTime.Now;
+					ChargeIntervalStartTime = ChargeStartTime;
 					Phase = SkillPhase.Charging;
 				}
 			}
@@ -137,33 +135,64 @@ namespace CustomSkills
 			try
 			{
 				var levelDef = LevelDefinition;
-
 				var elapsed = DateTime.Now - ChargeStartTime;
 				var completed = (float)(elapsed.TotalMilliseconds / levelDef.ChargingDuration.TotalMilliseconds) * 100.0f;
 				completed = Math.Min(completed, 100.0f);
-
-				//Debug.Print($"Charging {Definition.Name}. ({completed}%)");
-
-				SkillState.Progress = completed;
-				SkillState.ElapsedTime = elapsed;
 				
 				if(!levelDef.CanCasterMove && HasCasterMoved())
 				{
 					Phase = SkillPhase.Cancelled;
 					return;
 				}
-
-				if(levelDef.OnCharge?.Invoke(Player, SkillState) == false)
+				
+				if(levelDef.ChargingCostInterval > TimeSpan.Zero)
 				{
-					Phase = SkillPhase.Cancelled;
-					return;
-				}
+					var now = DateTime.Now;
 
-				//can fire continuously...
-				//if(DateTime.Now - ChargeStartTime >= levelDef.ChargingDuration)
-				//	Phase = SkillPhase.Firing;
-				if(completed >= 100.0f)
-					Phase = SkillPhase.Firing;
+					//time to deduct?
+					var elapsedChargeInterval = now - ChargeIntervalStartTime;
+					
+					if(elapsedChargeInterval >= levelDef.ChargingCostInterval)
+					{
+						//reset the deduction timer... and account for overages...
+						ChargeIntervalStartTime = now - (elapsedChargeInterval - levelDef.ChargingCostInterval);
+
+						var session = Session.GetOrCreateSession(Player);
+
+						//Debug.Print($"Deducting charging cost.");
+
+						if(!session.TryDeductCost(session.Player, levelDef.ChargingCost))
+						{
+							Phase = levelDef.IsLongRunning ? SkillPhase.Firing : SkillPhase.Cancelled;
+							return;
+						}
+					}
+				}
+				
+				//Debug.Print($"Charging {Definition.Name}. ({completed}%)");
+
+				SkillState.Progress = completed;
+				SkillState.ElapsedTime = elapsed;
+				
+				if(levelDef.IsLongRunning)
+				{
+					if(levelDef.OnCharge?.Invoke(Player, SkillState) == false)
+					{
+						Phase = SkillPhase.Firing;
+						return;
+					}
+				}
+				else
+				{
+					if(levelDef.OnCharge?.Invoke(Player, SkillState) == false)
+					{
+						Phase = SkillPhase.Cancelled;
+						return;
+					}
+
+					if(completed >= 100.0f)
+						Phase = SkillPhase.Firing;
+				}
 			}
 			catch(Exception ex)
 			{
@@ -227,24 +256,6 @@ namespace CustomSkills
 				throw ex;
 			}
 		}
-
-		//void RunCooldown()
-		//{
-		//	try
-		//	{
-		//		var levelDef = LevelDefinition;
-
-		//		//Debug.Print($"Cooling down {Definition.Name}.");
-
-		//		if(DateTime.Now - CooldownStartTime >= levelDef.CastingCooldown)
-		//			Phase = SkillPhase.Completed;
-		//	}
-		//	catch(Exception ex)
-		//	{
-		//		Phase = SkillPhase.Failed;
-		//		throw ex;
-		//	}
-		//}
 
 		private void RunCancelled()
 		{
