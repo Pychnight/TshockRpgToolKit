@@ -21,11 +21,13 @@ namespace CustomSkills
 		internal int LevelIndex { get; set; }
 		internal CustomSkillLevelDefinition LevelDefinition => Definition.Levels[LevelIndex];
 		internal SkillPhase Phase { get; set; }
-		DateTime ChargeStartTime;
+		internal DateTime CastStartTime;
+		internal DateTime ChargeStartTime;
 		//DateTime CooldownStartTime;
 		internal Vector2 StartLocation;
         internal bool NotifyUserOnCooldown => Definition.NotifyUserOnCooldown;
-        		
+        internal SkillState SkillState { get; private set; }
+		
 		internal CustomSkill()
 		{
 		}
@@ -37,7 +39,8 @@ namespace CustomSkills
 			Definition = skillDefinition;
 			LevelIndex = levelIndex;
 			StartLocation = new Vector2(player.X, player.Y);
-
+			SkillState = new SkillState(this);
+			
 			if(levelIndex < 0 || levelIndex >= skillDefinition.Levels.Count)
 				throw new ArgumentOutOfRangeException($"{nameof(levelIndex)}");
 		}
@@ -94,22 +97,33 @@ namespace CustomSkills
 		{
 			try
 			{
-
 				//Debug.Print($"Casting {Definition.Name}.");
-
 				var levelDef = LevelDefinition;
 				var session = Session.GetOrCreateSession(Player);
 
-				if(!session.TryDeductCost(Player,levelDef.CastingCost))
+				var elapsed = DateTime.Now - CastStartTime;
+				var completed = (float)(elapsed.TotalMilliseconds / levelDef.CastingDuration.TotalMilliseconds) * 100.0f;
+				completed = Math.Min(completed, 100.0f);
+
+				//if(!session.TryDeductCost(Player,levelDef.CastingCost))
+				//{
+				//	Debug.Print("Player was unable to afford casting cost, after casting started. Ignoring.");
+				//}
+
+				SkillState.Progress = completed;
+				SkillState.ElapsedTime = elapsed;
+				
+				if(levelDef.OnCast?.Invoke(Player,SkillState)==false)
 				{
-					Debug.Print("Player was unable to afford casting cost, after casting started. Ignoring.");
+					Phase = SkillPhase.Cancelled;
+					return;
 				}
 				
-				levelDef.OnCast?.Invoke(Player);
-				//only fires one time
-
-				ChargeStartTime = DateTime.Now;
-				Phase = SkillPhase.Charging;
+				if(completed >= 100.0f)
+				{
+					ChargeStartTime = DateTime.Now;
+					Phase = SkillPhase.Charging;
+				}
 			}
 			catch(Exception ex)
 			{
@@ -127,20 +141,23 @@ namespace CustomSkills
 				var elapsed = DateTime.Now - ChargeStartTime;
 				var completed = (float)(elapsed.TotalMilliseconds / levelDef.ChargingDuration.TotalMilliseconds) * 100.0f;
 				completed = Math.Min(completed, 100.0f);
-				
+
 				//Debug.Print($"Charging {Definition.Name}. ({completed}%)");
 
+				SkillState.Progress = completed;
+				SkillState.ElapsedTime = elapsed;
+				
 				if(!levelDef.CanCasterMove && HasCasterMoved())
 				{
 					Phase = SkillPhase.Cancelled;
 					return;
 				}
 
-				if(levelDef.OnCharge?.Invoke(Player,completed)==false)
-                {
-                    Phase = SkillPhase.Cancelled;
-                    return;
-                }
+				if(levelDef.OnCharge?.Invoke(Player, SkillState) == false)
+				{
+					Phase = SkillPhase.Cancelled;
+					return;
+				}
 
 				//can fire continuously...
 				//if(DateTime.Now - ChargeStartTime >= levelDef.ChargingDuration)
@@ -168,8 +185,11 @@ namespace CustomSkills
 					Phase = SkillPhase.Cancelled;
 					return;
 				}
-				
-				levelDef.OnFire?.Invoke(Player);
+
+				SkillState.Progress = 100f;
+				SkillState.ElapsedTime = new TimeSpan(0);
+
+				levelDef.OnFire?.Invoke(Player,SkillState);
 				//only fires once, but should spark something that can continue for some time afterwards.
 				//check if we moved up a level..
 
@@ -235,7 +255,7 @@ namespace CustomSkills
 				var session = Session.GetOrCreateSession(Player);
 				var levelDef = LevelDefinition;
 				
-				levelDef.OnCancelled?.Invoke(Player);
+				levelDef.OnCancelled?.Invoke(Player, SkillState);
 
 				session.PlayerSkillInfos[Definition.Name].CooldownStartTime = DateTime.Now;
 				Phase = SkillPhase.Failed;

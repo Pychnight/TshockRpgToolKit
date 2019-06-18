@@ -41,7 +41,8 @@ namespace CustomSkills
 				"CustomNpcs.Projectiles",
 				"CustomNpcs.NpcFunctions",
 				"CustomNpcs.ProjectileFunctions",
-				"CustomNpcs.CustomIDFunctions"
+				"CustomNpcs.CustomIDFunctions",
+				"CustomSkills"
 			});
 		}
 
@@ -84,20 +85,23 @@ namespace CustomSkills
 			var sigs = new List<EnsuredMethodSignature>()
 			{
 				new EnsuredMethodSignature("OnCancelled")
-					.AddParameter("player",typeof(TSPlayer)),
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("state",typeof(SkillState)),
 
 				new EnsuredMethodSignature("OnLevelUp")
 					.AddParameter("player",typeof(TSPlayer)),
 
-				new EnsuredMethodSignature("OnCast")
-					.AddParameter("player",typeof(TSPlayer)),
+				new EnsuredMethodSignature("OnCast",typeof(bool))
+					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("state",typeof(SkillState)),
 
 				new EnsuredMethodSignature("OnCharge",typeof(bool))
 					.AddParameter("player",typeof(TSPlayer))
-					.AddParameter("completion",typeof(float)),
+					.AddParameter("state",typeof(SkillState)),
 
 				new EnsuredMethodSignature("OnFire")
 					.AddParameter("player",typeof(TSPlayer))
+					.AddParameter("state",typeof(SkillState))
 			};
 
 			return sigs;

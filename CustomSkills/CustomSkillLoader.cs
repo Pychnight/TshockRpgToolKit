@@ -186,19 +186,19 @@ namespace CustomSkills
 								var linker = new BooModuleLinker(compilerContext.GeneratedAssembly, level.ScriptPath);
 
 								if(level.OnCancelled == null)
-									level.OnCancelled = linker.TryCreateDelegate<Action<TSPlayer>>("OnCancelled");
+									level.OnCancelled = linker.TryCreateDelegate<Action<TSPlayer,SkillState>>("OnCancelled");
 
 								if(level.OnLevelUp==null)
 									level.OnLevelUp = linker.TryCreateDelegate<Action<TSPlayer>>("OnLevelUp");
 
 								if(level.OnCast == null)
-									level.OnCast = linker.TryCreateDelegate<Action<TSPlayer>>("OnCast");
+									level.OnCast = linker.TryCreateDelegate<Func<TSPlayer,SkillState,bool>>("OnCast");
 
 								if(level.OnCharge == null)
-									level.OnCharge = linker.TryCreateDelegate<Func<TSPlayer,float,bool>>("OnCharge");
+									level.OnCharge = linker.TryCreateDelegate<Func<TSPlayer,SkillState,bool>>("OnCharge");
 
 								if(level.OnFire == null)
-									level.OnFire = linker.TryCreateDelegate<Action<TSPlayer>>("OnFire");
+									level.OnFire = linker.TryCreateDelegate<Action<TSPlayer,SkillState>>("OnFire");
 							}
 						}
 					}

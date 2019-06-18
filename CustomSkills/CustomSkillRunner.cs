@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using TShockAPI;
 
@@ -31,13 +33,22 @@ namespace CustomSkills
 				//cant afford it, abort
 				return false;
 			}
-												
+
 			var skill = new CustomSkill(player, skillDefinition, level);
 
-			skill.Phase = SkillPhase.Casting;
-			ActiveSkills.Add(player.Name,skill);
+			if(session.TryDeductCost(player, skill.LevelDefinition.CastingCost))
+			{
+				//Debug.Print("Player was unable to afford casting cost, after casting started. Ignoring.");
+				skill.Phase = SkillPhase.Casting;
+				skill.CastStartTime = DateTime.Now;
 
-			return true;
+				ActiveSkills.Add(player.Name, skill);
+
+				return true;
+			}
+			else
+				return false;
+
 		}
 
 		internal static void Update()
