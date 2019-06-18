@@ -95,6 +95,29 @@ namespace Corruption
 			TSPlayer.All.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
 		}
 
+		/// <summary>
+		/// Sets a players buff.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="buffType"></param>
+		/// <param name="time"></param>
+		public static void SetPlayerBuff(TSPlayer player, int buffType, int time)
+		{
+			SetPlayerBuff(player, buffType, time, false);
+		}
+
+		/// <summary>
+		/// Sets a players buff.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="buffType"></param>
+		/// <param name="time"></param>
+		/// <param name="bypass"></param>
+		public static void SetPlayerBuff(TSPlayer player, int buffType, int time, bool bypass)
+		{
+			player.SetBuff(buffType, time, bypass);
+		}
+
 		//we stripped attacker from calling functions for now, but in case it gets readded again later we keep it.
 		static PlayerDeathReason createPlayerDeathReason(object attacker, string reason)
 		{
@@ -125,6 +148,32 @@ namespace Corruption
 
 				return result;
 			}
+		}
+
+		///// <summary>
+		///// Heals the target player with the given hit points.
+		///// </summary>
+		///// <param name="player"></param>
+		///// <param name="hp"></param>
+		//public static void HealPlayer(TSPlayer player, int hp)
+		//{
+		//	var tPlayer = player.TPlayer;
+
+		//	tPlayer.statLife = Math.Min(tPlayer.statLifeMax, tPlayer.statLife + Math.Abs(hp));
+
+		//	//send player life packet
+		//	TSPlayer.All.SendData(PacketTypes.PlayerHp, "", player.Index);//, tPlayer.statLife, tPlayer.statLifeMax );
+		//}
+
+		/// <summary>
+		/// Heals the target player with the given hit points.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="hp"></param>
+		public static void HealPlayer(TSPlayer player, int hp)
+		{
+			//send player life packet
+			TSPlayer.All.SendData(PacketTypes.PlayerHealOther, "", player.Index, hp);
 		}
 
 		public static void HurtPlayer(TSPlayer player, int damage, bool critical)
