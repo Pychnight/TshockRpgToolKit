@@ -127,14 +127,14 @@ namespace CustomSkills
 			//are we allowed to use this skill?
 			if(definition.PermissionsToUse != null && !PlayerFunctions.PlayerHasPermission(player, definition.PermissionsToUse))
 			{
-				player.SendInfoMessage($"You try, but are unable to use {skillName}.");
+				player.SendInfoMessage($"You are not allowed to use {skillName}.");
 				return;
 			}
 
 			//do we have enough "funds" to use this skill?
 			if(!session.CanAffordCastingSkill(skillName))
 			{
-				player.SendInfoMessage($"You try, but are unable to afford using {skillName}.");
+				player.SendInfoMessage($"You cannot afford to use {skillName}.");
 				return;
 			}
 

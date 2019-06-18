@@ -1,4 +1,5 @@
-﻿using Corruption.PluginSupport;
+﻿using Banking;
+using Corruption.PluginSupport;
 using CustomSkills.Database;
 using Newtonsoft.Json;
 using System;
@@ -170,6 +171,40 @@ namespace CustomSkills
 						return false;
 				}
 
+				if(cost.RequiresCurrency)
+				{
+					var bank = BankingPlugin.Instance.Bank;
+
+					if(bank!=null)
+					{
+						if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
+						{
+							var account = bank.GetBankAccount(Player.Name, currency.InternalName);
+
+							if(account!=null)
+							{
+								//check for funds...
+								Debug.Print($"Found bank account for {currency.InternalName}");
+
+								//parse
+								currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
+
+								if(account.Balance < rawValue)
+								{
+									Debug.Print("Player bank balance is less than skill cost.");
+									return false;
+								}
+
+								//account.TryWithdraw(rawValue)
+
+							}
+							else
+								Debug.Print($"Did not find bank account for {currency.InternalName}");
+						}
+					}
+					//else log error that bank is not available??
+				}
+
 				return true;
 			}
 		}
@@ -200,7 +235,38 @@ namespace CustomSkills
 					//send player mana packet
 					TSPlayer.All.SendData(PacketTypes.PlayerMana, "", Player.Index);//, tPlayer.statMana, tPlayer.statManaMax);
 				}
-				
+
+				if(cost.RequiresCurrency)
+				{
+					var bank = BankingPlugin.Instance.Bank;
+
+					if(bank != null)
+					{
+						if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
+						{
+							var account = bank.GetBankAccount(Player.Name, currency.InternalName);
+
+							if(account != null)
+							{
+								//check for funds...
+								Debug.Print($"Found bank account for {currency.InternalName}");
+
+								//parse
+								currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
+
+								if(!account.TryWithdraw(rawValue,WithdrawalMode.RequireFullBalance))
+								{
+									Debug.Print("Player bank balance is less than skill cost.");
+									return false;
+								}
+							}
+							else
+								Debug.Print($"Did not find bank account for {currency.InternalName}");
+						}
+					}
+					//else log error that bank is not available??
+				}
+
 				return true;
 			}
 		}

@@ -104,6 +104,10 @@
     <Compile Include="SkillState.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Banking\Banking.csproj">
+      <Project>{89faffb0-5bfd-4548-876e-e863d2be3e82}</Project>
+      <Name>Banking</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BooTS\BooTS.csproj">
       <Project>{A74D2D6C-99AB-465B-BC81-935B9139BFBA}</Project>
       <Name>BooTS</Name>

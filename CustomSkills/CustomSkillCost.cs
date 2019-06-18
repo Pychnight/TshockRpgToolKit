@@ -37,12 +37,18 @@ namespace CustomSkills
 		[JsonProperty(Order = 4)]
 		public string Currency { get; set; } = "";
 
+		///// <summary>
+		///// Gets or sets the name of the Banking.Currency that was matched to the Currency string. 
+		///// </summary>
+		//internal string CachedCurrencyName { get; set; } = null;
+
 		//helpers
 		public bool RequiresHp => Hp > 0;
 		public bool RequiresMp => Mp > 0;
 		public bool RequiresExp => Exp > 0;
 		public bool RequiresCurrency => !string.IsNullOrWhiteSpace(Currency);
-
+		//public bool CurrencyExists => !string.IsNullOrWhiteSpace(CachedCurrencyName);
+		
 		public override string ToString()
 		{
 			var sb = new StringBuilder(128);
