@@ -131,7 +131,8 @@ namespace CustomNpcs.Projectiles
 			//projectile.direction = 0;
 		}
 
-		internal bool LinkToScript(Assembly assembly)
+		//internal bool LinkToScript(Assembly assembly)
+		protected override bool OnLinkToScriptAssembly(Assembly assembly)
 		{
 			if( assembly == null )
 				return false;
@@ -150,7 +151,7 @@ namespace CustomNpcs.Projectiles
 			
 			return true;
 		}
-
+				
 		public override ValidationResult Validate()
 		{
 			var result = new ValidationResult(DefinitionBase.CreateValidationSourceString(this));
