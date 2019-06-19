@@ -95,6 +95,8 @@
     <Compile Include="Database\MySqlSessionDatabase.cs" />
     <Compile Include="Database\SessionDatabaseFactory.cs" />
     <Compile Include="Database\SqliteSessionDatabase.cs" />
+    <Compile Include="Emitters\EntityEmitter.cs" />
+    <Compile Include="Emitters\EntityEmitterExtensions.cs" />
     <Compile Include="PlayerSkillInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomSkill.cs" />
@@ -115,6 +117,10 @@
     <ProjectReference Include="..\Corruption\Corruption.csproj">
       <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
       <Name>Corruption</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CustomNpcs\CustomNpcs.csproj">
+      <Project>{B96B0AD7-6FF5-4ECC-AD22-00CE7FDC3177}</Project>
+      <Name>CustomNpcs</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

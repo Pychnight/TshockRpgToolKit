@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using TShockAPI;
 
 namespace CustomSkills
@@ -18,6 +19,7 @@ namespace CustomSkills
 
 		public float Progress { get; internal set; }
 		public TimeSpan ElapsedTime { get; internal set; }
+		public List<EntityEmitter> Emitters { get; set; } = new List<EntityEmitter>();
 
 		Dictionary<string,object> variables;
 
@@ -53,6 +55,19 @@ namespace CustomSkills
 				return false;
 
 			return variables.ContainsKey(variableName);
+		}
+
+		public EntityEmitter AddEmitter() => AddEmitter(Player);
+
+		public EntityEmitter AddEmitter(TSPlayer player) => AddEmitter(player.TPlayer);
+		
+		public EntityEmitter AddEmitter(Entity entity)
+		{
+			var emitter = new EntityEmitter(entity);
+
+			Emitters.Add(emitter);
+
+			return emitter;
 		}
 	}	
 }
