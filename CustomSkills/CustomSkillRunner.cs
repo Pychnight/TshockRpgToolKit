@@ -48,7 +48,17 @@ namespace CustomSkills
 			}
 			else
 				return false;
+		}
 
+		internal static CustomSkillDefinition RemoveActiveSkill(string playerName)
+		{
+			if(ActiveSkills.TryGetValue(playerName, out var skill))
+			{
+				skill.Phase = SkillPhase.Cancelled;//let update handle all further termination. 
+				return skill.Definition;
+			}
+
+			return null;
 		}
 
 		internal static void Update()

@@ -273,7 +273,9 @@ namespace CustomSkills
 
 		private void SkillCancelSubCommand(TSPlayer player)
 		{
-			player.SendInfoMessage($"You attempt to cancel whatever skill you were using... but have a sudden lapse in memory.");
+			var canceledSkill = CustomSkillRunner.RemoveActiveSkill(player.Name);
+			if(canceledSkill == null)
+				player.SendErrorMessage("There is nothing to cancel!");
 		}
 
 		private void SendSkillSyntax(TSPlayer player)

@@ -268,6 +268,8 @@ namespace CustomSkills
 				
 				levelDef.OnCancelled?.Invoke(Player, SkillState);
 
+				SkillState.Emitters.Destroy();
+				
 				session.PlayerSkillInfos[Definition.Name].CooldownStartTime = DateTime.Now;
 				Phase = SkillPhase.Failed;
 			}

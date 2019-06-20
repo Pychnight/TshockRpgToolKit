@@ -89,7 +89,6 @@ namespace CustomSkills
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-
 			PlayerHooks.PlayerChat += OnPlayerChat;
 
 			//register commands here...
@@ -106,10 +105,9 @@ namespace CustomSkills
 			{
 				GeneralHooks.ReloadEvent -= OnReload;
 				ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
-				ServerApi.Hooks.GameUpdate.Deregister(this,OnGameUpdate);
+				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
 				ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
-
 				PlayerHooks.PlayerChat -= OnPlayerChat;
 			}
 

@@ -16,6 +16,12 @@ namespace CustomSkills
 				e.Update();
 		}
 
+		public static void Destroy(this IEnumerable<EntityEmitter> emitters)
+		{
+			foreach(var e in emitters)
+				e.Destroy();
+		}
+
 		public static CustomProjectile SpawnCustomProjectile(this EntityEmitter emitter, string projectileName)
 		{
 			var emitPos = emitter.Position + emitter.EmitOffset;
