@@ -171,38 +171,47 @@ namespace CustomSkills
 						return false;
 				}
 
+				var bank = BankingPlugin.Instance.Bank;
+				if(bank == null)
+					return true;//probably an error condition, but let the admin deal with this.
+
+				if(cost.RequiresExp)
+				{
+					var account = BankingPlugin.Instance.GetBankAccount(player, "Exp");
+					if(account != null)
+					{
+						if(account.Balance < Math.Abs(cost.Exp))
+							return false;//player cant cover balance
+					}
+					else
+						return false;
+				}
+
 				if(cost.RequiresCurrency)
 				{
-					var bank = BankingPlugin.Instance.Bank;
-
-					if(bank!=null)
+					if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
 					{
-						if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
+						var account = bank.GetBankAccount(Player.Name, currency.InternalName);
+
+						if(account!=null)
 						{
-							var account = bank.GetBankAccount(Player.Name, currency.InternalName);
+							//check for funds...
+							Debug.Print($"Found bank account for {currency.InternalName}");
 
-							if(account!=null)
+							//parse
+							currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
+
+							if(account.Balance < rawValue)
 							{
-								//check for funds...
-								Debug.Print($"Found bank account for {currency.InternalName}");
-
-								//parse
-								currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
-
-								if(account.Balance < rawValue)
-								{
-									Debug.Print("Player bank balance is less than skill cost.");
-									return false;
-								}
-
-								//account.TryWithdraw(rawValue)
-
+								Debug.Print("Player bank balance is less than skill cost.");
+								return false;
 							}
-							else
-								Debug.Print($"Did not find bank account for {currency.InternalName}");
+
+							//account.TryWithdraw(rawValue)
 						}
+						else
+							Debug.Print($"Did not find bank account for {currency.InternalName}");
 					}
-					//else log error that bank is not available??
 				}
 
 				return true;
@@ -236,35 +245,45 @@ namespace CustomSkills
 					TSPlayer.All.SendData(PacketTypes.PlayerMana, "", Player.Index);//, tPlayer.statMana, tPlayer.statManaMax);
 				}
 
+				var bank = BankingPlugin.Instance.Bank;
+				if(bank == null)
+					return true;//this probably is an error condition, but for now we just get out of dodge.
+
+				if(cost.RequiresExp)
+				{
+					var account = BankingPlugin.Instance.GetBankAccount(player, "Exp");
+					if(account!=null)
+					{
+						var result = account.TryWithdraw(Math.Abs(cost.Exp), WithdrawalMode.RequireFullBalance);
+						if(result == false)//player cant cover balance
+							return false;
+					}
+					else
+						return false;
+				}
+
 				if(cost.RequiresCurrency)
 				{
-					var bank = BankingPlugin.Instance.Bank;
-
-					if(bank != null)
+					if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
 					{
-						if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
+						var account = bank.GetBankAccount(Player.Name, currency.InternalName);
+						if(account != null)
 						{
-							var account = bank.GetBankAccount(Player.Name, currency.InternalName);
+							//check for funds...
+							Debug.Print($"Found bank account for {currency.InternalName}");
 
-							if(account != null)
+							//parse
+							currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
+
+							if(!account.TryWithdraw(rawValue,WithdrawalMode.RequireFullBalance))
 							{
-								//check for funds...
-								Debug.Print($"Found bank account for {currency.InternalName}");
-
-								//parse
-								currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
-
-								if(!account.TryWithdraw(rawValue,WithdrawalMode.RequireFullBalance))
-								{
-									Debug.Print("Player bank balance is less than skill cost.");
-									return false;
-								}
+								Debug.Print("Player bank balance is less than skill cost.");
+								return false;
 							}
-							else
-								Debug.Print($"Did not find bank account for {currency.InternalName}");
 						}
+						else
+							Debug.Print($"Did not find bank account for {currency.InternalName}");
 					}
-					//else log error that bank is not available??
 				}
 
 				return true;
