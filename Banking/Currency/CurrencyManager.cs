@@ -74,12 +74,18 @@ namespace Banking
 
 		public CurrencyDefinition GetCurrencyByName(string name)
 		{
+			if(string.IsNullOrWhiteSpace(name))
+				return null;
+
 			CurrencyByName.TryGetValue(name, out var result);
 			return result;
 		}
 
 		public CurrencyDefinition GetCurrencyByQuadName(string quadName)
 		{
+			if(string.IsNullOrWhiteSpace(quadName))
+				return null;
+
 			CurrencyByQuadName.TryGetValue(quadName, out var result);
 			return result;
 		}

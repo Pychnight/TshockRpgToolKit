@@ -39,6 +39,12 @@ namespace Banking
 
 		internal BankAccount(string ownerName, string name, decimal startingFunds)
 		{
+			if(string.IsNullOrWhiteSpace(ownerName))
+				throw new ArgumentNullException($"{nameof(ownerName)} cannot be null or whitespace.");
+
+			if(string.IsNullOrWhiteSpace(name))
+				throw new ArgumentNullException($"{nameof(name)} cannot be null or whitespace.");
+
 			OwnerName = ownerName;
 			Name = name;
 			Balance = startingFunds;

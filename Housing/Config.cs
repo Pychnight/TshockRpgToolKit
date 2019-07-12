@@ -159,6 +159,9 @@ namespace Housing
 			if (MaxHouses < 1)
 				result.Warnings.Add(new ValidationWarning($"MaxHouses is less than 1. No houses are allowed!"));
 
+			if(string.IsNullOrWhiteSpace(CurrencyType))
+				result.Errors.Add(new ValidationError($"{nameof(CurrencyType)} is null or empty. This must be set to a valid currency name."));
+
 			return result;
 		}
 	}

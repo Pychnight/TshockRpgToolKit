@@ -50,6 +50,9 @@ namespace Banking
 
 		public BankAccount TryGetBankAccount(string accountName)
 		{
+			if(string.IsNullOrWhiteSpace(accountName))
+				return null;
+
 			if(AccountNameOverrideMap.TryGetValue(accountName, out var account))
 				return account;
 
@@ -59,6 +62,9 @@ namespace Banking
 
 		internal void Add(string accountName, BankAccount account)
 		{
+			if(string.IsNullOrWhiteSpace(accountName))
+				throw new ArgumentNullException($"{nameof(accountName)} cannot be null or whitespace.");
+
 			accountsByName.Add(accountName, account);
 		}
 
