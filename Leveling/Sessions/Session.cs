@@ -195,58 +195,62 @@ namespace Leveling.Sessions
 
 			session.Exp += (long)args.Change;
 			session.ExpUpdated(args);
-		}
+        }
 
 		/// <summary>
 		/// Updates all experience related members, by looking at the latest Exp balance change.
 		/// </summary>
 		internal void ExpUpdated(BalanceChangedEventArgs args)
 		{
-			//Debug.Print($"ExpUpdated!");
+            //Debug.Print($"ExpUpdated!");
 
-			var levelIndex = Class.Levels.IndexOf(Level);
+            var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
+			if( player == null )
+				return;
 
-			if( Exp<0 )
-			{
-				if(levelIndex > 0 && Class.Levels[levelIndex - 1].ExpRequired > 0 )
-				{
-					//we leveled down
-					var delta = Exp;
+            var levelIndex = Class.Levels.IndexOf(Level);
 
-					LevelDown();
+            if (Exp < 0)
+            {
+                // Fixed Level Down Bug
+                if (levelIndex > 0 && Class.Levels[levelIndex - 1].ExpRequired < 0)
+                {
+                    //we leveled down
+                    var delta = Exp;
 
-					//set previous level's new exp
-					Exp = Level.ExpRequired;
-					GiveExp(delta);
-				}
-				else
-				{
-					Exp = 0;
-				}
-			}
-			else
-			{
-				// Don't allow up-leveling if this is the last level of the class or if the current level has a special
-				// requirement for leveling up.
-				if( levelIndex == Class.Levels.Count - 1 || Level.ExpRequired < 0 )
-				{
-					//clip overage
-					if( Level.ExpRequired>0 && Exp > Level.ExpRequired )
-						Exp = Level.ExpRequired;
+                    LevelDown();
 
-					return;
-				}
+                    //set previous level's new exp
+                    Exp = Level.ExpRequired;
+                    GiveExp(delta);
+                    Save();
+                }
+            }
+            else
+            {
+                // Don't allow up-leveling if this is the last level of the class or if the current level has a special
+                // requirement for leveling up.
+                if (levelIndex == Class.Levels.Count - 1 || Level.ExpRequired < 0)
+                {
+                    //clip overage
+                    if (Level.ExpRequired > 0 && Exp > Level.ExpRequired)
+                        Exp = Level.ExpRequired;
 
-				//Debug.WriteLine($"DEBUG: Giving {exp} EXP to {_player.Name}");
+                    return;
+                }
 
-				//var newExp = Exp + exp;
-				if( Exp >= Level.ExpRequired )
-				{
-					var surplus = Exp - Level.ExpRequired;
-					LevelUp();
-					GiveExp(surplus);
-				}
-			}
+                //Debug.WriteLine($"DEBUG: Giving {exp} EXP to {_player.Name}");
+            } 
+
+            //var newExp = Exp + exp;
+            //Fixed Leveling up troubles
+            if (Exp >= Level.ExpRequired)
+            {
+                var surplus = Exp - Level.ExpRequired;
+                LevelUp();
+                GiveExp(surplus);
+                Save();
+            }
 		}
 
         /// <summary>
@@ -540,33 +544,44 @@ namespace Leveling.Sessions
             _definition.UnlockedClassNames.Add(@class.Name);
         }
 
-		/// <summary>
-		///     Updates the session.
-		/// </summary>
-		public void Update()
-		{
-			// Check EXP reports.
-			lock( expLock )
-			{
-				if( Level.ExpRequired < 0 )
-				{
-					_expToReport = 0;
-				}
-				else if( DateTime.UtcNow - _lastExpReportTime > ExpReportPeriod && _expToReport != 0 )
-				{
-					_lastExpReportTime = DateTime.UtcNow;
+        /// <summary>
+        ///     Updates the session.
+        /// </summary>
+        public void Update()
+        {
+            // Check EXP reports.
+            lock (expLock)
+            {
+                if (Level.ExpRequired < 0)
+                {
+                    _expToReport = 0;
+                }
+                else if (DateTime.UtcNow - _lastExpReportTime > ExpReportPeriod && _expToReport != 0)
+                {
+                    _lastExpReportTime = DateTime.UtcNow;
 
-					if( _expToReport > 0 )
-					{
-						AddCombatText($"+{_expToReport} EXP", Color.LimeGreen);
-					}
-					else
-					{
-						AddCombatText($"{_expToReport} EXP", Color.OrangeRed);
-					}
-					Save();
-					_expToReport = 0;
-				}
+                    if (_expToReport > 0)
+                    {
+                        AddCombatText($"+{_expToReport} EXP", Color.LimeGreen);
+                    }
+                    else
+                    {
+                        AddCombatText($"{_expToReport} EXP", Color.OrangeRed);
+                    }
+                    Save();
+                    _expToReport = 0;
+                }
+                if (Exp > Level.ExpRequired)
+                {
+                   ExpUpdated();
+                }
+                else
+                {
+                    if (Exp < 0)
+                    {
+                        ExpUpdated();
+                    }
+                }
 			}
            
 			// Check to see if items are usable.
@@ -612,6 +627,63 @@ namespace Leveling.Sessions
 					}
 				}
 			}
+        }
+
+        private void ExpUpdated()
+        {
+            var levelIndex = Class.Levels.IndexOf(Level);
+
+            var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
+
+            if (currencyMgr.TryFindCurrencyFromString(Level.CurrencyRequired, out var CurrencyRequiredString))
+            {
+                if (CurrencyRequiredString.GetCurrencyConverter().TryParse(Level.CurrencyRequired, out var CurrencyRequired))
+                {
+                    CurrencyRequired = Exp;
+                }
+            }
+
+            if (Exp < 0)
+            {
+                // Fixed Level Down Bug
+                if (levelIndex > 0 && Class.Levels[levelIndex - 1].ExpRequired < 0)
+                {
+                    //we leveled down
+                    var delta = Exp;
+
+                    LevelDown();
+
+                    //set previous level's new exp
+                    Exp = Level.ExpRequired;
+                    GiveExp(delta);
+                    Save();
+                }
+            }
+            else
+            {
+                // Don't allow up-leveling if this is the last level of the class or if the current level has a special
+                // requirement for leveling up.
+                if (levelIndex == Class.Levels.Count - 1 || Level.ExpRequired < 0)
+                {
+                    //clip overage
+                    if (Level.ExpRequired > 0 && Exp > Level.ExpRequired)
+                        Exp = Level.ExpRequired;
+
+                    return;
+                }
+
+                //Debug.WriteLine($"DEBUG: Giving {exp} EXP to {_player.Name}");
+            }
+
+            //var newExp = Exp + exp;
+            //Fixed Leveling up troubles
+            if (Exp >= Level.ExpRequired)
+            {
+                var surplus = Exp - Level.ExpRequired;
+                LevelUp();
+                GiveExp(surplus);
+                Save();
+            }
         }
 
         private void UpdateItemsAndPermissions()
