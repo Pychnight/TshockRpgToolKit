@@ -154,7 +154,7 @@ namespace CustomQuests
 			}
 			
 			var inputPlayer = parameters[1];
-			var players = TShock.Utils.FindPlayer(inputPlayer);
+			var players = TSPlayer.FindByNameOrID(inputPlayer);
 			if( players.Count == 0 )
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
@@ -162,7 +162,7 @@ namespace CustomQuests
 			}
 			if( players.Count > 1 )
 			{
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -717,7 +717,7 @@ namespace CustomQuests
 			if( parameters.Count == 3 )
 			{
 				var inputPlayer = parameters[1];
-				var players = TShock.Utils.FindPlayer(inputPlayer);
+				var players = TSPlayer.FindByNameOrID(inputPlayer);
 				if( players.Count == 0 )
 				{
 					player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
@@ -725,7 +725,7 @@ namespace CustomQuests
 				}
 				if( players.Count > 1 )
 				{
-					TShock.Utils.SendMultipleMatchError(player, players);
+					//TShock.Utils.SendMultipleMatchError(player, players);
 					return;
 				}
 
@@ -769,7 +769,7 @@ namespace CustomQuests
 			if( parameters.Count == 3 )
 			{
 				var inputPlayer = parameters[1];
-				var players = TShock.Utils.FindPlayer(inputPlayer);
+				var players = TSPlayer.FindByNameOrID(inputPlayer);
 				if( players.Count == 0 )
 				{
 					player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
@@ -777,7 +777,7 @@ namespace CustomQuests
 				}
 				if( players.Count > 1 )
 				{
-					TShock.Utils.SendMultipleMatchError(player, players);
+					//TShock.Utils.SendMultipleMatchError(player, players);
 					return;
 				}
 
@@ -852,7 +852,7 @@ namespace CustomQuests
 			}
 
 			var targetPlayerName = parameters[1];
-			var targetPlayer = TShock.Utils.FindPlayer(targetPlayerName).FirstOrDefault();
+			var targetPlayer = TSPlayer.FindByNameOrID(targetPlayerName).FirstOrDefault();
 
 			if( targetPlayer == null )
 			{

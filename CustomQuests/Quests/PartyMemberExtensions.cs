@@ -340,7 +340,7 @@ namespace CustomQuests.Quests
 				throw new FormatException($"Invalid item name '{name}'.");
 			}
 
-			member.Player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
+			member.Player.GiveItem((int)itemId, stackSize, prefix);
 		}
 
 		public static void GiveItem(this IEnumerable<PartyMember> members, string name)
@@ -382,7 +382,7 @@ namespace CustomQuests.Quests
 			foreach( var m in members )
 			{
 				//m.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
-				m.Player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
+				m.Player.GiveItem((int)itemId, stackSize, prefix);
 			}
 		}
 

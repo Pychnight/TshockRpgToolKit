@@ -65,7 +65,8 @@ namespace Corruption
 			if (message == null)
 				throw new ArgumentNullException(nameof(player));
 			
-			TShock.Utils.Ban(player, message, true, message2);
+            //Fix ME
+			//TShock.Utils.Ban(player, message, true, message2);
 		}
 
 		/// <summary>
@@ -127,7 +128,7 @@ namespace Corruption
 			{
 				var result = new PlayerDeathReason();
 
-				result.SourceCustomReason = reason;
+				result._sourceCustomReason = reason;
 
 				//Disabled following when we created CorruptionLib, since it has no references to CustomNpcs, and the attacker field currently goes unused.
 				//will need to reinvestigate how to handle this best.

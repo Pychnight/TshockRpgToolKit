@@ -50,7 +50,7 @@ namespace Housing
 				}
 
 				var house = session.CurrentHouse;
-				if (player.User?.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
+				if (player.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't allow users for {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house.");
@@ -58,11 +58,11 @@ namespace Housing
 				}
 
 				var inputPlayerName = parameters[1];
-				var players = TShock.Utils.FindPlayer(inputPlayerName);
+				var players = TSPlayer.FindByNameOrID(inputPlayerName);
 				if (players.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-					TShock.Utils.SendMultipleMatchError(player, players);
+					//TShock.Utils.SendMultipleMatchError(player, players); FIX
 					return;
 				}
 				if (players.Count == 0)
@@ -72,17 +72,17 @@ namespace Housing
 				}
 
 				var otherPlayer = players[0];
-				if (otherPlayer.User == null)
+				if (otherPlayer.Name == null)
 				{
 					player.SendErrorMessage($"{otherPlayer.Name} is not logged in.");
 					return;
 				}
 
-				house.AllowedUsernames.Add(otherPlayer.User.Name);
+				house.AllowedUsernames.Add(otherPlayer.Name);
 				database.Update(house);
 				player.SendSuccessMessage(
 					$"Allowed {otherPlayer.Name} to modify " +
-					$"{(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
+					$"{(house.OwnerName == player.Name ? "your" : house.OwnerName + "'s")} " +
 					$"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
 			}
 			else if (subcommand.Equals("buy", StringComparison.OrdinalIgnoreCase))
@@ -112,7 +112,7 @@ namespace Housing
 				}
 
 				var house = session.CurrentHouse;
-				if (!house.ForSale || house.OwnerName == player.User?.Name)
+				if (!house.ForSale || house.OwnerName == player.Name)
 				{
 					player.SendErrorMessage("You cannot purchase this house.");
 					return;
@@ -179,7 +179,7 @@ namespace Housing
 						$"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
 
 					var player2 = TShock.Players.Where(p => p?.Active == true)
-						.FirstOrDefault(p => p.User?.Name == house.OwnerName);
+						.FirstOrDefault(p => p.Name == house.OwnerName);
 					player2?.SendInfoMessage(
 						$"{player.Name} purchased your house [c/{Color.MediumPurple.Hex3()}:{house}] for " +
 						$"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
@@ -206,7 +206,7 @@ namespace Housing
 				}
 
 				var house = session.CurrentHouse;
-				if (player.User?.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
+				if (player.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't disallow users for {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house.");
@@ -218,7 +218,7 @@ namespace Housing
 				database.Update(house);
 				player.SendSuccessMessage(
 					$"Disallowed {inputUsername} from modifying " +
-					$"{(house.OwnerName == player.User?.Name ? "your house" : house.OwnerName + "'s house")} " +
+					$"{(house.OwnerName == player.Name ? "your house" : house.OwnerName + "'s house")} " +
 					$"[c/{Color.MediumPurple.Hex3()}:{house}].");
 			}
 			else if (subcommand.Equals("info", StringComparison.OrdinalIgnoreCase))
@@ -232,7 +232,7 @@ namespace Housing
 
 				var house = session.CurrentHouse;
 				player.SendInfoMessage($"Owner: {house.OwnerName}, Name: {house.Name}");
-				if (player.User?.Name == house.OwnerName || player.HasPermission("housing.house.admin"))
+				if (player.Name == house.OwnerName || player.HasPermission("housing.house.admin"))
 				{
 					var ownerConfig = house.GetGroupConfig();//because a player other than the owner maybe running this command.
 
@@ -255,7 +255,7 @@ namespace Housing
 				}
 
 				var house = session.CurrentHouse;
-				if (player.User?.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
+				if (player.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't remove {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house.");
@@ -264,7 +264,7 @@ namespace Housing
 
 				database.Remove(house);
 				player.SendSuccessMessage(
-					$"Removed {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
+					$"Removed {(house.OwnerName == player.Name ? "your" : house.OwnerName + "'s")} " +
 					$"[c/{Color.MediumPurple.Hex3()}:{house}] house.");
 			}
 			else if (subcommand.Equals("sell", StringComparison.OrdinalIgnoreCase))
@@ -283,7 +283,7 @@ namespace Housing
 				}
 
 				var house = session.CurrentHouse;
-				if (player.User?.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
+				if (player.Name != house.OwnerName && !player.HasPermission("housing.house.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't sell {house.OwnerName}'s [c/{Color.MediumPurple.Hex3()}:{house}] house.");
@@ -305,7 +305,7 @@ namespace Housing
 																						  //so that the SalePrice uses the largest units available.
 					database.Update(house);
 					player.SendSuccessMessage(
-						$"Selling {(house.OwnerName == player.User?.Name ? "your" : house.OwnerName + "'s")} " +
+						$"Selling {(house.OwnerName == player.Name ? "your" : house.OwnerName + "'s")} " +
 						$"[c/{Color.MediumPurple.Hex3()}:{house}] house for [c/{Color.OrangeRed.Hex3()}:{house.SalePrice}].");
 				}
 				else
@@ -335,7 +335,7 @@ namespace Housing
 				var y = Math.Min(point1.Y, point2.Y);
 				var x2 = Math.Max(point1.X, point2.X);
 				var y2 = Math.Max(point1.Y, point2.Y);
-				if (database.GetHouses().Count(h => h.OwnerName == player.User?.Name) >= playerGroupConfig.MaxHouses)
+				if (database.GetHouses().Count(h => h.OwnerName == player.Name) >= playerGroupConfig.MaxHouses)
 				{
 					player.SendErrorMessage($"You have too many houses. Maximum allowed is {playerGroupConfig.MaxHouses}.");
 					return;
@@ -570,12 +570,12 @@ namespace Housing
 					var totalCostString = currencyConverter.ToString(totalCost);
 
 					player.GiveItem(
-						itemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
+						itemId, amount, shopItem.PrefixId);
 					player.SendSuccessMessage($"Purchased {itemText} for " +
 											  $"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
 
 					var player2 = TShock.Players.Where(p => p?.Active == true)
-						.FirstOrDefault(p => p.User?.Name == shop.OwnerName);
+						.FirstOrDefault(p => p.Name == shop.OwnerName);
 					player2?.SendInfoMessage($"{player.Name} purchased {itemText} for " +
 											 $"[c/{Color.OrangeRed.Hex3()}:{totalCostString}].");
 
@@ -599,7 +599,7 @@ namespace Housing
 				}
 
 				var shop = session.CurrentShop;
-				if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
+				if (shop.OwnerName != player.Name && !player.HasPermission("housing.itemshop.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't close {shop.OwnerName}'s shop [c/{Color.LimeGreen.Hex3()}:{shop}].");
@@ -609,7 +609,7 @@ namespace Housing
 				shop.IsOpen = false;
 				database.Update(shop);
 				player.SendSuccessMessage(
-					$"Closed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
+					$"Closed {(shop.OwnerName == player.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
 					$"[c/{Color.LimeGreen.Hex3()}:{shop}].");
 			}
 			else if (subcommand.Equals("info", StringComparison.OrdinalIgnoreCase))
@@ -628,7 +628,7 @@ namespace Housing
 
 				player.SendInfoMessage(
 					$"Prices: {string.Join(", ", prices)}. All other items are default sell prices.");
-				if (shop.OwnerName == player.User?.Name)
+				if (shop.OwnerName == player.Name)
 				{
 					//var ownerConfig = shop.GetGroupConfig();
 
@@ -648,7 +648,7 @@ namespace Housing
 				}
 
 				var shop = session.CurrentShop;
-				if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
+				if (shop.OwnerName != player.Name && !player.HasPermission("housing.itemshop.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't open {shop.OwnerName}'s shop {Color.LimeGreen.ColorText(shop)}.");
@@ -658,7 +658,7 @@ namespace Housing
 				shop.IsOpen = true;
 				database.Update(shop);
 				player.SendSuccessMessage(
-					$"Opened {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
+					$"Opened {(shop.OwnerName == player.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
 					$"{Color.LimeGreen.ColorText(shop)}.");
 			}
 			else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
@@ -671,7 +671,7 @@ namespace Housing
 				}
 
 				var shop = session.CurrentShop;
-				if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
+				if (shop.OwnerName != player.Name && !player.HasPermission("housing.itemshop.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't remove {shop.OwnerName}'s shop {Color.LimeGreen.ColorText(shop)}.");
@@ -697,7 +697,7 @@ namespace Housing
 
 				database.Remove(shop);
 				player.SendSuccessMessage(
-					$"Removed {(shop.OwnerName == player.User?.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
+					$"Removed {(shop.OwnerName == player.Name ? "your shop" : shop.OwnerName + "'s shop")} " +
 					$"{Color.LimeGreen.ColorText(shop)}.");
 			}
 			else if (subcommand.Equals("set", StringComparison.OrdinalIgnoreCase))
@@ -715,7 +715,7 @@ namespace Housing
 				}
 
 				var session = GetOrCreateSession(player);
-				if (session.CurrentHouse == null || session.CurrentHouse.OwnerName != player.User?.Name)
+				if (session.CurrentHouse == null || session.CurrentHouse.OwnerName != player.Name)
 				{
 					player.SendErrorMessage("You aren't currently in a house that you own.");
 					return;
@@ -772,7 +772,7 @@ namespace Housing
 				}
 
 				var shop = session.CurrentShop;
-				if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
+				if (shop.OwnerName != player.Name && !player.HasPermission("housing.itemshop.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't set the message for {shop.OwnerName}'s {Color.LimeGreen.ColorText(shop)} shop.");
@@ -783,7 +783,7 @@ namespace Housing
 				shop.Message = message;
 				database.Update(shop);
 				player.SendSuccessMessage(
-					$"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
+					$"Updated {(shop.OwnerName == player.Name ? "your" : shop.OwnerName + "'s")} " +
 					$"{Color.LimeGreen.ColorText(shop)} shop message.");
 			}
 			else if (subcommand.Equals("setprice", StringComparison.OrdinalIgnoreCase))
@@ -802,7 +802,7 @@ namespace Housing
 				}
 
 				var shop = session.CurrentShop;
-				if (shop.OwnerName != player.User?.Name && !player.HasPermission("housing.itemshop.admin"))
+				if (shop.OwnerName != player.Name && !player.HasPermission("housing.itemshop.admin"))
 				{
 					player.SendErrorMessage(
 						$"You can't modify {shop.OwnerName}'s {Color.LimeGreen.ColorText(shop)} shop.");
@@ -814,7 +814,7 @@ namespace Housing
 				if (items.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple items matched '{inputItemName}':");
-					TShock.Utils.SendMultipleMatchError(player, items);
+					//TShock.Utils.SendMultipleMatchError(player, items); FIX ME
 					return;
 				}
 				if (items.Count == 0)
@@ -856,7 +856,7 @@ namespace Housing
 				else
 				{
 					player.SendSuccessMessage(
-						$"Updated {(shop.OwnerName == player.User?.Name ? "your" : shop.OwnerName + "'s")} " +
+						$"Updated {(shop.OwnerName == player.Name ? "your" : shop.OwnerName + "'s")} " +
 						$"{Color.LimeGreen.ColorText(shop)} shop prices.");
 				}
 			}

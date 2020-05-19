@@ -101,8 +101,14 @@ namespace Corruption
 			return player.TPlayer.ZoneBeach;
 		}
 
-		// Utility public static bool for spawning in a corruption biome.
-		public static bool InCorruption(TSPlayer player)
+        // Utility public static bool for spawning in a GemCave biome.
+        public static bool InGemCave(TSPlayer player)
+        {
+            return player.TPlayer.ZoneGemCave;
+        }
+
+        // Utility public static bool for spawning in a corruption biome.
+        public static bool InCorruption(TSPlayer player)
 		{
 			return player.TPlayer.ZoneCorrupt;
 		}
@@ -130,10 +136,10 @@ namespace Corruption
 		{
 			var tplayer = player.TPlayer;
 			return ! tplayer.ZoneBeach && ! tplayer.ZoneCorrupt && ! tplayer.ZoneCrimson && ! tplayer.ZoneDesert &&
-				   ! tplayer.ZoneDungeon && ! tplayer.ZoneGlowshroom && ! tplayer.ZoneHoly && ! tplayer.ZoneSnow &&
+				   ! tplayer.ZoneDungeon && ! tplayer.ZoneGlowshroom && ! tplayer.ZoneHallow && ! tplayer.ZoneSnow &&
 				   ! tplayer.ZoneJungle && ! tplayer.ZoneMeteor && ! tplayer.ZoneOldOneArmy &&
 				   ! tplayer.ZoneTowerSolar && ! tplayer.ZoneTowerVortex && ! tplayer.ZoneTowerNebula &&
-				   ! tplayer.ZoneTowerStardust;
+				   ! tplayer.ZoneTowerStardust && !tplayer.ZoneGraveyard;
 		}
 
 		// Utility public static bool for spawning in a glowing mushroom biome.
@@ -142,10 +148,31 @@ namespace Corruption
 			return player.TPlayer.ZoneGlowshroom;
 		}
 
-		// Utility public static bool for spawning in a hallow biome.
-		public static bool InHallow(TSPlayer player)
+        // Utility public static bool for spawning in a Granite biome.
+        // 1.4 addition
+        public static bool InGranite(TSPlayer player)
+        {
+            return player.TPlayer.ZoneGranite;
+        }
+
+        // Utility public static bool for spawning in a Graveyard biome.
+        // 1.4 addition
+        public static bool InGraveYard(TSPlayer player)
+        {
+            return player.TPlayer.ZoneGraveyard;
+        }
+
+
+        // Utility public static bool for spawning in a Graveyard biome.
+        public static bool InLihzhardTemple(TSPlayer player)
+        {
+            return player.TPlayer.ZoneLihzhardTemple;
+        }
+
+        // Utility public static bool for spawning in a hallow biome.
+        public static bool InHallow(TSPlayer player)
 		{
-			return player.TPlayer.ZoneHoly;
+			return player.TPlayer.ZoneHallow;
 		}
 
 		// Utility public static bool for spawning in an ice biome.

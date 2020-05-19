@@ -38,7 +38,7 @@ namespace Banking
 
 			var defense = CalculateNpcDefense(npc);
 
-			damage = Main.CalculateDamage((int)damage, defense);
+			damage = Main.CalculateDamageNPCsTake((int)damage, defense);
 			damage *= isCritical ? 2.0 : 1.0;
 			damage *= Math.Max(1.0, npc.takenDamageMultiplier);
 

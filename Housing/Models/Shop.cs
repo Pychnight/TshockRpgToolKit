@@ -109,7 +109,7 @@ namespace Housing.Models
 			{
 				try
 				{
-					var user = TShock.Users.GetUserByName(OwnerName);
+					var user = TShock.UserAccounts.GetUserAccountByName(OwnerName);
 					groupName = user.Group;
 				}
 				catch( Exception ex )

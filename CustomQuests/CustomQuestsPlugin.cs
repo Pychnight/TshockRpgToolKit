@@ -624,7 +624,7 @@ namespace CustomQuests
         {
 			QuestRunner.Update();
 
-			foreach( var player in TShock.Players.Where(p => p?.User != null) )
+			foreach( var player in TShock.Players.Where(p => p?.TPlayer != null) )
 			{
 				var session = GetSession(player);
 					

@@ -200,13 +200,20 @@ namespace CustomNpcs.Npcs
             npc._givenName = _baseOverride.Name ?? npc._givenName;
             npc.npcSlots = _baseOverride.NpcSlots ?? npc.npcSlots;
             npc.value = _baseOverride.Value ?? npc.value;
-									
-			//the following are not settable
-			//npc.HasGivenName
-			//npc.HasValidTarget
-			//npc.HasPlayerTarget
-			//npc.HasNPCTarget
-		}
+
+            //the following are not settable
+            //npc.HasGivenName
+            //npc.HasValidTarget
+            //npc.HasPlayerTarget
+            //npc.HasNPCTarget
+
+
+            //Only usable with tmodloader or modded dedicated server that sends the correct packets
+            npc.scale = _baseOverride.Scale ?? npc.scale;
+            npc.color = _baseOverride.Color;
+            npc.height = _baseOverride.Height ?? npc.height;
+            Terraria.Main.NPCAddHeight(npc);
+        }
 		
 		protected override bool OnLinkToScriptAssembly(Assembly ass)
 		{
@@ -303,6 +310,15 @@ namespace CustomNpcs.Npcs
 
             [JsonProperty]
             public int[] BuffImmunities { get; set; }
+
+            [JsonProperty]
+            public Microsoft.Xna.Framework.Color Color { get; set; }
+
+            [JsonProperty]
+            public int? Height { get; set; }
+
+            [JsonProperty]
+            public int? Scale { get; set; }
 
             [JsonProperty]
             public int? Defense { get; set; }

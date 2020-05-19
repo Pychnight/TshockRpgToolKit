@@ -247,8 +247,8 @@ namespace Banking
 						var wasPvP = ( (BitsByte)reader.ReadByte() )[0];
 						if( wasPvP )
 						{
-							var otherPlayer = deathReason.SourcePlayerIndex >= 0
-								? TShock.Players[deathReason.SourcePlayerIndex]
+							var otherPlayer = deathReason._sourcePlayerIndex >= 0
+								? TShock.Players[deathReason._sourcePlayerIndex]
 								: null;
 							if( otherPlayer == player )
 							{

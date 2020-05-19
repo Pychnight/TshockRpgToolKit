@@ -60,7 +60,7 @@ namespace Corruption.TEdit
 		{
 			//still needs support for wires.
 			dst.Type = src.type;
-			dst.Wall = src.wall;
+            dst.Wall = src.wall;
 			dst.LiquidType = (LiquidType)src.liquid;
 
 			dst.IsActive = src.active();

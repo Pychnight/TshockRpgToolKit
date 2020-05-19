@@ -276,7 +276,7 @@ namespace Leveling
 				
 		internal Session TryGetOrCreateSession(string playerName)
 		{
-			var tsPlayer = TShock.Utils.FindPlayer(playerName).FirstOrDefault();
+			var tsPlayer = TSPlayer.FindByNameOrID(playerName).FirstOrDefault();
 
 			if( tsPlayer != null && tsPlayer.Active )
 				return GetOrCreateSession(tsPlayer);
@@ -289,7 +289,7 @@ namespace Leveling
             var session = player.GetData<Session>(SessionKey);
 			if (session == null)
             {
-				var username = player.User?.Name ?? player.Name;
+				var username = player.Name ?? player.Name;
 				
                 //first try the database
                 SessionDefinition definition = SessionRepository.Load(username);
@@ -387,8 +387,8 @@ namespace Leveling
                     var wasPvP = ((BitsByte)reader.ReadByte())[0];
                     if (wasPvP)
                     {
-                        var otherPlayer = deathReason.SourcePlayerIndex >= 0
-                            ? TShock.Players[deathReason.SourcePlayerIndex]
+                        var otherPlayer = deathReason._sourcePlayerIndex >= 0
+                            ? TShock.Players[deathReason._sourcePlayerIndex]
                             : null;
                         if (otherPlayer == player)
                         {
@@ -447,7 +447,7 @@ namespace Leveling
             }
 
             var session = GetOrCreateSession(args.Player);
-            args.Handled |= session.PermissionsGranted.Contains(args.Permission);
+            //args.Handled |= session.PermissionsGranted.Contains(args.Permission);
         }
 
         //we handle the join event so that we can ensure were creating sessions at this point, and not during runtime.

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TShockAPI;
 
 namespace Banking.Rewards
 {
@@ -153,7 +154,7 @@ namespace Banking.Rewards
 				return;
 #endif
 
-			var player = TShockAPI.Utils.Instance.FindPlayer(playerName).FirstOrDefault();
+			var player = TSPlayer.FindByNameOrID(playerName).FirstOrDefault();
 
 			if( player != null )
 			{

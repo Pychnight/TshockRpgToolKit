@@ -187,7 +187,7 @@ namespace CustomQuests.Triggers
 				var index = Main.maxItems;
 				for (var i = 0; i < Main.maxItems; ++i)
 				{
-					if (!Main.item[i].active && Main.itemLockoutTime[i] == 0)
+					if (!Main.item[i].active)
 					{
 						index = i;
 						break;
@@ -198,7 +198,7 @@ namespace CustomQuests.Triggers
 					var minTimeDiff = 0;
 					for (var i = 0; i < Main.maxItems; ++i)
 					{
-						var timeDiff = Main.item[i].spawnTime - Main.itemLockoutTime[i];
+						var timeDiff = Main.item[i].timeSinceItemSpawned;
 						if (timeDiff > minTimeDiff)
 						{
 							minTimeDiff = timeDiff;

@@ -522,7 +522,7 @@ namespace CustomNpcs.Npcs
 		private void TrySpawnCustomNpc(TSPlayer player, int tileX, int tileY)
 		{
 			Utils.GetSpawnData(player, out var maxSpawns, out var spawnRate);
-			if( player.TPlayer.activeNPCs >= maxSpawns )
+			if( player.TPlayer.nearbyActiveNPCs >= maxSpawns )
 				return;
 			
 			var spawnViaGlobalRate = _random.Next((int)spawnRate) == 0;

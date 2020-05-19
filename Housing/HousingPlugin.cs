@@ -119,9 +119,9 @@ namespace Housing
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} entered {house.OwnerName}'s {house} house");
                     player.SendInfoMessage(
-                        $"You entered {(house.OwnerName == player.User?.Name ? "your house" : house.OwnerName + "'s house")} " +
+                        $"You entered {(house.OwnerName == player.Name ? "your house" : house.OwnerName + "'s house")} " +
                         $"{Color.MediumPurple.ColorText(house)}.");
-                    if (house.ForSale && house.OwnerName != player.User?.Name)
+                    if (house.ForSale && house.OwnerName != player.Name)
                     {
                         player.SendInfoMessage(
                             $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.SalePrice}].");
@@ -132,7 +132,7 @@ namespace Housing
                     Debug.WriteLine(
                         $"DEBUG: {player.Name} left {session.CurrentHouse.OwnerName}'s {session.CurrentHouse} house");
                     player.SendInfoMessage(
-                        $"You left {(session.CurrentHouse.OwnerName == player.User?.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
+                        $"You left {(session.CurrentHouse.OwnerName == player.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
                         $"{Color.MediumPurple.ColorText(session.CurrentHouse)}.");
                 }
                 session.CurrentHouse = house;
@@ -164,7 +164,7 @@ namespace Housing
                     var payment = Math.Min(totalBalance, taxCost);
 
 					var player = TShock.Players.Where(p => p?.Active == true)
-						.FirstOrDefault(p => p.User?.Name == house.OwnerName);
+						.FirstOrDefault(p => p.Name == house.OwnerName);
 
 					if(player!=null)
 					{
@@ -229,11 +229,11 @@ namespace Housing
                     }
                     args.Handled = true;
 
-                    if (shop.OwnerName == player.User?.Name)
+                    if (shop.OwnerName == player.Name)
                     {
                         Debug.WriteLine($"DEBUG: {player.Name} changing shop at {x}, {y}");
                         shop.IsBeingChanged = true;
-                        var chest = new Chest {x = x, y = y};
+                        var chest = new Chest { x = x, y = y };
                         Main.chest[998] = chest;
                         for (var i = 0; i < 40; ++i)
                         {
@@ -247,10 +247,10 @@ namespace Housing
                         player.SendData(PacketTypes.ChestOpen, "", 998);
                         player.SendInfoMessage("Use /itemshop setprice <item-name> <price> to change prices.");
                     }
-                    else if (shop.OwnerName != player.User?.Name)
+                    else if (shop.OwnerName != player.Name)
                     {
-						Debug.WriteLine($"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
-						shop.TryShowStock(player);
+                        Debug.WriteLine($"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
+                        shop.TryShowStock(player);
                     }
                 }
             }
@@ -259,7 +259,7 @@ namespace Housing
                 var player = TShock.Players[args.Msg.whoAmI];
                 var session = GetOrCreateSession(player);
                 var shop = session.CurrentlyViewedShop;
-                if (shop == null || shop.OwnerName != player.User?.Name)
+                if (shop == null || shop.OwnerName != player.Name)
                 {
                     return;
                 }
@@ -293,13 +293,13 @@ namespace Housing
                 var player = TShock.Players[args.Msg.whoAmI];
                 var session = GetOrCreateSession(player);
                 var shop = session.CurrentlyViewedShop;
-                if (shop != null && shop.OwnerName == player.User?.Name)
+                if (shop != null && shop.OwnerName == player.Name)
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} finished changing shop at {shop.ChestX}, {shop.ChestY}");
                     shop.IsBeingChanged = false;
                 }
             }
-            else if (args.MsgID == PacketTypes.TileKill)
+            else if (args.MsgID == PacketTypes.Tile) //Fix me Tilekill removed?
             {
                 var player = TShock.Players[args.Msg.whoAmI];
                 using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
@@ -382,7 +382,7 @@ namespace Housing
 			var config = Config.Instance.GetGroupConfig(player!=null ? player.Group.Name : ">");//force default if no group.. we can never have a group named ">" ...right?
 			if (player != null && config?.AllowOfflineShops==false)//!Config.Instance.AllowOfflineShops)
             {
-                foreach (var shop in database.GetShops().Where(s => s.OwnerName == player.User?.Name))
+                foreach (var shop in database.GetShops().Where(s => s.OwnerName == player.Name))
                 {
                     shop.IsOpen = false;
                 }

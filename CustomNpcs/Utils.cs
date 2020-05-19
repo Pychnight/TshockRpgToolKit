@@ -109,7 +109,7 @@ namespace CustomNpcs
                 spawnRate *= 0.4;
             }
 
-            var activeNpcs = tplayer.activeNPCs;
+            var activeNpcs = tplayer.nearbyActiveNPCs;
             if (activeNpcs < 0.2 * maxSpawns)
             {
                 spawnRate *= 0.6;

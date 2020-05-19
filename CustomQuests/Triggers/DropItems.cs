@@ -161,7 +161,7 @@ namespace CustomQuests.Triggers
                 _amount -= args.Stacks;
                 if (_amount < 0)
                 {
-                    player.GiveItem(args.Type, "", 20, 42, -_amount, args.Prefix);
+                    player.GiveItem(args.Type, -_amount, args.Prefix);
                     _amount = 0;
                 }
                 args.Handled = true;

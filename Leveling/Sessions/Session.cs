@@ -182,7 +182,7 @@ namespace Leveling.Sessions
 				return;
 
 			//dont bother with session for disconnected players ( bank may update accounts on players not logged in )
-			var player = TShock.Utils.FindPlayer(args.OwnerName).FirstOrDefault();
+			var player = TSPlayer.FindByNameOrID(args.OwnerName).FirstOrDefault();
 			if( player == null )
 				return;
 							
@@ -519,7 +519,7 @@ namespace Leveling.Sessions
         /// </summary>
         public void Save()
         {
-			var userName = _player.User?.Name ?? _player.Name;
+			var userName = _player.Name ?? _player.Name;
 			LevelingPlugin.Instance.SessionRepository.Save(userName,_definition);
         }
 

@@ -126,7 +126,7 @@ namespace NpcShops
 						if (shopItem.StackSize > 0)
 							shopItem.StackSize -= amount;
 
-						player.GiveItem(shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
+						player.GiveItem(shopItem.ItemId, amount, shopItem.PrefixId);
 						player.SendSuccessMessage($"Purchased {itemText} for { GetPostPurchaseRenderString(shop, shopItem, totalCost, amount) }.");
 					}
 					else

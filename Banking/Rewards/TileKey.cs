@@ -34,7 +34,7 @@ namespace Banking.Rewards
 		/// Terraria Wall Id.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-		public byte Wall { get; set; } = 0;
+		public ushort Wall { get; set; } = 0;
 
 		public TileKey()
 		{

@@ -14,10 +14,10 @@ namespace Banking
 		public int TileX { get; private set; }
 		public int TileY { get; private set; }
 		public ushort Type { get; private set; }
-		public byte Wall { get; private set; }
+		public ushort Wall { get; private set; }
 		public TileSubTarget TileSubTarget { get; private set; }
 
-		public TileChangedEventArgs(TSPlayer player, int tileX, int tileY, ushort type, byte wall, TileSubTarget tileSubTarget)
+		public TileChangedEventArgs(TSPlayer player, int tileX, int tileY, ushort type, ushort wall, TileSubTarget tileSubTarget)
 		{
 			Player = player;
 			TileX = tileX;

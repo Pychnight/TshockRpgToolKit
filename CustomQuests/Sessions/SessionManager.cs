@@ -83,7 +83,7 @@ namespace CustomQuests.Sessions
 			if( player == null )
 				throw new ArgumentNullException(nameof(player));
 
-			var username = player.User?.Name ?? player.Name;
+			var username = player.Name ?? player.Name;
 			if( !activeSessions.TryGetValue(username, out var session) )
 			{
 				var sessionInfo = database.Read(username) ?? new SessionInfo();
@@ -115,7 +115,7 @@ namespace CustomQuests.Sessions
 			if( player == null )
 				throw new ArgumentNullException(nameof(player));
 
-			var username = player.User?.Name ?? player.Name;
+			var username = player.Name ?? player.Name;
 			if( activeSessions.TryGetValue(username, out var session) )
 			{
 				database.Write(session.SessionInfo, username);

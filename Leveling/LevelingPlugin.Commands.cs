@@ -26,7 +26,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -35,7 +35,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -75,7 +75,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -84,7 +84,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -253,7 +253,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -262,7 +262,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -296,7 +296,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -305,7 +305,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -319,7 +319,7 @@ namespace Leveling
 			if (items.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple items matched '{inputItemName}':");
-				TShock.Utils.SendMultipleMatchError(player, items);
+				//TShock.Utils.SendMultipleMatchError(player, items);
 				return;
 			}
 
@@ -344,7 +344,7 @@ namespace Leveling
 				if (prefixes.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple prefixes matched '{inputItemName}':");
-					TShock.Utils.SendMultipleMatchError(player, prefixes.Cast<object>());
+					//TShock.Utils.SendMultipleMatchError(player, prefixes.Cast<object>());
 					return;
 				}
 				prefix = prefixes[0];
@@ -361,7 +361,7 @@ namespace Leveling
 
 			session.AddItemId(item.type);
 			player.SendSuccessMessage($"Gave [i/s{stack},p{prefix}:{item.type}] to {otherPlayer.Name}.");
-			otherPlayer.GiveItem(item.type, "", Player.defaultWidth, Player.defaultHeight, stack, prefix);
+			otherPlayer.GiveItem(item.type, stack, prefix);
 			otherPlayer.SendInfoMessage($"Received [i/s{stack},p{prefix}:{item.type}].");
 		}
 
@@ -376,7 +376,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -385,7 +385,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -413,7 +413,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -422,7 +422,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -450,7 +450,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -459,7 +459,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -482,7 +482,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -491,7 +491,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 
@@ -519,7 +519,7 @@ namespace Leveling
 			}
 
 			var inputPlayerName = parameters[0];
-			var players = TShock.Utils.FindPlayer(inputPlayerName);
+			var players = TSPlayer.FindByNameOrID(inputPlayerName);
 			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayerName}'.");
@@ -528,7 +528,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				TShock.Utils.SendMultipleMatchError(player, players);
+				//TShock.Utils.SendMultipleMatchError(player, players);
 				return;
 			}
 

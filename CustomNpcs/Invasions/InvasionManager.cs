@@ -176,8 +176,8 @@ namespace CustomNpcs.Invasions
 			// Prevent other NPCs from spawning for relevant players.
 			foreach( var player in activePlayers )
             {
-				if(ShouldSpawnInvasionNpcs(player))
-					player.TPlayer.activeNPCs = 10000;
+                if (ShouldSpawnInvasionNpcs(player)) ;
+                    // player.TPlayer = 10000; fix me
             }
 
             if(_currentPoints >= _requiredPoints &&
@@ -290,7 +290,7 @@ namespace CustomNpcs.Invasions
 			_currentPoints = 0;
 			_currentMiniboss = wave.Miniboss;
 			currentMinibossKilled = false;
-			_requiredPoints = wave.PointsRequired * ( CurrentInvasion.ScaleByPlayers ? TShock.Utils.ActivePlayers() : 1 );
+			_requiredPoints = wave.PointsRequired * ( CurrentInvasion.ScaleByPlayers ? TShockAPI.Utils.Instance.GetActivePlayerCount() : 1 );
 
 			if(wave!=null)
 			{
@@ -332,7 +332,7 @@ namespace CustomNpcs.Invasions
 				return;
             
             var currentWave = CurrentInvasion.Waves[_currentWaveIndex];
-            if (player.TPlayer.activeNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
+            if (player.TPlayer.nearbyActiveNPCs >= currentWave.MaxSpawns || _random.Next(currentWave.SpawnRate) != 0)
 				return;
             
             if (_currentPoints >= _requiredPoints && _currentMiniboss != null)
