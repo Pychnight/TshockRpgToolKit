@@ -10,6 +10,7 @@ using TShockAPI;
 using System.Diagnostics;
 using BooTS;
 using Corruption.PluginSupport;
+using static OTAPI.Hooks;
 
 namespace CustomNpcs.Npcs
 {
@@ -213,6 +214,9 @@ namespace CustomNpcs.Npcs
             npc.color = _baseOverride.Color;
             npc.height = _baseOverride.Height ?? npc.height;
             Terraria.Main.NPCAddHeight(npc);
+
+            //double check and update name
+            TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", npc.whoAmI);
         }
 		
 		protected override bool OnLinkToScriptAssembly(Assembly ass)

@@ -35,7 +35,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -84,7 +84,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -262,7 +262,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -305,7 +305,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError( players);
 				return;
 			}
 
@@ -319,7 +319,7 @@ namespace Leveling
 			if (items.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple items matched '{inputItemName}':");
-				//TShock.Utils.SendMultipleMatchError(player, items);
+                args.Player.SendMultipleMatchError(items);
 				return;
 			}
 
@@ -344,7 +344,7 @@ namespace Leveling
 				if (prefixes.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple prefixes matched '{inputItemName}':");
-					//TShock.Utils.SendMultipleMatchError(player, prefixes.Cast<object>());
+                    args.Player.SendMultipleMatchError(prefixes.Cast<object>());
 					return;
 				}
 				prefix = prefixes[0];
@@ -385,7 +385,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -422,7 +422,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -459,7 +459,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -491,7 +491,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -528,7 +528,7 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 

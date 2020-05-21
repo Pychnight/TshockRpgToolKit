@@ -162,7 +162,7 @@ namespace CustomQuests
 			}
 			if( players.Count > 1 )
 			{
-				//TShock.Utils.SendMultipleMatchError(player, players);
+                args.Player.SendMultipleMatchError(players);
 				return;
 			}
 
@@ -725,7 +725,7 @@ namespace CustomQuests
 				}
 				if( players.Count > 1 )
 				{
-					//TShock.Utils.SendMultipleMatchError(player, players);
+                    args.Player.SendMultipleMatchError(players);
 					return;
 				}
 
@@ -777,7 +777,7 @@ namespace CustomQuests
 				}
 				if( players.Count > 1 )
 				{
-					//TShock.Utils.SendMultipleMatchError(player, players);
+                    args.Player.SendMultipleMatchError(players);
 					return;
 				}
 

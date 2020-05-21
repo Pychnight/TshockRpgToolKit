@@ -105,7 +105,7 @@ namespace CustomNpcs.Npcs
 			{
 				Npc._givenName = value;
 				TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", Npc.whoAmI);
-			}
+            }
 		}
 		
 		/// <summary>
@@ -128,7 +128,8 @@ namespace CustomNpcs.Npcs
 			}
 
 			NpcManager.Instance.AttachCustomNpc(Npc, definition);
-		}
+            TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", Npc.whoAmI);
+        }
 				
 		/// <summary>
 		///     Determines whether the NPC has line of sight to the specified position.

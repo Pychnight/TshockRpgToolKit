@@ -62,7 +62,7 @@ namespace Housing
 				if (players.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
-					//TShock.Utils.SendMultipleMatchError(player, players); FIX
+                    args.Player.SendMultipleMatchError(players);
 					return;
 				}
 				if (players.Count == 0)
@@ -814,7 +814,7 @@ namespace Housing
 				if (items.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple items matched '{inputItemName}':");
-					//TShock.Utils.SendMultipleMatchError(player, items); FIX ME
+                    args.Player.SendMultipleMatchError(items);
 					return;
 				}
 				if (items.Count == 0)
