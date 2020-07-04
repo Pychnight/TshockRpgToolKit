@@ -105,20 +105,20 @@ namespace Housing.Database
         {
             Debug.Assert(name != null, "Name must not be null.");
             Debug.Assert(owner != null, "Owner must not be null.");
-            Debug.Assert(owner.User != null, "Owner must be logged in.");
+            Debug.Assert(owner.Account != null, "Owner must be logged in.");
             Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
             Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
             lock (_lock)
             {
                 TShock.Regions.AddRegion(
-                    x, y, x2 - x + 1, y2 - y + 1, $"__House<>{owner.User.Name}<>{name}", owner.User.Name,
+                    x, y, x2 - x + 1, y2 - y + 1, $"__House<>{owner.Account.Name}<>{name}", owner.Account.Name,
                     Main.worldID.ToString(), 100);
                 Connection.Query(
                     "INSERT INTO Houses (OwnerName, Name, WorldId, X, Y, X2, Y2, LastTaxed)" +
                     "VALUES (@0, @1, @2, @3, @4, @5, @6, @7)",
-                    owner.User.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
-                var house = new House(owner.User.Name, name, x, y, x2, y2);
+                    owner.Account.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
+                var house = new House(owner.Account.Name, name, x, y, x2, y2);
                 Houses.Add(house);
                 return house;
             }
@@ -140,7 +140,7 @@ namespace Housing.Database
         {
             Debug.Assert(name != null, "Name must not be null.");
             Debug.Assert(owner != null, "Owner must not be null.");
-            Debug.Assert(owner.User != null, "Owner must be logged in.");
+            Debug.Assert(owner.Account != null, "Owner must be logged in.");
             Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
             Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
@@ -149,8 +149,8 @@ namespace Housing.Database
                 Connection.Query(
                     "INSERT INTO Shops (OwnerName, Name, WorldId, X, Y, X2, Y2, ChestX, ChestY, IsOpen)" +
                     "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9)",
-                    owner.User.Name, name, Main.worldID, x, y, x2, y2, chestX, chestY, 0);
-                var shop = new Shop(owner.User.Name, name, x, y, x2, y2, chestX, chestY);
+                    owner.Account.Name, name, Main.worldID, x, y, x2, y2, chestX, chestY, 0);
+                var shop = new Shop(owner.Account.Name, name, x, y, x2, y2, chestX, chestY);
                 Shops.Add(shop);
                 return shop;
             }
@@ -357,7 +357,7 @@ namespace Housing.Database
             lock (_lock)
             {
                 var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
-                region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.Users.GetUserID(au))));
+                region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountID(au))));
 
                 Connection.Query(
                     "UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +
