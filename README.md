@@ -74,17 +74,18 @@ Once the plugins are available in the tshock ServerPlugins folder, you can start
 
 On first run, the plugins will create their directories, each containing plugin specific configuration and data. Note that some plugins will require additional configuration in order to operate correctly.
 
+## Credits
+
+Rpg Toolkit is a premium plugin created by MarioE for the original base Plugins and Further work done by hired freelancers.
+
+Design documents and Testing done by Pychnight.
+
 ## Legal
 
-Rpg Toolkit is a premium plugin set supported by patreon and for release only on
-https://www.patreon.com/Psysky and other authorized sites.
-
-Distribution of the source code is not allowed.
-
 IF you use RPG Toolkit for profit on your own server for selling items, armor, monsters or other features this is at your own risk.
-You may provide this project with code or commits to help improve the overall experience.
+you agree that usage of the plugins are at your own risk, I'm not responsible for any damages it may cause.
 
-All changes must be submited to this repo.
+All continued work on this plugin must follow rules of conduct and be submited back to this repo for merger. upon review each improvement and bug fix will result in a issue closed Please tag correct issues when submiting a change or bugfix.
 
 ## Rules of Conduct
 
