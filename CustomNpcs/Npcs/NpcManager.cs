@@ -18,6 +18,7 @@ using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler;
 using Corruption.PluginSupport;
 using Banking;
+using Terraria.DataStructures;
 
 namespace CustomNpcs.Npcs
 {
@@ -74,6 +75,7 @@ namespace CustomNpcs.Npcs
         ///     Gets the NPC manager instance.
         /// </summary>
         public static NpcManager Instance { get; internal set; }
+        public IEntitySource source { get; private set; }
 
         /// <summary>
         ///     Disposes the NPC manager.
@@ -126,7 +128,7 @@ namespace CustomNpcs.Npcs
             // erroneously checked for replacement.
             //lock (_checkNpcLock)
             {
-                var npcId = NPC.NewNPC(x, y, definition.BaseType);
+                var npcId = NPC.NewNPC(source,x, y, definition.BaseType);
                 return npcId != Main.maxNPCs ? AttachCustomNpc(Main.npc[npcId], definition) : null;
             }
         }
@@ -377,7 +379,7 @@ namespace CustomNpcs.Npcs
                 var items = TShock.Utils.GetItemByIdOrName(lootEntry.Name);
                 if (items.Count == 1)
                 {
-                    Item.NewItem(npc.position, npc.Size, items[0].type, stackSize, false, lootEntry.Prefix);
+                    Item.NewItem(source,npc.position, npc.Size, items[0].type, stackSize, false, lootEntry.Prefix);
                 }
             }
 

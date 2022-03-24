@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -29,7 +30,9 @@ namespace CustomNpcs.Projectiles
 	public class ProjectileManager : CustomTypeManager<ProjectileDefinition>, IDisposable
 	{
 		public static ProjectileManager Instance { get; set; }
-		CustomNpcsPlugin plugin;
+        public IEntitySource spawnSource { get; private set; }
+
+        CustomNpcsPlugin plugin;
 		//public List<ProjectileDefinition> Definitions { get; private set; }
 		ConditionalWeakTable<Projectile, CustomProjectile> customProjectiles;
 		
@@ -118,7 +121,7 @@ namespace CustomNpcs.Projectiles
 		public CustomProjectile SpawnCustomProjectile(ProjectileDefinition definition, float x, float y, float xSpeed, float ySpeed, int owner = 255 )
 		{
 			var baseOverride = definition.BaseOverride;
-			var projectileId = Projectile.NewProjectile(x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner);
+			var projectileId = Projectile.NewProjectile(spawnSource,x, y, xSpeed, ySpeed, definition.BaseType, (int)baseOverride.Damage, (float)baseOverride.KnockBack, owner);
 			var customProjectile = projectileId != Main.maxProjectiles ? AttachCustomProjectile(Main.projectile[projectileId], definition) : null;
 
 			if( customProjectile != null )

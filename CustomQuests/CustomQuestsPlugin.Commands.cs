@@ -162,7 +162,15 @@ namespace CustomQuests
 			}
 			if( players.Count > 1 )
 			{
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -725,7 +733,15 @@ namespace CustomQuests
 				}
 				if( players.Count > 1 )
 				{
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     args.Player.SendMultipleMatchError(players);
+=======
+					//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+					//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 					return;
 				}
 
@@ -777,7 +793,15 @@ namespace CustomQuests
 				}
 				if( players.Count > 1 )
 				{
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     args.Player.SendMultipleMatchError(players);
+=======
+					//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+					//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 					return;
 				}
 

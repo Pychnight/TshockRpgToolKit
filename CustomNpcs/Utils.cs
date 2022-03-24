@@ -9,6 +9,7 @@ using TShockAPI;
 using System.Diagnostics;
 using TerrariaApi.Server;
 using Corruption.PluginSupport;
+using Terraria.DataStructures;
 
 namespace CustomNpcs
 {
@@ -19,7 +20,9 @@ namespace CustomNpcs
     {
         private static readonly Random Random = new Random();
 
-		public static void LogScriptRuntimeError(Exception ex)
+        public static IEntitySource source { get; private set; }
+
+        public static void LogScriptRuntimeError(Exception ex)
 		{
 			CustomNpcsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 			CustomNpcsPlugin.Instance.LogPrint("Disabling event callback.", TraceLevel.Error);
@@ -190,7 +193,7 @@ namespace CustomNpcs
         {
             if (int.TryParse(npcNameOrType, out var npcType))
             {
-                NPC.NewNPC(16 * tileX + 8, 16 * tileY, npcType);
+                NPC.NewNPC(source,16 * tileX + 8, 16 * tileY, npcType);
                 return;
             }
 

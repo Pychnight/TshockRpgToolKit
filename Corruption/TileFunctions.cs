@@ -204,7 +204,7 @@ namespace Corruption
 				if( Main.tile[column, row]?.active() == true )
 				{
 					Main.tile[column, row].ResetToType((ushort)type);
-					TSPlayer.All.SendTileSquare(column, row);
+					TSPlayer.All.SendTileSquareCentered(column, row);
 				}
 			}
 			catch( IndexOutOfRangeException rex )
@@ -220,7 +220,7 @@ namespace Corruption
 				if( Main.tile[column, row]?.active() == true )
 				{
 					WorldGen.KillTile(column, row);
-					TSPlayer.All.SendTileSquare(column, row);
+					TSPlayer.All.SendTileSquareCentered(column, row);
 				}
 			}
 			catch( IndexOutOfRangeException rex )

@@ -53,6 +53,8 @@ namespace Corruption
 			TShock.Utils.Broadcast(message, r, g, b);
 		}
 
+		[Obsolete]
+		// Update this functionality
 		/// <summary>
 		///     Bans Players
 		/// </summary>
@@ -60,14 +62,25 @@ namespace Corruption
 		/// <param name="message">The color.</param>
 		/// <param name="message2">The color.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
+		
+		/*
 		public static void Ban(TSPlayer player, string message, string message2)
 		{
 			if (message == null)
 				throw new ArgumentNullException(nameof(player));
 			
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
             //Fix ME
 			//TShock.Utils.Ban(player, message, true, message2);
+=======
+			TShock.Ban(player, message, true, message2);
+>>>>>>> Stashed changes
+=======
+			TShock.Ban(player, message, true, message2);
+>>>>>>> Stashed changes
 		}
+		*/
 
 		/// <summary>
 		///	Sends a combat text with the specified color and position to a given player.

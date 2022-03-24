@@ -172,7 +172,15 @@ namespace Housing.Database
 		{
 			Debug.Assert(name != null, "Name must not be null.");
 			Debug.Assert(owner != null, "Owner must not be null.");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			Debug.Assert(owner.Account.Name != null, "Owner must be logged in.");
+=======
+			Debug.Assert(owner.Account != null, "Owner must be logged in.");
+>>>>>>> Stashed changes
+=======
+			Debug.Assert(owner.Account != null, "Owner must be logged in.");
+>>>>>>> Stashed changes
 			Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
 			Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
@@ -184,7 +192,15 @@ namespace Housing.Database
 				NonQuery(
 					"INSERT INTO Houses (OwnerName, Name, WorldId, X, Y, X2, Y2, LastTaxed)" +
 					"VALUES (@0, @1, @2, @3, @4, @5, @6, @7)",
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     owner.Account.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
+=======
+					owner.Account.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
+>>>>>>> Stashed changes
+=======
+					owner.Account.Name, name, Main.worldID, x, y, x2, y2, DateTime.UtcNow.ToString("s"));
+>>>>>>> Stashed changes
 				var house = new House(owner.Account.Name, name, x, y, x2, y2);
 				Houses.Add(house);
 				return house;
@@ -207,7 +223,15 @@ namespace Housing.Database
 		{
 			Debug.Assert(name != null, "Name must not be null.");
 			Debug.Assert(owner != null, "Owner must not be null.");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			Debug.Assert(owner.Account.Name != null, "Owner must be logged in.");
+=======
+			Debug.Assert(owner.Account != null, "Owner must be logged in.");
+>>>>>>> Stashed changes
+=======
+			Debug.Assert(owner.Account != null, "Owner must be logged in.");
+>>>>>>> Stashed changes
 			Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
 			Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
@@ -440,7 +464,15 @@ namespace Housing.Database
 			lock( locker )
 			{
 				var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 				region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountID(au))));
+=======
+				region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountByName(au))));
+>>>>>>> Stashed changes
+=======
+				region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountByName(au))));
+>>>>>>> Stashed changes
 
 				NonQuery(
 					"UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +

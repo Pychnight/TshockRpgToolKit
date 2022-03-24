@@ -199,6 +199,14 @@ namespace CustomQuests.Triggers
 					for (var i = 0; i < Main.maxItems; ++i)
 					{
 						var timeDiff = Main.item[i].timeSinceItemSpawned;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+							//Disabled code;
+>>>>>>> Stashed changes
+=======
+							//Disabled code;
+>>>>>>> Stashed changes
 						if (timeDiff > minTimeDiff)
 						{
 							minTimeDiff = timeDiff;

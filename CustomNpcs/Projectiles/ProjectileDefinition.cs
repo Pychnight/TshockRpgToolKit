@@ -100,7 +100,15 @@ namespace CustomNpcs.Projectiles
 			//projectile.height = BaseOverride.Height ?? projectile.height;
 			projectile.magic = BaseOverride.Magic ?? projectile.magic;
 			projectile.light = BaseOverride.Light ?? projectile.light;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			//projectile.thrown = BaseOverride.Thrown ?? projectile.thrown; // 1.4 removed
+=======
+			//projectile.thrown = BaseOverride.Thrown ?? projectile.thrown; // Deleted in 1.4?
+>>>>>>> Stashed changes
+=======
+			//projectile.thrown = BaseOverride.Thrown ?? projectile.thrown; // Deleted in 1.4?
+>>>>>>> Stashed changes
 			projectile.melee = BaseOverride.Melee ?? projectile.melee;
 			projectile.coldDamage = BaseOverride.ColdDamage ?? projectile.coldDamage;
 			projectile.tileCollide = BaseOverride.TileCollide ?? projectile.tileCollide;

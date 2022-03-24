@@ -56,7 +56,7 @@ namespace Banking.Rewards
 					Type = tileOrWallId;
 					break;
 				case TileSubTarget.Wall:
-					Wall = (byte)tileOrWallId;
+					Wall = tileOrWallId;
 					break;
 			}
 		}

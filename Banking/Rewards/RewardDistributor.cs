@@ -154,7 +154,15 @@ namespace Banking.Rewards
 				return;
 #endif
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			var player = TSPlayer.FindByNameOrID(playerName).FirstOrDefault();
+=======
+			var player = TShockAPI.TSPlayer.FindByNameOrID(playerName).FirstOrDefault();
+>>>>>>> Stashed changes
+=======
+			var player = TShockAPI.TSPlayer.FindByNameOrID(playerName).FirstOrDefault();
+>>>>>>> Stashed changes
 
 			if( player != null )
 			{

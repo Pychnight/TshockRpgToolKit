@@ -241,7 +241,7 @@ namespace Corruption.TEdit
 			var updateY = rectangle.Center.Y;
 			var updateSize = rectangle.Width > rectangle.Height ? rectangle.Width : rectangle.Height;
 
-			TSPlayer.All.SendTileSquare(updateX, updateY, updateSize);
+			TSPlayer.All.SendTileSquareCentered(updateX, updateY, (byte)updateSize);
 			//TSPlayer.All.SendData(PacketTypes.TileSendSquare, "", updateSize, updateX, updateY, 0, 0);
 
 			//Debug.Print("Sending tile section...");

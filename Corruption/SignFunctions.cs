@@ -31,7 +31,7 @@ namespace Corruption
 			sign.text = text;
 
 			Main.sign[slot] = sign;
-			TSPlayer.All.SendTileSquare(x, y);
+			TSPlayer.All.SendTileSquareCentered(x, y);
 			
 			//return true;
 		}
@@ -121,7 +121,7 @@ namespace Corruption
 			{
 				//TileFunctions.KillTile(x, y);
 				WorldGen.KillTile(x, y, false, effectOnly, noItem);//effectOnly = we don't want items to be produced from this. 
-				TSPlayer.All.SendTileSquare(x, y, 3);
+				TSPlayer.All.SendTileSquareCentered(x, y, 3);
 			}
 
 			return result;
@@ -135,7 +135,7 @@ namespace Corruption
 			{
 				Sign.TextSign(id, txt);
 
-				TSPlayer.All.SendTileSquare(x, y);
+				TSPlayer.All.SendTileSquareCentered(x, y);
 			}
 		}
 

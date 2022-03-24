@@ -55,7 +55,7 @@ namespace Corruption
 					}
 				}
 			}
-			TSPlayer.All.SendTileSquare(x, y, 3);
+			TSPlayer.All.SendTileSquareCentered(x, y, 3);
 
 			chestId = WorldGen.PlaceChest(x, y, style: style);
 			if( chestId != -1 )

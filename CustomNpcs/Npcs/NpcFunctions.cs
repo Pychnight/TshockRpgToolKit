@@ -9,6 +9,7 @@ using TShockAPI;
 using TShockAPI.DB;
 using TShockAPI.Localization;
 using System.Collections.ObjectModel;
+using Terraria.DataStructures;
 
 namespace CustomNpcs
 {
@@ -17,13 +18,15 @@ namespace CustomNpcs
 	/// </summary>
 	public static class NpcFunctions
 	{
-		/// <summary>
-		///     Finds all custom NPCs with the specified name.
-		/// </summary>
-		/// <param name="name">The name, which must not be <c>null</c>.</param>
-		/// <returns>The array of custom NPCs.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-		public static CustomNpc[] FindCustomNpcs(string name)
+        public static IEntitySource source { get; private set; }
+
+        /// <summary>
+        ///     Finds all custom NPCs with the specified name.
+        /// </summary>
+        /// <param name="name">The name, which must not be <c>null</c>.</param>
+        /// <returns>The array of custom NPCs.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        public static CustomNpc[] FindCustomNpcs(string name)
 		{
 			if( name == null )
 			{
@@ -156,7 +159,7 @@ namespace CustomNpcs
 				throw new FormatException($"Invalid NPC name or ID '{nameOrType}'.");
 			}
 
-			var npcId = NPC.NewNPC((int)position.X, (int)position.Y, (int)npcType);
+			var npcId = NPC.NewNPC(source,(int)position.X, (int)position.Y, (int)npcType);
 			return npcId != Main.maxNPCs ? Main.npc[npcId] : null;
 		}
 

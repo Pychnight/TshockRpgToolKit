@@ -289,7 +289,15 @@ namespace Leveling
             var session = player.GetData<Session>(SessionKey);
 			if (session == null)
             {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 				var username = player.Name ?? player.Name;
+=======
+				var username = player.Account?.Name ?? player.Name;
+>>>>>>> Stashed changes
+=======
+				var username = player.Account?.Name ?? player.Name;
+>>>>>>> Stashed changes
 				
                 //first try the database
                 SessionDefinition definition = SessionRepository.Load(username);
@@ -431,7 +439,7 @@ namespace Leveling
             }
 
             var session = GetOrCreateSession(player);
-            args.TShockFormattedText = string.Format(TShock.Config.ChatFormat, player.Group.Name,
+            args.TShockFormattedText = string.Format(TShock.Config.Settings.ChatFormat, player.Group.Name,
                                                      player.Group.Prefix + session.Level.Prefix, player.Name,
                                                      player.Group.Suffix,
                                                      args.RawText);
@@ -447,7 +455,15 @@ namespace Leveling
             }
 
             var session = GetOrCreateSession(args.Player);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
             //args.Handled |= session.PermissionsGranted.Contains(args.Permission);
+=======
+            //args.handled |= session.PermissionsGranted.Contains(args.Permission);
+>>>>>>> Stashed changes
+=======
+            //args.handled |= session.PermissionsGranted.Contains(args.Permission);
+>>>>>>> Stashed changes
         }
 
         //we handle the join event so that we can ensure were creating sessions at this point, and not during runtime.

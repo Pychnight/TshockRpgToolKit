@@ -519,7 +519,15 @@ namespace Leveling.Sessions
         /// </summary>
         public void Save()
         {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			var userName = _player.Name ?? _player.Name;
+=======
+			var userName = _player.Account?.Name ?? _player.Name;
+>>>>>>> Stashed changes
+=======
+			var userName = _player.Account?.Name ?? _player.Name;
+>>>>>>> Stashed changes
 			LevelingPlugin.Instance.SessionRepository.Save(userName,_definition);
         }
 

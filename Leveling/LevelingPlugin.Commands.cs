@@ -35,7 +35,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -84,7 +92,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -262,7 +278,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -305,7 +329,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError( players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -319,7 +351,15 @@ namespace Leveling
 			if (items.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple items matched '{inputItemName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(items);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, items);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, items);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -344,7 +384,15 @@ namespace Leveling
 				if (prefixes.Count > 1)
 				{
 					player.SendErrorMessage($"Multiple prefixes matched '{inputItemName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     args.Player.SendMultipleMatchError(prefixes.Cast<object>());
+=======
+					//TShock.Utils.SendMultipleMatchError(player, prefixes.Cast<object>());
+>>>>>>> Stashed changes
+=======
+					//TShock.Utils.SendMultipleMatchError(player, prefixes.Cast<object>());
+>>>>>>> Stashed changes
 					return;
 				}
 				prefix = prefixes[0];
@@ -385,7 +433,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -422,7 +478,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -459,7 +523,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -491,7 +563,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 
@@ -528,7 +608,15 @@ namespace Leveling
 			if (players.Count > 1)
 			{
 				player.SendErrorMessage($"Multiple players matched '{inputPlayerName}':");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 args.Player.SendMultipleMatchError(players);
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
+=======
+				//TShock.Utils.SendMultipleMatchError(player, players);
+>>>>>>> Stashed changes
 				return;
 			}
 

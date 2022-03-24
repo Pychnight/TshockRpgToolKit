@@ -357,7 +357,15 @@ namespace Housing.Database
             lock (_lock)
             {
                 var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountID(au))));
+=======
+                region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountsByName(au))));
+>>>>>>> Stashed changes
+=======
+                region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.UserAccounts.GetUserAccountsByName(au))));
+>>>>>>> Stashed changes
 
                 Connection.Query(
                     "UPDATE Houses SET X = @0, Y = @1, X2 = @2, Y2 = @3, Debt = @4, LastTaxed = @5, ForSale = @6," +

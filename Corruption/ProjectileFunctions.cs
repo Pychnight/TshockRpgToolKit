@@ -4,34 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using TShockAPI;
 
 namespace Corruption
 {
 	public static class ProjectileFunctions
 	{
-		/// <summary>
-		///		Spawns a Projectile. 
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="speedX"></param>
-		/// <param name="speedY"></param>
-		/// <param name="type"></param>
-		/// <param name="damage"></param>
-		/// <param name="knockBack"></param>
-		/// <param name="owner"></param>
-		/// <param name="ai0"></param>
-		/// <param name="ai1"></param>
-		/// <param name="amount"></param>
-		/// <returns>Projectile array.</returns>
-		public static Projectile[] SpawnProjectile(float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner, float ai0, float ai1, int amount)
+        public static IEntitySource spawnSource { get; private set; }
+
+        /// <summary>
+        ///		Spawns a Projectile. 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="speedX"></param>
+        /// <param name="speedY"></param>
+        /// <param name="type"></param>
+        /// <param name="damage"></param>
+        /// <param name="knockBack"></param>
+        /// <param name="owner"></param>
+        /// <param name="ai0"></param>
+        /// <param name="ai1"></param>
+        /// <param name="amount"></param>
+        /// <returns>Projectile array.</returns>
+        public static Projectile[] SpawnProjectile(float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner, float ai0, float ai1, int amount)
 		{
 			var projectiles = new Projectile[amount];
 
 			for (var i = 0; i < projectiles.Length; i++)
 			{
-				var projectileId = Projectile.NewProjectile(x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
+				var projectileId = Projectile.NewProjectile(spawnSource, x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
 				TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
 				projectiles[i] = Main.projectile[projectileId];
 			}

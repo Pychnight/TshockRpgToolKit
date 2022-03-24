@@ -83,7 +83,15 @@ namespace CustomQuests.Sessions
 			if( player == null )
 				throw new ArgumentNullException(nameof(player));
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			var username = player.Name ?? player.Name;
+=======
+			var username = player.Account?.Name ?? player.Name;
+>>>>>>> Stashed changes
+=======
+			var username = player.Account?.Name ?? player.Name;
+>>>>>>> Stashed changes
 			if( !activeSessions.TryGetValue(username, out var session) )
 			{
 				var sessionInfo = database.Read(username) ?? new SessionInfo();
@@ -115,7 +123,15 @@ namespace CustomQuests.Sessions
 			if( player == null )
 				throw new ArgumentNullException(nameof(player));
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			var username = player.Name ?? player.Name;
+=======
+			var username = player.Account?.Name ?? player.Name;
+>>>>>>> Stashed changes
+=======
+			var username = player.Account?.Name ?? player.Name;
+>>>>>>> Stashed changes
 			if( activeSessions.TryGetValue(username, out var session) )
 			{
 				database.Write(session.SessionInfo, username);

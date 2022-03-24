@@ -119,9 +119,21 @@ namespace Housing
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} entered {house.OwnerName}'s {house} house");
                     player.SendInfoMessage(
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                         $"You entered {(house.OwnerName == player.Name ? "your house" : house.OwnerName + "'s house")} " +
                         $"{Color.MediumPurple.ColorText(house)}.");
                     if (house.ForSale && house.OwnerName != player.Name)
+=======
+                        $"You entered {(house.OwnerName == player.Account?.Name ? "your house" : house.OwnerName + "'s house")} " +
+                        $"{Color.MediumPurple.ColorText(house)}.");
+                    if (house.ForSale && house.OwnerName != player.Account?.Name)
+>>>>>>> Stashed changes
+=======
+                        $"You entered {(house.OwnerName == player.Account?.Name ? "your house" : house.OwnerName + "'s house")} " +
+                        $"{Color.MediumPurple.ColorText(house)}.");
+                    if (house.ForSale && house.OwnerName != player.Account?.Name)
+>>>>>>> Stashed changes
                     {
                         player.SendInfoMessage(
                             $"This house is on sale for [c/{Color.OrangeRed.Hex3()}:{house.SalePrice}].");
@@ -132,7 +144,15 @@ namespace Housing
                     Debug.WriteLine(
                         $"DEBUG: {player.Name} left {session.CurrentHouse.OwnerName}'s {session.CurrentHouse} house");
                     player.SendInfoMessage(
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                         $"You left {(session.CurrentHouse.OwnerName == player.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
+=======
+                        $"You left {(session.CurrentHouse.OwnerName == player.Account?.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
+>>>>>>> Stashed changes
+=======
+                        $"You left {(session.CurrentHouse.OwnerName == player.Account?.Name ? "your house" : session.CurrentHouse.OwnerName + "'s house")} " +
+>>>>>>> Stashed changes
                         $"{Color.MediumPurple.ColorText(session.CurrentHouse)}.");
                 }
                 session.CurrentHouse = house;
@@ -164,7 +184,15 @@ namespace Housing
                     var payment = Math.Min(totalBalance, taxCost);
 
 					var player = TShock.Players.Where(p => p?.Active == true)
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 						.FirstOrDefault(p => p.Name == house.OwnerName);
+=======
+						.FirstOrDefault(p => p.Account?.Name == house.OwnerName);
+>>>>>>> Stashed changes
+=======
+						.FirstOrDefault(p => p.Account?.Name == house.OwnerName);
+>>>>>>> Stashed changes
 
 					if(player!=null)
 					{
@@ -229,7 +257,15 @@ namespace Housing
                     }
                     args.Handled = true;
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     if (shop.OwnerName == player.Name)
+=======
+                    if (shop.OwnerName == player.Account?.Name)
+>>>>>>> Stashed changes
+=======
+                    if (shop.OwnerName == player.Account?.Name)
+>>>>>>> Stashed changes
                     {
                         Debug.WriteLine($"DEBUG: {player.Name} changing shop at {x}, {y}");
                         shop.IsBeingChanged = true;
@@ -247,7 +283,15 @@ namespace Housing
                         player.SendData(PacketTypes.ChestOpen, "", 998);
                         player.SendInfoMessage("Use /itemshop setprice <item-name> <price> to change prices.");
                     }
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     else if (shop.OwnerName != player.Name)
+=======
+                    else if (shop.OwnerName != player.Account?.Name)
+>>>>>>> Stashed changes
+=======
+                    else if (shop.OwnerName != player.Account?.Name)
+>>>>>>> Stashed changes
                     {
                         Debug.WriteLine($"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
                         shop.TryShowStock(player);
@@ -259,7 +303,15 @@ namespace Housing
                 var player = TShock.Players[args.Msg.whoAmI];
                 var session = GetOrCreateSession(player);
                 var shop = session.CurrentlyViewedShop;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 if (shop == null || shop.OwnerName != player.Name)
+=======
+                if (shop == null || shop.OwnerName != player.Account?.Name)
+>>>>>>> Stashed changes
+=======
+                if (shop == null || shop.OwnerName != player.Account?.Name)
+>>>>>>> Stashed changes
                 {
                     return;
                 }
@@ -293,13 +345,29 @@ namespace Housing
                 var player = TShock.Players[args.Msg.whoAmI];
                 var session = GetOrCreateSession(player);
                 var shop = session.CurrentlyViewedShop;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 if (shop != null && shop.OwnerName == player.Name)
+=======
+                if (shop != null && shop.OwnerName == player.Account?.Name)
+>>>>>>> Stashed changes
+=======
+                if (shop != null && shop.OwnerName == player.Account?.Name)
+>>>>>>> Stashed changes
                 {
                     Debug.WriteLine($"DEBUG: {player.Name} finished changing shop at {shop.ChestX}, {shop.ChestY}");
                     shop.IsBeingChanged = false;
                 }
             }
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
             else if (args.MsgID == PacketTypes.Tile) //Fix me Tilekill removed?
+=======
+            else if (args.MsgID == PacketTypes.Tile)
+>>>>>>> Stashed changes
+=======
+            else if (args.MsgID == PacketTypes.Tile)
+>>>>>>> Stashed changes
             {
                 var player = TShock.Players[args.Msg.whoAmI];
                 using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
@@ -340,7 +408,7 @@ namespace Housing
                                 Main.chest[chestId] = null;
                             }
                             // We don't send a chest creation packet, as the players have to "discover" the chest themselves.
-                            TSPlayer.All.SendTileSquare(x, y, 4);
+                            TSPlayer.All.SendTileSquareCentered(x, y, 4);
                         }
                         return;
                     }
@@ -365,7 +433,7 @@ namespace Housing
                     {
                         player.SendErrorMessage("You can't remove shop chests.");
                         args.Handled = true;
-                        player.SendTileSquare(x, y, 3);
+                        player.SendTileSquareCentered(x, y, 3);
                     }
                 }
             }
@@ -382,7 +450,15 @@ namespace Housing
 			var config = Config.Instance.GetGroupConfig(player!=null ? player.Group.Name : ">");//force default if no group.. we can never have a group named ">" ...right?
 			if (player != null && config?.AllowOfflineShops==false)//!Config.Instance.AllowOfflineShops)
             {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 foreach (var shop in database.GetShops().Where(s => s.OwnerName == player.Name))
+=======
+                foreach (var shop in database.GetShops().Where(s => s.OwnerName == player.Account?.Name))
+>>>>>>> Stashed changes
+=======
+                foreach (var shop in database.GetShops().Where(s => s.OwnerName == player.Account?.Name))
+>>>>>>> Stashed changes
                 {
                     shop.IsOpen = false;
                 }

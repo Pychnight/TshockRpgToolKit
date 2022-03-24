@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.DataStructures;
 using TShockAPI;
 using TShockAPI.Localization;
 
@@ -11,21 +12,23 @@ namespace Corruption
 {
 	public static class NpcFunctions
 	{
-		/// <summary>
-		///     Spawns the mob with the specified name, coordinates, and amount.
-		/// </summary>
-		/// <param name="nameOrType">The name or type, which must be a valid NPC name or type and not <c>null</c>.</param>
-		/// <param name="x">The X coordinate.</param>
-		/// <param name="y">The Y coordinate.</param>
-		/// <param name="radius">The radius, which must be positive.</param>
-		/// <param name="amount">The amount, which must be positive.</param>
-		/// <returns>The spawned NPCs.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="nameOrType" /> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">
-		///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
-		/// </exception>
-		/// <exception cref="FormatException"><paramref name="nameOrType" /> is not a valid NPC name.</exception>
-		public static NPC[] SpawnNpc(string nameOrType, int x, int y, int radius, int amount)
+        public static IEntitySource source { get; private set; }
+
+        /// <summary>
+        ///     Spawns the mob with the specified name, coordinates, and amount.
+        /// </summary>
+        /// <param name="nameOrType">The name or type, which must be a valid NPC name or type and not <c>null</c>.</param>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <param name="radius">The radius, which must be positive.</param>
+        /// <param name="amount">The amount, which must be positive.</param>
+        /// <returns>The spawned NPCs.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="nameOrType" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Either <paramref name="radius" /> or <paramref name="amount" /> is not positive.
+        /// </exception>
+        /// <exception cref="FormatException"><paramref name="nameOrType" /> is not a valid NPC name.</exception>
+        public static NPC[] SpawnNpc(string nameOrType, int x, int y, int radius, int amount)
 		{
 			if (nameOrType == null)
 				throw new ArgumentNullException(nameof(nameOrType));
@@ -65,7 +68,7 @@ namespace Corruption
 			for (var i = 0; i < amount; ++i)
 			{
 				TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-				var npcIndex = NPC.NewNPC(16 * spawnX, 16 * spawnY, type);
+				var npcIndex = NPC.NewNPC(source,16 * spawnX, 16 * spawnY, type);
 				if (npcIndex != Main.maxNPCs)
 				{
 					npcs.Add(Main.npc[npcIndex]);

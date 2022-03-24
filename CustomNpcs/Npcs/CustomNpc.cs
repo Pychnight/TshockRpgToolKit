@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Terraria.GameContent.UI;
 using Terraria.Localization;
 using Corruption;
+using Terraria.DataStructures;
 
 namespace CustomNpcs.Npcs
 {
@@ -148,7 +149,7 @@ namespace CustomNpcs.Npcs
 		/// <param name="knockback">The knockback.</param>
 		public void ShootProjectileAt(Vector2 position, int type, int damage, float speed, float knockback)
 		{
-			var projectileId = Projectile.NewProjectile(Position,
+			var projectileId = Projectile.NewProjectile(spawnSource,Position,
 				( position - Position ) * speed / Vector2.Distance(Position, position), type, damage, knockback);
 			TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
 		}
@@ -243,8 +244,9 @@ namespace CustomNpcs.Npcs
 
 		public bool IsParentRelative { get; set; } = true;
 		public Vector2 ParentRelativePosition { get; set; }
+        public IEntitySource spawnSource { get; private set; }
 
-		public void AttachChild(CustomNpc child)
+        public void AttachChild(CustomNpc child)
 		{
 			Children.Add(child);
 			child.Parent = this;
