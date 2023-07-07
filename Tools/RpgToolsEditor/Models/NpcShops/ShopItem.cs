@@ -1,11 +1,9 @@
-﻿using RpgToolsEditor.Controls;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models
 {
@@ -57,20 +55,7 @@ namespace RpgToolsEditor.Models
 		public string UnitPrice
 		{
 			get => unitPrice;
-			set
-			{
-				unitPrice = value;
-
-				//if( !NpcShopsPlugin.Instance.Currency.GetCurrencyConverter().TryParse(value, out var result) )
-				//{
-				//	Debug.Print($"Failed to parse UnitPrice for NpcShop Item '{ItemName}.' Setting to 1.");
-				//	UnitPriceMoney = 1;
-				//}
-				//else
-				//{
-				//	UnitPriceMoney = result;
-				//}
-			}
+			set => unitPrice = value;//if( !NpcShopsPlugin.Instance.Currency.GetCurrencyConverter().TryParse(value, out var result) )//{//	Debug.Print($"Failed to parse UnitPrice for NpcShop Item '{ItemName}.' Setting to 1.");//	UnitPriceMoney = 1;//}//else//{//	UnitPriceMoney = result;//}
 		}
 
 		/// <summary>
@@ -90,7 +75,7 @@ namespace RpgToolsEditor.Models
 		[Browsable(false)]
 		[JsonProperty(Order = 5)]
 		public List<RequiredItem> RequiredItems { get; set; } = new List<RequiredItem>();
-		
+
 		public ShopItem()
 		{
 		}
@@ -105,14 +90,11 @@ namespace RpgToolsEditor.Models
 			RequiredItems = other.RequiredItems.Select(r => new RequiredItem(r)).ToList();
 		}
 
-		object ICloneable.Clone()
-		{
-			return new ShopItem(this);
-		}
+		object ICloneable.Clone() => new ShopItem(this);
 
 		public override string ToString()
 		{
-			if( string.IsNullOrWhiteSpace(ItemName) )
+			if (string.IsNullOrWhiteSpace(ItemName))
 				return $"<No Item> @ {UnitPrice}";
 			else
 				return $"{ItemName} @ {UnitPrice}";

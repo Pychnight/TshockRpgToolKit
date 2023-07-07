@@ -2,10 +2,6 @@
 using Microsoft.Xna.Framework;
 using NpcShops.Shops;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
@@ -59,13 +55,13 @@ namespace NpcShops
 				var currencyConverter = shopItem.Currency.GetCurrencyConverter();
 
 				if (shopItem.StackSize == 0 ||
-					shopItem.PermissionRequired != null && !player.HasPermission(shopItem.PermissionRequired))
+					(shopItem.PermissionRequired != null && !player.HasPermission(shopItem.PermissionRequired)))
 				{
 					player.SendErrorMessage($"Invalid index '{inputIndex}'.");
 					return;
 				}
 
-				if (amount > shopItem.StackSize && shopItem.StackSize > 0 || amount > shopItem.MaxStackSize)
+				if ((amount > shopItem.StackSize && shopItem.StackSize > 0) || amount > shopItem.MaxStackSize)
 				{
 					player.SendErrorMessage($"Invalid amount '{inputAmount}'.");
 					return;
@@ -127,7 +123,7 @@ namespace NpcShops
 							shopItem.StackSize -= amount;
 
 						player.GiveItem(shopItem.ItemId, "", Player.defaultWidth, Player.defaultHeight, amount, shopItem.PrefixId);
-						player.SendSuccessMessage($"Purchased {itemText} for { GetPostPurchaseRenderString(shop, shopItem, totalCost, amount) }.");
+						player.SendSuccessMessage($"Purchased {itemText} for {GetPostPurchaseRenderString(shop, shopItem, totalCost, amount)}.");
 					}
 					else
 					{
@@ -222,7 +218,7 @@ namespace NpcShops
 							shopCommand.ForceHandleCommand(player);
 						}
 
-						player.SendSuccessMessage($"Purchased {commandText} for { GetPostPurchaseRenderString(shop, shopCommand, totalCost, amount) }.");
+						player.SendSuccessMessage($"Purchased {commandText} for {GetPostPurchaseRenderString(shop, shopCommand, totalCost, amount)}.");
 
 					}
 					else

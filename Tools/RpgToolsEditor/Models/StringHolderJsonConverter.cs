@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models
 {
@@ -12,14 +8,11 @@ namespace RpgToolsEditor.Models
 		public override bool CanRead => true;
 		public override bool CanWrite => true;
 
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(StringHolder);
-		}
+		public override bool CanConvert(Type objectType) => objectType == typeof(StringHolder);
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if( reader.TokenType == JsonToken.String )
+			if (reader.TokenType == JsonToken.String)
 			{
 				return new StringHolder((string)reader.Value);
 			}
@@ -39,14 +32,11 @@ namespace RpgToolsEditor.Models
 		public override bool CanRead => true;
 		public override bool CanWrite => true;
 
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(TerrariaItemStringHolder);
-		}
+		public override bool CanConvert(Type objectType) => objectType == typeof(TerrariaItemStringHolder);
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if( reader.TokenType == JsonToken.String )
+			if (reader.TokenType == JsonToken.String)
 			{
 				return new TerrariaItemStringHolder((string)reader.Value);
 			}

@@ -86,16 +86,16 @@ namespace CustomSkills
 		public bool CanLevelUp => UsesToLevelUp > 0;
 
 		//callbacks
-		
+
 		//hook for notifying player about gaining new level, or learning a skill
 		internal Action<TSPlayer> OnLevelUp { get; set; }
-		
-		internal Action<TSPlayer,SkillState> OnCancelled { get; set; }
-		
-		internal Func<TSPlayer,SkillState,bool> OnCast { get; set; }
 
-		internal Func<TSPlayer,SkillState,bool> OnCharge { get; set; }
+		internal Action<TSPlayer, SkillState> OnCancelled { get; set; }
 
-		internal Action<TSPlayer,SkillState> OnFire { get; set; }
+		internal Func<TSPlayer, SkillState, bool> OnCast { get; set; }
+
+		internal Func<TSPlayer, SkillState, bool> OnCharge { get; set; }
+
+		internal Action<TSPlayer, SkillState> OnFire { get; set; }
 	}
 }

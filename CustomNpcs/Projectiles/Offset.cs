@@ -1,9 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomNpcs.Projectiles
 {
@@ -31,7 +26,7 @@ namespace CustomNpcs.Projectiles
 	{
 		public static Vector2 ToUnitVector(this Offset edge)
 		{
-			switch(edge)
+			switch (edge)
 			{
 				case Offset.TopLeft: return new Vector2(-1, -1);
 				case Offset.Top: return new Vector2(0, -1);

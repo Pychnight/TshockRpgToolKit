@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking
 {
@@ -18,7 +14,7 @@ namespace Banking
 
 		[JsonProperty(Order = 1)]
 		public Dictionary<string, string> Values { get; set; } = new Dictionary<string, string>();
-				
+
 		//[JsonProperty(Order=2)]
 		//public HashSet<string> Ignore { get; set; } = new HashSet<string>();
 
@@ -29,11 +25,11 @@ namespace Banking
 		{
 			ParsedValues.Clear();
 
-			foreach( var kvp in Values )
+			foreach (var kvp in Values)
 			{
 				decimal unitValue;
-				
-				if(parent.GetCurrencyConverter().TryParse(kvp.Value,out unitValue))
+
+				if (parent.GetCurrencyConverter().TryParse(kvp.Value, out unitValue))
 				{
 					ParsedValues.Add(kvp.Key, unitValue);
 				}

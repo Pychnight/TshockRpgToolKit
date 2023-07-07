@@ -1,27 +1,24 @@
-﻿using System;
+﻿using Banking;
+using BooTS;
+using Corruption.PluginSupport;
+using Leveling.Levels;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Banking;
-using Boo.Lang.Compiler;
-using BooTS;
-using Corruption.PluginSupport;
-using Leveling.Levels;
-using Leveling.Sessions;
-using Newtonsoft.Json;
-using TerrariaApi.Server;
 using TShockAPI;
 
 namespace Leveling.Classes
 {
-    /// <summary>
-    ///     Represents a class definition.
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class ClassDefinition : IValidator
-    {
+	/// <summary>
+	///     Represents a class definition.
+	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
+	public sealed class ClassDefinition : IValidator
+	{
 		internal FilePosition FilePosition { get; set; } = new FilePosition();
 
 		/// <summary>
@@ -35,7 +32,7 @@ namespace Leveling.Classes
 		/// </summary>
 		[JsonProperty("DisplayName", Order = 1)]
 		public string DisplayName { get; internal set; }
-		
+
 		/// <summary>
 		/// Gets or sets the ScriptPath.
 		/// </summary>
@@ -53,7 +50,7 @@ namespace Leveling.Classes
 		/// </summary>
 		[JsonProperty(Order = 4)]
 		public IList<string> PrerequisitePermissions { get; internal set; } = new List<string>();
-		
+
 		/// <summary>
 		///		Gets or sets the Currency cost to enter this class.
 		/// </summary>
@@ -99,7 +96,7 @@ namespace Leveling.Classes
 		/// </summary>
 		[JsonProperty("CommandsOnClassChangeOnce", Order = 11)]
 		public IList<string> CommandsOnClassChangeOnce { get; internal set; } = new List<string>();
-		
+
 		/// <summary>
 		///     Gets the list of level definitions.
 		/// </summary>
@@ -121,32 +118,29 @@ namespace Leveling.Classes
 		///		Gets a mapping of NPC names to preparsed EXP values.
 		/// </summary>
 		internal Dictionary<string, decimal> ParsedNpcNameToExpValues { get; set; } = new Dictionary<string, decimal>();
-				
+
 		//--- new stuff
 		public string DisplayInfo { get; internal set; }
 
 		//not sure how these should/would work
 		//public Action<object> OnMaximumCurrency;
 		//public Action<object> OnNegativeCurrency;
-		
-		//player, currentclass, currentLevelIndex
-		public Action<TSPlayer,Class,int> OnLevelUp;
 
 		//player, currentclass, currentLevelIndex
-		public Action<TSPlayer,Class,int> OnLevelDown;
+		public Action<TSPlayer, Class, int> OnLevelUp;
+
+		//player, currentclass, currentLevelIndex
+		public Action<TSPlayer, Class, int> OnLevelDown;
 
 		//player, currentclass, oldclass
-		public Action<TSPlayer,Class, Class> OnClassChange;
-		
+		public Action<TSPlayer, Class, Class> OnClassChange;
+
 		//player, currentclass
-		public Action<TSPlayer,Class> OnClassMastered;
+		public Action<TSPlayer, Class> OnClassMastered;
 
 		public static BooModuleManager ModuleManager { get; set; }
 
-		public override string ToString()
-		{
-			return $"[ClassDefinition '{Name}']";
-		}
+		public override string ToString() => $"[ClassDefinition '{Name}']";
 
 		public static List<ClassDefinition> Load(string directoryPath)
 		{
@@ -155,8 +149,8 @@ namespace Leveling.Classes
 			var results = new List<ClassDefinition>();
 			var filesAndDefs = new List<Tuple<string, ClassDefinition>>();//needed by LoadScripts.
 			var classFiles = Directory.EnumerateFiles(directoryPath, "*.class", SearchOption.AllDirectories);
-			
-			foreach( var file in classFiles )
+
+			foreach (var file in classFiles)
 			{
 				try
 				{
@@ -169,7 +163,7 @@ namespace Leveling.Classes
 
 					LevelingPlugin.Instance.LogPrint(result);
 
-					if(result.Errors.Count<1)
+					if (result.Errors.Count < 1)
 					{
 						if (def.Initialize())
 						{
@@ -180,27 +174,27 @@ namespace Leveling.Classes
 						}
 					}
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					LevelingPlugin.Instance.LogPrint($"{file}", TraceLevel.Error);
 					LevelingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 				}
 			}
-			
+
 			LoadScripts(filesAndDefs);
-			
+
 			//additional checks...
 
 			//if default class file does not exist, we're in an error state
-			if( results.Select(cd => cd.Name)
-						.FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null )
+			if (results.Select(cd => cd.Name)
+						.FirstOrDefault(n => n == Config.Instance.DefaultClassName) == null)
 			{
 				LevelingPlugin.Instance.LogPrint($"A class matching the DefaultClassName '{Config.Instance.DefaultClassName}' was not found. ", TraceLevel.Error);
 			}
-			
+
 			return results;
 		}
-		
+
 		internal bool Initialize()
 		{
 			ValidateAndFix();
@@ -232,9 +226,9 @@ namespace Leveling.Classes
 		{
 			var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
 
-			if( currencyMgr.TryFindCurrencyFromString(CostString, out var costCurrency) )
+			if (currencyMgr.TryFindCurrencyFromString(CostString, out var costCurrency))
 			{
-				if(costCurrency.GetCurrencyConverter().TryParse(CostString, out var costValue))
+				if (costCurrency.GetCurrencyConverter().TryParse(CostString, out var costValue))
 				{
 					Cost = costValue;
 					CostCurrency = costCurrency;
@@ -243,7 +237,7 @@ namespace Leveling.Classes
 			}
 
 			var fileInfo = GetFileStringForError();
-			
+
 			LevelingPlugin.Instance.LogPrint($"{fileInfo}Could not determine currency or value for switching to class '{Name}'.", TraceLevel.Warning);//not an error, in the strict sense of the word.
 			LevelingPlugin.Instance.LogPrint($"{fileInfo}Ensure that the 'Cost' property has a properly formatted currency string set.", TraceLevel.Info);
 
@@ -258,17 +252,17 @@ namespace Leveling.Classes
 			//determine leveling currency
 			var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
 			var fileInfo = GetFileStringForError();
-			
-			foreach( var lvl in LevelDefinitions )
+
+			foreach (var lvl in LevelDefinitions)
 			{
-				if( string.IsNullOrWhiteSpace(lvl.CurrencyRequired) )
+				if (string.IsNullOrWhiteSpace(lvl.CurrencyRequired))
 					continue;//no currency value was set
 
-				if( currencyMgr.TryFindCurrencyFromString(lvl.CurrencyRequired, out var lvlCurrency) )
+				if (currencyMgr.TryFindCurrencyFromString(lvl.CurrencyRequired, out var lvlCurrency))
 				{
-					if( lvlCurrency.GetCurrencyConverter().TryParse(lvl.CurrencyRequired, out var requiredValue) )
+					if (lvlCurrency.GetCurrencyConverter().TryParse(lvl.CurrencyRequired, out var requiredValue))
 					{
-						if( LevelingCurrency == null )
+						if (LevelingCurrency == null)
 						{
 							//no leveling currency has been set yet...
 							LevelingCurrency = lvlCurrency;
@@ -277,7 +271,7 @@ namespace Leveling.Classes
 						else
 						{
 							//a leveling currency has been set, so we should flag any currency's that do not match the set currency.
-							if(lvlCurrency==LevelingCurrency)
+							if (lvlCurrency == LevelingCurrency)
 								lvl.ExpRequired = (long)requiredValue;
 							else
 							{
@@ -297,7 +291,7 @@ namespace Leveling.Classes
 				}
 			}
 
-			if(LevelingCurrency==null)
+			if (LevelingCurrency == null)
 			{
 				LevelingPlugin.Instance.LogPrint($"{fileInfo}Could not determine a LevelingCurrency for class '{Name}'. Members of this class will be unable to change levels.", TraceLevel.Error);
 				LevelingPlugin.Instance.LogPrint($"{fileInfo}Ensure that at least one Level has a 'CurrencyRequired' property with a properly formatted currency string set.", TraceLevel.Info);
@@ -310,9 +304,8 @@ namespace Leveling.Classes
 		{
 			ParsedNpcNameToExpValues.Clear();
 
-			foreach( var kvp in NpcNameToExpReward )
+			foreach (var kvp in NpcNameToExpReward)
 			{
-				decimal unitValue;
 
 				//if( currency.GetCurrencyConverter().TryParse(kvp.Value, out unitValue) )
 				//{
@@ -324,7 +317,7 @@ namespace Leveling.Classes
 				//}
 			}
 		}
-		
+
 		/// <summary>
 		/// Checks that the ClassDefinition is valid, and it not, attempts to bring it into a valid state.
 		/// </summary>
@@ -334,25 +327,25 @@ namespace Leveling.Classes
 			var duplicateLevelDefinitions = new List<LevelDefinition>();
 			var fileInfo = GetFileStringForError();
 
-			foreach ( var def in LevelDefinitions )
+			foreach (var def in LevelDefinitions)
 			{
-				if(!levelNames.Add(def.Name))
+				if (!levelNames.Add(def.Name))
 				{
 					LevelingPlugin.Instance.LogPrint($"{fileInfo}Class '{Name}' already has a Level named '{def.Name}'. Disabling duplicate level.", TraceLevel.Error);
 					duplicateLevelDefinitions.Add(def);
 				}
 			}
 
-			foreach(var dupDef in duplicateLevelDefinitions)
+			foreach (var dupDef in duplicateLevelDefinitions)
 				LevelDefinitions.Remove(dupDef);
 		}
 
 		private bool LinkToScriptAssembly(Assembly assembly)
 		{
-			if( assembly == null )
+			if (assembly == null)
 				return false;
 
-			if( string.IsNullOrWhiteSpace(ScriptPath) )
+			if (string.IsNullOrWhiteSpace(ScriptPath))
 				return false;
 
 			var linker = new BooModuleLinker(assembly, ScriptPath, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
@@ -363,20 +356,20 @@ namespace Leveling.Classes
 			//def.OnMaximumCurrency = linker["OnMaximumCurrency"]?.TryCreateDelegate<Action<object>>();
 			//def.OnNegativeCurrency = linker["OnNegativeCurrency"]?.TryCreateDelegate<Action<object>>();
 
-			OnLevelUp			= linker["OnLevelUp"]?.TryCreateDelegate<Action<TSPlayer,Class,int>>();
-			OnLevelDown			= linker["OnLevelDown"]?.TryCreateDelegate<Action<TSPlayer,Class,int>>();
-			OnClassChange		= linker["OnClassChange"]?.TryCreateDelegate<Action<TSPlayer,Class,Class>>();
-			OnClassMastered		= linker["OnClassMastered"]?.TryCreateDelegate<Action<TSPlayer,Class>>();
+			OnLevelUp = linker["OnLevelUp"]?.TryCreateDelegate<Action<TSPlayer, Class, int>>();
+			OnLevelDown = linker["OnLevelDown"]?.TryCreateDelegate<Action<TSPlayer, Class, int>>();
+			OnClassChange = linker["OnClassChange"]?.TryCreateDelegate<Action<TSPlayer, Class, Class>>();
+			OnClassMastered = linker["OnClassMastered"]?.TryCreateDelegate<Action<TSPlayer, Class>>();
 
 			return true;
 		}
 
 		//private static void LoadScripts(string basePath, List<ClassDefinition> classDefs)
-		private static void LoadScripts(List<Tuple<string,ClassDefinition>> filesAndDefs)
+		private static void LoadScripts(List<Tuple<string, ClassDefinition>> filesAndDefs)
 		{
 			const string AssemblyNamePrefix = "ClassDef_";
 
-			LevelingPlugin.Instance.LogPrint("Compiling Class scripts...",TraceLevel.Info);
+			LevelingPlugin.Instance.LogPrint("Compiling Class scripts...", TraceLevel.Info);
 
 			//get script files paths
 			var scriptedDefs = filesAndDefs.Where(d => !string.IsNullOrWhiteSpace(d.Item2.ScriptPath));
@@ -390,12 +383,12 @@ namespace Leveling.Classes
 
 			newModuleManager.AssemblyNamePrefix = AssemblyNamePrefix;
 
-			foreach( var f in booScripts )
+			foreach (var f in booScripts)
 				newModuleManager.Add(f);
 
 			Dictionary<string, CompilerContext> results = null;
 
-			if( ModuleManager != null )
+			if (ModuleManager != null)
 				results = newModuleManager.IncrementalCompile(ModuleManager);
 			else
 				results = newModuleManager.Compile();
@@ -403,17 +396,17 @@ namespace Leveling.Classes
 			ModuleManager = newModuleManager;
 
 			//link!
-			foreach( var def in scriptedDefs )
+			foreach (var def in scriptedDefs)
 			{
 				//var fileName = Path.Combine(basePath, def.ScriptPath);
 				var fileName = Path.Combine(Path.GetDirectoryName(def.Item1), def.Item2.ScriptPath);
 
 				//if newly compile assembly, examine the context, and try to link to the new assembly
-				if( results.TryGetValue(fileName, out var context) )
+				if (results.TryGetValue(fileName, out var context))
 				{
 					var scriptAssembly = context.GeneratedAssembly;
 
-					if( scriptAssembly != null )
+					if (scriptAssembly != null)
 					{
 						var result = def.Item2.LinkToScriptAssembly(scriptAssembly);
 
@@ -425,7 +418,7 @@ namespace Leveling.Classes
 				{
 					var scriptAssembly = ModuleManager[fileName];
 
-					if( scriptAssembly != null )
+					if (scriptAssembly != null)
 					{
 						var result = def.Item2.LinkToScriptAssembly(scriptAssembly);
 
@@ -473,11 +466,11 @@ namespace Leveling.Classes
 			if (string.IsNullOrWhiteSpace(DisplayName))
 				result.Errors.Add(new ValidationError($"{nameof(DisplayName)} is null or whitespace."));
 
-			if ((LevelDefinitions != null && LevelDefinitions.Count>0))
+			if (LevelDefinitions != null && LevelDefinitions.Count > 0)
 			{
 				var i = 0;
 
-				foreach(var levelDef in LevelDefinitions)
+				foreach (var levelDef in LevelDefinitions)
 				{
 					var levelResult = levelDef.Validate();
 					levelResult.Source = $"Level[{i++}] {levelResult.Source?.ToString()}";//insert level index, in case name strings arent set.

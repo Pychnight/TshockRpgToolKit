@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace RpgToolsEditor.Controls
 {
@@ -21,7 +17,7 @@ namespace RpgToolsEditor.Controls
 
 		public virtual void AddChildModels(IList<IModel> models)
 		{
-			foreach( var m in models )
+			foreach (var m in models)
 			{
 				AddChildModel(m);
 			}
@@ -33,13 +29,13 @@ namespace RpgToolsEditor.Controls
 		{
 			var models = new List<IModel>();
 
-			foreach(var n in Nodes)
+			foreach (var n in Nodes)
 			{
 				var modelTreeNode = n as ModelTreeNode;
 
-				if(modelTreeNode!=null && modelTreeNode.Model!=null)
+				if (modelTreeNode != null && modelTreeNode.Model != null)
 				{
-					models.Add(modelTreeNode.Model);	
+					models.Add(modelTreeNode.Model);
 				}
 			}
 

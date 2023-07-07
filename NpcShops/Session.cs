@@ -1,39 +1,38 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using CustomNpcs.Npcs;
+﻿using CustomNpcs.Npcs;
 using Microsoft.Xna.Framework;
 using NpcShops.Shops;
+using System.Diagnostics;
+using System.Linq;
 using Terraria;
 using TShockAPI;
 
 namespace NpcShops
 {
-    /// <summary>
-    ///     Holds session data.
-    /// </summary>
-    public sealed class Session
-    {
+	/// <summary>
+	///     Holds session data.
+	/// </summary>
+	public sealed class Session
+	{
 		public const int InvalidNpcIndex = -1;
 		//public const int MaxNpcTileRange = 32;
 
-        private readonly TSPlayer player;
+		private readonly TSPlayer player;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Session" /> class with the specified player.
-        /// </summary>
-        /// <param name="player">The player, which must not be <c>null</c>.</param>
-        public Session(TSPlayer player)
-        {
-            Debug.Assert(player != null, "Player must not be null.");
+		/// <summary>
+		///     Initializes a new instance of the <see cref="Session" /> class with the specified player.
+		/// </summary>
+		/// <param name="player">The player, which must not be <c>null</c>.</param>
+		public Session(TSPlayer player)
+		{
+			Debug.Assert(player != null, "Player must not be null.");
 
-            this.player = player;
-        }
+			this.player = player;
+		}
 
-        /// <summary>
-        ///     Gets or sets the current shop.
-        /// </summary>
-        public NpcShop CurrentShop { get; set; }
+		/// <summary>
+		///     Gets or sets the current shop.
+		/// </summary>
+		public NpcShop CurrentShop { get; set; }
 
 		/// <summary>
 		///		Gets or sets the index of the npc running the shop, if any.
@@ -48,7 +47,7 @@ namespace NpcShops
 		/// <returns>The shopkeeper NPC, if one exists.</returns>
 		public NPC GetShopkeeper()
 		{
-			if( CurrentShopkeeperNpcIndex != InvalidNpcIndex )
+			if (CurrentShopkeeperNpcIndex != InvalidNpcIndex)
 			{
 				var npc = Main.npc[CurrentShopkeeperNpcIndex];
 
@@ -67,10 +66,10 @@ namespace NpcShops
 			var maxTileRange = Config.Instance.ShopNpcMaxTalkRange;
 			var npc = GetShopkeeper();
 
-			if( npc!=null)
+			if (npc != null)
 			{
 				var dist = Vector2.DistanceSquared(player.TPlayer.Center, npc.Center);
-				return dist <= ( maxTileRange * 16 ) * ( maxTileRange * 16 );
+				return dist <= maxTileRange * 16 * (maxTileRange * 16);
 			}
 
 			return false;
@@ -90,13 +89,13 @@ namespace NpcShops
 
 		//	return result;
 		//}
-		
+
 		bool? lastShopState = null;
 		internal bool shopKeeperClickedHack = false;
-				
+
 		private void sendOpenMessage(NpcShop shop)
 		{
-			if( shop.Message != null )
+			if (shop.Message != null)
 				player.SendInfoMessage(shop.Message);
 		}
 
@@ -111,32 +110,32 @@ namespace NpcShops
 		{
 			NpcShop newShop = null;
 
-			if( HasShopkeeper && IsShopkeeperInRange() )
+			if (HasShopkeeper && IsShopkeeperInRange())
 			{
 				//npc shop
 				var shopKeeper = GetShopkeeper();
 				string npcType = null;
-				
+
 				//Determine if this is a custom npc, and if so try to get its id/internal name.
-				if(shopKeeper!=null)
+				if (shopKeeper != null)
 				{
 					var customNpc = NpcManager.Instance?.GetCustomNpc(shopKeeper);
-					if( customNpc != null )
+					if (customNpc != null)
 					{
 						npcType = customNpc.Definition.Name;
 					}
 				}
 
-				if(npcType==null)
+				if (npcType == null)
 				{
 					npcType = shopKeeper.type.ToString();
 				}
-				
+
 				NpcShop.NpcToShopMap.TryGetValue(npcType, out newShop);
 			}
 
-			if(newShop==null)
-			{ 
+			if (newShop == null)
+			{
 				//region shop
 				newShop = NpcShopsPlugin.Instance.NpcShops.FirstOrDefault(ns => ns.Rectangle.Contains(player.TileX, player.TileY));
 			}
@@ -147,12 +146,12 @@ namespace NpcShops
 		public void Update()
 		{
 			NpcShop newShop = getCurrentShop();
-			
-			if( newShop != CurrentShop )
+
+			if (newShop != CurrentShop)
 			{
 				//we've changed shops somehow, someway
 				CurrentShop = newShop;
-				
+
 				lastShopState = null;// CurrentShop?.IsOpen;
 
 				Debug.Print("Changed shop.");
@@ -160,9 +159,9 @@ namespace NpcShops
 			else
 			{
 				//HACK - to ensure shopkeeper tells you hes closed on each click/talk/interaction
-				if( HasShopkeeper && shopKeeperClickedHack )
+				if (HasShopkeeper && shopKeeperClickedHack)
 				{
-					if( CurrentShop?.IsOpen == false )
+					if (CurrentShop?.IsOpen == false)
 					{
 						SendClosedMessage(CurrentShop);
 					}
@@ -170,17 +169,17 @@ namespace NpcShops
 					{
 						CurrentShop?.ShowTo(player);
 					}
-					
+
 					shopKeeperClickedHack = false;
-					lastShopState =  CurrentShop?.IsOpen;
+					lastShopState = CurrentShop?.IsOpen;
 
 					return;
 				}
-				
-				if( CurrentShop == null )
+
+				if (CurrentShop == null)
 				{
 					//reset the npc shop if we're out of range
-					if( HasShopkeeper )// && CurrentShop == null )
+					if (HasShopkeeper)// && CurrentShop == null )
 					{
 						CurrentShopkeeperNpcIndex = InvalidNpcIndex;
 					}
@@ -190,9 +189,9 @@ namespace NpcShops
 				}
 
 				//still in same old shop
-				if( CurrentShop.IsOpen != lastShopState )
+				if (CurrentShop.IsOpen != lastShopState)
 				{
-					if( CurrentShop.IsOpen )
+					if (CurrentShop.IsOpen)
 					{
 						sendOpenMessage(CurrentShop);
 						CurrentShop.ShowTo(player);
@@ -201,10 +200,10 @@ namespace NpcShops
 					{
 						SendClosedMessage(CurrentShop);
 					}
-					
+
 					lastShopState = CurrentShop.IsOpen;
 				}
 			}
 		}
-    }
+	}
 }

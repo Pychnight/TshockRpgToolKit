@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
 using TShockAPI.Localization;
@@ -16,26 +13,20 @@ namespace CustomQuests.Quests
 	public static class PartyMemberExtensions
 	{
 		#region Helpers
-		
+
 		/// <summary>
 		///		Helper to filter for PartyMembers that are still valid members of a Party.
 		/// </summary>
 		/// <param name="members"></param>
 		/// <returns></returns>
-		public static IEnumerable<PartyMember> GetValidMembers(this IEnumerable<PartyMember> members)
-		{
-			return members.Where(m => m.IsValidMember);
-		}
+		public static IEnumerable<PartyMember> GetValidMembers(this IEnumerable<PartyMember> members) => members.Where(m => m.IsValidMember);
 
 		#endregion
 
 		#region Communication
 
 		public static void SendData(this PartyMember member, PacketTypes packetType, string text = "", int number = 0, float number2 = 0,
-			float number3 = 0, float number4 = 0, int number5 = 0)
-		{
-			member.Player.SendData(packetType, text, number, number2, number3, number4, number5);
-		}
+			float number3 = 0, float number4 = 0, int number5 = 0) => member.Player.SendData(packetType, text, number, number2, number3, number4, number5);
 
 		/// <summary>
 		///     Sends data to the party.
@@ -50,13 +41,13 @@ namespace CustomQuests.Quests
 		public static void SendData(this IEnumerable<PartyMember> members, PacketTypes packetType, string text = "", int number = 0, float number2 = 0,
 			float number3 = 0, float number4 = 0, int number5 = 0)
 		{
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendData(packetType, text, number, number2, number3, number4, number5);
 		}
 
 		public static void SendErrorMessage(this PartyMember member, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 			member.Player.SendErrorMessage(message);
@@ -69,16 +60,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		public static void SendErrorMessage(this IEnumerable<PartyMember> members, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendErrorMessage(message);
 		}
 
 		public static void SendWarningMessage(this PartyMember member, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 			member.Player.SendWarningMessage(message);
@@ -91,16 +82,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		public static void SendWarningMessage(this IEnumerable<PartyMember> members, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendWarningMessage(message);
 		}
 
 		public static void SendInfoMessage(this PartyMember member, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 			member.Player.SendInfoMessage(message);
@@ -113,16 +104,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		public static void SendInfoMessage(this IEnumerable<PartyMember> members, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			foreach( var member in members )
+			foreach (var member in members)
 				member.SendInfoMessage(message);
 		}
 
 		public static void SendMessage(this PartyMember member, string message, Color color)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 			member.Player.SendMessage(message, color);
@@ -136,16 +127,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		public static void SendMessage(this IEnumerable<PartyMember> members, string message, Color color)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendMessage(message, color);
 		}
 
 		public static void SendMessage(this PartyMember member, string message, byte r, byte g, byte b)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 			member.Player.SendMessage(message, r, g, b);
@@ -161,10 +152,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		public static void SendMessage(this IEnumerable<PartyMember> members, string message, byte r, byte g, byte b)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendMessage(message, r, g, b);
 		}
 
@@ -176,13 +167,13 @@ namespace CustomQuests.Quests
 
 		public static void SendMessage(this IEnumerable<PartyMember> members, string message)
 		{
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendMessage(message);
 		}
 
 		public static void SendStatus(this PartyMember member, string status)
 		{
-			if( status == null )
+			if (status == null)
 				throw new ArgumentNullException(nameof(status));
 
 			var text = status + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
@@ -197,16 +188,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="status" /> is <c>null</c>.</exception>
 		public static void SendStatus(this IEnumerable<PartyMember> members, string status)
 		{
-			if( status == null )
+			if (status == null)
 				throw new ArgumentNullException(nameof(status));
 
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendStatus(status);
 		}
 
 		public static void SendSuccessMessage(this PartyMember member, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 			member.Player.SendSuccessMessage(message);
@@ -219,10 +210,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
 		public static void SendSuccessMessage(this IEnumerable<PartyMember> members, string message)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			foreach( var m in members )
+			foreach (var m in members)
 				m.SendSuccessMessage(message);
 		}
 
@@ -232,7 +223,7 @@ namespace CustomQuests.Quests
 
 		public static void Buff(this PartyMember member, int buffType, int seconds)
 		{
-			if( seconds <= 0 )
+			if (seconds <= 0)
 				throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
 
 			member.Player.SetBuff(buffType, seconds * 60);
@@ -246,16 +237,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="seconds" /> is not positive.</exception>
 		public static void Buff(this IEnumerable<PartyMember> members, int buffType, int seconds)
 		{
-			if( seconds <= 0 )
+			if (seconds <= 0)
 				throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
 
-			foreach( var member in members )
+			foreach (var member in members)
 				member.Buff(buffType, seconds);
 		}
 
 		public static void Damage(this PartyMember member, int damage)
 		{
-			if( damage <= 0 )
+			if (damage <= 0)
 				throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be positive.");
 
 			member.Player.DamagePlayer(damage);
@@ -268,16 +259,16 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="damage" /> is not positive.</exception>
 		public static void Damage(this IEnumerable<PartyMember> members, int damage)
 		{
-			if( damage <= 0 )
+			if (damage <= 0)
 				throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be positive.");
 
-			foreach( var member in members )
+			foreach (var member in members)
 				member.Damage(damage);
 		}
 
 		public static void Heal(this PartyMember member, int health)
 		{
-			if( health <= 0 )
+			if (health <= 0)
 				throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
 
 			member.Player.Heal(health);
@@ -290,10 +281,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="health" /> is not positive.</exception>
 		public static void Heal(this IEnumerable<PartyMember> members, int health)
 		{
-			if( health <= 0 )
+			if (health <= 0)
 				throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive.");
 
-			foreach( var member in members )
+			foreach (var member in members)
 				member.Heal(health);
 		}
 
@@ -303,10 +294,10 @@ namespace CustomQuests.Quests
 
 		private static int? GetItemIdFromName(string name)
 		{
-			for( var i = 0; i < Main.maxItemTypes; ++i )
+			for (var i = 0; i < Main.maxItemTypes; ++i)
 			{
 				var itemName = EnglishLanguage.GetItemNameById(i);
-				if( itemName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false )
+				if (itemName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
 				{
 					return i;
 				}
@@ -314,28 +305,25 @@ namespace CustomQuests.Quests
 			return null;
 		}
 
-		public static void GiveItem(this PartyMember member, string name)
-		{
-			member.GiveItem(name, 1, 0);
-		}
+		public static void GiveItem(this PartyMember member, string name) => member.GiveItem(name, 1, 0);
 
 		public static void GiveItem(this PartyMember member, string name, int stackSize = 1, byte prefix = 0)
 		{
-			if( name == null )
+			if (name == null)
 			{
 				throw new ArgumentNullException(nameof(name));
 			}
-			if( stackSize <= 0 )
+			if (stackSize <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(stackSize), "Stack size must be positive.");
 			}
-			if( prefix > PrefixID.Count )
+			if (prefix > PrefixID.Count)
 			{
 				throw new ArgumentOutOfRangeException(nameof(prefix), "Prefix must be within range.");
 			}
 
 			var itemId = GetItemIdFromName(name);
-			if( itemId == null )
+			if (itemId == null)
 			{
 				throw new FormatException($"Invalid item name '{name}'.");
 			}
@@ -343,10 +331,7 @@ namespace CustomQuests.Quests
 			member.Player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
 		}
 
-		public static void GiveItem(this IEnumerable<PartyMember> members, string name)
-		{
-			members.GiveItem(name, 1, 0);
-		}
+		public static void GiveItem(this IEnumerable<PartyMember> members, string name) => members.GiveItem(name, 1, 0);
 
 		/// <summary>
 		///     Gives the specified item to the party.
@@ -360,36 +345,33 @@ namespace CustomQuests.Quests
 		/// </exception>
 		public static void GiveItem(this IEnumerable<PartyMember> members, string name, int stackSize = 1, byte prefix = 0)
 		{
-			if( name == null )
+			if (name == null)
 			{
 				throw new ArgumentNullException(nameof(name));
 			}
-			if( stackSize <= 0 )
+			if (stackSize <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(stackSize), "Stack size must be positive.");
 			}
-			if( prefix > PrefixID.Count )
+			if (prefix > PrefixID.Count)
 			{
 				throw new ArgumentOutOfRangeException(nameof(prefix), "Prefix must be within range.");
 			}
 
 			var itemId = GetItemIdFromName(name);
-			if( itemId == null )
+			if (itemId == null)
 			{
 				throw new FormatException($"Invalid item name '{name}'.");
 			}
 
-			foreach( var m in members )
+			foreach (var m in members)
 			{
 				//m.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
 				m.Player.GiveItem((int)itemId, "", 20, 42, stackSize, prefix);
 			}
 		}
 
-		public static void RemoveItem(this PartyMember member, string name)
-		{
-			member.RemoveItem(name, 1, 0);
-		}
+		public static void RemoveItem(this PartyMember member, string name) => member.RemoveItem(name, 1, 0);
 
 		public static void RemoveItem(this PartyMember member, string name, int stackSize = 1, byte prefix = 0)
 		{
@@ -397,10 +379,7 @@ namespace CustomQuests.Quests
 			members.RemoveItem(name, stackSize, prefix);
 		}
 
-		public static void RemoveItem(this IEnumerable<PartyMember> members, string name)
-		{
-			members.RemoveItem(name, 1, 0);
-		}
+		public static void RemoveItem(this IEnumerable<PartyMember> members, string name) => members.RemoveItem(name, 1, 0);
 
 		/// <summary>
 		///     Removes the specified item from the party. This requires SSC to work.
@@ -414,36 +393,36 @@ namespace CustomQuests.Quests
 		/// </exception>
 		public static void RemoveItem(this IEnumerable<PartyMember> members, string name, int stackSize = 1, byte prefix = 0)
 		{
-			if( name == null )
+			if (name == null)
 			{
 				throw new ArgumentNullException(nameof(name));
 			}
-			if( stackSize <= 0 )
+			if (stackSize <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(stackSize), "Stack size must be positive.");
 			}
-			if( prefix > PrefixID.Count )
+			if (prefix > PrefixID.Count)
 			{
 				throw new ArgumentOutOfRangeException(nameof(prefix), "Prefix must be within range.");
 			}
 
 			var itemId = GetItemIdFromName(name);
-			if( itemId == null )
+			if (itemId == null)
 			{
 				throw new FormatException($"Invalid item name '{name}'.");
 			}
 
-			foreach( var m in members )
+			foreach (var m in members)
 			{
 				var required = stackSize;
 				var offset = 0;
 
 				void Check(IReadOnlyList<Item> items)
 				{
-					for( var i = 0; i < items.Count && required > 0; ++i )
+					for (var i = 0; i < items.Count && required > 0; ++i)
 					{
 						var item = items[i];
-						if( item.type == itemId && item.prefix == prefix )
+						if (item.type == itemId && item.prefix == prefix)
 						{
 							var loss = Math.Min(item.stack, required);
 							item.stack -= loss;
@@ -471,10 +450,7 @@ namespace CustomQuests.Quests
 
 		#region Others
 
-		public static void Teleport(this PartyMember member, int x, int y)
-		{
-			member.Player.Teleport(16 * x, 16 * y);
-		}
+		public static void Teleport(this PartyMember member, int x, int y) => member.Player.Teleport(16 * x, 16 * y);
 
 		/// <summary>
 		///     Teleports the party to the specified coordinates.
@@ -483,7 +459,7 @@ namespace CustomQuests.Quests
 		/// <param name="y">The Y coordinate.</param>
 		public static void Teleport(this IEnumerable<PartyMember> members, int x, int y)
 		{
-			foreach( var m in members )
+			foreach (var m in members)
 				m.Teleport(x, y);
 		}
 
@@ -496,7 +472,7 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
 		public static void SendTileSquare(PartyMember partyMember, int x, int y, int radius)
 		{
-			if( radius <= 0 )
+			if (radius <= 0)
 				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
 
 			partyMember.Player.SendTileSquare(x, y, radius);
@@ -508,10 +484,7 @@ namespace CustomQuests.Quests
 		/// <param name="x">The X coordinate.</param>
 		/// <param name="y">The Y coordinate.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
-		public static void SendTileSquare(PartyMember partyMember, int x, int y)
-		{
-			SendTileSquare(partyMember, x, y, 1);
-		}
+		public static void SendTileSquare(PartyMember partyMember, int x, int y) => SendTileSquare(partyMember, x, y, 1);
 
 		/// <summary>
 		///     Sends the tile square to the party.
@@ -522,10 +495,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
 		public static void SendTileSquare(this IEnumerable<PartyMember> partyMembers, int x, int y, int radius)
 		{
-			if( radius <= 0 )
+			if (radius <= 0)
 				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-			
-			foreach( var member in partyMembers )
+
+			foreach (var member in partyMembers)
 				member.Player.SendTileSquare(x, y, radius);
 		}
 
@@ -535,10 +508,7 @@ namespace CustomQuests.Quests
 		/// <param name="x">The X coordinate.</param>
 		/// <param name="y">The Y coordinate.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="radius" /> is <c>null</c>.</exception>
-		public static void SendTileSquare(this IEnumerable<PartyMember> partyMembers, int x, int y)
-		{
-			SendTileSquare(partyMembers, x, y, 1);
-		}
+		public static void SendTileSquare(this IEnumerable<PartyMember> partyMembers, int x, int y) => SendTileSquare(partyMembers, x, y, 1);
 
 		#endregion
 
@@ -551,7 +521,7 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public static void UnlockQuest(this PartyMember partyMember, string name)
 		{
-			if( name == null )
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
 
 			var session = CustomQuestsPlugin.Instance.GetSession(partyMember);
@@ -565,10 +535,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public static void UnlockQuest(this IEnumerable<PartyMember> partyMembers, string name)
 		{
-			if( name == null )
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
-			
-			foreach( var session in partyMembers.Select(CustomQuestsPlugin.Instance.GetSession) )
+
+			foreach (var session in partyMembers.Select(CustomQuestsPlugin.Instance.GetSession))
 				session.UnlockQuest(name);
 		}
 
@@ -579,7 +549,7 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public static void RevokeQuest(this PartyMember partyMember, string name)
 		{
-			if( name == null )
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
 
 			var session = CustomQuestsPlugin.Instance.GetSession(partyMember);
@@ -593,10 +563,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public static void RevokeQuest(this IEnumerable<PartyMember> partyMembers, string name)
 		{
-			if( name == null )
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
-			
-			foreach( var session in partyMembers.Select(CustomQuestsPlugin.Instance.GetSession) )
+
+			foreach (var session in partyMembers.Select(CustomQuestsPlugin.Instance.GetSession))
 				session.RevokeQuest(name);
 		}
 
@@ -657,10 +627,10 @@ namespace CustomQuests.Quests
 		/// <exception cref="ArgumentNullException"><paramref name="questStatus" /> is <c>null</c>.</exception>
 		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus, Color color)
 		{
-			if( questStatus == null )
+			if (questStatus == null)
 				throw new ArgumentNullException(nameof(questStatus));
-			
-			foreach( var member in partyMembers )
+
+			foreach (var member in partyMembers)
 				member.SetQuestStatus(index, questStatus, color);
 		}
 
@@ -671,7 +641,7 @@ namespace CustomQuests.Quests
 		/// <param name="r">The red component.</param>
 		/// <param name="g">The green component.</param>
 		/// <param name="b">The blue component.</param>
-		public static void SetQuestStatus( this IEnumerable<PartyMember> partyMembers, int index, string questStatus, byte r, byte g, byte b)
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus, byte r, byte g, byte b)
 		{
 			var color = new Color(r, g, b);
 			partyMembers.SetQuestStatus(index, questStatus, color);
@@ -681,20 +651,11 @@ namespace CustomQuests.Quests
 		///		Sets a message that party members may retrieve to see their progress.
 		/// </summary>
 		/// <param name="questStatus">The status, which must not be <c>null</c>.</param>
-		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus)
-		{
-			partyMembers.SetQuestStatus(index, questStatus, Color.White);
-		}
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, int index, string questStatus) => partyMembers.SetQuestStatus(index, questStatus, Color.White);
 
-		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, string questStatus, Color color)
-		{
-			partyMembers.SetQuestStatus(0, questStatus, color);
-		}
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, string questStatus, Color color) => partyMembers.SetQuestStatus(0, questStatus, color);
 
-		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, string questStatus)
-		{
-			partyMembers.SetQuestStatus(0, questStatus);
-		}
+		public static void SetQuestStatus(this IEnumerable<PartyMember> partyMembers, string questStatus) => partyMembers.SetQuestStatus(0, questStatus);
 
 		#endregion
 
@@ -706,7 +667,7 @@ namespace CustomQuests.Quests
 
 		//public static void SetSpawn(this PartyMember partyMember, int x, int y)
 		//{
-			
+
 		//}
 	}
 }

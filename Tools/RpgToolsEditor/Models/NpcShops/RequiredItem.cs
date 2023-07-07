@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models
 {
@@ -18,7 +14,7 @@ namespace RpgToolsEditor.Models
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		string name = "New Item";
-		
+
 		[Browsable(false)]
 		public string Name
 		{
@@ -27,9 +23,9 @@ namespace RpgToolsEditor.Models
 			{
 				name = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
-			} 
+			}
 		}
-		
+
 		/// <summary>
 		///     Gets the item name.
 		/// </summary>
@@ -48,7 +44,7 @@ namespace RpgToolsEditor.Models
 		/// </summary>
 		[JsonProperty("Prefix", Order = 2)]
 		public byte PrefixId { get; set; }
-		
+
 		public RequiredItem()
 		{
 		}
@@ -60,19 +56,13 @@ namespace RpgToolsEditor.Models
 			PrefixId = other.PrefixId;
 		}
 
-		public object Clone()
-		{
-			return new RequiredItem(this);
-		}
+		public object Clone() => new RequiredItem(this);
 
-		public bool Equals(RequiredItem other)
-		{
-			return ItemName == other.ItemName && PrefixId == other.PrefixId;
-		}
+		public bool Equals(RequiredItem other) => ItemName == other.ItemName && PrefixId == other.PrefixId;
 
 		public override string ToString()
 		{
-			if( string.IsNullOrWhiteSpace(ItemName) )
+			if (string.IsNullOrWhiteSpace(ItemName))
 				return $"<No Item> x {StackSize}";
 			else
 				return $"{ItemName} x {StackSize}";

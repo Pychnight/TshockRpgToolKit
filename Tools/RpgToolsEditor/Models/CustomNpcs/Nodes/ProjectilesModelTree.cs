@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
@@ -33,7 +33,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			var models = loader.ParseCategorysAndModels(json);
 
 			//try to load in either npcs or categories, and create corresponding nodes for each.
-			var nodes = models.Select(m => m is CategoryModel ? (ModelTreeNode)new CategoryTreeNode<Projectile, ProjectileTreeNode>((CategoryModel)m, path) :
+			var nodes = models.Select(m => m is CategoryModel ? new CategoryTreeNode<Projectile, ProjectileTreeNode>((CategoryModel)m, path) :
 																(ModelTreeNode)new ProjectileTreeNode((Projectile)m))
 							   .ToList();
 
@@ -45,9 +45,9 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			var models = new List<IModel>();
 			var includeModels = new List<IncludeModel>();
 
-			foreach( var node in tree )
+			foreach (var node in tree)
 			{
-				if( node is ProjectileTreeNode )
+				if (node is ProjectileTreeNode)
 				{
 					var projectileTreeNode = (ProjectileTreeNode)node;
 					var projectile = projectileTreeNode.Model as Projectile;
@@ -58,7 +58,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 					//invasion.Waves = waves;
 					models.Add(projectile);
 				}
-				else if( node is CategoryTreeNode<Projectile, ProjectileTreeNode> )
+				else if (node is CategoryTreeNode<Projectile, ProjectileTreeNode>)
 				{
 					var catTreeNode = (CategoryTreeNode<Projectile, ProjectileTreeNode>)node;
 					var cat = catTreeNode.Model as CategoryModel;
@@ -66,7 +66,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 					cat.Includes.Clear();
 
-					foreach( var child in childModels )
+					foreach (var child in childModels)
 					{
 						var includeModel = (IncludeModel)child;
 
@@ -85,7 +85,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			includeModels.ThrowOnDuplicateIncludes();
 
 			//save includes
-			foreach( var im in includeModels )
+			foreach (var im in includeModels)
 				im.Save();
 
 			var json = JsonConvert.SerializeObject(models, Formatting.Indented);

@@ -1,10 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CustomNpcs.Projectiles;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CustomNpcs.Projectiles;
 using Terraria;
 
 namespace CustomNpcs
@@ -23,11 +19,11 @@ namespace CustomNpcs
 		{
 			if (name == null)
 				throw new ArgumentNullException(nameof(name));
-			
+
 			var definition = ProjectileManager.Instance?.FindDefinition(name);
 			if (definition == null)
 				throw new FormatException($"Invalid CustomProjectile name '{name}'.");
-						
+
 			return ProjectileManager.Instance.SpawnCustomProjectile(definition, x, y, xSpeed, ySpeed, owner);
 		}
 

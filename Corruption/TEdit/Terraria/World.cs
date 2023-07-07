@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-//using System.Windows;
+﻿//using System.Windows;
 //using TEdit.Geometry.Primitives;
 //using GalaSoft.MvvmLight;
 //using GalaSoft.MvvmLight.Threading;

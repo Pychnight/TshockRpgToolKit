@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomQuests.Quests
 {
@@ -30,7 +28,7 @@ namespace CustomQuests.Quests
 				return qi;
 			}
 		}
-		
+
 		public QuestLoader()
 		{
 			questInfos = new Dictionary<string, QuestInfo>();
@@ -51,7 +49,7 @@ namespace CustomQuests.Quests
 
 			try
 			{
-				if( File.Exists(fileName) )
+				if (File.Exists(fileName))
 				{
 					var json = File.ReadAllText(fileName);
 					questInfoList = JsonConvert.DeserializeObject<List<QuestInfo>>(json);
@@ -63,12 +61,12 @@ namespace CustomQuests.Quests
 					File.WriteAllText(fileName, json);
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				questInfoList = new List<QuestInfo>();
 			}
-			
+
 			Clear();
 
 			//validation
@@ -80,23 +78,23 @@ namespace CustomQuests.Quests
 				rootResult.Children.Add(result);
 
 				//only add quest info if its valid
-				if(result.Errors.Count==0)
+				if (result.Errors.Count == 0)
 					questInfos.Add(qi.Name, qi);
 			}
 
 			CustomQuestsPlugin.Instance.LogPrint(rootResult);
-			
+
 			//Debug.Print("Found the following quest infos:");
 			//foreach( var qi in questInfoList )
 			//	Debug.Print($"Quest: {qi.Name},  {qi.FriendlyName} - {qi.Description}");
 		}
-		
+
 		public Quest CreateInstance(QuestInfo questInfo, Party party)
 		{
-			if( questInfo == null )
+			if (questInfo == null)
 				throw new ArgumentNullException(nameof(questInfo));
 
-			if( party == null )
+			if (party == null)
 				throw new ArgumentNullException(nameof(party));
 
 			//check party
@@ -108,12 +106,12 @@ namespace CustomQuests.Quests
 			//check ...
 			//...
 
-			if( !string.IsNullOrWhiteSpace(questInfo.ScriptPath) )
+			if (!string.IsNullOrWhiteSpace(questInfo.ScriptPath))
 			{
 				var scriptPath = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
 				var scriptAssembly = scriptAssemblyManager.GetOrCompile(scriptPath);
 
-				if( scriptAssembly != null )
+				if (scriptAssembly != null)
 				{
 					var questType = scriptAssembly.DefinedTypes.Where(dt => dt.BaseType == typeof(Quest))
 															.Select(dt => dt.AsType())
@@ -137,24 +135,12 @@ namespace CustomQuests.Quests
 			return null;
 		}
 
-		public bool Contains(string questName)
-		{
-			return questInfos.ContainsKey(questName);
-		}
-		
-		public bool IsQuestInvalid(string questName)
-		{
-			return InvalidQuests.Contains(questName);
-		}
-		
-		public IEnumerator<QuestInfo> GetEnumerator()
-		{
-			return questInfoList.GetEnumerator();
-		}
+		public bool Contains(string questName) => questInfos.ContainsKey(questName);
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return questInfoList.GetEnumerator();
-		}
+		public bool IsQuestInvalid(string questName) => InvalidQuests.Contains(questName);
+
+		public IEnumerator<QuestInfo> GetEnumerator() => questInfoList.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator() => questInfoList.GetEnumerator();
 	}
 }

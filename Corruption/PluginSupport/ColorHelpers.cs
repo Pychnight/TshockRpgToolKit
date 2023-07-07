@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 
 namespace Corruption.PluginSupport
 {
 	public static class ColorHelpers
 	{
-		public static string ToHexString(this Color color)
-		{
-			return color.PackedValue.ToString("x8");
-		}
+		public static string ToHexString(this Color color) => color.PackedValue.ToString("x8");
 
 		public static Color FromHexString(string value)
 		{
@@ -30,9 +23,6 @@ namespace Corruption.PluginSupport
 			}
 		}
 
-		public static string ColorText(this Color color, object obj)
-		{
-			return $"[c/{color.Hex3()}:{obj.ToString()}]";
-		}
+		public static string ColorText(this Color color, object obj) => $"[c/{color.Hex3()}:{obj.ToString()}]";
 	}
 }

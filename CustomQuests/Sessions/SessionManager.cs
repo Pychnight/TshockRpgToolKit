@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
-using TShockAPI;
-using TerrariaApi.Server;
-using CustomQuests.Quests;
-using Corruption.PluginSupport;
-using System.Diagnostics;
-using CustomQuests.Sessions;
-using CustomQuests.Database;
+﻿using Corruption.PluginSupport;
 using CustomQuests.Configuration;
+using CustomQuests.Database;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using TShockAPI;
 
 namespace CustomQuests.Sessions
 {
@@ -59,7 +54,7 @@ namespace CustomQuests.Sessions
 		/// </summary>
 		public void Dispose()
 		{
-			foreach( var username in activeSessions.Keys.ToList() )
+			foreach (var username in activeSessions.Keys.ToList())
 			{
 				var session = activeSessions[username];
 
@@ -80,16 +75,16 @@ namespace CustomQuests.Sessions
 		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
 		public Session GetOrCreate(TSPlayer player)
 		{
-			if( player == null )
+			if (player == null)
 				throw new ArgumentNullException(nameof(player));
 
 			var username = player.User?.Name ?? player.Name;
-			if( !activeSessions.TryGetValue(username, out var session) )
+			if (!activeSessions.TryGetValue(username, out var session))
 			{
 				var sessionInfo = database.Read(username) ?? new SessionInfo();
 
 				session = new Session(player, sessionInfo);
-				if( session.CurrentQuestInfo != null )
+				if (session.CurrentQuestInfo != null)
 				{
 					//throw new NotImplementedException("Rejoining quests is currently disabled.");
 					//session.LoadQuest(session.CurrentQuestInfo);
@@ -112,11 +107,11 @@ namespace CustomQuests.Sessions
 		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
 		public void Remove(TSPlayer player)
 		{
-			if( player == null )
+			if (player == null)
 				throw new ArgumentNullException(nameof(player));
 
 			var username = player.User?.Name ?? player.Name;
-			if( activeSessions.TryGetValue(username, out var session) )
+			if (activeSessions.TryGetValue(username, out var session))
 			{
 				database.Write(session.SessionInfo, username);
 
@@ -124,10 +119,10 @@ namespace CustomQuests.Sessions
 				activeSessions.Remove(username);
 			}
 		}
-		
+
 		internal void Save(Session session)
 		{
-			if( session == null )
+			if (session == null)
 				throw new ArgumentNullException();
 
 			database.Write(session.SessionInfo, session._player.Name);
@@ -135,19 +130,19 @@ namespace CustomQuests.Sessions
 
 		internal void SaveAll()
 		{
-			foreach( var session in activeSessions.Values )
+			foreach (var session in activeSessions.Values)
 				database.Write(session.SessionInfo, session._player.Name);
 		}
 
 		public void OnReload()
 		{
-			foreach( var session in activeSessions.Values )
+			foreach (var session in activeSessions.Values)
 			{
 				//var questName = s.CurrentQuestName;
 				var player = session._player;
 
 				var quest = session.CurrentQuest;
-				if( quest != null )
+				if (quest != null)
 				{
 					session.IsAborting = true;
 
@@ -156,7 +151,7 @@ namespace CustomQuests.Sessions
 						var bquest = session.CurrentQuest;
 						bquest.Abort();
 					}
-					catch( Exception ex )
+					catch (Exception ex)
 					{
 						CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 					}

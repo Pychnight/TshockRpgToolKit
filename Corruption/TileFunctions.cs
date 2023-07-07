@@ -1,12 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
@@ -28,12 +22,12 @@ namespace Corruption
 			//	results.Add(new Point(col, row));
 			//}
 
-			if( !isActive )
+			if (!isActive)
 				return false;
 
 			var isEmpty = WorldGen.TileEmpty(column, row);
 
-			if( !isEmpty || tile.wall != 0 || tile.liquid != 0 )
+			if (!isEmpty || tile.wall != 0 || tile.liquid != 0)
 			{
 				return true;
 
@@ -50,10 +44,7 @@ namespace Corruption
 			return false;
 		}
 
-		public static List<Point> GetOverlappedTiles(Rectangle bounds)
-		{
-			return GetOverlappedTiles(bounds, DefaultTileFilterFunc);
-		}
+		public static List<Point> GetOverlappedTiles(Rectangle bounds) => GetOverlappedTiles(bounds, DefaultTileFilterFunc);
 
 		public static List<Point> GetOverlappedTiles(Rectangle bounds, Func<int, int, bool> filterFunc)
 		{
@@ -64,16 +55,13 @@ namespace Corruption
 			return tileCollisions;
 		}
 
-		public static List<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow)
-		{
-			return GetNonEmptyTiles(minColumn, minRow, maxColumn, maxRow, DefaultTileFilterFunc);
-		}
+		public static List<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow) => GetNonEmptyTiles(minColumn, minRow, maxColumn, maxRow, DefaultTileFilterFunc);
 
 		public static List<Point> GetNonEmptyTiles(int minColumn, int minRow, int maxColumn, int maxRow, Func<int, int, bool> filterFunc)
 		{
 			var results = new List<Point>();
 
-			if( filterFunc == null )
+			if (filterFunc == null)
 				return results;
 
 			//clip to tileset
@@ -82,11 +70,11 @@ namespace Corruption
 			maxColumn = Math.Min(maxColumn, Main.tile.Width - 1);
 			maxRow = Math.Min(maxRow, Main.tile.Height - 1);
 
-			for( var row = minRow; row <= maxRow; row++ )
+			for (var row = minRow; row <= maxRow; row++)
 			{
-				for( var col = minColumn; col <= maxColumn; col++ )
+				for (var col = minColumn; col <= maxColumn; col++)
 				{
-					if( filterFunc(col, row) )
+					if (filterFunc(col, row))
 					{
 						results.Add(new Point(col, row));
 					}
@@ -98,34 +86,22 @@ namespace Corruption
 
 		public static bool InTileMapBounds(int column, int row)
 		{
-			if( column < 0 || column > Main.maxTilesX )
+			if (column < 0 || column > Main.maxTilesX)
 				return false;
 
-			if( row < 0 || row > Main.maxTilesY )
+			if (row < 0 || row > Main.maxTilesY)
 				return false;
 
 			return true;
 		}
 
-		public static int TileX(float worldX)
-		{
-			return (int)( worldX / TileSize );
-		}
+		public static int TileX(float worldX) => (int)(worldX / TileSize);
 
-		public static int TileY(float worldY)
-		{
-			return (int)( worldY / TileSize );
-		}
+		public static int TileY(float worldY) => (int)(worldY / TileSize);
 
-		public static int WorldX(int tileX)
-		{
-			return tileX * TileSize;
-		}
+		public static int WorldX(int tileX) => tileX * TileSize;
 
-		public static int WorldY(int tileY)
-		{
-			return tileY * TileSize;
-		}
+		public static int WorldY(int tileY) => tileY * TileSize;
 
 		/// <summary>
 		///     Gets the tile located at the specified coordinates.
@@ -153,10 +129,7 @@ namespace Corruption
 		/// <remarks>
 		///     This method is required, since we can't set the type property in Lua since it is an unsigned short.
 		/// </remarks>
-		public static void SetTileType(ITile tile, int type)
-		{
-			tile.type = (ushort)type;
-		}
+		public static void SetTileType(ITile tile, int type) => tile.type = (ushort)type;
 
 		//
 		//public static bool SolidTile(ITile tile)
@@ -164,22 +137,16 @@ namespace Corruption
 		//	return tile.active() && tile.type < Main.maxTileSets && Main.tileSolid[tile.type];
 		//}
 
-		public static bool IsSolidTile(int column, int row)
-		{
-			return WorldGen.SolidTile(column, row);
-		}
+		public static bool IsSolidTile(int column, int row) => WorldGen.SolidTile(column, row);
 
-		public static bool IsSolidOrSlopedTile(int column, int row)
-		{
-			return WorldGen.SolidOrSlopedTile(column, row);
-		}
+		public static bool IsSolidOrSlopedTile(int column, int row) => WorldGen.SolidOrSlopedTile(column, row);
 
 		public static bool IsWallTile(int column, int row)
 		{
 			var tile = GetTile(column, row);
 			return tile.wall > 0;
 		}
-		
+
 		public static bool IsLiquidTile(int column, int row)
 		{
 			var tile = GetTile(column, row);
@@ -201,13 +168,13 @@ namespace Corruption
 		{
 			try
 			{
-				if( Main.tile[column, row]?.active() == true )
+				if (Main.tile[column, row]?.active() == true)
 				{
 					Main.tile[column, row].ResetToType((ushort)type);
 					TSPlayer.All.SendTileSquare(column, row);
 				}
 			}
-			catch( IndexOutOfRangeException rex )
+			catch (IndexOutOfRangeException)
 			{
 				//CustomNpcsPlugin.Instance.LogPrint($"Tried to SetTile on an invalid index.", TraceLevel.Error);
 			}
@@ -217,13 +184,13 @@ namespace Corruption
 		{
 			try
 			{
-				if( Main.tile[column, row]?.active() == true )
+				if (Main.tile[column, row]?.active() == true)
 				{
 					WorldGen.KillTile(column, row);
 					TSPlayer.All.SendTileSquare(column, row);
 				}
 			}
-			catch( IndexOutOfRangeException rex )
+			catch (IndexOutOfRangeException)
 			{
 				//CustomNpcsPlugin.Instance.LogPrint($"Tried to KillTile on an invalid index.", TraceLevel.Error);
 			}
@@ -236,12 +203,12 @@ namespace Corruption
 			var tileCenterOffset = new Vector2(HalfTileSize, HalfTileSize);
 			var center = new Vector2(x, y);
 
-			foreach( var hit in hits )
+			foreach (var hit in hits)
 			{
 				var tile = Main.tile[hit.X, hit.Y];
 
 				//ignore walls and trees and such.
-				if( tile.collisionType < 1 )
+				if (tile.collisionType < 1)
 					continue;
 
 				var tileCenter = new Vector2(hit.X * TileSize, hit.Y * TileSize);
@@ -249,7 +216,7 @@ namespace Corruption
 
 				var dist = tileCenter - center;
 
-				if( dist.LengthSquared() <= ( radius * radius ) )
+				if (dist.LengthSquared() <= (radius * radius))
 				{
 					KillTile(hit.X, hit.Y);
 				}
@@ -269,12 +236,12 @@ namespace Corruption
 			var tileCenterOffset = new Vector2(HalfTileSize, HalfTileSize);
 			var center = new Vector2(x, y);
 
-			foreach( var hit in hits )
+			foreach (var hit in hits)
 			{
 				var tile = Main.tile[hit.X, hit.Y];
 
 				//ignore walls and trees and such.
-				if( tile.collisionType < 1 )
+				if (tile.collisionType < 1)
 					continue;
 
 				var tileCenter = new Vector2(hit.X * TileSize, hit.Y * TileSize);
@@ -282,7 +249,7 @@ namespace Corruption
 
 				var dist = tileCenter - center;
 
-				if( dist.LengthSquared() <= ( radius * radius ) )
+				if (dist.LengthSquared() <= (radius * radius))
 				{
 					SetTile(hit.X, hit.Y, type);
 				}
@@ -297,11 +264,11 @@ namespace Corruption
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
 
-			for( var i = minX; i <= maxX; i++ )
+			for (var i = minX; i <= maxX; i++)
 			{
-				for( var j = minY; j <= maxY; j++ )
+				for (var j = minY; j <= maxY; j++)
 				{
-					if( MatchesBlock(i, j, id) )
+					if (MatchesBlock(i, j, id))
 						count = count + 1;
 				}
 			}
@@ -316,13 +283,13 @@ namespace Corruption
 			var maxX = Math.Max(x, x2);
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
-			
-			for( var i = minX; i<= maxX; i++)
-			{ 
-				for( var j = minY; j<= maxY; j++)
+
+			for (var i = minX; i <= maxX; i++)
+			{
+				for (var j = minY; j <= maxY; j++)
 				{
 					//if( MatchesBlock(i, j, id)) //script error? no overload exists for 5 args -->  frameX, frameY) )
-					if( MatchesBlockWithFrames(i, j, id, frameX, frameY) ) //script error? no overload exists for 5 args -->  frameX, frameY) )
+					if (MatchesBlockWithFrames(i, j, id, frameX, frameY)) //script error? no overload exists for 5 args -->  frameX, frameY) )
 						count = count + 1;
 				}
 			}
@@ -337,12 +304,12 @@ namespace Corruption
 			var maxX = Math.Max(x, x2);
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
-			
-			for( var i = minX; i <= maxX; i++ )
-			{ 
-				for( var j = minY; j<= maxY; j++ )
+
+			for (var i = minX; i <= maxX; i++)
+			{
+				for (var j = minY; j <= maxY; j++)
 				{
-					if( MatchesWall(i, j, id))
+					if (MatchesWall(i, j, id))
 						count = count + 1;
 				}
 			}
@@ -355,15 +322,15 @@ namespace Corruption
 			var stringId = id as string;
 			var tile = GetTile(x, y);
 
-			if( stringId == "air" )
+			if (stringId == "air")
 				return !tile.active() && tile.liquid == 0;
-			else if( stringId == "water" )
+			else if (stringId == "water")
 				return !tile.active() && tile.liquid > 0 && tile.liquidType() == 0;
-			else if( stringId == "lava" )
+			else if (stringId == "lava")
 				return !tile.active() && tile.liquid > 0 && tile.liquidType() == 1;
-			else if( stringId == "honey" )
+			else if (stringId == "honey")
 				return !tile.active() && tile.liquid > 0 && tile.liquidType() == 2;
-			else if( id is int )
+			else if (id is int)
 				return tile.active() && GetTileType(tile) == (int)id;
 			else
 				return false;
@@ -385,7 +352,7 @@ namespace Corruption
 
 		public static void ClearBlock(int x, int y)
 		{
-			if( Main.tile[x, y]?.active() == true )
+			if (Main.tile[x, y]?.active() == true)
 			{
 				WorldGen.KillTile(x, y);
 			}
@@ -398,24 +365,18 @@ namespace Corruption
 			var maxX = Math.Max(x, x2);
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
-			for( var i = minX; i <= maxX; i++ )
+			for (var i = minX; i <= maxX; i++)
 			{
-				for( var j = minY; j <= maxY; j++ )
+				for (var j = minY; j <= maxY; j++)
 				{
 					ClearBlock(i, j);
 				}
 			}
 		}
 
-		public static void ClearBlocks(Rectangle rect)
-		{
-			ClearBlocks(rect.Left, rect.Top, rect.Right, rect.Bottom);
-		}
+		public static void ClearBlocks(Rectangle rect) => ClearBlocks(rect.Left, rect.Top, rect.Right, rect.Bottom);
 
-		public static void ClearBlocks(Region region)
-		{
-			ClearBlocks(region.Area);
-		}
+		public static void ClearBlocks(Region region) => ClearBlocks(region.Area);
 
 		// Sets the block at the coordinates to the ID.
 		public static void SetBlock(int x, int y, object id)
@@ -423,35 +384,35 @@ namespace Corruption
 			var stringId = id as string;
 
 			var tile = GetTile(x, y);
-			if( stringId == "air" )
+			if (stringId == "air")
 			{
 				tile.active(false);
 				tile.liquid = 0;
 				tile.type = 0;
 			}
-			else if( stringId == "water" )
+			else if (stringId == "water")
 			{
 				tile.active(false);
 				tile.liquid = 255;
 				tile.liquidType(0);
 				tile.type = 0;
 			}
-			else if( stringId == "lava")
+			else if (stringId == "lava")
 			{
 				tile.active(false);
 				tile.liquid = 255;
 				tile.liquidType(1);
 				tile.type = 0;
 			}
-			else if( stringId == "honey")
+			else if (stringId == "honey")
 			{
 				tile.active(false);
 				tile.liquid = 255;
 				tile.liquidType(2);
 				tile.type = 0;
 			}
-			else if(id is int)
-			{ 
+			else if (id is int)
+			{
 				tile.active(true);
 				tile.liquid = 0;
 				SetTileType(tile, (int)id);
@@ -465,25 +426,19 @@ namespace Corruption
 			var maxX = Math.Max(x, x2);
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
-			for( var i = minX; i <= maxX; i++ )
+			for (var i = minX; i <= maxX; i++)
 			{
-				for( var j = minY; j <= maxY; j++ )
+				for (var j = minY; j <= maxY; j++)
 				{
 					SetBlock(i, j, id);
 				}
 			}
 		}
 
-		public static void SetBlocks(Rectangle rect, object id)
-		{
-			SetBlocks(rect.Left, rect.Top, rect.Right, rect.Bottom, id);
-		}
+		public static void SetBlocks(Rectangle rect, object id) => SetBlocks(rect.Left, rect.Top, rect.Right, rect.Bottom, id);
 
-		public static void SetBlocks(Region region, object id)
-		{
-			SetBlocks(region.Area, id);
-		}
-		
+		public static void SetBlocks(Region region, object id) => SetBlocks(region.Area, id);
+
 		// Sets the walls at the coordinates.
 		public static void SetWall(int x, int y, int id)
 		{
@@ -498,9 +453,9 @@ namespace Corruption
 			var maxX = Math.Max(x, x2);
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
-			for( var i = minX; i <= maxX; i++ )
+			for (var i = minX; i <= maxX; i++)
 			{
-				for( var j = minY; j <= maxY; j++ )
+				for (var j = minY; j <= maxY; j++)
 				{
 					SetWall(i, j, id);
 				}
@@ -513,10 +468,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place1x2(int x, int y, int type, int style)
-		{
-			WorldGen.Place1x2(x, y, (ushort)type, style);
-		}
+		public static void Place1x2(int x, int y, int type, int style) => WorldGen.Place1x2(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 1x2 object on top of something.
@@ -525,10 +477,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place1x2Top(int x, int y, int type, int style)
-		{
-			WorldGen.Place1x2Top(x, y, (ushort)type, style);
-		}
+		public static void Place1x2Top(int x, int y, int type, int style) => WorldGen.Place1x2Top(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 1xX object.
@@ -537,10 +486,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place1xX(int x, int y, int type, int style)
-		{
-			WorldGen.Place1xX(x, y, (ushort)type, style);
-		}
+		public static void Place1xX(int x, int y, int type, int style) => WorldGen.Place1xX(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 2x1 object.
@@ -549,10 +495,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place2x1(int x, int y, int type, int style)
-		{
-			WorldGen.Place2x1(x, y, (ushort)type, style);
-		}
+		public static void Place2x1(int x, int y, int type, int style) => WorldGen.Place2x1(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 2x2 object.
@@ -561,10 +504,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place2x2(int x, int y, int type, int style)
-		{
-			WorldGen.Place2x2(x, y, (ushort)type, style);
-		}
+		public static void Place2x2(int x, int y, int type, int style) => WorldGen.Place2x2(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 2x3 object on a wall (usually a painting).
@@ -573,10 +513,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place2x3Wall(int x, int y, int type, int style)
-		{
-			WorldGen.Place2x3Wall(x, y, (ushort)type, style);
-		}
+		public static void Place2x3Wall(int x, int y, int type, int style) => WorldGen.Place2x3Wall(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 2xX object.
@@ -585,10 +522,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place2xX(int x, int y, int type, int style)
-		{
-			WorldGen.Place2xX(x, y, (ushort)type, style);
-		}
+		public static void Place2xX(int x, int y, int type, int style) => WorldGen.Place2xX(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 3x1 object.
@@ -597,10 +531,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place3x1(int x, int y, int type, int style)
-		{
-			WorldGen.Place3x1(x, y, (ushort)type, style);
-		}
+		public static void Place3x1(int x, int y, int type, int style) => WorldGen.Place3x1(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 3x2 object.
@@ -609,10 +540,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place3x2(int x, int y, int type, int style)
-		{
-			WorldGen.Place3x2(x, y, (ushort)type, style);
-		}
+		public static void Place3x2(int x, int y, int type, int style) => WorldGen.Place3x2(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 3x2 object on a wall (usually a painting).
@@ -621,10 +549,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place3x2Wall(int x, int y, int type, int style)
-		{
-			WorldGen.Place3x2Wall(x, y, (ushort)type, style);
-		}
+		public static void Place3x2Wall(int x, int y, int type, int style) => WorldGen.Place3x2Wall(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 3x3 object.
@@ -633,10 +558,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place3x3(int x, int y, int type, int style)
-		{
-			WorldGen.Place3x3(x, y, (ushort)type, style);
-		}
+		public static void Place3x3(int x, int y, int type, int style) => WorldGen.Place3x3(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 3x3 object on a wall (usually a painting).
@@ -645,10 +567,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place3x3Wall(int x, int y, int type, int style)
-		{
-			WorldGen.Place3x3Wall(x, y, (ushort)type, style);
-		}
+		public static void Place3x3Wall(int x, int y, int type, int style) => WorldGen.Place3x3Wall(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 3x4 object.
@@ -657,10 +576,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place3x4(int x, int y, int type, int style)
-		{
-			WorldGen.Place3x4(x, y, (ushort)type, style);
-		}
+		public static void Place3x4(int x, int y, int type, int style) => WorldGen.Place3x4(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 4x2 object.
@@ -669,10 +585,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place4x2(int x, int y, int type, int style)
-		{
-			WorldGen.Place4x2(x, y, (ushort)type, style);
-		}
+		public static void Place4x2(int x, int y, int type, int style) => WorldGen.Place4x2(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 4x3 object on a wall (usually a painting).
@@ -681,10 +594,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place4x3Wall(int x, int y, int type, int style)
-		{
-			WorldGen.Place4x3Wall(x, y, (ushort)type, style);
-		}
+		public static void Place4x3Wall(int x, int y, int type, int style) => WorldGen.Place4x3Wall(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 5x4 object.
@@ -693,10 +603,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place5x4(int x, int y, int type, int style)
-		{
-			WorldGen.Place5x4(x, y, (ushort)type, style);
-		}
+		public static void Place5x4(int x, int y, int type, int style) => WorldGen.Place5x4(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 6x4 object.
@@ -705,10 +612,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place6x3(int x, int y, int type, int style)
-		{
-			WorldGen.Place6x3(x, y, (ushort)type, style);
-		}
+		public static void Place6x3(int x, int y, int type, int style) => WorldGen.Place6x3(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places a 6x4 object on a wall (usually a painting).
@@ -717,10 +621,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void Place6x4Wall(int x, int y, int type, int style)
-		{
-			WorldGen.Place6x4Wall(x, y, (ushort)type, style);
-		}
+		public static void Place6x4Wall(int x, int y, int type, int style) => WorldGen.Place6x4Wall(x, y, (ushort)type, style);
 
 		/// <summary>
 		///     Places an object.
@@ -729,9 +630,6 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="style">The style.</param>
-		public static void PlaceObject(int x, int y, int type, int style)
-		{
-			WorldGen.PlaceObject(x, y, (ushort)type, false, style);
-		}
+		public static void PlaceObject(int x, int y, int type, int style) => WorldGen.PlaceObject(x, y, (ushort)type, false, style);
 	}
 }

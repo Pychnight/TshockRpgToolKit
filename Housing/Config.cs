@@ -1,24 +1,24 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using Corruption.PluginSupport;
 
 namespace Housing
 {
-    /// <summary>
-    ///     Represents a configuration. This class is a singleton.
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class Config : JsonConfig
-    {
+	/// <summary>
+	///     Represents a configuration. This class is a singleton.
+	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
+	public sealed class Config : JsonConfig
+	{
 		//mirrors defaults set in the main Config.
 		private GroupConfig defaultGroupConfig;
 
-        /// <summary>
-        ///     Gets the configuration instance.
-        /// </summary>
-        public static Config Instance { get; internal set; } = new Config();
-		
+		/// <summary>
+		///     Gets the configuration instance.
+		/// </summary>
+		public static Config Instance { get; internal set; } = new Config();
+
 		/// <summary>
 		///  Gets the <see cref="DatabaseConfig"/>. 
 		/// </summary>
@@ -69,50 +69,50 @@ namespace Housing
 		///     Gets a value indicating whether to allow offline shops.
 		/// </summary>
 		[JsonProperty(Order = 8)]
-        public bool AllowOfflineShops { get; private set; }
-        
-        /// <summary>
-        ///     Gets the sales tax rate.
-        /// </summary>
-        [JsonProperty(Order = 9)]
-        public double SalesTaxRate { get; private set; } = 0.07;
-        
-        /// <summary>
-        /// Gets the minimum house size.
-        /// </summary>
-        [JsonProperty(Order = 10)]
-        public int MinHouseSize { get; private set; } = 1000;
+		public bool AllowOfflineShops { get; private set; }
 
-        /// <summary>
-        /// Gets the maximum house size.
-        /// </summary>
-        [JsonProperty(Order = 11)]
-        public int MaxHouseSize { get; private set; } = 10000;
+		/// <summary>
+		///     Gets the sales tax rate.
+		/// </summary>
+		[JsonProperty(Order = 9)]
+		public double SalesTaxRate { get; private set; } = 0.07;
 
-        /// <summary>
-        /// Gets the maximum number of houses.
-        /// </summary>
-        [JsonProperty(Order = 12)]
-        public int MaxHouses { get; private set; } = 10;
+		/// <summary>
+		/// Gets the minimum house size.
+		/// </summary>
+		[JsonProperty(Order = 10)]
+		public int MinHouseSize { get; private set; } = 1000;
 
-        /// <summary>
-        /// Gets the minimum shop size.
-        /// </summary>
-        [JsonProperty(Order = 13)]
-        public int MinShopSize { get; private set; } = 1000;
+		/// <summary>
+		/// Gets the maximum house size.
+		/// </summary>
+		[JsonProperty(Order = 11)]
+		public int MaxHouseSize { get; private set; } = 10000;
 
-        /// <summary>
-        /// Gets the maximum shop size.
-        /// </summary>
-        [JsonProperty(Order = 14)]
-        public int MaxShopSize { get; private set; } = 10000;
-		
+		/// <summary>
+		/// Gets the maximum number of houses.
+		/// </summary>
+		[JsonProperty(Order = 12)]
+		public int MaxHouses { get; private set; } = 10;
+
+		/// <summary>
+		/// Gets the minimum shop size.
+		/// </summary>
+		[JsonProperty(Order = 13)]
+		public int MinShopSize { get; private set; } = 1000;
+
+		/// <summary>
+		/// Gets the maximum shop size.
+		/// </summary>
+		[JsonProperty(Order = 14)]
+		public int MaxShopSize { get; private set; } = 10000;
+
 		/// <summary>
 		/// Gets whether the Taxation service is enabled.
 		/// </summary>
 		[JsonProperty(Order = 15)]
 		public bool EnableTaxService { get; private set; } = false;
-		
+
 		/// <summary>
 		/// Gets per group overrides.
 		/// </summary>
@@ -127,20 +127,20 @@ namespace Housing
 		/// <returns>GroupConfig</returns>
 		public GroupConfig GetGroupConfig(string groupName)
 		{
-			 GroupConfig cfg = null;
+			GroupConfig cfg = null;
 
-			 if(!GroupOverrides.TryGetValue(groupName, out cfg))
-			 {
-				 if(defaultGroupConfig==null)
-				 {
+			if (!GroupOverrides.TryGetValue(groupName, out cfg))
+			{
+				if (defaultGroupConfig == null)
+				{
 					defaultGroupConfig = new GroupConfig();
 					defaultGroupConfig.CopyDefaults(this);
-				 }
+				}
 
-				 cfg = defaultGroupConfig;
-			 }
+				cfg = defaultGroupConfig;
+			}
 
-			 return cfg;
+			return cfg;
 		}
 
 		public override ValidationResult Validate()
@@ -159,7 +159,7 @@ namespace Housing
 			if (MaxHouses < 1)
 				result.Warnings.Add(new ValidationWarning($"MaxHouses is less than 1. No houses are allowed!"));
 
-			if(string.IsNullOrWhiteSpace(CurrencyType))
+			if (string.IsNullOrWhiteSpace(CurrencyType))
 				result.Errors.Add(new ValidationError($"{nameof(CurrencyType)} is null or empty. This must be set to a valid currency name."));
 
 			return result;

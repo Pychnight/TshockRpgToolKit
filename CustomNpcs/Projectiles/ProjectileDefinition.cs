@@ -1,14 +1,9 @@
 ﻿using BooTS;
 using Corruption.PluginSupport;
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 
 namespace CustomNpcs.Projectiles
@@ -18,16 +13,16 @@ namespace CustomNpcs.Projectiles
 	{
 		[JsonProperty(Order = 0)]
 		public override string Name { get; set; } = "NewProjectileDefinition";
-		
+
 		[JsonProperty(Order = 1)]
 		public override string ScriptPath { get; set; }
 
 		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }
 
-		[JsonProperty("BaseOverride",Order = 3)]
+		[JsonProperty("BaseOverride", Order = 3)]
 		public BaseOverrideDefinition BaseOverride { get; set; } = new BaseOverrideDefinition();
-		
+
 		/// <summary>
 		///     Gets a function that is invoked when the projectile AI is spawned.
 		/// </summary>
@@ -70,21 +65,21 @@ namespace CustomNpcs.Projectiles
 
 		public void ApplyTo(Projectile projectile)
 		{
-			if(projectile == null)
+			if (projectile == null)
 			{
 				throw new ArgumentNullException(nameof(projectile));
 			}
 
 			//projectile.type = 0;
 			projectile.aiStyle = BaseOverride.AiStyle ?? projectile.aiStyle;
-			if(BaseOverride.Ai!=null)
+			if (BaseOverride.Ai != null)
 			{
 				//const int maxAis = 2;
-				for(var i=0;i<projectile.ai.Length;i++)
+				for (var i = 0; i < projectile.ai.Length; i++)
 				{
-					if(i<BaseOverride.Ai.Length)
+					if (i < BaseOverride.Ai.Length)
 					{
-						projectile.ai[i] = BaseOverride.Ai[i];	
+						projectile.ai[i] = BaseOverride.Ai[i];
 					}
 				}
 			}
@@ -134,10 +129,10 @@ namespace CustomNpcs.Projectiles
 		//internal bool LinkToScript(Assembly assembly)
 		protected override bool OnLinkToScriptAssembly(Assembly assembly)
 		{
-			if( assembly == null )
+			if (assembly == null)
 				return false;
 
-			if( string.IsNullOrWhiteSpace(ScriptPath) )
+			if (string.IsNullOrWhiteSpace(ScriptPath))
 				return false;
 
 			var linker = new BooModuleLinker(assembly, ScriptPath);
@@ -148,10 +143,10 @@ namespace CustomNpcs.Projectiles
 			OnGameUpdate = linker.TryCreateDelegate<ProjectileGameUpdateHandler>("OnGameUpdate");
 			OnCollision = linker.TryCreateDelegate<ProjectileCollisionHandler>("OnCollision");
 			OnTileCollision = linker.TryCreateDelegate<ProjectileTileCollisionHandler>("OnTileCollision");
-			
+
 			return true;
 		}
-				
+
 		public override ValidationResult Validate()
 		{
 			var result = new ValidationResult(DefinitionBase.CreateValidationSourceString(this));
@@ -179,7 +174,7 @@ namespace CustomNpcs.Projectiles
 				result.Children.Add(baseResult);
 			}
 			else
-				result.Errors.Add( new ValidationError($"{nameof(BaseOverride)} is null."));
+				result.Errors.Add(new ValidationError($"{nameof(BaseOverride)} is null."));
 
 			return result;
 		}
@@ -201,37 +196,37 @@ namespace CustomNpcs.Projectiles
 
 			[JsonProperty]
 			public bool? Friendly { get; set; }
-						
+
 			[JsonProperty]
-			public bool? Hostile { get; set; } 
-			
+			public bool? Hostile { get; set; }
+
 			[JsonProperty]
 			public int? MaxPenetrate { get; set; }
 
 			[JsonProperty]
 			public int? TimeLeft { get; set; }
-			
+
 			//[JsonProperty]
 			//public int? Width { get; set;}
-			
+
 			//[JsonProperty]
 			//public int? Height { get; set;}
-			
+
 			[JsonProperty]
 			public bool? Magic { get; set; }
 
 			[JsonProperty]
 			public float? Light { get; set; }
-			
+
 			[JsonProperty]
 			public bool? Thrown { get; set; }
 
 			[JsonProperty]
 			public bool? Melee { get; set; }
-			
+
 			[JsonProperty]
 			public bool? ColdDamage { get; set; }
-			
+
 			[JsonProperty]
 			public bool? TileCollide { get; set; }
 
@@ -256,4 +251,4 @@ namespace CustomNpcs.Projectiles
 	}
 }
 
-	
+

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-//using GalaSoft.MvvmLight;
+﻿//using GalaSoft.MvvmLight;
 //using TEditXNA.Terraria.Objects;
 
 namespace Corruption.TEdit // TEditXNA.Terraria

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace BooTS
 {
@@ -22,10 +20,7 @@ namespace BooTS
 			FilePath = filePath;
 		}
 
-		public override string ToString()
-		{
-			return $"{FilePath}";// (LastUpdated:{LastUpdated.ToFileTime()})";
-		}
+		public override string ToString() => $"{FilePath}";// (LastUpdated:{LastUpdated.ToFileTime()})";
 
 		public bool Equals(SourceFile other) => FilePath == other.FilePath;
 

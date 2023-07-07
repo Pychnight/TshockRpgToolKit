@@ -24,26 +24,26 @@ namespace Corruption.TEdit //TEditXNA.Terraria.Objects
 
 		public Vector2Short UV
 		{
-			get { return _uV; }
-			set { _uV = value; }
+			get => _uV;
+			set => _uV = value;
 		}
 
 		public Vector2Short Size
 		{
-			get { return _size; }
-			set { _size = value; }
+			get => _size;
+			set => _size = value;
 		}
 
 		public string Name
 		{
-			get { return _name; }
-			set { _name = value; }
+			get => _name;
+			set => _name = value;
 		}
 
 		public float Scale
 		{
-			get { return _scale; }
-			set { _scale = value; }
+			get => _scale;
+			set => _scale = value;
 		}
 
 		//private WriteableBitmap _image;
@@ -53,21 +53,18 @@ namespace Corruption.TEdit //TEditXNA.Terraria.Objects
 		//	set { Set("Image", ref _image, value); }
 		//}
 
-		public Color Color
-		{
-			get { return Color.Transparent; }
-		}
+		public Color Color => Color.Transparent;
 
 		public int Id
 		{
-			get { return _id; }
-			set { _id = value; }
+			get => _id;
+			set => _id = value;
 		}
 
 		public int MaxStackSize
 		{
-			get { return _maxStackSize; }
-			set { _maxStackSize = value; }
+			get => _maxStackSize;
+			set => _maxStackSize = value;
 		}
 	}
 }

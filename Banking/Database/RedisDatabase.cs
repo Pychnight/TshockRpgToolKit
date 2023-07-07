@@ -1,13 +1,9 @@
 ﻿using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
-using RedisIDatabase = StackExchange.Redis.IDatabase;
 
 namespace Banking.Database
 {
@@ -17,38 +13,32 @@ namespace Banking.Database
 
 		private ConnectionMultiplexer redis;
 		private ConfigurationOptions configOptions;
-		
+
 		public RedisDatabase(string connectionString)
 		{
 			ConnectionString = connectionString;
 			configOptions = ConfigurationOptions.Parse(connectionString);
 			configOptions.AllowAdmin = true;
-									
+
 			redis = ConnectionMultiplexer.Connect(configOptions);
 		}
 
-		private string getKey(int worldId, string playerName, string accountName )
-		{
-			return $"/{worldId}/{playerName}/{accountName}";
-		}
+		private string getKey(int worldId, string playerName, string accountName) => $"/{worldId}/{playerName}/{accountName}";
 
-		private string getKey(BankAccount account)
-		{
-			return getKey(Main.worldID, account.OwnerName, account.Name);
-		}
-		
+		private string getKey(BankAccount account) => getKey(Main.worldID, account.OwnerName, account.Name);
+
 		public void Create(BankAccount account)
 		{
 			var db = redis.GetDatabase();
 			var key = getKey(account);
 			var val = account.Balance.ToString();
-						
+
 			db.StringSet(key, val);
 		}
 
 		public void Create(IEnumerable<BankAccount> accounts)
 		{
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Create(acc);
 		}
 
@@ -56,13 +46,13 @@ namespace Banking.Database
 		{
 			var db = redis.GetDatabase();
 			var key = getKey(account);
-			
+
 			db.KeyDelete(key);
 		}
 
 		public void Delete(IEnumerable<BankAccount> accounts)
 		{
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Delete(acc);
 		}
 
@@ -72,12 +62,12 @@ namespace Banking.Database
 			var hostAndPort = "localhost:6379";
 			var endPoint = configOptions.EndPoints.FirstOrDefault();
 
-			if(endPoint is IPEndPoint)
+			if (endPoint is IPEndPoint)
 			{
 				var ip = endPoint as IPEndPoint;
 				hostAndPort = $"{ip.Address}:{ip.Port}";
 			}
-			else if(endPoint is DnsEndPoint)
+			else if (endPoint is DnsEndPoint)
 			{
 				var ip = endPoint as DnsEndPoint;
 				hostAndPort = $"{ip.Host}:{ip.Port}";
@@ -89,9 +79,9 @@ namespace Banking.Database
 
 			var accounts = new Dictionary<string, BankAccount>();
 
-			foreach(var key in server.Keys(pattern: keyPattern))
+			foreach (var key in server.Keys(pattern: keyPattern))
 			{
-				var parts = ( (string)key ).Split('/');
+				var parts = ((string)key).Split('/');
 				//var value = (string)db.StringGet(key);
 				var ownerName = parts[2];
 				var name = parts[3];
@@ -101,7 +91,7 @@ namespace Banking.Database
 				accounts.Add((string)key, account);
 			}
 
-			foreach(var kvp in accounts)
+			foreach (var kvp in accounts)
 			{
 				var value = (string)db.StringGet(kvp.Key);
 				var funds = decimal.Parse(value);
@@ -112,19 +102,10 @@ namespace Banking.Database
 			return result;
 		}
 
-		public void Save(IEnumerable<BankAccount> accounts)
-		{
-			throw new NotImplementedException();
-		}
+		public void Save(IEnumerable<BankAccount> accounts) => throw new NotImplementedException();
 
-		public void Update(BankAccount account)
-		{
-			Create(account);
-		}
+		public void Update(BankAccount account) => Create(account);
 
-		public void Update(IEnumerable<BankAccount> accounts)
-		{
-			Create(accounts);
-		}
+		public void Update(IEnumerable<BankAccount> accounts) => Create(accounts);
 	}
 }

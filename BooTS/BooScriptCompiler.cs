@@ -1,18 +1,7 @@
-﻿using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.IO;
-using Boo.Lang.Compiler.Pipelines;
-using Boo.Lang.Environments;
-//using Corruption;
-using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Concurrent;
+﻿//using Corruption;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using TShockAPI;
 
 namespace BooTS
 {
@@ -22,7 +11,7 @@ namespace BooTS
 		InjectImportsStep injectImportsStep;
 		EnsureMethodSignaturesStep ensureMethodSignaturesStep;
 
-		public BooCompiler InternalCompiler { get { return compiler; } }
+		public BooCompiler InternalCompiler => compiler;
 
 		public BooScriptCompiler()
 		{
@@ -47,7 +36,7 @@ namespace BooTS
 												 //parameters.Pipeline = new Parse();
 
 			injectImportsStep = new InjectImportsStep();
-			pipeline.Insert(1,injectImportsStep);
+			pipeline.Insert(1, injectImportsStep);
 
 			ensureMethodSignaturesStep = new EnsureMethodSignaturesStep();
 
@@ -59,22 +48,22 @@ namespace BooTS
 		public void Configure(IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
 		{
 			var ps = compiler.Parameters;
-			
+
 			//add references
 			ps.References.Clear();
 
-			if( references != null )
+			if (references != null)
 			{
-				foreach( var r in references )
+				foreach (var r in references)
 					ps.References.Add(r);
 			}
 
 			//add default imports
 			injectImportsStep.Namespaces.Clear();
 
-			if( imports != null )
+			if (imports != null)
 			{
-				if( imports != null )
+				if (imports != null)
 					injectImportsStep.SetDefaultImports(imports);
 			}
 
@@ -91,18 +80,18 @@ namespace BooTS
 			//add inputs
 			ps.Input.Clear();
 
-			if( fileNames != null )
+			if (fileNames != null)
 			{
 				//multiple npc types may use the same script
 				var distinctFileNames = fileNames.Distinct();
 
-				foreach( var fname in distinctFileNames )
+				foreach (var fname in distinctFileNames)
 					ps.Input.Add(new FileInput(fname));
 			}
 
 			return compiler.Run();
 		}
-		
+
 		public static CompilerContext Compile(string assemblyName, IEnumerable<string> fileNames, IEnumerable<Assembly> references, IEnumerable<string> imports = null, IEnumerable<EnsuredMethodSignature> ensuredMethodSignatures = null)
 		{
 			var cc = new BooScriptCompiler();
@@ -115,15 +104,15 @@ namespace BooTS
 			//add inputs
 			ps.Input.Clear();
 
-			if( fileNames != null )
+			if (fileNames != null)
 			{
 				//multiple npc types may use the same script
 				var distinctFileNames = fileNames.Distinct();
 
-				foreach( var fname in distinctFileNames )
+				foreach (var fname in distinctFileNames)
 					ps.Input.Add(new FileInput(fname));
 			}
-		
+
 			return cc.compiler.Run();
 		}
 

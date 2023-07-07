@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomSkills
 {
@@ -48,29 +44,29 @@ namespace CustomSkills
 		public bool RequiresExp => Exp > 0;
 		public bool RequiresCurrency => !string.IsNullOrWhiteSpace(Currency);
 		//public bool CurrencyExists => !string.IsNullOrWhiteSpace(CachedCurrencyName);
-		
+
 		public override string ToString()
 		{
 			var sb = new StringBuilder(128);
-			
-			if(RequiresHp)
+
+			if (RequiresHp)
 			{
 				sb.Append($"Hp: {Hp}");
 			}
 
-			if(RequiresMp)
+			if (RequiresMp)
 			{
 				AppendSeparator(sb);
 				sb.Append($"Mp: {Mp}");
 			}
 
-			if(RequiresExp)
+			if (RequiresExp)
 			{
 				AppendSeparator(sb);
 				sb.Append($"Exp: {Exp}");
 			}
 
-			if(RequiresCurrency)
+			if (RequiresCurrency)
 			{
 				AppendSeparator(sb);
 				sb.Append($"Currency: {Currency}");
@@ -82,7 +78,7 @@ namespace CustomSkills
 
 		private void AppendSeparator(StringBuilder sb)
 		{
-			if(sb.Length > 0)
+			if (sb.Length > 0)
 				sb.Append(", ");
 		}
 	}

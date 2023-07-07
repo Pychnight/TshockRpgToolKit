@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
+﻿using Terraria;
 
 namespace Corruption
 {
@@ -16,7 +11,7 @@ namespace Corruption
 
 		public int Id
 		{
-			get { return items[index].netID; }
+			get => items[index].netID;
 			set
 			{
 				items[index].netID = value;
@@ -26,7 +21,7 @@ namespace Corruption
 
 		public int Stack
 		{
-			get { return items[index].stack; }
+			get => items[index].stack;
 			set
 			{
 				items[index].stack = value;
@@ -36,7 +31,7 @@ namespace Corruption
 
 		public int Prefix
 		{
-			get { return items[index].prefix; }
+			get => items[index].prefix;
 			set
 			{
 				items[index].prefix = (byte)value;
@@ -65,7 +60,7 @@ namespace Corruption
 		{
 			var id = ItemFunctions.GetItemIdFromName(itemType);
 
-			if( id == null )
+			if (id == null)
 				return;
 
 			Set((int)id, stack, prefix);
@@ -90,11 +85,11 @@ namespace Corruption
 
 		public override string ToString()
 		{
-			if( Stack > 0 )
+			if (Stack > 0)
 			{
 				var itemName = ItemFunctions.GetItemNameFromId(Id) ?? "N/A";
 
-				if( Prefix > 0 )
+				if (Prefix > 0)
 					return $"{itemName} x {Stack} ({(ItemPrefix)Prefix})";
 				else
 					return $"{itemName} x {Stack}";

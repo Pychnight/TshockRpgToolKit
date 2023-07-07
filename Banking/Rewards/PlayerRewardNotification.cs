@@ -1,10 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Banking
@@ -36,7 +32,7 @@ namespace Banking
 		private string createCurrencyText()
 		{
 			//dont send combat texts for fractional values
-			if( Math.Truncate(Value)==0)
+			if (Math.Truncate(Value) == 0)
 			{
 				//Debug.Print($"Accumulated {debugAccumulateCounter} transactions. - Not sending {Player.Name} CombatText for fractional value. ( {Value} {CurrencyDefinition.InternalName} )");
 				return null;
@@ -44,7 +40,7 @@ namespace Banking
 			else
 			{
 				var text = CurrencyDefinition.GetCurrencyConverter().ToStringAndColor(Value, ref Color);
-				
+
 				//Debug.Print($"Accumulated {debugAccumulateCounter} transactions. - {Player.Name} gained {text}. ( {Value} {CurrencyDefinition.InternalName} )");
 
 				return text;
@@ -57,10 +53,10 @@ namespace Banking
 			var text = createCurrencyText();
 
 			//dont send combat texts for fractional values.
-			if( text == null )
+			if (text == null)
 				return;
 
-			if( IsGlobal )
+			if (IsGlobal)
 				TSPlayer.All.SendData(PacketTypes.CreateCombatTextExtended, text, (int)Color.PackedValue, tplayer.Center.X + xOffset, tplayer.Center.Y + yOffset);
 			else
 				Player.SendData(PacketTypes.CreateCombatTextExtended, text, (int)Color.PackedValue, tplayer.Center.X + xOffset, tplayer.Center.Y + yOffset);

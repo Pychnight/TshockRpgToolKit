@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Banking.Currency;
+using Housing.Models;
+using MySql.Data.MySqlClient;
+using System;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Banking.Currency;
-using Housing.Models;
-using MySql.Data.MySqlClient;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
@@ -20,13 +17,13 @@ namespace Housing.Database
 		internal const string DefaultDatabaseName = "db_housing";
 
 		private readonly object locker = new object();
-		
+
 		public MySqlDatabase(string connectionString)
 		{
 			Debug.Assert(!string.IsNullOrWhiteSpace(connectionString), "Connection string must not be null or empty.");
 
 			ConnectionString = ensureDatabase(connectionString);
-			
+
 			NonQuery("CREATE TABLE IF NOT EXISTS Houses (" +
 								"  OwnerName VARCHAR(64)," +
 								"  Name      VARCHAR(128)," +
@@ -100,8 +97,8 @@ namespace Housing.Database
 			builder.Database = null;
 
 			//try to create db
-			using( var con = new MySqlConnection(builder.ConnectionString) )
-			using( var cmd = con.CreateCommand() )
+			using (var con = new MySqlConnection(builder.ConnectionString))
+			using (var cmd = con.CreateCommand())
 			{
 				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
 				con.Open();
@@ -115,9 +112,9 @@ namespace Housing.Database
 
 		private int NonQuery(string query)
 		{
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = query;
 
@@ -129,28 +126,28 @@ namespace Housing.Database
 
 		private int NonQuery(string query, params object[] args)
 		{
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = query;
 
-					for( var i = 0; i < args.Length; i++ )
+					for (var i = 0; i < args.Length; i++)
 						cmd.AddParameter($"@{i}", args[i]);
-					
+
 					con.Open();
 					return cmd.ExecuteNonQuery();
 				}
 			}
 		}
-		
+
 		private IDbCommand QueryCommand(IDbConnection connection, string query, params object[] args)
 		{
 			var cmd = connection.CreateCommand();
 
 			cmd.CommandText = query;
 
-			for( var i = 0; i < args.Length; i++ )
+			for (var i = 0; i < args.Length; i++)
 				cmd.AddParameter($"@{i}", args[i]);
 
 			connection.Open();
@@ -176,7 +173,7 @@ namespace Housing.Database
 			Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
 			Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
-			lock( locker )
+			lock (locker)
 			{
 				TShock.Regions.AddRegion(
 					x, y, x2 - x + 1, y2 - y + 1, $"__House<>{owner.User.Name}<>{name}", owner.User.Name,
@@ -211,7 +208,7 @@ namespace Housing.Database
 			Debug.Assert(x2 >= x, "Second X coordinate must be at least the first.");
 			Debug.Assert(y2 >= y, "Second Y coordinate must be at least the first.");
 
-			lock( locker )
+			lock (locker)
 			{
 				NonQuery(
 					"INSERT INTO Shops (OwnerName, Name, WorldId, X, Y, X2, Y2, ChestX, ChestY, IsOpen)" +
@@ -231,9 +228,9 @@ namespace Housing.Database
 		{
 			Debug.Assert(playerName != null, "playerName must not be null.");
 
-			lock( locker )
+			lock (locker)
 			{
-				if( TaxCollectorNames.Contains(playerName) )
+				if (TaxCollectorNames.Contains(playerName))
 					return null;
 
 				NonQuery(
@@ -253,14 +250,14 @@ namespace Housing.Database
 		/// </summary>
 		public override void Load()
 		{
-			lock( locker )
+			lock (locker)
 			{
 				Houses.Clear();
-				using( var connection = new MySqlConnection(ConnectionString) )
-				using( var command = QueryCommand(connection, "SELECT * FROM Houses WHERE WorldId = @0", Main.worldID) )
-				using( var reader = command.ExecuteReader() )
+				using (var connection = new MySqlConnection(ConnectionString))
+				using (var command = QueryCommand(connection, "SELECT * FROM Houses WHERE WorldId = @0", Main.worldID))
+				using (var reader = command.ExecuteReader())
 				{
-					while( reader.Read() )
+					while (reader.Read())
 					{
 						var ownerName = reader.Get<string>("OwnerName");
 						var name = reader.Get<string>("Name");
@@ -280,14 +277,14 @@ namespace Housing.Database
 							ForSale = forSale,
 							SalePrice = salePrice
 						};
-						using( var connection2 = new MySqlConnection(ConnectionString) )
-						using( var command2 = QueryCommand(connection2,
+						using (var connection2 = new MySqlConnection(ConnectionString))
+						using (var command2 = QueryCommand(connection2,
 							"SELECT Username FROM HouseHasUser " +
 							"WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
-							ownerName, name, Main.worldID) )
-						using( var reader2 = command2.ExecuteReader())
+							ownerName, name, Main.worldID))
+						using (var reader2 = command2.ExecuteReader())
 						{
-							while( reader2.Read() )
+							while (reader2.Read())
 							{
 								var username = reader2.Get<string>("Username");
 								house.AllowedUsernames.Add(username);
@@ -298,11 +295,11 @@ namespace Housing.Database
 				}
 
 				Shops.Clear();
-				using( var connection = new MySqlConnection(ConnectionString) )
-				using( var command = QueryCommand(connection, "SELECT * FROM Shops WHERE WorldID = @0", Main.worldID) )
-				using( var reader = command.ExecuteReader())
+				using (var connection = new MySqlConnection(ConnectionString))
+				using (var command = QueryCommand(connection, "SELECT * FROM Shops WHERE WorldID = @0", Main.worldID))
+				using (var reader = command.ExecuteReader())
 				{
-					while( reader.Read() )
+					while (reader.Read())
 					{
 						var ownerName = reader.Get<string>("OwnerName");
 						var name = reader.Get<string>("Name");
@@ -320,13 +317,13 @@ namespace Housing.Database
 							IsOpen = isOpen,
 							Message = message
 						};
-						using( var connection2 = new MySqlConnection(ConnectionString) )
-						using( var command2 = QueryCommand(connection2,
+						using (var connection2 = new MySqlConnection(ConnectionString))
+						using (var command2 = QueryCommand(connection2,
 							"SELECT * FROM ShopHasItem WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
-							ownerName, name, Main.worldID) )
-						using( var reader2 = command2.ExecuteReader())
+							ownerName, name, Main.worldID))
+						using (var reader2 = command2.ExecuteReader())
 						{
-							while( reader2.Read() )
+							while (reader2.Read())
 							{
 								var index = reader2.Get<int>("ItemIndex");
 								var itemId = reader2.Get<int>("ItemId");
@@ -335,13 +332,13 @@ namespace Housing.Database
 								shop.Items.Add(new ShopItem(index, itemId, stackSize, prefixId));
 							}
 						}
-						using( var connection2 = new MySqlConnection(ConnectionString) )
-						using( var command2 = QueryCommand(connection2,
+						using (var connection2 = new MySqlConnection(ConnectionString))
+						using (var command2 = QueryCommand(connection2,
 							"SELECT * FROM ShopHasPrice WHERE OwnerName = @0 AND ShopName = @1 AND WorldId = @2",
-							ownerName, name, Main.worldID) )
-						using( var reader2 = command2.ExecuteReader())
+							ownerName, name, Main.worldID))
+						using (var reader2 = command2.ExecuteReader())
 						{
-							while( reader2.Read() )
+							while (reader2.Read())
 							{
 								var itemId = reader2.Get<int>("ItemId");
 								var unitPriceString = reader2.Get<string>("UnitPrice");
@@ -355,11 +352,11 @@ namespace Housing.Database
 				//load in tax collectors.
 				TaxCollectors.Clear();
 				TaxCollectorNames.Clear();
-				using( var connection = new MySqlConnection(ConnectionString) )
-				using( var command = QueryCommand(connection, "SELECT * FROM TaxCollectors WHERE WorldID = @0", Main.worldID) )
-				using( var reader = command.ExecuteReader())
+				using (var connection = new MySqlConnection(ConnectionString))
+				using (var command = QueryCommand(connection, "SELECT * FROM TaxCollectors WHERE WorldID = @0", Main.worldID))
+				using (var reader = command.ExecuteReader())
 				{
-					while( reader.Read() )
+					while (reader.Read())
 					{
 						var playerName = reader.Get<string>("PlayerName");
 						var tc = new TaxCollector(playerName);
@@ -378,14 +375,14 @@ namespace Housing.Database
 		{
 			Debug.Assert(house != null, "House must not be null.");
 
-			lock( locker )
+			lock (locker)
 			{
 				TShock.Regions.DeleteRegion($"__House<>{house.OwnerName}<>{house.Name}");
 				NonQuery("DELETE FROM Houses WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
 								  house.OwnerName, house.Name, Main.worldID);
 				Houses.Remove(house);
 
-				foreach( var shop in Shops.Where(s => house.Rectangle.Contains(s.Rectangle)) )
+				foreach (var shop in Shops.Where(s => house.Rectangle.Contains(s.Rectangle)))
 				{
 					Remove(shop);
 				}
@@ -400,7 +397,7 @@ namespace Housing.Database
 		{
 			Debug.Assert(shop != null, "House must not be null.");
 
-			lock( locker )
+			lock (locker)
 			{
 				NonQuery("DELETE FROM Shops WHERE OwnerName = @0 AND Name = @1 AND WorldId = @2",
 								  shop.OwnerName, shop.Name, Main.worldID);
@@ -416,11 +413,11 @@ namespace Housing.Database
 		{
 			Debug.Assert(taxCollector != null, "playerName must not be null.");
 
-			lock( locker )
+			lock (locker)
 			{
 				var indexOf = TaxCollectors.IndexOf(taxCollector);
 
-				if( indexOf == -1 )
+				if (indexOf == -1)
 					return;
 
 				NonQuery("DELETE FROM TaxCollectors WHERE WorldId = @0 AND PlayerName = @1",
@@ -437,7 +434,7 @@ namespace Housing.Database
 		{
 			Debug.Assert(house != null, "House must not be null.");
 
-			lock( locker )
+			lock (locker)
 			{
 				var region = TShock.Regions.GetRegionByName($"__House<>{house.OwnerName}<>{house.Name}");
 				region.SetAllowedIDs(string.Join(",", house.AllowedUsernames.Select(au => TShock.Users.GetUserID(au))));
@@ -450,7 +447,7 @@ namespace Housing.Database
 					house.OwnerName, house.Name, Main.worldID);
 				NonQuery("DELETE FROM HouseHasUser WHERE OwnerName = @0 AND HouseName = @1 AND WorldId = @2",
 								  house.OwnerName, house.Name, Main.worldID);
-				foreach( var username in house.AllowedUsernames )
+				foreach (var username in house.AllowedUsernames)
 				{
 					NonQuery(
 						"INSERT IGNORE INTO HouseHasUser (OwnerName, HouseName, WorldId, Username) VALUES (@0, @1, @2, @3)",
@@ -467,24 +464,24 @@ namespace Housing.Database
 		{
 			Debug.Assert(shop != null, "Shop must not be null.");
 
-			lock( locker )
+			lock (locker)
 			{
 				NonQuery("UPDATE Shops SET X = @0, Y = @1, X2 = @2, Y2 = @3, IsOpen = @4, Message = @5 " +
 								  "WHERE OwnerName = @6 AND Name = @7 AND WorldId = @8",
 								  shop.Rectangle.X, shop.Rectangle.Y, shop.Rectangle.Right - 1,
 								  shop.Rectangle.Bottom - 1, shop.IsOpen ? 1 : 0, shop.Message, shop.OwnerName,
 								  shop.Name, Main.worldID);
-				using( var connection = new MySqlConnection(ConnectionString) )
+				using (var connection = new MySqlConnection(ConnectionString))
 				{
 					connection.Open();
-					using( var transaction = connection.BeginTransaction() )
+					using (var transaction = connection.BeginTransaction())
 					{
-						using( var command = connection.CreateCommand() )
+						using (var command = connection.CreateCommand())
 						{
 							command.CommandText = "REPLACE INTO ShopHasItem (OwnerName, ShopName, WorldId, ItemIndex, " +
 												  "  ItemId, StackSize, PrefixId)" +
 												  "VALUES (@0, @1, @2, @3, @4, @5, @6)";
-							for( var i = 0; i <= 6; ++i )
+							for (var i = 0; i <= 6; ++i)
 							{
 								command.AddParameter($"@{i}", null);
 							}
@@ -492,7 +489,7 @@ namespace Housing.Database
 							command.Parameters["@1"].Value = shop.Name;
 							command.Parameters["@2"].Value = Main.worldID;
 
-							foreach( var shopItem in shop.Items )
+							foreach (var shopItem in shop.Items)
 							{
 								command.Parameters["@3"].Value = shopItem.Index;
 								command.Parameters["@4"].Value = shopItem.ItemId;
@@ -501,12 +498,12 @@ namespace Housing.Database
 								command.ExecuteNonQuery();
 							}
 						}
-						using( var command = connection.CreateCommand() )
+						using (var command = connection.CreateCommand())
 						{
 							command.CommandText = "REPLACE INTO ShopHasPrice (OwnerName, ShopName, WorldId, ItemId, " +
 												  "  UnitPrice)" +
 												  "VALUES (@0, @1, @2, @3, @4)";
-							for( var i = 0; i <= 4; ++i )
+							for (var i = 0; i <= 4; ++i)
 							{
 								command.AddParameter($"@{i}", null);
 							}
@@ -514,7 +511,7 @@ namespace Housing.Database
 							command.Parameters["@1"].Value = shop.Name;
 							command.Parameters["@2"].Value = Main.worldID;
 
-							foreach( var kvp in shop.UnitPrices )
+							foreach (var kvp in shop.UnitPrices)
 							{
 								command.Parameters["@3"].Value = kvp.Key;
 								command.Parameters["@4"].Value = kvp.Value;

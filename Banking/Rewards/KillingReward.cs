@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
@@ -41,20 +39,20 @@ namespace Banking.Rewards
 			//}
 		}
 
-		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
+		protected internal override IEnumerable<Tuple<string, decimal>> OnEvaluateMultiple(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
-			if( NpcSpawnedFromStatue && !currency.EnableStatueNpcRewards )
+			if (NpcSpawnedFromStatue && !currency.EnableStatueNpcRewards)
 				yield break;
 
 			var npcBaseValue = currency.GetKillingValueOverride(NpcGivenOrTypeName) ?? npcHp;
-			
-			foreach( var kvp in StrikeInfo )
+
+			foreach (var kvp in StrikeInfo)
 			{
 				var playerName = kvp.Key;
 				var weaponName = kvp.Value.WeaponName;
 				var damagePercent = kvp.Value.Damage / totalDamage;
 				var damageDefendedPercent = totalDamageDefended > 0 ? kvp.Value.DamageDefended / totalDamageDefended : 0;//avoid divide by 0
-							
+
 				//allow external code a chance to modify the npc's value ( ie, leveling's NpcNameToExp tables... )
 				//var value = (float)rewardModifier.ModifyBaseRewardValue(RewardReason.Killing, playerName, currency.InternalName, NpcGivenOrTypeName, (decimal)NpcValue);
 				//var value = NpcValue;
@@ -68,14 +66,14 @@ namespace Banking.Rewards
 
 				//Weapons are implicitly at 1.0, unless modifier is found.
 				float weaponMultiplier = 0;
-				if( weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true )
+				if (weaponName != null && currency.WeaponMultipliers?.TryGetValue(weaponName, out weaponMultiplier) == true)
 				{
 					value *= (decimal)weaponMultiplier;
 				}
 
 				value += defenseBonus;
 				value *= (decimal)currency.Multiplier;
-					
+
 				yield return new Tuple<string, decimal>(playerName, value);
 			}
 		}

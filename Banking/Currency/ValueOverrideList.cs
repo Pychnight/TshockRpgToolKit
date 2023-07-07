@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Banking.Currency
 {
@@ -22,7 +18,7 @@ namespace Banking.Currency
 		{
 			var map = new Dictionary<TKey, ValueOverride<TKey>>(Count);
 
-			foreach( var vo in this )
+			foreach (var vo in this)
 			{
 				vo.Initialize(currency);
 				map[vo.Key] = vo;
@@ -37,9 +33,6 @@ namespace Banking.Currency
 		/// <param name="key"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public bool TryGetValue(TKey key, out ValueOverride<TKey> value)
-		{
-			return map.TryGetValue(key, out value);
-		}
+		public bool TryGetValue(TKey key, out ValueOverride<TKey> value) => map.TryGetValue(key, out value);
 	}
 }

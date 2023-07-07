@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
@@ -21,7 +18,7 @@ namespace CustomSkills
 		public TimeSpan ElapsedTime { get; internal set; }
 		public List<EntityEmitter> Emitters { get; set; } = new List<EntityEmitter>();
 
-		Dictionary<string,object> variables;
+		Dictionary<string, object> variables;
 
 		/// <summary>
 		/// Provides keyed access to a SkillState's embedded variables.
@@ -51,7 +48,7 @@ namespace CustomSkills
 		/// <returns><c>true</c> if the variable exists; otherwise, <c>false</c>.</returns>
 		public bool HasVariable(string variableName)
 		{
-			if(string.IsNullOrWhiteSpace(variableName))
+			if (string.IsNullOrWhiteSpace(variableName))
 				return false;
 
 			return variables.ContainsKey(variableName);
@@ -60,7 +57,7 @@ namespace CustomSkills
 		public EntityEmitter AddEmitter() => AddEmitter(Player);
 
 		public EntityEmitter AddEmitter(TSPlayer player) => AddEmitter(player.TPlayer);
-		
+
 		public EntityEmitter AddEmitter(Entity entity)
 		{
 			var emitter = new EntityEmitter(entity);
@@ -69,5 +66,5 @@ namespace CustomSkills
 
 			return emitter;
 		}
-	}	
+	}
 }

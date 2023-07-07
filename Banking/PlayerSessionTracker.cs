@@ -1,10 +1,7 @@
 ﻿using Banking.Rewards;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Banking
@@ -26,11 +23,8 @@ namespace Banking
 		/// Finds all Currency's which GainBy RewardReason.Playing.
 		/// </summary>
 		/// <returns>IEnumerable of Currency's.</returns>
-		public IEnumerable<CurrencyDefinition> FindPlayingCurrencys()
-		{
-			return BankingPlugin.Instance.Bank.CurrencyManager.Where(c => c.GainBy.Contains(RewardReason.Playing));
-		}
-		
+		public IEnumerable<CurrencyDefinition> FindPlayingCurrencys() => BankingPlugin.Instance.Bank.CurrencyManager.Where(c => c.GainBy.Contains(RewardReason.Playing));
+
 		/// <summary>
 		/// Tracks a TSPlayer.
 		/// </summary>
@@ -40,10 +34,10 @@ namespace Banking
 			var now = DateTime.Now;
 			var enabledCurrencies = FindPlayingCurrencys();
 			var dict = new Dictionary<string, DateTime>();// (enabledCurrencies.Count);
-			
-			foreach( var currency in enabledCurrencies )
+
+			foreach (var currency in enabledCurrencies)
 				dict[currency.InternalName] = now;
-			
+
 			player.SetData(PlayerDataKey, dict);
 		}
 
@@ -57,20 +51,20 @@ namespace Banking
 			var currencyMgr = BankingPlugin.Instance.Bank.CurrencyManager;
 			var rewardDist = BankingPlugin.Instance.RewardDistributor;
 			var now = DateTime.Now;
-			
-			foreach(var player in TShock.Players.Where( p => p?.Active == true ))
+
+			foreach (var player in TShock.Players.Where(p => p?.Active == true))
 			{
 				var times = player.GetData<Dictionary<string, DateTime>>(PlayerDataKey);
 
-				if( times == null )//this shouldnt ever happen, but as a safeguard
+				if (times == null)//this shouldnt ever happen, but as a safeguard
 					continue;
 
-				foreach( var kvp in times.ToArray() )
+				foreach (var kvp in times.ToArray())
 				{
 					var currency = currencyMgr.GetCurrencyByName(kvp.Key);
-					if( currency != null )
+					if (currency != null)
 					{
-						if( now - kvp.Value >= currency.PlayingDuration )
+						if (now - kvp.Value >= currency.PlayingDuration)
 						{
 							//reset time
 							times[currency.InternalName] = now;

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Corruption.PluginSupport
 {
@@ -52,28 +48,28 @@ namespace Corruption.PluginSupport
 			Children = new List<ValidationResult>();
 			Source = source;
 		}
-		
+
 		/// <summary>
 		/// Set all warnings and errors to a new source.
 		/// </summary>
 		/// <param name="source">New source.</param>
 		/// <param name="setErrors">True to set error sources.</param>
 		/// <param name="setWarnings">True to set warning sources.</param>
-		public void SetSources(string source, bool setErrors = true, bool setWarnings = true, bool setChildren = false )
+		public void SetSources(string source, bool setErrors = true, bool setWarnings = true, bool setChildren = false)
 		{
-			if(setErrors)
+			if (setErrors)
 			{
-				foreach(var i in Errors)
+				foreach (var i in Errors)
 					i.Source = source;
 			}
 
-			if(setWarnings)
+			if (setWarnings)
 			{
-				foreach(var i in Warnings)
+				foreach (var i in Warnings)
 					i.Source = source;
 			}
 
-			if(setChildren)
+			if (setChildren)
 			{
 				foreach (var child in Children)
 					child.SetSources(source, setErrors, setWarnings, setChildren);
@@ -90,7 +86,7 @@ namespace Corruption.PluginSupport
 			totalErrors += Errors.Count;
 			totalWarnings += Warnings.Count;
 
-			foreach(var child in Children)
+			foreach (var child in Children)
 				child.GetTotals(ref totalErrors, ref totalWarnings);
 		}
 

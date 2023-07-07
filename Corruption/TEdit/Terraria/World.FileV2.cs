@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 //using TEdit.Utility;
 //using TEdit.Geometry.Primitives;
 //using Vector2 = TEdit.Geometry.Primitives.Vector2;
-using System;
 using System.IO;
 
 using FileFormatException = System.InvalidOperationException;//so we dont have to ref windowsbase.
@@ -689,21 +687,21 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			var tiles = new Tile[maxX, maxY];
 
 			int rle;
-			for( int x = 0; x < maxX; x++ )
+			for (int x = 0; x < maxX; x++)
 			{
 				//OnProgressChanged(null,
 				//	new ProgressChangedEventArgs(x.ProgressPercentage(maxX), "Loading UndoTiles..."));
 
-				for( int y = 0; y < maxY; y++ )
+				for (int y = 0; y < maxY; y++)
 				{
 					Tile tile = DeserializeTileData(r, out rle);
 
 					tiles[x, y] = tile;
-					while( rle > 0 )
+					while (rle > 0)
 					{
 						y++;
 
-						if( y > maxY )
+						if (y > maxY)
 							throw new FileFormatException(
 								$"Invalid Tile Data: RLE Compression outside of bounds [{x},{y}]");
 
@@ -728,12 +726,12 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			byte header1 = r.ReadByte();
 
 			// check bit[0] to see if header2 has data
-			if( ( header1 & 1 ) == 1 )
+			if ((header1 & 1) == 1)
 			{
 				header2 = r.ReadByte();
 
 				// check bit[0] to see if header3 has data
-				if( ( header2 & 1 ) == 1 )
+				if ((header2 & 1) == 1)
 				{
 					header3 = r.ReadByte();
 
@@ -746,13 +744,13 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			}
 
 			// check bit[1] for active tile
-			if( ( header1 & 2 ) == 2 )
+			if ((header1 & 2) == 2)
 			{
 				tile.IsActive = true;
 
 				// read tile type
 
-				if( ( header1 & 32 ) != 32 ) // check bit[5] to see if tile is byte or little endian int16
+				if ((header1 & 32) != 32) // check bit[5] to see if tile is byte or little endian int16
 				{
 					// tile is byte
 					tileType = r.ReadByte();
@@ -762,12 +760,12 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 					// tile is little endian int16
 					byte lowerByte = r.ReadByte();
 					tileType = r.ReadByte();
-					tileType = tileType << 8 | lowerByte;
+					tileType = (tileType << 8) | lowerByte;
 				}
 				tile.Type = (ushort)tileType; // convert type to ushort after bit operations
 
 				// read frame UV coords
-				if( !TileFrameImportant[tileType] )
+				if (!TileFrameImportant[tileType])
 				{
 					tile.U = -1;
 					tile.V = -1;
@@ -779,82 +777,82 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 					tile.V = r.ReadInt16();
 
 					// reset timers
-					if( tile.Type == (int)TileType.Timer )
+					if (tile.Type == (int)TileType.Timer)
 					{
 						tile.V = 0;
 					}
 				}
 
 				// check header3 bit[3] for tile color
-				if( ( header3 & 8 ) == 8 )
+				if ((header3 & 8) == 8)
 				{
 					tile.TileColor = r.ReadByte();
 				}
 			}
 
 			// Read Walls
-			if( ( header1 & 4 ) == 4 ) // check bit[3] bit for active wall
+			if ((header1 & 4) == 4) // check bit[3] bit for active wall
 			{
 				tile.Wall = r.ReadByte();
 
 				// check bit[4] of header3 to see if there is a wall color
-				if( ( header3 & 16 ) == 16 )
+				if ((header3 & 16) == 16)
 				{
 					tile.WallColor = r.ReadByte();
 				}
 			}
 
 			// check for liquids, grab the bit[3] and bit[4], shift them to the 0 and 1 bits
-			byte liquidType = (byte)( ( header1 & 24 ) >> 3 );
-			if( liquidType != 0 )
+			byte liquidType = (byte)((header1 & 24) >> 3);
+			if (liquidType != 0)
 			{
 				tile.LiquidAmount = r.ReadByte();
 				tile.LiquidType = (LiquidType)liquidType;
 			}
 
 			// check if we have data in header2 other than just telling us we have header3
-			if( header2 > 1 )
+			if (header2 > 1)
 			{
 				// check bit[1] for red wire
-				if( ( header2 & 2 ) == 2 )
+				if ((header2 & 2) == 2)
 				{
 					tile.WireRed = true;
 				}
 				// check bit[2] for blue wire
-				if( ( header2 & 4 ) == 4 )
+				if ((header2 & 4) == 4)
 				{
 					tile.WireBlue = true;
 				}
 				// check bit[3] for green wire
-				if( ( header2 & 8 ) == 8 )
+				if ((header2 & 8) == 8)
 				{
 					tile.WireGreen = true;
 				}
 
 				// grab bits[4, 5, 6] and shift 4 places to 0,1,2. This byte is our brick style
-				byte brickStyle = (byte)( ( header2 & 112 ) >> 4 );
-				if( brickStyle != 0 && TileProperties.Count > tile.Type && TileProperties[tile.Type].IsSolid )
+				byte brickStyle = (byte)((header2 & 112) >> 4);
+				if (brickStyle != 0 && TileProperties.Count > tile.Type && TileProperties[tile.Type].IsSolid)
 				{
 					tile.BrickStyle = (BrickStyle)brickStyle;
 				}
 			}
 
 			// check if we have data in header3 to process
-			if( header3 > 0 )
+			if (header3 > 0)
 			{
 				// check bit[1] for actuator
-				if( ( header3 & 2 ) == 2 )
+				if ((header3 & 2) == 2)
 				{
 					tile.Actuator = true;
 				}
 
 				// check bit[2] for inactive due to actuator
-				if( ( header3 & 4 ) == 4 )
+				if ((header3 & 4) == 4)
 				{
 					tile.InActive = true;
 				}
 
-				if( ( header3 & 32 ) == 32 )
+				if ((header3 & 32) == 32)
 				{
 					tile.WireYellow = true;
 				}
@@ -865,14 +863,14 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			// 1 = byte RLE counter
 			// 2 = int16 RLE counter
 			// 3 = ERROR
-			byte rleStorageType = (byte)( ( header1 & 192 ) >> 6 );
+			byte rleStorageType = (byte)((header1 & 192) >> 6);
 
 			// read RLE distance
-			if( rleStorageType == 0 )
+			if (rleStorageType == 0)
 			{
 				rle = 0;
 			}
-			else if( rleStorageType != 1 )
+			else if (rleStorageType != 1)
 			{
 				rle = r.ReadInt16();
 			}
@@ -892,7 +890,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			// overflow item check?
 			int itemsPerChest;
 			int overflowItems;
-			if( maxItems > Chest.MaxItems )
+			if (maxItems > Chest.MaxItems)
 			{
 				itemsPerChest = Chest.MaxItems;
 				overflowItems = maxItems - Chest.MaxItems;
@@ -905,7 +903,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 
 
 			// read chests
-			for( int i = 0; i < totalChests; i++ )
+			for (int i = 0; i < totalChests; i++)
 			{
 				var chest = new Chest
 				{
@@ -915,12 +913,12 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 				};
 
 				// read items in chest
-				for( int slot = 0; slot < itemsPerChest; slot++ )
+				for (int slot = 0; slot < itemsPerChest; slot++)
 				{
 					var stackSize = r.ReadInt16();
 					chest.Items[slot].StackSize = stackSize;
 
-					if( stackSize > 0 )
+					if (stackSize > 0)
 					{
 						int id = r.ReadInt32();
 						byte prefix = r.ReadByte();
@@ -933,10 +931,10 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 				}
 
 				// dump overflow items
-				for( int overflow = 0; overflow < overflowItems; overflow++ )
+				for (int overflow = 0; overflow < overflowItems; overflow++)
 				{
 					var stackSize = r.ReadInt16();
-					if( stackSize > 0 )
+					if (stackSize > 0)
 					{
 						r.ReadInt32();
 						r.ReadByte();
@@ -952,7 +950,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		{
 			short totalSigns = r.ReadInt16();
 
-			for( int i = 0; i < totalSigns; i++ )
+			for (int i = 0; i < totalSigns; i++)
 			{
 				string text = r.ReadString();
 				int x = r.ReadInt32();

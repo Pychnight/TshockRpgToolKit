@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Terraria;
@@ -14,28 +11,16 @@ namespace Corruption
 	public static class TimeFunctions
 	{
 		// Utility function for spawning or replacing after any mechanical boss is defeated.
-		public static bool AfterAnyMechBoss()
-		{
-			return NPC.downedMechBossAny;
-		}
+		public static bool AfterAnyMechBoss() => NPC.downedMechBossAny;
 
 		// Utility public static void for spawning or replacing after Golem is defeated.
-		public static bool AfterGolem()
-		{
-			return NPC.downedGolemBoss;
-		}
+		public static bool AfterGolem() => NPC.downedGolemBoss;
 
 		// Utility public static void for spawning or replacing after the Moon Lord is defeated.
-		public static bool AfterMoonLord()
-		{
-			return NPC.downedMoonlord;
-		}
+		public static bool AfterMoonLord() => NPC.downedMoonlord;
 
 		// Utility public static void for spawning or replacing after Plantera is defeated.
-		public static bool AfterPlantera()
-		{
-			return NPC.downedPlantBoss;
-		}
+		public static bool AfterPlantera() => NPC.downedPlantBoss;
 
 		/// <summary>
 		/// Gets a TimeSpan representing the current hour and minute.
@@ -46,7 +31,7 @@ namespace Corruption
 			//ripped from tshocks /time command...
 			double num = Main.time / 3600.0;
 			num += 4.5;
-			if( !Main.dayTime )
+			if (!Main.dayTime)
 			{
 				num += 15.0;
 			}
@@ -70,113 +55,71 @@ namespace Corruption
 		{
 			var timeOfDay = GetTimeOfDay();
 
-			if( !TimeSpan.TryParse(min, out var minTime) )
+			if (!TimeSpan.TryParse(min, out var minTime))
 				return false;
 
-			if( !TimeSpan.TryParse(max, out var maxTime) )
+			if (!TimeSpan.TryParse(max, out var maxTime))
 				return false;
 
-			if( minTime <= timeOfDay && maxTime >= timeOfDay )
+			if (minTime <= timeOfDay && maxTime >= timeOfDay)
 				return true;
 
 			return false;
 		}
 
 		// Utility public static void for spawning or replacing during the day.
-		public static bool DuringDay()
-		{
-			return Main.dayTime;
-		}
+		public static bool DuringDay() => Main.dayTime;
 
 		// Utility public static void for spawning or replacing during the night.
-		public static bool DuringNight()
-		{
-			return !Main.dayTime;
-		}
+		public static bool DuringNight() => !Main.dayTime;
 
 		// Utility public static void for spawning or replacing during a blood moon.
-		public static bool DuringBloodMoon()
-		{
-			return Main.bloodMoon;
-		}
-		
+		public static bool DuringBloodMoon() => Main.bloodMoon;
+
 		// Utility public static void for spawning or replacing during a frost moon.
-		public static bool DuringFrostMoon()
-		{
-			return Main.snowMoon;
-		}
+		public static bool DuringFrostMoon() => Main.snowMoon;
 
 		// Utility public static void for spawning or replacing during an eclipse.
-		public static bool DuringEclipse()
-		{
-			return Main.eclipse;
-		}
+		public static bool DuringEclipse() => Main.eclipse;
 
-		public static bool DuringMoonPhase(int phase)
-		{
-			return Main.moonPhase == phase;
-		}
+		public static bool DuringMoonPhase(int phase) => Main.moonPhase == phase;
 
 		// Utility public static void for spawning or replacing during hardmode.
-		public static bool DuringHardmode()
-		{
-			return Main.hardMode;
-		}
-		
+		public static bool DuringHardmode() => Main.hardMode;
+
 		// Utility public static void for spawning or replacing during a pumpkin moon.
-		public static bool DuringPumpkinMoon()
-		{
-			return Main.pumpkinMoon;
-		}
+		public static bool DuringPumpkinMoon() => Main.pumpkinMoon;
 
 		// Utility public static void for spawning or replacing during rain.
-		public static bool DuringRain()
-		{
-			return Main.raining;
-		}
+		public static bool DuringRain() => Main.raining;
 
 		// Utility public static void for spawning or replacing during slime rain.
-		public static bool DuringSlimeRain()
-		{
-			return Main.slimeRain;
-		}
+		public static bool DuringSlimeRain() => Main.slimeRain;
 
 		/// <summary>
 		/// Pauses execution for the specified duration.
 		/// </summary>
 		/// <param name="milliseconds"></param>
-		public static void Delay(int milliseconds)
-		{
-			Task.Delay(milliseconds).Wait();
-		}
+		public static void Delay(int milliseconds) => Task.Delay(milliseconds).Wait();
 
 		/// <summary>
 		/// Pauses execution for the specified duration.
 		/// </summary>
 		/// <param name="timeSpan"></param>
-		public static void Delay(TimeSpan timeSpan)
-		{
-			Task.Delay(timeSpan).Wait();
-		}
-		
+		public static void Delay(TimeSpan timeSpan) => Task.Delay(timeSpan).Wait();
+
 		/// <summary>
 		/// Pauses execution for the specified duration, using a <see cref="CancellationToken" />.
 		/// </summary>
 		/// <param name="milliseconds"></param>
 		/// <param name="cancellationToken"></param>
-		public static void Delay(int milliseconds, CancellationToken cancellationToken )
-		{
-			Task.Delay(milliseconds, cancellationToken).Wait();
-		}
+		public static void Delay(int milliseconds, CancellationToken cancellationToken) => Task.Delay(milliseconds, cancellationToken).Wait();
 
 		/// <summary>
 		/// Pauses execution for the specified duration, using a <see cref="CancellationToken" />.
 		/// </summary>
 		/// <param name="timeSpan"></param>
 		/// <param name="cancellationToken"></param>
-		public static void Delay(TimeSpan timeSpan, CancellationToken cancellationToken)
-		{
-			Task.Delay(timeSpan, cancellationToken).Wait();
-		}
+		public static void Delay(TimeSpan timeSpan, CancellationToken cancellationToken) => Task.Delay(timeSpan, cancellationToken).Wait();
 	}
 }

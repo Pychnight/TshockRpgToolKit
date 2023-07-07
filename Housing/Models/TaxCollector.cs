@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Housing.Models
+﻿namespace Housing.Models
 {
 	/// <summary>
 	/// Represents a Player whom receives monetary compensation for property and financial transactions. 

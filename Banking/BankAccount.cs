@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Banking
@@ -39,10 +37,10 @@ namespace Banking
 
 		internal BankAccount(string ownerName, string name, decimal startingFunds)
 		{
-			if(string.IsNullOrWhiteSpace(ownerName))
+			if (string.IsNullOrWhiteSpace(ownerName))
 				throw new ArgumentNullException($"{nameof(ownerName)} cannot be null or whitespace.");
 
-			if(string.IsNullOrWhiteSpace(name))
+			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException($"{nameof(name)} cannot be null or whitespace.");
 
 			OwnerName = ownerName;
@@ -56,14 +54,14 @@ namespace Banking
 		internal static void PersistDirtyAccounts()
 		{
 			var bank = BankingPlugin.Instance.Bank;
-			var accounts = AccountsToUpdate.Select( kvp => kvp.Value ).ToList();
-			
+			var accounts = AccountsToUpdate.Select(kvp => kvp.Value).ToList();
+
 			AccountsToUpdate.Clear();//we need better sync here, stuff can happen between above line and the clear().
 
 			Task.Run(() =>
 			{
 				//TODO bank can be null and throw during new world generation...
-				if(bank!=null)
+				if (bank != null)
 				{
 					Debug.Print($"Updating {accounts.Count} BankAccounts.");
 					bank.Database.Update(accounts);
@@ -75,7 +73,7 @@ namespace Banking
 		/// Marks a BankAccount as dirty, so that it can be persisted at an appropriate time.
 		/// </summary>
 		private void MarkAsDirty() => AccountsToUpdate.TryAdd(InternalId, this);
-		
+
 		/// <summary>
 		/// Sets the Balance to a specified amount. Does not raise any events.
 		/// </summary>
@@ -85,7 +83,7 @@ namespace Banking
 			var bank = BankingPlugin.Instance.Bank;
 			//decimal newBalance, previousBalance;
 
-			lock( locker )
+			lock (locker)
 			{
 				//previousBalance = Balance;
 				Balance = amount;
@@ -106,10 +104,10 @@ namespace Banking
 			var bank = BankingPlugin.Instance.Bank;
 			decimal newBalance, previousBalance;
 
-			if( amount < 0 )
+			if (amount < 0)
 				return;
 
-			lock(locker)
+			lock (locker)
 			{
 				previousBalance = Balance;
 				Balance += amount;
@@ -133,22 +131,22 @@ namespace Banking
 			var bank = BankingPlugin.Instance.Bank;
 			decimal newBalance, previousBalance;
 
-			if( amount < 0 )
+			if (amount < 0)
 			{
 				amount = Math.Abs(amount);
 			}
 
-			lock(locker)
+			lock (locker)
 			{
-				if( ( Balance - amount ) < 0 )
+				if ((Balance - amount) < 0)
 				{
-					if( withdrawalMode == WithdrawalMode.RequireFullBalance)
+					if (withdrawalMode == WithdrawalMode.RequireFullBalance)
 						return false;
-					
-					if( withdrawalMode == WithdrawalMode.StopAtZero)
+
+					if (withdrawalMode == WithdrawalMode.StopAtZero)
 						amount = Balance;
 				}
-				
+
 				previousBalance = Balance;
 				Balance -= amount;
 				newBalance = Balance;
@@ -171,10 +169,10 @@ namespace Banking
 		/// <returns>True if the transaction succeeded.</returns>
 		public bool TryTransferTo(BankAccount other, decimal amount, WithdrawalMode withdrawalMode = WithdrawalMode.RequireFullBalance)
 		{
-			if( other == null )
+			if (other == null)
 				return false;
 
-			if(TryWithdraw(amount,withdrawalMode))
+			if (TryWithdraw(amount, withdrawalMode))
 			{
 				other.Deposit(amount);
 				return true;

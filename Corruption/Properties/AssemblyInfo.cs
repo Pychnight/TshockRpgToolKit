@@ -1,13 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Corruption")]
-[assembly: AssemblyDescription("Goodies for TShock Plugins.")]
-[assembly: AssemblyConfiguration("")]
+﻿using System.Runtime.InteropServices;
 //[assembly: AssemblyCompany("")]
 //[assembly: AssemblyProduct("Corruption")]
 //[assembly: AssemblyCopyright("Copyright ©  2018")]

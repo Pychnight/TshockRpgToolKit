@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Corruption.TEdit
+﻿namespace Corruption.TEdit
 {
 	public static class ITileExtensions
 	{
@@ -13,7 +7,7 @@ namespace Corruption.TEdit
 		/// </summary>
 		/// <param name="dst"></param>
 		/// <param name="src"></param>
-		public static void CopyFrom(this OTAPI.Tile.ITile dst, Tile src)
+		public static void CopyFrom(this Terraria.ITile dst, Tile src)
 		{
 			//still needs support for wires.
 
@@ -29,7 +23,7 @@ namespace Corruption.TEdit
 			dst.color(src.TileColor);
 			dst.wallColor(src.WallColor);
 
-			switch( src.BrickStyle )
+			switch (src.BrickStyle)
 			{
 				case BrickStyle.Full:
 					dst.halfBrick(false);
@@ -56,11 +50,11 @@ namespace Corruption.TEdit
 		/// </summary>
 		/// <param name="dst"></param>
 		/// <param name="src"></param>
-		public static void CopyFrom(this Tile dst, OTAPI.Tile.ITile src )
+		public static void CopyFrom(this Tile dst, Terraria.ITile src)
 		{
 			//still needs support for wires.
 			dst.Type = src.type;
-			dst.Wall = src.wall;
+			dst.Wall = (byte)src.wall;
 			dst.LiquidType = (LiquidType)src.liquid;
 
 			dst.IsActive = src.active();
@@ -69,13 +63,13 @@ namespace Corruption.TEdit
 			dst.TileColor = src.color();
 			dst.WallColor = src.wallColor();
 
-			if(!src.halfBrick())
+			if (!src.halfBrick())
 			{
 				dst.BrickStyle = BrickStyle.Full;
 			}
 			else
 			{
-				switch(src.slope())
+				switch (src.slope())
 				{
 					case 2:
 						dst.BrickStyle = BrickStyle.SlopeTopRight;
@@ -94,7 +88,7 @@ namespace Corruption.TEdit
 						break;
 				}
 			}
-			
+
 			dst.U = src.frameX;
 			dst.V = src.frameY;
 		}

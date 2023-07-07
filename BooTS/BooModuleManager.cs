@@ -1,13 +1,10 @@
-﻿using Boo.Lang.Compiler;
-using Corruption.PluginSupport;
+﻿using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TerrariaApi.Server;
 
 namespace BooTS
@@ -54,7 +51,7 @@ namespace BooTS
 
 		private void compileGuard()
 		{
-			if( Compiled )
+			if (Compiled)
 				throw new InvalidOperationException("Already compiled.");
 		}
 
@@ -66,10 +63,10 @@ namespace BooTS
 		{
 			compileGuard();
 
-			if( string.IsNullOrWhiteSpace(fileName) )
+			if (string.IsNullOrWhiteSpace(fileName))
 				return;
 
-			if( !modules.Keys.Contains(fileName) )
+			if (!modules.Keys.Contains(fileName))
 			{
 				var mi = new ModuleInfo();
 				modules.Add(fileName, mi);
@@ -89,9 +86,9 @@ namespace BooTS
 
 			compiler.Configure(references, defaultImports, ensuredMethodSignatures);
 
-			foreach( var kvp in modules )
+			foreach (var kvp in modules)
 			{
-				if( kvp.Value.IsValid )
+				if (kvp.Value.IsValid)
 					continue;
 
 				var scriptPath = kvp.Key;
@@ -102,7 +99,7 @@ namespace BooTS
 
 				contexts.Add(scriptPath, context);
 
-				if( context.Errors.Count < 1 )
+				if (context.Errors.Count < 1)
 				{
 					var mi = modules[scriptPath];
 
@@ -113,7 +110,7 @@ namespace BooTS
 				Plugin?.LogPrintBooErrors(context);
 				Plugin?.LogPrintBooWarnings(context);
 
-				if( context.Errors.Count == 0 )
+				if (context.Errors.Count == 0)
 					Plugin?.LogPrint($"Compiled {kvp.Key}.", TraceLevel.Info);
 				else
 					Plugin?.LogPrint($"Failed to compile {kvp.Key}.", TraceLevel.Info);
@@ -135,22 +132,22 @@ namespace BooTS
 
 			var result = new Dictionary<string, CompilerContext>();
 
-			if( previous != null && previous.Compiled == true )
+			if (previous != null && previous.Compiled == true)
 			{
 				var additionalFiles = new List<string>();
 
 				//find matching filenames to see if we need to recompile
 				var sharedFilenames = previous.modules.Keys.Where(k => modules.ContainsKey(k)).Select(k => k);
 
-				foreach( var sf in sharedFilenames )
+				foreach (var sf in sharedFilenames)
 				{
 					var mi = previous.modules[sf];
 
-					if( mi.IsValid )
+					if (mi.IsValid)
 					{
 						var fileModifiedTime = File.GetLastWriteTime(sf);
 
-						if( mi.BuildTime < fileModifiedTime )
+						if (mi.BuildTime < fileModifiedTime)
 						{
 							//source file is newer than assebmly... rebuild.
 							Plugin?.LogPrint($"{sf} has been modified, recompiling.", TraceLevel.Info);
@@ -173,13 +170,13 @@ namespace BooTS
 				//find new filenames that we must compile
 				var newFilenames = modules.Keys.Where(k => !previous.modules.Keys.Contains(k));
 
-				foreach( var nf in newFilenames )
+				foreach (var nf in newFilenames)
 				{
 					Plugin?.LogPrint($"{nf} is a new module, compiling.", TraceLevel.Info);
 					Add(nf);
 				}
 
-				foreach( var af in additionalFiles )
+				foreach (var af in additionalFiles)
 				{
 					Add(af);
 				}

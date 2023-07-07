@@ -1,13 +1,7 @@
-﻿using Banking.Rewards;
-using BooTS;
-using Corruption;
+﻿using Corruption;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Banking
@@ -18,7 +12,7 @@ namespace Banking
 
 		public static IEnumerable<string> GetDefaultImports()
 		{
-			return defaultImports ?? ( defaultImports = new List<string>()
+			return defaultImports ?? (defaultImports = new List<string>()
 			{
 				"System",
 				"System.Collections.Generic",
@@ -38,7 +32,7 @@ namespace Banking
 				"Corruption.MiscFunctions",
 				"Banking",
 				"Banking.Rewards"
-			} );
+			});
 		}
 
 		public static IEnumerable<Assembly> GetReferences(bool addCallingAssembly = true)
@@ -64,37 +58,14 @@ namespace Banking
 			assemblies.Add(tshockAss);
 			assemblies.Add(corruptionAss);
 
-			if( addCallingAssembly )
+			if (addCallingAssembly)
 			{
 				var pluginAss = Assembly.GetCallingAssembly();
 				assemblies.Add(pluginAss);
 			}
 
-			assemblies.AddRange(BooHelpers.GetBooLangAssemblies());
-
 			return assemblies;
 		}
 
-		public static IEnumerable<EnsuredMethodSignature> GetEnsuredMethodSignatures()
-		{
-			var sigs = new List<EnsuredMethodSignature>()
-			{
-				new EnsuredMethodSignature("OnAccountDeposit")
-					.AddParameter("bank",typeof(Bank))
-					.AddParameter("info",typeof(BalanceChangedEventArgs)),
-
-				new EnsuredMethodSignature("OnAccountWithdraw")
-					.AddParameter("bank",typeof(Bank))
-					.AddParameter("info",typeof(BalanceChangedEventArgs)),
-				
-				new EnsuredMethodSignature("OnPreReward",typeof(decimal))
-					.AddParameter("playerName",typeof(string))
-					.AddParameter("reward",typeof(Reward))
-					.AddParameter("currency",typeof(CurrencyDefinition))
-					.AddParameter("value",typeof(decimal))
-			};
-
-			return sigs;
-		}
 	}
 }

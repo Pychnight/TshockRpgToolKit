@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
@@ -51,19 +49,19 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			//var settingspath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.xml");
 
 			//var corruptionPath = Assembly.GetExecutingAssembly().Location;
-			var corruptionPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),"ServerPlugins");
+			var corruptionPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "ServerPlugins");
 			var settingsFile = "tedit.settings.xml";
 			var settingsPath = Path.Combine(corruptionPath, settingsFile);
 
 			LoadObjectDbXml(settingsPath);
 			//Sprites.Add(new Sprite());
 
-			if( TileFrameImportant == null || TileFrameImportant.Length <= 0 )
+			if (TileFrameImportant == null || TileFrameImportant.Length <= 0)
 			{
 				TileFrameImportant = new bool[TileCount];
-				for( int i = 0; i < TileCount; i++ )
+				for (int i = 0; i < TileCount; i++)
 				{
-					if( TileProperties.Count > i )
+					if (TileProperties.Count > i)
 					{
 						TileFrameImportant[i] = TileProperties[i].IsFramed;
 					}
@@ -146,7 +144,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			//	GlobalColors.Add(name, color);
 			//}
 
-			foreach( var xElement in xmlSettings.Elements("Tiles").Elements("Tile") )
+			foreach (var xElement in xmlSettings.Elements("Tiles").Elements("Tile"))
 			{
 
 				var curTile = new TileProperty();
@@ -230,7 +228,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 				//		}
 				//	}
 				//}
-				if( curTile.Frames.Count == 0 && curTile.IsFramed )
+				if (curTile.Frames.Count == 0 && curTile.IsFramed)
 				{
 					var curFrame = new FrameProperty();
 					// Read XML attributes
@@ -274,7 +272,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			//	WallProperties.Add(curWall);
 			//}
 
-			foreach( var xElement in xmlSettings.Elements("Items").Elements("Item") )
+			foreach (var xElement in xmlSettings.Elements("Items").Elements("Item"))
 			{
 				var curItem = new ItemProperty();
 				curItem.Id = (int?)xElement.Attribute("Id") ?? -1;
@@ -283,19 +281,19 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 				ItemProperties.Add(curItem);
 				_itemLookup.Add(curItem.Id, curItem);
 				int tally = (int?)xElement.Attribute("Tally") ?? 0;
-				if( tally > 0 )
+				if (tally > 0)
 					_tallynames.Add(tally, curItem.Name);
 				int head = (int?)xElement.Attribute("Head") ?? -1;
-				if( head >= 0 )
+				if (head >= 0)
 					_armorHeadNames.Add(head, curItem.Name);
 				int body = (int?)xElement.Attribute("Body") ?? -1;
-				if( body >= 0 )
+				if (body >= 0)
 					_armorBodyNames.Add(body, curItem.Name);
 				int legs = (int?)xElement.Attribute("Legs") ?? -1;
-				if( legs >= 0 )
+				if (legs >= 0)
 					_armorLegsNames.Add(legs, curItem.Name);
 				bool rack = (bool?)xElement.Attribute("Rack") ?? false;
-				if( rack )
+				if (rack)
 					_rackable.Add(curItem.Id, curItem.Name);
 			}
 
@@ -379,7 +377,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			//	NpcFrames.Add(id, frames);
 			//}
 
-			foreach( var xElement in xmlSettings.Elements("ItemPrefix").Elements("Prefix") )
+			foreach (var xElement in xmlSettings.Elements("ItemPrefix").Elements("Prefix"))
 			{
 				int id = (int?)xElement.Attribute("Id") ?? -1;
 				string name = (string)xElement.Attribute("Name");
@@ -448,58 +446,28 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		//	return null;
 		//}
 
-		public static Dictionary<string, XNA.Color> GlobalColors
-		{
-			get { return _globalColors; }
-		}
+		public static Dictionary<string, XNA.Color> GlobalColors => _globalColors;
 
-		public static Dictionary<string, int> NpcIds
-		{
-			get { return _npcIds; }
-		}
+		public static Dictionary<string, int> NpcIds => _npcIds;
 
 		private static Dictionary<int, string> _npcNames = new Dictionary<int, string>();
-		public static Dictionary<int, string> NpcNames
-		{
-			get { return _npcNames; }
-		}
+		public static Dictionary<int, string> NpcNames => _npcNames;
 
-		public static Dictionary<int, string> ArmorHeadNames
-		{
-			get { return _armorHeadNames; }
-		}
-		public static Dictionary<int, string> ArmorBodyNames
-		{
-			get { return _armorBodyNames; }
-		}
-		public static Dictionary<int, string> ArmorLegsNames
-		{
-			get { return _armorLegsNames; }
-		}
-		public static Dictionary<int, string> Rackable
-		{
-			get { return _rackable; }
-		}
+		public static Dictionary<int, string> ArmorHeadNames => _armorHeadNames;
+		public static Dictionary<int, string> ArmorBodyNames => _armorBodyNames;
+		public static Dictionary<int, string> ArmorLegsNames => _armorLegsNames;
+		public static Dictionary<int, string> Rackable => _rackable;
 
-		public static Dictionary<int, int> NpcFrames
-		{
-			get { return _npcFrames; }
-		}
+		public static Dictionary<int, int> NpcFrames => _npcFrames;
 
-		public static Dictionary<byte, string> ItemPrefix
-		{
-			get { return _prefix; }
-		}
+		public static Dictionary<byte, string> ItemPrefix => _prefix;
 
 		//public static Dictionary<Key, string> ShortcutKeys
 		//{
 		//	get { return _shortcuts; }
 		//}
 
-		public static ObservableCollection<TileProperty> TileProperties
-		{
-			get { return _tileProperties; }
-		}
+		public static ObservableCollection<TileProperty> TileProperties => _tileProperties;
 
 
 		//public static ObservableCollection<TileProperty> TileBricks
@@ -520,10 +488,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		//	get { return _paintProperties; }
 		//}
 
-		public static ObservableCollection<ItemProperty> ItemProperties
-		{
-			get { return _itemProperties; }
-		}
+		public static ObservableCollection<ItemProperty> ItemProperties => _itemProperties;
 
 		//public static ObservableCollection<ChestProperty> ChestProperties
 		//{
@@ -535,10 +500,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		//	get { return _signProperties; }
 		//}
 
-		public static Dictionary<int, ItemProperty> ItemLookupTable
-		{
-			get { return _itemLookup; }
-		}
+		public static Dictionary<int, ItemProperty> ItemLookupTable => _itemLookup;
 
 		//public static ObservableCollection<Sprite> Sprites
 		//{

@@ -1,14 +1,10 @@
-﻿using System;
+﻿using CustomNpcs.Npcs;
+using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomNpcs.Npcs;
-using Microsoft.Xna.Framework;
-using OTAPI.Tile;
 using Terraria;
 using TShockAPI;
-using TShockAPI.DB;
-using TShockAPI.Localization;
-using System.Collections.ObjectModel;
 
 namespace CustomNpcs
 {
@@ -25,16 +21,16 @@ namespace CustomNpcs
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public static CustomNpc[] FindCustomNpcs(string name)
 		{
-			if( name == null )
+			if (name == null)
 			{
 				throw new ArgumentNullException(nameof(name));
 			}
 
 			var customNpcs = new List<CustomNpc>();
-			foreach( var npc in Main.npc.Where(n => n?.active == true) )
+			foreach (var npc in Main.npc.Where(n => n?.active == true))
 			{
 				var customNpc = NpcManager.Instance?.GetCustomNpc(npc);
-				if( name.Equals(customNpc?.Definition.Name, StringComparison.OrdinalIgnoreCase) )
+				if (name.Equals(customNpc?.Definition.Name, StringComparison.OrdinalIgnoreCase))
 				{
 					customNpcs.Add(customNpc);
 				}
@@ -50,16 +46,16 @@ namespace CustomNpcs
 		/// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
 		public static NPC[] FindNpcs(string name)
 		{
-			if( name == null )
+			if (name == null)
 			{
 				throw new ArgumentNullException(nameof(name));
 			}
 
 			var npcs = new List<NPC>();
-			foreach( var npc in Main.npc.Where(n => n?.active == true) )
+			foreach (var npc in Main.npc.Where(n => n?.active == true))
 			{
-				if( NpcManager.Instance?.GetCustomNpc(npc) == null &&
-					name.Equals(npc.TypeName, StringComparison.OrdinalIgnoreCase) )
+				if (NpcManager.Instance?.GetCustomNpc(npc) == null &&
+					name.Equals(npc.TypeName, StringComparison.OrdinalIgnoreCase))
 				{
 					npcs.Add(npc);
 				}
@@ -77,13 +73,13 @@ namespace CustomNpcs
 		/// <returns>The custom NPC, or <c>null</c> if spawning failed.</returns>
 		public static CustomNpc SpawnCustomNpc(string name, Vector2 position)
 		{
-			if( name == null )
+			if (name == null)
 			{
 				throw new ArgumentNullException(nameof(name));
 			}
 
 			var definition = NpcManager.Instance?.FindDefinition(name);
-			if( definition == null )
+			if (definition == null)
 			{
 				throw new FormatException($"Invalid custom NPC name '{name}'.");
 			}
@@ -109,17 +105,17 @@ namespace CustomNpcs
 		{
 			if (name == null)
 				throw new ArgumentNullException(nameof(name));
-			
+
 			if (radius <= 0)
 				throw new ArgumentOutOfRangeException(nameof(radius), "Radius must be positive.");
-			
+
 			if (amount <= 0)
 				throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
-			
+
 			var definition = NpcManager.Instance?.FindDefinition(name);
 			if (definition == null)
 				throw new FormatException($"Invalid CustomNpc name '{name}'.");
-			
+
 			var customNpcs = new List<CustomNpc>();
 			for (var i = 0; i < amount; ++i)
 			{
@@ -144,14 +140,14 @@ namespace CustomNpcs
 		/// <returns>The NPC, or <c>null</c> if spawning failed.</returns>
 		public static NPC SpawnNpc(string nameOrType, Vector2 position)
 		{
-			if( nameOrType == null )
+			if (nameOrType == null)
 			{
 				throw new ArgumentNullException(nameof(nameOrType));
 			}
 
 			//var npcType = GetNpcTypeFromNameOrType(nameOrType);
 			var npcType = Corruption.NpcFunctions.GetNpcIdFromNameOrType(nameOrType);
-			if( npcType == null )
+			if (npcType == null)
 			{
 				throw new FormatException($"Invalid NPC name or ID '{nameOrType}'.");
 			}
@@ -161,26 +157,23 @@ namespace CustomNpcs
 		}
 
 		//Utility function for replacing with a type.
-		public static bool IsType(NPC baseNpc, int type)
-		{
-			return baseNpc.netID == type;
-		}
+		public static bool IsType(NPC baseNpc, int type) => baseNpc.netID == type;
 
 		public static CustomNpc SpawnNpcPart(CustomNpc npc, string customId)
 		{
-			if( npc == null )
+			if (npc == null)
 				return null;
 
 			var realNpc = npc.Npc;
 
-			if( realNpc.active != true )
+			if (realNpc.active != true)
 				return null;
 
 			var pos = npc.Center;
 			var part = SpawnCustomNpc(customId, pos);
-						
+
 			npc.AttachChild(part);
-			
+
 			return part;
 		}
 	}

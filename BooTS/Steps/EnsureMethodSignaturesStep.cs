@@ -1,11 +1,6 @@
-﻿using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.Steps;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BooTS
 {
@@ -14,17 +9,14 @@ namespace BooTS
 		public string DefaultName { get; set; }
 		public Type Type { get; set; } = typeof(object);
 
-		public EnsuredParameter() {}
+		public EnsuredParameter() { }
 		public EnsuredParameter(string defaultName, Type type)
 		{
 			DefaultName = defaultName;
 			Type = type;
 		}
 
-		public override string ToString()
-		{
-			return $"{DefaultName} as {Type}";
-		}
+		public override string ToString() => $"{DefaultName} as {Type}";
 	}
 
 	/// <summary>
@@ -48,7 +40,7 @@ namespace BooTS
 		{
 		}
 
-		public EnsuredMethodSignature(string name, Type returnType, IEnumerable<EnsuredParameter> parameters )
+		public EnsuredMethodSignature(string name, Type returnType, IEnumerable<EnsuredParameter> parameters)
 		{
 			Name = name;
 			ReturnType = returnType;
@@ -64,27 +56,27 @@ namespace BooTS
 
 		internal void Ensure(CompilerContext context, Method method)
 		{
-			if( method.Parameters.Count != this.Parameters.Count )
+			if (method.Parameters.Count != this.Parameters.Count)
 			{
 				context.Errors.Add(CompilerErrorFactory.MethodArgumentCount(method, method.Name, this.Parameters.Count));
 				return;
 			}
 
 			//ensure return type
-			if(method.ReturnType==null)
+			if (method.ReturnType == null)
 				method.ReturnType = new SimpleTypeReference(ReturnType.FullName);
 
 			//ensure parameter types			
-			for( var i = 0;i<this.Parameters.Count;i++)
+			for (var i = 0; i < this.Parameters.Count; i++)
 			{
 				var paramtTypeRef = method.Parameters[i].Type;
-					
-				if(paramtTypeRef==null)
+
+				if (paramtTypeRef == null)
 				{
 					var ensuredType = this.Parameters[i].Type;
 					TypeReference typeRef = null;
 
-					if(ensuredType.IsGenericType)
+					if (ensuredType.IsGenericType)
 					{
 						var args = new SimpleTypeReference(ensuredType.GenericTypeArguments[0].Name);
 
@@ -92,13 +84,13 @@ namespace BooTS
 						var tick = name.IndexOf('`');
 
 						name = name.Substring(0, tick);
-						
-						typeRef = new GenericTypeReference(name,args);
+
+						typeRef = new GenericTypeReference(name, args);
 					}
 					else
 					{
 						typeRef = new SimpleTypeReference(ensuredType.FullName);
-						
+
 					}
 
 					method.Parameters[i].Type = typeRef;
@@ -106,10 +98,7 @@ namespace BooTS
 			}
 		}
 
-		public override string ToString()
-		{
-			return $"{Name}() as {ReturnType}";
-		}
+		public override string ToString() => $"{Name}() as {ReturnType}";
 	}
 
 	/// <summary>
@@ -117,7 +106,7 @@ namespace BooTS
 	/// </summary>
 	public class EnsureMethodSignaturesStep : AbstractTransformerCompilerStep
 	{
-		Dictionary<string,EnsuredMethodSignature> signatures;
+		Dictionary<string, EnsuredMethodSignature> signatures;
 
 		public EnsureMethodSignaturesStep()
 		{
@@ -128,16 +117,16 @@ namespace BooTS
 		{
 			signatures.Clear();
 
-			if( ensuredMethodSignatures == null )
+			if (ensuredMethodSignatures == null)
 				return;
 
-			foreach(var es in ensuredMethodSignatures)
+			foreach (var es in ensuredMethodSignatures)
 				signatures.Add(es.Name, es);
 		}
-		
+
 		public override void Run()
 		{
-			if( signatures.Count < 1 )
+			if (signatures.Count < 1)
 				return;
 
 			base.Visit<Module>(base.CompileUnit.Modules);
@@ -145,18 +134,18 @@ namespace BooTS
 
 		public override void OnModule(Module node)
 		{
-			if( !node.HasMethods )
+			if (!node.HasMethods)
 				return;
 
-			foreach( var m in node.Members)
-									//.Where( m => m.IsPublic && m.IsStatic )
-									//.Select( m => m as Method ) )
+			foreach (var m in node.Members)
+			//.Where( m => m.IsPublic && m.IsStatic )
+			//.Select( m => m as Method ) )
 			{
 				var method = m as Method;
 
-				if(method!=null)
+				if (method != null)
 				{
-					if( signatures.TryGetValue(method.Name, out var sig) )
+					if (signatures.TryGetValue(method.Name, out var sig))
 						sig.Ensure(Context, method);
 				}
 			}

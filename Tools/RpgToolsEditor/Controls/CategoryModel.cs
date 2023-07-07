@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Controls
 {
@@ -24,7 +22,7 @@ namespace RpgToolsEditor.Controls
 			set
 			{
 				name = value;
-				PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Name)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
 
@@ -60,7 +58,7 @@ namespace RpgToolsEditor.Controls
 
 			var models = new List<TModel>();
 
-			foreach(var inc in Includes)
+			foreach (var inc in Includes)
 			{
 				var includeModel = new IncludeModel(basePath, inc);
 				includeModel.Load<TModel>();
@@ -70,9 +68,6 @@ namespace RpgToolsEditor.Controls
 			return models;
 		}
 
-		object ICloneable.Clone()
-		{
-			return new CategoryModel(this);
-		}
+		object ICloneable.Clone() => new CategoryModel(this);
 	}
 }

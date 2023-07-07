@@ -1,6 +1,4 @@
-﻿using RpgToolsEditor.Models;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -31,7 +29,7 @@ namespace RpgToolsEditor.Controls
 		public bool IsTreeDirty
 		{
 			get => isTreeDirty;
-			set 
+			set
 			{
 				isTreeDirty = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTreeDirty)));
@@ -44,8 +42,11 @@ namespace RpgToolsEditor.Controls
 		public SaveFileDialog SaveFileDialog { get; set; }
 		public ModelTree ModelTree { get; set; }
 		protected PropertyGrid PropertyGrid => propertyGridItemEditor;
-		public ImageList ItemImageList { get => treeViewItems.ImageList;
-		set => treeViewItems.ImageList = value; }
+		public ImageList ItemImageList
+		{
+			get => treeViewItems.ImageList;
+			set => treeViewItems.ImageList = value;
+		}
 
 		/// <summary>
 		/// Gets or sets whether to put this ModelTreeEditor into a special mode, where it relies on a single root node of type FolderTreeNode.
@@ -55,7 +56,7 @@ namespace RpgToolsEditor.Controls
 		//if treeview loses focus, this is set so that we don't perform a check to see if a valid treenode has been selected
 		//on the first click back into the treeview. This avoids frustrating deselection for the end user. 
 		bool skipCheckForSelectedTreeNode = false;
-		
+
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public ModelTreeEditor()
@@ -76,9 +77,9 @@ namespace RpgToolsEditor.Controls
 			ExtendedItemControls = itemControls;
 
 			var toolStrip = itemControls.CreateToolStrip(this.treeViewItems);
-			
+
 			toolStripContainerItems.LeftToolStripPanel.Controls.Add(toolStrip);
-			
+
 			//lets jump through hoops... ordering is broken(?) in ToolStripContainer. We copy to a list, and re-add controls to defeat.  
 			var controls = toolStripContainerItems.LeftToolStripPanel.Controls;
 			var controlsList = controls.Cast<Control>().ToList();
@@ -103,9 +104,9 @@ namespace RpgToolsEditor.Controls
 		{
 			var selectedNode = treeViewItems.SelectedNode as ModelTreeNode;
 
-			if( selectedNode != null )
+			if (selectedNode != null)
 			{
-				if( selectedNode.CanAdd )
+				if (selectedNode.CanAdd)
 				{
 					selectedNode.AddItem();
 					selectedNode.Expand();
@@ -114,14 +115,14 @@ namespace RpgToolsEditor.Controls
 				}
 			}
 
-			if( UseSingleFolderTreeNode )
+			if (UseSingleFolderTreeNode)
 			{
 				//special mode
 
 				//ensure we have root folder
 				FolderTreeNode rootFolderNode = null;
-				
-				if(treeViewItems.Nodes.Count<1)
+
+				if (treeViewItems.Nodes.Count < 1)
 				{
 					rootFolderNode = new FolderTreeNode();
 					treeViewItems.Nodes.Add(rootFolderNode);
@@ -130,7 +131,7 @@ namespace RpgToolsEditor.Controls
 				{
 					rootFolderNode = (FolderTreeNode)treeViewItems.Nodes[0];
 				}
-				
+
 				//add default item to root folder..
 				var defaultNode = ModelTree.CreateDefaultItem();
 				rootFolderNode.Nodes.Add(defaultNode);
@@ -150,16 +151,16 @@ namespace RpgToolsEditor.Controls
 		{
 			var selectedNode = treeViewItems.SelectedNode as ModelTreeNode;
 
-			if( selectedNode != null )
+			if (selectedNode != null)
 			{
-				if( selectedNode.CanCopy )
+				if (selectedNode.CanCopy)
 				{
 					var copy = selectedNode.Copy();
 
 					copy.Model.TryAddCopySuffix();
 
 					selectedNode.InsertAfter(copy);
-					
+
 					IsTreeDirty = true;
 				}
 			}
@@ -169,9 +170,9 @@ namespace RpgToolsEditor.Controls
 		{
 			var selectedNode = treeViewItems.SelectedNode as ModelTreeNode;
 
-			if( selectedNode != null )
+			if (selectedNode != null)
 			{
-				if( selectedNode.CanDelete )
+				if (selectedNode.CanDelete)
 				{
 					selectedNode.Remove();
 					tryUpdateNoSelectedNodeState();
@@ -185,14 +186,14 @@ namespace RpgToolsEditor.Controls
 		/// </summary>
 		private void tryUpdateNoSelectedNodeState()
 		{
-			if( treeViewItems.SelectedNode == null )
+			if (treeViewItems.SelectedNode == null)
 			{
 				toolStripButtonCopy.Enabled = false;
 				toolStripButtonDelete.Enabled = false;
 				propertyGridItemEditor.SelectedObject = null;
 			}
 		}
-		
+
 		protected virtual void OnFileLoad(string fileName)
 		{
 			var nodes = ModelTree.LoadTree(fileName);
@@ -204,12 +205,12 @@ namespace RpgToolsEditor.Controls
 			var nodes = GetTreeViewModels();
 			ModelTree.SaveTree(nodes, fileName);
 		}
-				
+
 		protected void SetTreeViewModels<T>(IList<T> boundTreeNodes) where T : ModelTreeNode
 		{
 			treeViewItems.Nodes.Clear();
 
-			foreach( var bt in boundTreeNodes )
+			foreach (var bt in boundTreeNodes)
 			{
 				treeViewItems.Nodes.Add(bt);
 			}
@@ -221,19 +222,19 @@ namespace RpgToolsEditor.Controls
 			var modelTreeNodes = nodes.Cast<ModelTreeNode>().ToList();
 			return modelTreeNodes;
 		}
-		
+
 		public void NewFile()
 		{
-			if( IsTreeDirty )
+			if (IsTreeDirty)
 			{
 				var result = MessageBox.Show("There are unsaved changes present. Proceed?", "Delete Items?", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
-				if( result != DialogResult.OK )
+				if (result != DialogResult.OK)
 					return;
 			}
 
 			Clear();
-			
+
 			//if(!SupportMultipleItems)
 			//{
 			//	//we're in single item mode, so create a default item...
@@ -242,42 +243,30 @@ namespace RpgToolsEditor.Controls
 			//}
 		}
 
-		private void toolStripButtonNewFile_Click(object sender, EventArgs e)
-		{
-			NewFile();
-		}
-		
-		private void toolStripButtonAddItem_Click(object sender, EventArgs e)
-		{
-			CreateItem();
-		}
-		
-		private void toolStripButtonCopy_Click(object sender, EventArgs e)
-		{
-			CopySelectedItem();
-		}
+		private void toolStripButtonNewFile_Click(object sender, EventArgs e) => NewFile();
 
-		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e)
-		{
-			DeleteSelectedItem();
-		}
+		private void toolStripButtonAddItem_Click(object sender, EventArgs e) => CreateItem();
+
+		private void toolStripButtonCopy_Click(object sender, EventArgs e) => CopySelectedItem();
+
+		private void toolStripButtonDeleteItem_Click(object sender, EventArgs e) => DeleteSelectedItem();
 
 		public void OpenFile()
 		{
-			if( IsTreeDirty )
+			if (IsTreeDirty)
 			{
 				var confirm = MessageBox.Show("There are unsaved changes present. This will replace the current data. Proceed?",
 												"Unsaved Data",
 												MessageBoxButtons.OKCancel,
 												MessageBoxIcon.Warning);
 
-				if( confirm == DialogResult.Cancel )
+				if (confirm == DialogResult.Cancel)
 					return;
 			}
 
 			var result = OpenFileDialog.ShowDialog();
 
-			if( result == DialogResult.OK )
+			if (result == DialogResult.OK)
 			{
 				try
 				{
@@ -287,17 +276,14 @@ namespace RpgToolsEditor.Controls
 					IsTreeDirty = false;
 					CurrentFilePath = OpenFileDialog.FileName;
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 		}
 
-		private void toolStripButtonFileOpen_Click(object sender, EventArgs e)
-		{
-			OpenFile();
-		}
+		private void toolStripButtonFileOpen_Click(object sender, EventArgs e) => OpenFile();
 
 		public void SaveFileAsImpl(string fileName)
 		{
@@ -315,7 +301,7 @@ namespace RpgToolsEditor.Controls
 
 				CurrentFilePath = fileName; // SaveFileDialog.FileName;
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
@@ -323,16 +309,16 @@ namespace RpgToolsEditor.Controls
 
 		public void SaveFileAs()
 		{
-			if( UseSingleFolderTreeNode )
+			if (UseSingleFolderTreeNode)
 			{
 				//we dont use the folderbrowserdialog, because it sucks badly. SaveFileDialog expects files though, so..
 				//we set a path placeholder to keep it happy.
 				SaveFileDialog.FileName = Path.GetFileName(CurrentFilePath); //"__folder_goes_here__";
 			}
-			
+
 			var result = SaveFileDialog.ShowDialog();
 
-			if( result == DialogResult.OK )
+			if (result == DialogResult.OK)
 			{
 				SaveFileAsImpl(SaveFileDialog.FileName);
 			}
@@ -340,28 +326,22 @@ namespace RpgToolsEditor.Controls
 
 		public void SaveFile()
 		{
-			if( string.IsNullOrWhiteSpace(CurrentFilePath) )
+			if (string.IsNullOrWhiteSpace(CurrentFilePath))
 				SaveFileAs();
 			else
 				SaveFileAsImpl(CurrentFilePath);
 		}
 
-		private void toolStripButtonFileSave_Click(object sender, EventArgs e)
-		{
-			SaveFile();
-		}
+		private void toolStripButtonFileSave_Click(object sender, EventArgs e) => SaveFile();
 
-		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e)
-		{
-			SaveFileAs();
-		}
-		
+		private void toolStripButtonFileSaveAs_Click(object sender, EventArgs e) => SaveFileAs();
+
 		private void treeViewItems_AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			var selected = (ModelTreeNode)e.Node;
 			object target;
 
-			if(selected!=null)
+			if (selected != null)
 			{
 				toolStripButtonCopy.Enabled = selected.CanCopy;
 				toolStripButtonDelete.Enabled = selected.CanDelete;
@@ -371,8 +351,8 @@ namespace RpgToolsEditor.Controls
 				toolStripButtonCopy.Enabled = false;
 				toolStripButtonDelete.Enabled = false;
 			}
-			
-			if( selected.CanEditModel )
+
+			if (selected.CanEditModel)
 				target = selected.Model;
 			else
 				target = null;
@@ -382,14 +362,11 @@ namespace RpgToolsEditor.Controls
 			//	onExtendedItemControls_AfterSelect(this, e);
 			//}
 
-						
+
 			propertyGridItemEditor.SelectedObject = target;
 		}
 
-		private void treeViewItems_Leave(object sender, EventArgs e)
-		{
-			skipCheckForSelectedTreeNode = true;
-		}
+		private void treeViewItems_Leave(object sender, EventArgs e) => skipCheckForSelectedTreeNode = true;
 
 		private void treeViewItems_MouseUp(object sender, MouseEventArgs e)
 		{
@@ -397,7 +374,7 @@ namespace RpgToolsEditor.Controls
 			//this is especially important since ModelTreeEditor is context sensitive via the selected node.
 
 			//if(!treeViewItems.Focused)
-			if(skipCheckForSelectedTreeNode)
+			if (skipCheckForSelectedTreeNode)
 			{
 				//...but if the user has move to another control, and reclicked inside DO NOT deselect. 
 				skipCheckForSelectedTreeNode = false;
@@ -405,8 +382,8 @@ namespace RpgToolsEditor.Controls
 			}
 
 			var clickedNode = treeViewItems.GetNodeAt(treeViewItems.PointToClient(MousePosition));
-			
-			if(clickedNode == null)
+
+			if (clickedNode == null)
 			{
 				treeViewItems.SelectedNode = null;
 				propertyGridItemEditor.SelectedObject = null;
@@ -417,17 +394,14 @@ namespace RpgToolsEditor.Controls
 		{
 			var node = e.Item as ModelTreeNode;
 
-			if(node!=null && node.CanDrag)
+			if (node != null && node.CanDrag)
 			{
 				DoDragDrop(e.Item, DragDropEffects.Move);
 			}
 		}
 
-		private void treeViewItems_DragEnter(object sender, DragEventArgs e)
-		{
-			e.Effect = DragDropEffects.Move;
-		}
-		
+		private void treeViewItems_DragEnter(object sender, DragEventArgs e) => e.Effect = DragDropEffects.Move;
+
 		private void treeViewItems_DragDrop(object sender, DragEventArgs e)
 		{
 			// Retrieve the client coordinates of the drop location.
@@ -438,27 +412,24 @@ namespace RpgToolsEditor.Controls
 
 			// Retrieve the node that was dragged.
 			var draggedNode = e.Data.GetData(e.Data.GetFormats()[0]) as ModelTreeNode;
-			
-			if( draggedNode == null )
+
+			if (draggedNode == null)
 				return;
 
 			// Confirm that the node at the drop location is not 
 			// the dragged node and that target node isn't null
 			// (for example if you drag outside the control)
-			if( !draggedNode.Equals(targetNode) && targetNode != null )
+			if (!draggedNode.Equals(targetNode) && targetNode != null)
 			{
 				//if( targetNode.CanAcceptDraggedNode(draggedNode) )
 				targetNode.TryAcceptDraggedNode(draggedNode);
 			}
-			else if( targetNode == null )
+			else if (targetNode == null)
 			{
 				draggedNode.TryDropWithNoTarget(treeViewItems);
 			}
 		}
 
-		private void propertyGridItemEditor_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-		{
-			IsTreeDirty = true;
-		}
+		private void propertyGridItemEditor_PropertyValueChanged(object s, PropertyValueChangedEventArgs e) => IsTreeDirty = true;
 	}
 }

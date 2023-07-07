@@ -1,13 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms.Design;
-using RpgToolsEditor.Controls;
-using Newtonsoft.Json;
-using System.Drawing.Design;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -28,14 +24,14 @@ namespace RpgToolsEditor.Models.NpcShops
 			set
 			{
 				name = value;
-				PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Name)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
 
 		[Category("Filesystem")]
 		[Description("The file name of this shop within the folder.")]
 		public string Filename { get => Name; set => Name = value; }
-		
+
 		/// <summary>
 		///     Gets the closing time.
 		/// </summary>
@@ -128,10 +124,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			ShopCommands = other.ShopCommands.Select(s => new ShopCommand(s)).ToList();
 			ShopItems = other.ShopItems.Select(s => new ShopItem(s)).ToList();
 		}
-		
-		object ICloneable.Clone()
-		{
-			return new NpcShop(this);
-		}
+
+		object ICloneable.Clone() => new NpcShop(this);
 	}
 }

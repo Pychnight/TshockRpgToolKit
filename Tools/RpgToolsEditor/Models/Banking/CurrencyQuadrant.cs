@@ -1,12 +1,7 @@
 ﻿//using Corruption.PluginSupport;
 //using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.Banking
 {
@@ -30,7 +25,7 @@ namespace RpgToolsEditor.Models.Banking
 		[Category("Basic")]
 		[JsonProperty(Order = 3)]
 		public string Abbreviation { get; set; }
-				
+
 		[JsonProperty(Order = 4)]
 		public string CombatText { get; set; }
 
@@ -74,9 +69,6 @@ namespace RpgToolsEditor.Models.Banking
 			LossColorString = source.LossColorString;
 		}
 
-		public override string ToString()
-		{
-			return FullName;// ('{Abbreviation}')";
-		}
+		public override string ToString() => FullName;// ('{Abbreviation}')";
 	}
 }

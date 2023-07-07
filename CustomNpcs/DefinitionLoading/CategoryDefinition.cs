@@ -4,9 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomNpcs
 {
@@ -23,7 +20,7 @@ namespace CustomNpcs
 
 		[JsonIgnore]
 		public override string ScriptPath { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-			
+
 		[JsonProperty(Order = 0)]
 		public string Category { get; set; }
 
@@ -32,13 +29,13 @@ namespace CustomNpcs
 
 		[JsonIgnore]
 		public Dictionary<string, DefinitionInclude> DefinitionIncludes { get; set; } = new Dictionary<string, DefinitionInclude>();
-				
+
 		internal List<TDefinition> TryLoadIncludes<TDefinition>(string parentFilePath) where TDefinition : DefinitionBase
 		{
 			var result = new List<TDefinition>();
 			var basePath = Path.GetDirectoryName(parentFilePath);
 
-			foreach( var includeName in Includes )
+			foreach (var includeName in Includes)
 			{
 				var includePath = Path.Combine(basePath, includeName);
 
@@ -47,12 +44,12 @@ namespace CustomNpcs
 					var json = File.ReadAllText(includePath);
 					var definitions = JsonConvert.DeserializeObject<List<TDefinition>>(json);
 
-					foreach( var def in definitions )
+					foreach (var def in definitions)
 						def.FilePosition = new FilePosition(includePath);
 
 					result.AddRange(definitions);
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					CustomNpcsPlugin.Instance.LogPrint($"An error occurred while loading definition file '{includePath}': {ex.Message}", TraceLevel.Error);
 				}

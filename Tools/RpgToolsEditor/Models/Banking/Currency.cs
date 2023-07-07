@@ -9,12 +9,8 @@ using RpgToolsEditor.Controls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing.Design;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wexman.Design;
 
 namespace RpgToolsEditor.Models.Banking
@@ -113,25 +109,25 @@ namespace RpgToolsEditor.Models.Banking
 		[JsonProperty(Order = 13, PropertyName = "DefaultMiningValue")]
 		[Description("Sets the default value given for mining tiles, if enabled.")]
 		public string DefaultMiningValueString { get; set; } = "";
-		
+
 		[Category("Placing")]
 		[DisplayName("DefaultPlacingValue")]
 		[Description("Sets the default value given for placing tiles, if enabled.")]
 		[JsonProperty(Order = 14, PropertyName = "DefaultPlacingValue")]
 		public string DefaultPlacingValueString { get; set; } = "";
-		
+
 		[Category("Fishing")]
 		[DisplayName("DefaultFishingValue")]
 		[Description("Sets the default value given for fishing items, if enabled.")]
 		[JsonProperty(Order = 15, PropertyName = "DefaultFishingValue")]
 		public string DefaultFishingValueString { get; set; } = "";
-		
+
 		[Category("Playing")]
 		[DisplayName("DefaultPlayingValue")]
 		[Description("Sets the default value given for playing long enough, if enabled.")]
 		[JsonProperty(Order = 16, PropertyName = "DefaultPlayingValue")]
 		public string DefaultPlayingValueString { get; set; } = "";
-		
+
 		[Category("Killing")]
 		[Description("Scales killing rewards, per weapon, if killing is enabled.")]
 		[JsonProperty(Order = 17)]
@@ -170,7 +166,7 @@ namespace RpgToolsEditor.Models.Banking
 		[Description("Reward values, per tshock group name, per tile or wall, if Mining is enabled. This overrides values set in MiningOverrides.")]
 		[JsonProperty(Order = 22)]
 		[Editor(typeof(GenericDictionaryEditor<string, ValueOverrideList<TileKey>>), typeof(UITypeEditor))]
-		[GenericDictionaryEditor(Title = "Group Mining Overrides", ValueEditorType = typeof(MiningCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Mining Overrides" )]
+		[GenericDictionaryEditor(Title = "Group Mining Overrides", ValueEditorType = typeof(MiningCollectionEditor), KeyDisplayName = "Group", ValueDisplayName = "Mining Overrides")]
 		public GroupValueOverrides<TileKey> GroupMiningOverrides { get; set; } = new GroupValueOverrides<TileKey>();
 
 		[Category("Placing")]
@@ -197,7 +193,7 @@ namespace RpgToolsEditor.Models.Banking
 		//We want to reuse the GroupValueOverrides type, but GroupPlayingOverrides property doesn't need a specialized key.
 		//In order to reuse the existing code, we give GroupPlayingOverrides a dummy key placeholder and call it a day.  
 		internal const string DummyKeyString = "key";
-		
+
 		public CurrencyDefinition()
 		{
 		}
@@ -240,14 +236,8 @@ namespace RpgToolsEditor.Models.Banking
 			TradePermission = source.TradePermission;
 		}
 
-		public object Clone()
-		{
-			return new CurrencyDefinition(this);
-		}
+		public object Clone() => new CurrencyDefinition(this);
 
-		public override string ToString()
-		{
-			return InternalName;
-		}
+		public override string ToString() => InternalName;
 	}
 }

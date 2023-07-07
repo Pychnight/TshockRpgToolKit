@@ -1,8 +1,5 @@
-﻿using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -14,8 +11,8 @@ namespace BooTS
 	public class BooScriptAssembly
 	{
 		internal HashSet<SourceFile> SourceFiles { get; set; } //really need a safe public means for getting at source files. Working with the hashset directly
-																		//has potential for inconsistent state from SourceFilesChanged.
-		
+															   //has potential for inconsistent state from SourceFilesChanged.
+
 		/// <summary>
 		/// Gets the time of the last successful build.
 		/// </summary>
@@ -25,7 +22,7 @@ namespace BooTS
 		/// Gets the generated Assembly, if one was built.
 		/// </summary>
 		public Assembly Assembly { get; protected set; }
-		
+
 		/// <summary>
 		/// Gets if this BooScriptAssembly has been built, and is runnable.
 		/// </summary>
@@ -35,7 +32,7 @@ namespace BooTS
 		/// Gets whether the set of source code files has changed.
 		/// </summary>
 		public bool SourceFilesChanged { get; private set; }
-		
+
 		public BooScriptAssembly(IEnumerable<string> fileNames)
 		{
 			var sourceFiles = fileNames.Select(f => new SourceFile(f));
@@ -47,10 +44,7 @@ namespace BooTS
 		/// Sets or recreate the entire list of input files.
 		/// </summary>
 		/// <param name="fileNames"></param>
-		public void SetSourceFiles(params string[] fileNames)
-		{
-			SetSourceFiles(fileNames as IEnumerable<string>);
-		}
+		public void SetSourceFiles(params string[] fileNames) => SetSourceFiles(fileNames as IEnumerable<string>);
 
 		/// <summary>
 		/// Sets or recreate the entire list of input files.
@@ -99,7 +93,7 @@ namespace BooTS
 			if (!IsBuilt || SourceFilesChanged)
 				return false;
 
-			foreach(var sf in SourceFiles)
+			foreach (var sf in SourceFiles)
 			{
 				if (!sf.Exists)
 					return false;
@@ -117,7 +111,7 @@ namespace BooTS
 		/// <param name="buildFunc">Func to compile.</param>
 		/// <param name="context">A Boo CompilerContext.</param>
 		/// <returns>True if a build happened, false otherwise.</returns>
-		public bool TryRebuild(Func<BooScriptAssembly, CompilerContext> buildFunc, out CompilerContext context )
+		public bool TryRebuild(Func<BooScriptAssembly, CompilerContext> buildFunc, out CompilerContext context)
 		{
 			if (IsUpToDate())
 			{
@@ -134,14 +128,14 @@ namespace BooTS
 		/// <param name="buildFunc">Func to compile.</param>
 		/// <param name="context">A Boo CompilerContext.</param>
 		/// <returns>True if a build happened, false otherwise.</returns>
-		public bool TryBuild( Func<BooScriptAssembly, CompilerContext> buildFunc, out CompilerContext context)
+		public bool TryBuild(Func<BooScriptAssembly, CompilerContext> buildFunc, out CompilerContext context)
 		{
 			if (buildFunc == null)
 				throw new ArgumentNullException("buildFunc cannot be null.");
 
 			context = buildFunc(this);
 
-			if(context != null)
+			if (context != null)
 			{
 				Assembly = context.GeneratedAssembly;
 				BuildTime = DateTime.Now;

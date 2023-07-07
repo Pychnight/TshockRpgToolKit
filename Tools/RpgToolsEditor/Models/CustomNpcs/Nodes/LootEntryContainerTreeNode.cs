@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using RpgToolsEditor.Controls;
+using System.Collections.Generic;
 using System.Linq;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
@@ -17,7 +17,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		//{
 		//	Model = model;
 		//}
-		
+
 		public override void AddChildModel(IModel model)
 		{
 			var node = new LootEntryTreeNode()
@@ -34,7 +34,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		public override IList<IModel> GetChildModels()
 		{
 			var models = new List<IModel>();
-			var lootEntries = Nodes.Cast<LootEntryTreeNode>().Select( n => (LootEntry)n.Model);
+			var lootEntries = Nodes.Cast<LootEntryTreeNode>().Select(n => (LootEntry)n.Model);
 
 			models.AddRange(lootEntries);
 

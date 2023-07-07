@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Banking
@@ -22,33 +21,33 @@ namespace Banking
 			var parameters = args.Parameters;
 			var player = args.Player;
 
-			if( parameters.Count == 0 )
+			if (parameters.Count == 0)
 			{
 				viewBankHelp(args.Player);
 				return;
 			}
 
-			if( parameters.Count > 0 )
+			if (parameters.Count > 0)
 			{
 				var subcommand = parameters[0];
 
-				switch( subcommand )
+				switch (subcommand)
 				{
 					case "bal":
 
 						var pageNumber = 1;
 
-						if(parameters.Count==2)
+						if (parameters.Count == 2)
 						{
 							var param = parameters[1];
 
-							if(int.TryParse(param, out pageNumber))
+							if (int.TryParse(param, out pageNumber))
 							{
 								viewBalance(player, pageNumber);
 							}
 							else
 							{
-								viewBalance(player, param );
+								viewBalance(player, param);
 							}
 						}
 						else
@@ -62,7 +61,7 @@ namespace Banking
 						break;
 
 					case "pay":
-						if( parameters.Count >= 3 )
+						if (parameters.Count >= 3)
 						{
 							var target = parameters[1];
 							payPlayerSmart(player, target, parameters.GetRange(2, parameters.Count - 2));
@@ -89,14 +88,14 @@ namespace Banking
 			var player = args.Player;
 			var parameters = args.Parameters;
 
-			if( parameters.Count > 0 )
+			if (parameters.Count > 0)
 			{
 				var subcommand = parameters[0];
 
-				switch( subcommand )
+				switch (subcommand)
 				{
 					case "set":
-						if( parameters.Count == 4 )
+						if (parameters.Count == 4)
 						{
 							var currency = parameters[1];
 							var targetName = parameters[2];
@@ -108,7 +107,7 @@ namespace Banking
 						break;
 
 					case "give":
-						if( parameters.Count == 4 )
+						if (parameters.Count == 4)
 						{
 							var currency = parameters[1];
 							var targetName = parameters[2];
@@ -120,7 +119,7 @@ namespace Banking
 						break;
 
 					case "take":
-						if( parameters.Count == 4 )
+						if (parameters.Count == 4)
 						{
 							var currency = parameters[1];
 							var targetName = parameters[2];
@@ -132,18 +131,18 @@ namespace Banking
 						break;
 
 					case "reset":
-						if( parameters.Count == 3 )
+						if (parameters.Count == 3)
 						{
 							var currency = parameters[1];
 							var targetName = parameters[2];
-							
+
 							resetPlayerBalance(player, currency, targetName);
 							return;
 						}
 						break;
 
 					case "bal":
-						if( parameters.Count == 3 )
+						if (parameters.Count == 3)
 						{
 							var currency = parameters[1];
 							var targetName = parameters[2];
@@ -181,18 +180,18 @@ namespace Banking
 			player.SendErrorMessage($"{Commands.Specifier}bank list");
 		}
 
-		private static void viewBalance(TSPlayer client, string currencyType, string target=null)
+		private static void viewBalance(TSPlayer client, string currencyType, string target = null)
 		{
 			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyType];
 			var account = BankingPlugin.Instance.GetBankAccount(!string.IsNullOrWhiteSpace(target) ? target : client.Name, currencyType);
 
-			if( currency == null )
+			if (currency == null)
 			{
 				client.SendErrorMessage($"Unable to find currency type '{currencyType}'.");
 				return;
 			}
 
-			if( account == null )
+			if (account == null)
 			{
 				client.SendErrorMessage($"Unable to find account for currency '{currencyType}'.");
 				return;
@@ -207,38 +206,38 @@ namespace Banking
 			const int itemsPerPage = 4;
 			var lines = new List<string>(BankingPlugin.Instance.Bank.CurrencyManager.Count);
 
-			foreach(var currency in BankingPlugin.Instance.Bank.CurrencyManager)
+			foreach (var currency in BankingPlugin.Instance.Bank.CurrencyManager)
 			{
 				var account = BankingPlugin.Instance.GetBankAccount(client.Name, currency.InternalName);
-				
-				if( account == null )
+
+				if (account == null)
 				{
 					client.SendErrorMessage($"Unable to find account for currency '{currency.InternalName}'.");
 					return;
 				}
 
 				var balance = currency.GetCurrencyConverter().ToString(account.Balance);//, true);
-				
+
 				lines.Add($"{currency.InternalName} - {balance}");
 			}
 
 			var pageCount = lines.PageCount(itemsPerPage);
 
-			if( pageNumber < 1 || pageNumber > pageCount )
+			if (pageNumber < 1 || pageNumber > pageCount)
 				pageNumber = 1;
 
-			var page = lines.GetPage(pageNumber-1, itemsPerPage);//we display based off of 1
-			
+			var page = lines.GetPage(pageNumber - 1, itemsPerPage);//we display based off of 1
+
 			client.SendMessage($"Page #{pageNumber} of {pageCount}.", Color.Green);
 
-			foreach(var l in page)
+			foreach (var l in page)
 			{
 				client.SendInfoMessage(l);
 			}
 
 			client.SendMessage("Use /bank bal <page> or /bank bal <currency> to see more.", Color.Green);
 		}
-		
+
 		private static void payPlayerSmart(TSPlayer client, string targetName, IEnumerable<string> amounts)
 		{
 			var combinedAmounts = new StringBuilder();
@@ -248,27 +247,27 @@ namespace Banking
 			//but for better error reporting, we use this original version.
 			var quadNames = CurrencyConverter.ParseQuadrantNames(combinedAmounts.ToString());
 
-			if(quadNames.Count<1)
+			if (quadNames.Count < 1)
 			{
 				client.SendErrorMessage("Invalid input. Please check your formatting, and try again.");
 				return;
 			}
-						
+
 			var mgr = BankingPlugin.Instance.Bank.CurrencyManager;
 			var firstQuad = quadNames.First();
 			var currency = mgr.GetCurrencyByQuadName(firstQuad);
-			if( currency == null )
+			if (currency == null)
 			{
 				client.SendErrorMessage($"'{firstQuad}' does not belong to a known Currency.");
 				return;
 			}
-			
+
 			//ensure all quads lead to the same currency
-			foreach(var quadName in quadNames)
+			foreach (var quadName in quadNames)
 			{
 				var cur = mgr.GetCurrencyByQuadName(quadName);
 
-				if(cur!=currency)
+				if (cur != currency)
 				{
 					client.SendErrorMessage($"'{quadName}' is not valid for currency '{currency.InternalName}'.");
 					return;
@@ -284,41 +283,41 @@ namespace Banking
 			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
 			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
 
-			if( currency == null )
+			if (currency == null)
 			{
 				client.SendErrorMessage($"Unable to find currency type '{currencyType}'.");
 				return;
 			}
 
-			if(client != TSPlayer.Server && !string.IsNullOrWhiteSpace(currency.TradePermission))
+			if (client != TSPlayer.Server && !string.IsNullOrWhiteSpace(currency.TradePermission))
 			{
 				//is this player allowed to trade this currency
-				if(!client.HasPermission(currency.TradePermission))
+				if (!client.HasPermission(currency.TradePermission))
 				{
 					client.SendErrorMessage($"You are not allowed to trade {currency.InternalName}.");
 					return;
 				}
 			}
-			
-			if( clientAccount == null )
+
+			if (clientAccount == null)
 			{
 				client.SendErrorMessage($"Unable to find account for currency '{currencyType}'.");
 				return;
 			}
 
-			if( targetAccount == null )
+			if (targetAccount == null)
 			{
 				client.SendErrorMessage($"Unable to transfer funds, account for {targetName} could not be found.");
 				return;
 			}
 
-			if( currency.GetCurrencyConverter().TryParse(money, out var amount) )
+			if (currency.GetCurrencyConverter().TryParse(money, out var amount))
 			{
 				Debug.Print($"Translated currency to standard units: {amount}.");
 				//client.SendInfoMessage($"Translated currency to standard units: {amount}.");
 
 				var result = clientAccount.TryTransferTo(targetAccount, amount);
-				if( result )
+				if (result)
 				{
 					client.SendInfoMessage($"Transferred {amount} to {targetName}'s '{currencyType}' account.");
 				}
@@ -338,7 +337,7 @@ namespace Banking
 		{
 			client.SendInfoMessage($"Recognized Currencies:");
 
-			foreach(var cur in BankingPlugin.Instance.Bank.CurrencyManager)
+			foreach (var cur in BankingPlugin.Instance.Bank.CurrencyManager)
 			{
 				client.SendInfoMessage($"{cur.DisplayString}");
 			}
@@ -350,33 +349,33 @@ namespace Banking
 			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
 			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
 
-			if( currency == null )
+			if (currency == null)
 			{
 				client.SendErrorMessage($"Unable to find currency type '{currencyType}'.");
 				return;
 			}
 
-			if( clientAccount == null )
+			if (clientAccount == null)
 			{
 				client.SendErrorMessage($"Unable to find account for currency '{currencyType}'.");
 				return;
 			}
 
-			if( targetAccount == null )
+			if (targetAccount == null)
 			{
 				client.SendErrorMessage($"Unable to set balance, account for {targetName} could not be found.");
 				return;
 			}
 
-			if( currency.GetCurrencyConverter().TryParse(money, out var amount) )
+			if (currency.GetCurrencyConverter().TryParse(money, out var amount))
 			{
 				Debug.Print($"Translated currency to standard units: {amount}.");
 				//client.SendInfoMessage($"Translated currency to standard units: {amount}.");
 
-				switch( mode )
+				switch (mode)
 				{
 					case SetBalanceMode.Take:
-						if(targetAccount.TryWithdraw(amount,WithdrawalMode.AllowOverdraw))
+						if (targetAccount.TryWithdraw(amount, WithdrawalMode.AllowOverdraw))
 						{
 							client.SendInfoMessage($"Took {money} from {targetAccount.OwnerName}'s account.");
 							return;
@@ -410,19 +409,19 @@ namespace Banking
 			var clientAccount = BankingPlugin.Instance.GetBankAccount(client.Name, currencyType);
 			var targetAccount = BankingPlugin.Instance.GetBankAccount(targetName, currencyType);
 
-			if( currency == null )
+			if (currency == null)
 			{
 				client.SendErrorMessage($"Unable to find currency type '{currencyType}'.");
 				return;
 			}
 
-			if( clientAccount == null )
+			if (clientAccount == null)
 			{
 				client.SendErrorMessage($"Unable to find account for currency '{currencyType}'.");
 				return;
 			}
 
-			if( targetAccount == null )
+			if (targetAccount == null)
 			{
 				client.SendErrorMessage($"Unable to reset balance, account for {targetName} could not be found.");
 				return;
@@ -444,7 +443,7 @@ namespace Banking
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 3 )
+			if (parameters.Count != 3)
 			{
 				//player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <death|deathpvp|exp> <value>");
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}multiplier <currency> <gain|death|deathpvp> <value>");
@@ -453,33 +452,33 @@ namespace Banking
 
 			var currencyValue = parameters[0];
 			var currency = BankingPlugin.Instance.Bank.CurrencyManager[currencyValue];
-			if(currency==null)
+			if (currency == null)
 			{
 				player.SendErrorMessage($"Invalid currency '{currencyValue}'.");
 				return;
 			}
-			
+
 			var inputValue = parameters[2];
-			if( !float.TryParse(inputValue, out var value) || value < 0.0 )
+			if (!float.TryParse(inputValue, out var value) || value < 0.0)
 			{
 				player.SendErrorMessage($"Invalid value '{inputValue}'.");
 				return;
 			}
 
 			var multiplier = parameters[1];
-			if( multiplier.Equals("death", StringComparison.OrdinalIgnoreCase) )
+			if (multiplier.Equals("death", StringComparison.OrdinalIgnoreCase))
 			{
 				//Config.Instance.DeathPenaltyMultiplier = value;
 				currency.DeathPenaltyMultiplier = value;
 				player.SendSuccessMessage($"Set death penalty multiplier for {currency}.");
 			}
-			else if( multiplier.Equals("deathpvp", StringComparison.OrdinalIgnoreCase) )
+			else if (multiplier.Equals("deathpvp", StringComparison.OrdinalIgnoreCase))
 			{
 				//Config.Instance.DeathPenaltyPvPMultiplier = value;
 				currency.DeathPenaltyPvPMultiplier = value;
 				player.SendSuccessMessage($"Set death PVP penalty multiplier for {currency}.");
 			}
-			else if( multiplier.Equals("gain", StringComparison.OrdinalIgnoreCase) )
+			else if (multiplier.Equals("gain", StringComparison.OrdinalIgnoreCase))
 			{
 				//Config.Instance.ExpMultiplier = value;
 				currency.Multiplier = value;
@@ -498,23 +497,23 @@ namespace Banking
 			var config = Config.Instance.Voting;
 			var voteChecker = BankingPlugin.Instance.VoteChecker;
 
-			if( !config.Enabled )
+			if (!config.Enabled)
 			{
 				player.SendErrorMessage("Sorry, voting rewards are currently disabled.");
 				return;
 			}
-				
+
 			player.SendInfoMessage("Checking external server for your vote... this may take a few moments.");
 
 			var checkTask = voteChecker.HasPlayerVotedAsync(player.Name)
-										.ContinueWith( async t =>
+										.ContinueWith(async t =>
 										{
-											if( t.Result == VoteStatus.Unclaimed )
+											if (t.Result == VoteStatus.Unclaimed)
 											{
 												player.SendInfoMessage(config.RewardMessage);
 												var voteReward = new VoteReward(player.Name);
 												BankingPlugin.Instance.RewardDistributor.EnqueueReward(voteReward);
-												
+
 												await voteChecker.ClaimPlayerVoteAsync(player.Name);
 											}
 											else

@@ -1,5 +1,4 @@
 ﻿using RpgToolsEditor.Controls;
-using RpgToolsEditor.Models;
 using RpgToolsEditor.Models.Banking;
 using RpgToolsEditor.Models.CustomNpcs;
 using RpgToolsEditor.Models.CustomQuests;
@@ -7,14 +6,10 @@ using RpgToolsEditor.Models.Leveling;
 using RpgToolsEditor.Models.NpcShops;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RpgToolsEditor
@@ -26,7 +21,7 @@ namespace RpgToolsEditor
 		public EditorForm()
 		{
 			InitializeComponent();
-			
+
 			var invasionsEditor = (ModelTreeEditor)tabControlMain.TabPages[0].Controls[0];
 			invasionsEditor.OpenFileDialog = openFileDialogInvasions;
 			invasionsEditor.SaveFileDialog = saveFileDialogInvasions;
@@ -38,7 +33,7 @@ namespace RpgToolsEditor
 			npcsEditor.OpenFileDialog = openFileDialogNpcs;
 			npcsEditor.SaveFileDialog = saveFileDialogNpcs;
 			npcsEditor.ModelTree = new NpcsModelTree();
-			npcsEditor.AddExtendedItemControls(new CategoryItemControls<Npc,NpcTreeNode>());
+			npcsEditor.AddExtendedItemControls(new CategoryItemControls<Npc, NpcTreeNode>());
 			npcsEditor.ItemImageList = imageListNpcs;
 
 			var projectilesEditor = (ModelTreeEditor)tabControlMain.TabPages[2].Controls[0];
@@ -79,7 +74,7 @@ namespace RpgToolsEditor
 			//tabControlMain.SelectedIndex = 0;
 
 			//handle property changed, in order to update filepath and dirty status...
-			foreach( var editor in enumerateModelTreeEditors() )
+			foreach (var editor in enumerateModelTreeEditors())
 			{
 				//refresh on property change
 				editor.PropertyChanged += (s, a) =>
@@ -87,7 +82,7 @@ namespace RpgToolsEditor
 					//...but only if its the currently selected tab.
 					var selectedIndex = tabControlMain.SelectedIndex;
 
-					if( s == tabControlMain.TabPages[selectedIndex].Controls[0] )
+					if (s == tabControlMain.TabPages[selectedIndex].Controls[0])
 					{
 						refreshObjectEditorExternalDisplay(selectedIndex);
 					}
@@ -116,27 +111,24 @@ namespace RpgToolsEditor
 			return editors;
 		}
 
-		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			Close();
-		}
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e) => Close();
 
 		private void EditorForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			var editors = enumerateModelTreeEditors();
 			var unsavedData = editors.FirstOrDefault(ed => ed.IsTreeDirty) != null;
 
-			if(unsavedData)
+			if (unsavedData)
 			{
 				var result = MessageBox.Show("There are unsaved changes present. Are you sure you want to exit?", "Unsaved Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
-				if( result != DialogResult.OK )
+				if (result != DialogResult.OK)
 				{
 					e.Cancel = true;
 				}
 			}
 		}
-		
+
 		private void refreshObjectEditorExternalDisplay(int selectedIndex)
 		{
 			var editor = getModelTreeEditor(selectedIndex);
@@ -146,19 +138,19 @@ namespace RpgToolsEditor
 
 			//HACK! try to clean up the display text, since its really using a folder path,
 			//not a file path( lets chop off any file parts ) 
-			if( editor.UseSingleFolderTreeNode)
+			if (editor.UseSingleFolderTreeNode)
 			{
-				if(!string.IsNullOrWhiteSpace(value) && !Directory.Exists(value))
+				if (!string.IsNullOrWhiteSpace(value) && !Directory.Exists(value))
 				{
 					//lets assume this is file path then, so get the directory name
 					value = Path.GetDirectoryName(value);
 				}
 			}
 
-			if( hasFilePath )
+			if (hasFilePath)
 				Text = $"{AppName}";
 			else
-				Text = $"{AppName} - {value}{dirty}"; 
+				Text = $"{AppName} - {value}{dirty}";
 		}
 
 		private void tabControlMain_SelectedIndexChanged(object sender, EventArgs e)
@@ -171,7 +163,7 @@ namespace RpgToolsEditor
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			var version = Assembly.GetExecutingAssembly().GetName().Version;
-			
+
 			MessageBox.Show($"{AppName} v{version}",
 							"About",
 							MessageBoxButtons.OK,

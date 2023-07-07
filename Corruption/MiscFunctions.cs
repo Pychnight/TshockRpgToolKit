@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Corruption
 {
@@ -28,7 +24,7 @@ namespace Corruption
 		{
 			if (max < min)
 				throw new ArgumentOutOfRangeException(nameof(max), "Maximum must be at least the minimum.");
-			
+
 			return Random.Next(min, max);
 		}
 
@@ -40,7 +36,7 @@ namespace Corruption
 		/// <returns>The random integer.</returns>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="max" /> is less than <paramref name="min" />.</exception>
 		public static int RandomInt(int max) => RandomInt(0, max);
-		
+
 		private static Regex StripTagsRegex = new Regex(@"\[(?<tag>.+?)(:(?<text>.+?))?\]", RegexOptions.Compiled);
 
 		/// <summary>
@@ -50,18 +46,18 @@ namespace Corruption
 		/// <returns>Transformed text.</returns>
 		public static string StripTags(string txt)
 		{
-			if(txt!=null)
+			if (txt != null)
 			{
 				Match match = null;
 
-				while((match = StripTagsRegex.Match(txt)).Success)
+				while ((match = StripTagsRegex.Match(txt)).Success)
 				{
 					var tag = match.Groups["tag"].Value;
 
-					if(!string.IsNullOrWhiteSpace(tag))
+					if (!string.IsNullOrWhiteSpace(tag))
 					{
 						//tags that we must replace with the decorated text... 
-						switch(tag[0])
+						switch (tag[0])
 						{
 							case 'c'://color
 							case 'C':
@@ -77,7 +73,7 @@ namespace Corruption
 					txt = txt.Replace(match.Value, "");
 				}
 			}
-			
+
 			return txt;
 		}
 	}

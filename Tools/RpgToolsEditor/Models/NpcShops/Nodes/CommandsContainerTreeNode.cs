@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using RpgToolsEditor.Controls;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -27,7 +23,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			//set child models
 			var shopCommand = (ShopCommand)model;
 			node.RequiredItemsTreeNode.AddChildModels(shopCommand.RequiredItems.Cast<IModel>().ToList());
-			
+
 			//add node to tree
 			Nodes.Add(node);
 		}

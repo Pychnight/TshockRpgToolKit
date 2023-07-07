@@ -1,14 +1,10 @@
 ﻿using RpgToolsEditor.Controls;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
-	public class IncludeTreeNode<TModel,TNode> : ModelTreeStaticContainerNode where TModel : IModel, new()
+	public class IncludeTreeNode<TModel, TNode> : ModelTreeStaticContainerNode where TModel : IModel, new()
 																				where TNode : ModelTreeNode, new()
 	{
 		public IncludeTreeNode() : base()
@@ -44,17 +40,17 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		{
 			var models = new List<IModel>();
 
-			foreach( var n in Nodes )
+			foreach (var n in Nodes)
 			{
 				var modelTreeNode = n as TNode;
 
-				if( modelTreeNode != null && modelTreeNode.Model != null )
+				if (modelTreeNode != null && modelTreeNode.Model != null)
 				{
 					//get loot.... this has been disabled, as its specific to npcs/loot, and causes failures for other types.
 					//and its doing nothing, it seems.
 					//var lootNode = modelTreeNode.Nodes[0] as LootEntrysContainerTreeNode;
 					//var lootEntryModels = lootNode.GetChildModels();
-					
+
 					models.Add(modelTreeNode.Model);
 				}
 			}
@@ -106,21 +102,18 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		//	return base.ToString();
 		//}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return node is TNode || node is IncludeTreeNode<TModel,TNode>;
-		}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) => node is TNode || node is IncludeTreeNode<TModel, TNode>;
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
-				if(draggedNode is TNode)
+				if (draggedNode is TNode)
 				{
 					AddChild(draggedNode);
 					return true;
 				}
-				else if(draggedNode is IncludeTreeNode<TModel,TNode>)
+				else if (draggedNode is IncludeTreeNode<TModel, TNode>)
 				{
 					AddSibling(draggedNode);
 					return true;

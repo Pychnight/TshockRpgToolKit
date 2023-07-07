@@ -1,13 +1,10 @@
-﻿using Boo.Lang.Compiler;
-using Corruption.PluginSupport;
+﻿using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BooTS
 {
@@ -24,7 +21,7 @@ namespace BooTS
 		/// Entry point for all Scripts.
 		/// </summary>
 		internal Action<object[]> OnRun { get; set; }
-		
+
 		/// <summary>
 		/// Optional method that configures when this script will run.
 		/// </summary>
@@ -39,35 +36,32 @@ namespace BooTS
 		/// <returns></returns>
 		internal Scheduler GetSchedulerObject()
 		{
-			lock(schedulerLocker)
+			lock (schedulerLocker)
 			{
 				return scheduler;
 			}
 		}
-		
+
 		/// <summary>
 		/// Sets the Scheduler object, if any, for the script.
 		/// </summary>
 		/// <param name="value"></param>
 		internal void SetSchedulerObject(Scheduler value)
 		{
-			lock(schedulerLocker)
+			lock (schedulerLocker)
 			{
 				scheduler = value;
 			}
 		}
-				
+
 		internal Script(string filePath) :
-			base( new string[] { filePath })
+			base(new string[] { filePath })
 		{
 		}
 
 		//HACK - work around an api design wart. BooScriptAssembly.Build() expecs a Func with a BooScriptAssembly instance, but we also want a standalone instance method for our own use...
-		internal static CompilerContext Compile(BooScriptAssembly scriptAssembly)
-		{
-			return ((Script)scriptAssembly).Compile();
-		}
-		
+		internal static CompilerContext Compile(BooScriptAssembly scriptAssembly) => ((Script)scriptAssembly).Compile();
+
 		internal CompilerContext Compile()
 		{
 			var filePath = SourceFiles.FirstOrDefault()?.FilePath;
@@ -98,14 +92,14 @@ namespace BooTS
 			{
 				BooScriptingPlugin.Instance.LogPrintBooWarnings(context);
 			}
-						
-			if(!Link(context.GeneratedAssembly))
+
+			if (!Link(context.GeneratedAssembly))
 			{
 				BooScriptingPlugin.Instance.LogPrint($"Unable to link boo script '{filePath}'.");
 				return null;
 			}
-			
-			
+
+
 			return context;
 		}
 
@@ -125,10 +119,10 @@ namespace BooTS
 
 			OnRun = linker.TryCreateDelegate<Action<object[]>>("OnRun");
 			GetSchedule = linker.TryCreateDelegate<Func<Scheduler>>("GetSchedule");
-						
+
 			return true;
 		}
-		
+
 		internal bool Run(params object[] args)
 		{
 			try
@@ -139,7 +133,7 @@ namespace BooTS
 				OnRun?.Invoke(args);
 				return true;
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				BooScriptingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 				return false;

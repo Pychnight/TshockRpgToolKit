@@ -1,11 +1,7 @@
 ﻿using Corruption;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace BooTS
@@ -16,7 +12,7 @@ namespace BooTS
 
 		public static IEnumerable<string> GetDefaultImports()
 		{
-			return defaultImports ?? ( defaultImports = new List<string>()
+			return defaultImports ?? (defaultImports = new List<string>()
 			{
 				"System",
 				"System.Collections.Generic",
@@ -38,7 +34,7 @@ namespace BooTS
 				"Corruption.MiscFunctions",
 				"Corruption.TEdit.Schematic",
 				"BooTS.Scheduler"
-			} );
+			});
 		}
 
 		public static IEnumerable<Assembly> GetReferences(bool addCallingAssembly = true)
@@ -64,7 +60,7 @@ namespace BooTS
 			assemblies.Add(tshockAss);
 			assemblies.Add(corruptionAss);
 
-			if( addCallingAssembly )
+			if (addCallingAssembly)
 			{
 				var pluginAss = Assembly.GetCallingAssembly();
 				assemblies.Add(pluginAss);

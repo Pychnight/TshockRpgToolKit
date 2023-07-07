@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Corruption;
+﻿using Corruption;
 using CustomQuests.Quests;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using TShockAPI;
 using TShockAPI.Localization;
 
 namespace CustomQuests.Triggers
 {
-    /// <summary>
-    ///     Represents a gather items trigger.
-    /// </summary>
-    public sealed class GatherItems : TallyTrigger
-    {
-        private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
-        private readonly string _itemName;
+	/// <summary>
+	///     Represents a gather items trigger.
+	/// </summary>
+	public sealed class GatherItems : TallyTrigger
+	{
+		private readonly HashSet<int> _blacklistedIndexes = new HashSet<int>();
+		private readonly string _itemName;
 		private IEnumerable<PartyMember> partyMembers;
 		private int itemsRequired;
-		
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="GatherItems" /> class with the specified party, item name, and amount.
 		/// </summary>
@@ -32,7 +30,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems( IEnumerable<PartyMember> partyMembers, Action<PartyMember, int> tallyChangedAction, string itemName, int amount )
+		public GatherItems(IEnumerable<PartyMember> partyMembers, Action<PartyMember, int> tallyChangedAction, string itemName, int amount)
 		{
 			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 
@@ -54,7 +52,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName, int amount ) : this(partyMembers, null, itemName, amount)
+		public GatherItems(IEnumerable<PartyMember> partyMembers, string itemName, int amount) : this(partyMembers, null, itemName, amount)
 		{
 		}
 
@@ -66,7 +64,7 @@ namespace CustomQuests.Triggers
 		/// <exception cref="ArgumentNullException">
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
-		public GatherItems( IEnumerable<PartyMember> partyMembers, string itemName) : this(partyMembers,itemName,1)
+		public GatherItems(IEnumerable<PartyMember> partyMembers, string itemName) : this(partyMembers, itemName, 1)
 		{
 		}
 
@@ -109,47 +107,44 @@ namespace CustomQuests.Triggers
 		{
 		}
 
-		public GatherItems(PartyMember partyMember, int itemType ) : this(partyMember, itemType, 1 )
+		public GatherItems(PartyMember partyMember, int itemType) : this(partyMember, itemType, 1)
 		{
 		}
 
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                GetDataHandlers.ItemDrop -= OnItemDrop;
-            }
+		{
+			if (disposing)
+			{
+				GetDataHandlers.ItemDrop -= OnItemDrop;
+			}
 
-            base.Dispose(disposing);
-        }
+			base.Dispose(disposing);
+		}
 
-        /// <inheritdoc />
-        protected override void Initialize()
-        {
-            GetDataHandlers.ItemDrop += OnItemDrop;
-        }
+		/// <inheritdoc />
+		protected override void Initialize() => GetDataHandlers.ItemDrop += OnItemDrop;
 
 		/// <inheritdoc />
 		protected internal override TriggerStatus UpdateImpl()
 		{
 			TryProcessTallyChanges();
-			
+
 			return (itemsRequired <= 0).ToTriggerStatus();
 		}
 
 		private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
 		{
-			if(args.Handled)
+			if (args.Handled)
 				return;
 
-			if(args.ID == Main.maxItems)
+			if (args.ID == Main.maxItems)
 				ItemDropped(args);
-			else if(partyMembers.Any(p => p.IsValidMember && p.Player.Index == args.Player.Index))
+			else if (partyMembers.Any(p => p.IsValidMember && p.Player.Index == args.Player.Index))
 				ItemGathered(args);
 		}
 
-		private void ItemGathered(GetDataHandlers.ItemDropEventArgs args )
+		private void ItemGathered(GetDataHandlers.ItemDropEventArgs args)
 		{
 			//Debug.Print("Gathered Item!");
 
@@ -159,7 +154,7 @@ namespace CustomQuests.Triggers
 
 			var index = args.ID;
 			var item = Main.item[index];
-			if(_itemName?.Equals(item.Name, StringComparison.OrdinalIgnoreCase) ?? true)
+			if (_itemName?.Equals(item.Name, StringComparison.OrdinalIgnoreCase) ?? true)
 			{
 				if (_blacklistedIndexes.Contains(index))
 					_blacklistedIndexes.Remove(index);
@@ -167,11 +162,11 @@ namespace CustomQuests.Triggers
 				{
 					itemsRequired = Math.Max(0, itemsRequired - item.stack);
 
-					if(HasTallyChangedAction)
+					if (HasTallyChangedAction)
 					{
 						var member = partyMembers.FirstOrDefault(pm => pm.Player == args.Player);
 						if (member != null)
-							TryEnqueueTallyChange(member,item.stack);
+							TryEnqueueTallyChange(member, item.stack);
 					}
 				}
 			}
@@ -180,7 +175,7 @@ namespace CustomQuests.Triggers
 		private void ItemDropped(GetDataHandlers.ItemDropEventArgs args)
 		{
 			//Debug.Print("Dropped Item!");
-			
+
 			var itemIdName = EnglishLanguage.GetItemNameById(args.Type);
 			if (_itemName?.Equals(itemIdName, StringComparison.OrdinalIgnoreCase) ?? true)
 			{
@@ -209,5 +204,5 @@ namespace CustomQuests.Triggers
 				_blacklistedIndexes.Add(index);
 			}
 		}
-    }
+	}
 }

@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
@@ -14,8 +10,8 @@ namespace Banking.Rewards
 	internal class PlayerRewardNotificationDistributor
 	{
 		ConcurrentQueue<PlayerRewardNotification> incomingNotificationsQueue;//previous version filled this from a network thread(?), but drained on the game thread.
-																				//this is no longer the case, and it does both in GameUpate().
-																				//so this can probably be changed to a normal Queue<of T>.
+																			 //this is no longer the case, and it does both in GameUpate().
+																			 //so this can probably be changed to a normal Queue<of T>.
 		Dictionary<NotificationKey, PlayerRewardNotification> accumulatingNotifications;
 		DateTime lastSendTime;
 		TimeSpan accumulateDuration;
@@ -37,11 +33,8 @@ namespace Banking.Rewards
 		}
 
 		//no need for a Clear() method, since onLoad() always rebuilds everything anew.
-		
-		internal void Add(PlayerRewardNotification notification)
-		{
-			incomingNotificationsQueue.Enqueue(notification);
-		}
+
+		internal void Add(PlayerRewardNotification notification) => incomingNotificationsQueue.Enqueue(notification);
 
 		//accumulate/concatenate incoming entries into a dictionary, keyed by entry( player + global + currency ).
 		//These will then get dispatched in a later step.
@@ -51,17 +44,17 @@ namespace Banking.Rewards
 			int counter = 0;
 			var now = DateTime.Now;
 			var volleySpan = TimeSpan.FromMilliseconds(1000);//if another matching notification is accumulated within this time frame,
-															//we "extend" the life of the accumulated notification, in case more
-															// matching notifications are coming. This volley effect in essence,
-															// keeps the accumulation rolling.
+															 //we "extend" the life of the accumulated notification, in case more
+															 // matching notifications are coming. This volley effect in essence,
+															 // keeps the accumulation rolling.
 
-			while( incomingNotificationsQueue.Count > 0 && counter++ < maxIterations )
+			while (incomingNotificationsQueue.Count > 0 && counter++ < maxIterations)
 			{
-				if( incomingNotificationsQueue.TryDequeue(out var notification) )
+				if (incomingNotificationsQueue.TryDequeue(out var notification))
 				{
 					var notificationKey = new NotificationKey(notification);
 
-					if( !accumulatingNotifications.TryGetValue(notificationKey, out var accumulatingNotification) )
+					if (!accumulatingNotifications.TryGetValue(notificationKey, out var accumulatingNotification))
 					{
 						accumulatingNotifications.Add(notificationKey, notification);
 						notification.TimeStamp = DateTime.Now;
@@ -69,7 +62,7 @@ namespace Banking.Rewards
 					else
 					{
 						//should we extend the lifetime of this notification?
-						if( now - accumulatingNotification.TimeStamp > volleySpan )
+						if (now - accumulatingNotification.TimeStamp > volleySpan)
 						{
 							accumulatingNotification.TimeStamp = now + volleySpan;
 						}
@@ -84,19 +77,19 @@ namespace Banking.Rewards
 		{
 			var dispatchInterval = new TimeSpan(0, 0, 0, 0, dispatchIntervalMS);
 			var now = DateTime.Now;
-			
-			if( ( now - lastSendTime ) >= dispatchInterval )
+
+			if ((now - lastSendTime) >= dispatchInterval)
 			{
 				var key = new NotificationKey();
 				PlayerRewardNotification notification = null;
 				var removeNotification = false;
-				
-				foreach( var kvp in accumulatingNotifications )
+
+				foreach (var kvp in accumulatingNotifications)
 				{
 					key = kvp.Key;
 					notification = kvp.Value;
 
-					if( ( now - notification.TimeStamp ) >= accumulateDuration )
+					if ((now - notification.TimeStamp) >= accumulateDuration)
 					{
 						lastSendTime = now;
 						getCombatTextOffsets(out var xOffset, out var yOffset);
@@ -107,7 +100,7 @@ namespace Banking.Rewards
 				}
 
 				//remove
-				if( removeNotification )
+				if (removeNotification)
 				{
 					accumulatingNotifications.Remove(key);
 				}
@@ -119,10 +112,10 @@ namespace Banking.Rewards
 		{
 			yOffsetTicker--;
 
-			if( yOffsetTicker < 0 )
+			if (yOffsetTicker < 0)
 				yOffsetTicker = 3;
 
-			xOffset = xOffsetRandom.Next(-1,1) * xOffsetRandom.Next(1,2) * 16;
+			xOffset = xOffsetRandom.Next(-1, 1) * xOffsetRandom.Next(1, 2) * 16;
 			yOffset = -(yOffsetTicker * 16);
 		}
 
@@ -157,16 +150,13 @@ namespace Banking.Rewards
 
 			public override bool Equals(object obj)
 			{
-				if( obj is NotificationKey )
+				if (obj is NotificationKey)
 					return Equals((NotificationKey)obj);
 
 				return false;
 			}
 
-			public override int GetHashCode()
-			{
-				return PlayerHash ^ IsGlobalHash ^ CurrencyDefinitionHash;
-			}
+			public override int GetHashCode() => PlayerHash ^ IsGlobalHash ^ CurrencyDefinitionHash;
 		}
 	}
 }

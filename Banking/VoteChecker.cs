@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Banking
@@ -25,7 +23,7 @@ namespace Banking
 			var statusUri = $"?object=votes&element=claim&key={Config.Instance.Voting.ApiKey}&username={playerName}";
 			var response = await httpClient.GetStringAsync(statusUri);
 
-			switch(response)
+			switch (response)
 			{
 				case "1"://has voted, not claimed
 					return VoteStatus.Unclaimed;

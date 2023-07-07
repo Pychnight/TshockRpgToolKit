@@ -1,13 +1,8 @@
 ﻿using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -32,18 +27,18 @@ namespace RpgToolsEditor.Models.NpcShops
 
 			folderTreeNode.Text = directory;
 
-			foreach(var filePath in shopPaths)
+			foreach (var filePath in shopPaths)
 			{
 				var json = File.ReadAllText(filePath);
 				var item = JsonConvert.DeserializeObject<NpcShop>(json);
 				item.Filename = Path.GetFileName(filePath);
 				var node = new NpcShopTreeNode(item);
-				
+
 				folderTreeNode.Nodes.Add(node);
 			}
 
 			folderTreeNode.Expand();
-			
+
 			return new List<ModelTreeNode>() { folderTreeNode };
 		}
 
@@ -53,12 +48,12 @@ namespace RpgToolsEditor.Models.NpcShops
 			var folderNode = tree.FirstOrDefault() as FolderTreeNode;
 
 			//duplicate name safeguard
-			var shopModels = folderNode.Nodes.Cast<NpcShopTreeNode>().Select(n => ( (NpcShop)n.Model ));
+			var shopModels = folderNode.Nodes.Cast<NpcShopTreeNode>().Select(n => (NpcShop)n.Model);
 
 			shopModels.ThrowOnDuplicateNames();
-			
+
 			//save
-			foreach(var node in folderNode.Nodes)
+			foreach (var node in folderNode.Nodes)
 			{
 				var shopNode = (NpcShopTreeNode)node;
 				var shopModel = (NpcShop)shopNode.Model;
@@ -68,19 +63,19 @@ namespace RpgToolsEditor.Models.NpcShops
 				shopModel.ShopCommands = shopCommands;
 				shopModel.ShopItems = shopItems;
 
-				var shopPath = Path.Combine(directory,shopModel.Filename);
-				
+				var shopPath = Path.Combine(directory, shopModel.Filename);
+
 				var json = JsonConvert.SerializeObject(shopModel, Formatting.Indented);
 				File.WriteAllText(shopPath, json);
 			}
 		}
-		
+
 		private List<ShopCommand> getCommandModels(NpcShopTreeNode root)
 		{
 			var result = new List<ShopCommand>();
 			var commandNodes = root.ShopCommandNodes.Nodes.Cast<CommandTreeNode>();
 
-			foreach( var commandNode in commandNodes )
+			foreach (var commandNode in commandNodes)
 			{
 				var command = (ShopCommand)commandNode.Model;
 
@@ -103,7 +98,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			var result = new List<ShopItem>();
 			var itemNodes = root.ShopItemNodes.Nodes.Cast<ItemTreeNode>();
 
-			foreach( var itemNode in itemNodes )
+			foreach (var itemNode in itemNodes)
 			{
 				var command = (ShopItem)itemNode.Model;
 

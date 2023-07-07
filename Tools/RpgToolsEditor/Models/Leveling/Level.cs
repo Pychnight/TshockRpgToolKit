@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Drawing.Design;
-using System.Linq;
-using System.Windows.Forms.Design;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
+using System.ComponentModel;
 
 namespace RpgToolsEditor.Models.Leveling
 {
@@ -34,7 +27,7 @@ namespace RpgToolsEditor.Models.Leveling
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 			}
 		}
-		
+
 		/// <summary>
 		///     Gets the list of commands to execute on leveling up.
 		/// </summary>
@@ -53,7 +46,7 @@ namespace RpgToolsEditor.Models.Leveling
 		/// </summary>
 		[JsonProperty("CommandsOnLevelDown", Order = 8)]
 		public BindingList<StringHolder> CommandsOnLevelDown { get; set; } = new BindingList<StringHolder>();
-		
+
 		/// <summary>
 		///     Gets the display name.
 		/// </summary>
@@ -84,13 +77,13 @@ namespace RpgToolsEditor.Models.Leveling
 		[DisplayName("ItemsAllowed")]
 		[JsonProperty("ItemsAllowed", Order = 5)]
 		public BindingList<TerrariaItemStringHolder> ItemNamesAllowed { get; set; } = new BindingList<TerrariaItemStringHolder>();
-			
+
 		/// <summary>
 		///     Gets the set of permissions granted.
 		/// </summary>
 		[JsonProperty("PermissionsGranted", Order = 6)]
 		public BindingList<StringHolder> PermissionsGranted { get; set; } = new BindingList<StringHolder>();
-		
+
 		public Level()
 		{
 		}
@@ -108,9 +101,6 @@ namespace RpgToolsEditor.Models.Leveling
 			CommandsOnLevelDown = other.CommandsOnLevelDown.DeepClone();
 		}
 
-		public object Clone()
-		{
-			return new Level(this);
-		}
+		public object Clone() => new Level(this);
 	}
 }

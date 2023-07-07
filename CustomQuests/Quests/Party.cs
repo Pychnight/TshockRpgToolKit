@@ -1,11 +1,7 @@
-﻿using CustomQuests.Sessions;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace CustomQuests.Quests
@@ -14,14 +10,14 @@ namespace CustomQuests.Quests
 	{
 		List<PartyMember> partyMembers;
 		//Dictionary<int, int> playerIndexToPartyIndex;
-		
+
 		public string Name { get; private set; }
 		public int Count => partyMembers.Count;
 		public PartyMember this[int index] => partyMembers[index];
 		public PartyMember Leader => partyMembers[0];
 		public TeamManager Teams { get; private set; }
 
-		internal Party(string name, params TSPlayer[] players) : this( name, players.AsEnumerable())
+		internal Party(string name, params TSPlayer[] players) : this(name, players.AsEnumerable())
 		{
 		}
 
@@ -32,7 +28,7 @@ namespace CustomQuests.Quests
 			partyMembers = new List<PartyMember>(players.Count());
 
 			//use Add() so that IsValidMember gets set( along with any future housekeeping ) 
-			foreach( var p in players )
+			foreach (var p in players)
 				Add(p);
 
 			Teams = new TeamManager(this);
@@ -40,7 +36,7 @@ namespace CustomQuests.Quests
 
 		internal void Add(TSPlayer player)
 		{
-			if( !Contains(player) )
+			if (!Contains(player))
 			{
 				var member = new PartyMember(player);
 				partyMembers.Add(member);
@@ -52,7 +48,7 @@ namespace CustomQuests.Quests
 		{
 			var index = IndexOf(player);
 
-			if(index>-1)
+			if (index > -1)
 			{
 				var member = partyMembers[index];
 				partyMembers.RemoveAt(index);
@@ -102,10 +98,10 @@ namespace CustomQuests.Quests
 
 		public bool SetLeader(int index)
 		{
-			if( index < 1 )
+			if (index < 1)
 				return false;//already leader, or invalid index
 
-			if( index >= partyMembers.Count )
+			if (index >= partyMembers.Count)
 				return false;
 
 			var currentLeader = Leader;
@@ -120,37 +116,31 @@ namespace CustomQuests.Quests
 		{
 			var memberIndex = IndexOf(member);
 
-			if( memberIndex == -1 )
+			if (memberIndex == -1)
 				return false;
 
 			return SetLeader(memberIndex);
 		}
-		
-		[DebuggerStepThrough]
-		public IEnumerator<PartyMember> GetEnumerator()
-		{
-			return partyMembers.GetEnumerator();
-		}
 
 		[DebuggerStepThrough]
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+		public IEnumerator<PartyMember> GetEnumerator() => partyMembers.GetEnumerator();
+
+		[DebuggerStepThrough]
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 		internal void OnPreStart(QuestInfo questInfo)
 		{
-			foreach(var m in this)
+			foreach (var m in this)
 			{
 				var session = CustomQuestsPlugin.Instance.GetSession(m);
 
 				session.IsAborting = false;
 				session.HasAborted = false;
-				
+
 				session.AddQuestAttempt(questInfo);
-				
+
 				//try to restore previous status
-				if(!session.QuestProgress.TryGetValue(questInfo.Name,out var statuses))
+				if (!session.QuestProgress.TryGetValue(questInfo.Name, out var statuses))
 				{
 					Debug.Print("Using PartyMembers quest status.");
 					//copy members quest status to session.

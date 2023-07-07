@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomSkills
 {
@@ -43,30 +39,30 @@ namespace CustomSkills
 		/// </summary>
 		[JsonProperty(Order = 4)]
 		public List<string> TriggerWords { get; set; } = new List<string>();
-		
+
 		/// <summary>
 		/// Gets or sets whether to notify the user that this skill is ready to use again.
 		/// </summary>
 		[JsonProperty(Order = 5)]
 		public bool NotifyUserOnCooldown { get; set; } = false;
 
-        /// <summary>
-        /// Gets or sets a string that will override the default cooldown notification, if notifications are enabled.
-        /// </summary>
-        [JsonProperty(Order = 6)]
-        public string CooldownNotification { get; set; } = "";
+		/// <summary>
+		/// Gets or sets a string that will override the default cooldown notification, if notifications are enabled.
+		/// </summary>
+		[JsonProperty(Order = 6)]
+		public string CooldownNotification { get; set; } = "";
 
-        /// <summary>
-        /// Gets or sets the list of CustomSkillLevelDefinitions for this skill.
-        /// </summary>
-        [JsonProperty(Order = 7)]
+		/// <summary>
+		/// Gets or sets the list of CustomSkillLevelDefinitions for this skill.
+		/// </summary>
+		[JsonProperty(Order = 7)]
 		public List<CustomSkillLevelDefinition> Levels { get; set; } = new List<CustomSkillLevelDefinition>();
 
 		//helpers
-		public bool HasTriggerWords => (TriggerWords?.Count > 0 == true);
+		public bool HasTriggerWords => (TriggerWords?.Count > 0) == true;
 
-        
 
-        public bool CanLevelUp(int currentLevel) => currentLevel < Levels?.Count - 1;
+
+		public bool CanLevelUp(int currentLevel) => currentLevel < Levels?.Count - 1;
 	}
 }

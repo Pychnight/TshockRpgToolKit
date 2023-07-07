@@ -1,29 +1,18 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using TShockAPI;
+﻿using Terraria;
 
 namespace CustomNpcs.Projectiles
 {
-	public class CustomProjectile : CustomEntity<Projectile,ProjectileDefinition>
+	public class CustomProjectile : CustomEntity<Projectile, ProjectileDefinition>
 	{
 		public Projectile Projectile => Entity;
-				
+
 		/// <summary>
 		///     Gets the index.
 		/// </summary>
 		public int Index => Projectile.identity;//we apparently use identity over whoAmI with projectiles(??) ...terraria.
 
-		public bool Active
-		{
-			get => Projectile.active;
-		}
-				
+		public bool Active => Projectile.active;
+
 		/// <summary>
 		///     Gets or sets a value indicating whether to send a network update.
 		/// </summary>
@@ -33,7 +22,7 @@ namespace CustomNpcs.Projectiles
 			set => Projectile.netUpdate = value;
 		}
 
-		public int TimeLeft 
+		public int TimeLeft
 		{
 			get => Projectile.timeLeft;
 			set => Projectile.timeLeft = value;
@@ -57,22 +46,15 @@ namespace CustomNpcs.Projectiles
 			set => Projectile.owner = value;
 		}
 
-		public float[] Ai
-		{
-			get => Projectile.ai;
-		}
+		public float[] Ai => Projectile.ai;
 
 		internal CustomProjectile(Projectile projectile, ProjectileDefinition definition)
 		{
 			Entity = projectile;
 			Definition = definition;
 		}
-		
-		public void Kill()
-		{
-			Projectile.Kill();
-			//Debug.Print($"Manually killed projectile #{Index}");
-		}
+
+		public void Kill() => Projectile.Kill();//Debug.Print($"Manually killed projectile #{Index}");
 
 		public void BasicUpdate()
 		{
@@ -82,9 +64,6 @@ namespace CustomNpcs.Projectiles
 			Position = Position + Velocity;
 		}
 
-		public bool CustomIDContains(string text)
-		{
-			return this.Definition?.Name.Contains(text)==true;
-		}
+		public bool CustomIDContains(string text) => this.Definition?.Name.Contains(text) == true;
 	}
 }

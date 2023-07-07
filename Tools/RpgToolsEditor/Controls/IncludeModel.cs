@@ -31,14 +31,14 @@ namespace RpgToolsEditor.Controls
 		public string ParentPath { get; set; }
 
 		[Browsable(false)]
-		public string ParentDirectory { get { return Path.GetDirectoryName(ParentPath); } }
+		public string ParentDirectory => Path.GetDirectoryName(ParentPath);
 
 		[Browsable(false)]
 		public string RelativePath { get; set; }
 
 		[Browsable(false)]
 		public string FullPath => Path.Combine(ParentDirectory, RelativePath);
-		
+
 		//public string FilePath
 		//{
 		//	get => Name;
@@ -48,7 +48,7 @@ namespace RpgToolsEditor.Controls
 		[Browsable(false)]
 		public List<IModel> Items { get; set; } = new List<IModel>();
 
-		public IncludeModel() : this("","include.json")
+		public IncludeModel() : this("", "include.json")
 		{
 		}
 
@@ -62,21 +62,18 @@ namespace RpgToolsEditor.Controls
 		{
 			ParentPath = other.ParentPath;
 			RelativePath = other.RelativePath;
-			
+
 			Items = other.Items.Select(i => (IModel)i.Clone()).ToList();
 		}
-		
-		object ICloneable.Clone()
-		{
-			return new IncludeModel(this);
-		}
+
+		object ICloneable.Clone() => new IncludeModel(this);
 
 		public List<TModel> Load<TModel>() where TModel : IModel, new()
 		{
 			//var path = Path.Combine(ParentDirectory, RelativePath);
 			var path = FullPath;
 
-			if( !File.Exists(path) )
+			if (!File.Exists(path))
 				return new List<TModel>();
 
 			var json = File.ReadAllText(path);
@@ -93,10 +90,10 @@ namespace RpgToolsEditor.Controls
 		{
 			var path = Path.Combine(ParentDirectory, RelativePath);
 			var dirName = Path.GetDirectoryName(path);
-			
+
 			Directory.CreateDirectory(dirName);
-						
-			var json = JsonConvert.SerializeObject(Items,Formatting.Indented);//, new IModelConverter<TModel>());
+
+			var json = JsonConvert.SerializeObject(Items, Formatting.Indented);//, new IModelConverter<TModel>());
 			File.WriteAllText(path, json);
 		}
 	}

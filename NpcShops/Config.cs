@@ -1,21 +1,18 @@
 ﻿using Corruption.PluginSupport;
 using Newtonsoft.Json;
-using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace NpcShops
 {
-    /// <summary>
-    ///     Represents a configuration. This class is a singleton.
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class Config : JsonConfig
-    {
-        /// <summary>
-        ///     Gets the configuration instance.
-        /// </summary>
-        public static Config Instance { get; internal set; }
+	/// <summary>
+	///     Represents a configuration. This class is a singleton.
+	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
+	public sealed class Config : JsonConfig
+	{
+		/// <summary>
+		///     Gets the configuration instance.
+		/// </summary>
+		public static Config Instance { get; internal set; }
 
 		/// <summary>
 		///		Gets the maximum distance in tiles, in which a player may talk to a Shopkeeper NPC.
@@ -33,7 +30,7 @@ namespace NpcShops
 		{
 			var result = new ValidationResult();
 
-			if (ShopNpcMaxTalkRange<1)
+			if (ShopNpcMaxTalkRange < 1)
 			{
 				result.Warnings.Add(new ValidationWarning($"{nameof(ShopNpcMaxTalkRange)} is less than 1. This may make it impossible to talk to the shop NPC."));
 			}

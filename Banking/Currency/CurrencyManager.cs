@@ -1,12 +1,8 @@
-﻿using Banking.Configuration;
-using Corruption.PluginSupport;
-using System;
+﻿using Corruption.PluginSupport;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking
 {
@@ -26,8 +22,8 @@ namespace Banking
 		internal CurrencyManager() : this(new List<CurrencyDefinition>()) //...work around, keeps the CurrencyManager from loading multiple times at first start.
 		{
 		}
-				
-		internal CurrencyManager(string currencyDirectory) : this( CurrencyDefinition.LoadCurrencys(currencyDirectory))
+
+		internal CurrencyManager(string currencyDirectory) : this(CurrencyDefinition.LoadCurrencys(currencyDirectory))
 		{
 		}
 
@@ -39,24 +35,24 @@ namespace Banking
 			items = new List<CurrencyDefinition>(count);
 			CurrencyByName = new Dictionary<string, CurrencyDefinition>(count);
 			CurrencyByQuadName = new Dictionary<string, CurrencyDefinition>(count);
-						
-			foreach(var currency in currencies)
+
+			foreach (var currency in currencies)
 			{
 				currency.OnInitialize(nextId++);
 
 				//map quadrant abbreviations to currencies.
-				foreach(var name in currency.NamesToQuadrants.Keys)
+				foreach (var name in currency.NamesToQuadrants.Keys)
 				{
-					if(CurrencyByQuadName.ContainsKey(name))
+					if (CurrencyByQuadName.ContainsKey(name))
 					{
 						BankingPlugin.Instance.LogPrint($"Quadrant name '{name}' in Currency '{currency.InternalName}' " +
 														"will take precedence over another Currency using the same name.",
 														TraceLevel.Warning);
 					}
 
-					CurrencyByQuadName[name] = currency;	
+					CurrencyByQuadName[name] = currency;
 				}
-				
+
 				items.Add(currency);
 				CurrencyByName.Add(currency.InternalName, currency);
 			}
@@ -67,14 +63,11 @@ namespace Banking
 		//	return items[0];
 		//}
 
-		public CurrencyDefinition GetCurrencyById(int id)
-		{
-			return items[id];
-		}
+		public CurrencyDefinition GetCurrencyById(int id) => items[id];
 
 		public CurrencyDefinition GetCurrencyByName(string name)
 		{
-			if(string.IsNullOrWhiteSpace(name))
+			if (string.IsNullOrWhiteSpace(name))
 				return null;
 
 			CurrencyByName.TryGetValue(name, out var result);
@@ -83,7 +76,7 @@ namespace Banking
 
 		public CurrencyDefinition GetCurrencyByQuadName(string quadName)
 		{
-			if(string.IsNullOrWhiteSpace(quadName))
+			if (string.IsNullOrWhiteSpace(quadName))
 				return null;
 
 			CurrencyByQuadName.TryGetValue(quadName, out var result);
@@ -100,24 +93,24 @@ namespace Banking
 		{
 			currency = null;
 
-			if( string.IsNullOrWhiteSpace(value) )
+			if (string.IsNullOrWhiteSpace(value))
 				return false;
-			
+
 			var quadNames = CurrencyConverter.ParseQuadrantNames(value);
-			if( quadNames.Count < 1 )
+			if (quadNames.Count < 1)
 				return false;
-			
+
 			//try to find if the first suffix/quad name is valid
 			var firstQuad = quadNames.First();
 			var selectedCurrency = GetCurrencyByQuadName(firstQuad);
-			if( selectedCurrency == null )
+			if (selectedCurrency == null)
 				return false;
-			
+
 			//ensure all quads are valid, and lead to the same currency
-			foreach( var quadName in quadNames )
+			foreach (var quadName in quadNames)
 			{
 				var cur = GetCurrencyByQuadName(quadName);
-				if( cur != selectedCurrency )
+				if (cur != selectedCurrency)
 					return false;
 			}
 
@@ -125,14 +118,8 @@ namespace Banking
 			return true;
 		}
 
-		public IEnumerator<CurrencyDefinition> GetEnumerator()
-		{
-			return items.GetEnumerator();
-		}
+		public IEnumerator<CurrencyDefinition> GetEnumerator() => items.GetEnumerator();
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 	}
 }

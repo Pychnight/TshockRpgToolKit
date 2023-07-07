@@ -1,10 +1,4 @@
-﻿using Corruption.PluginSupport;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace BooTS
 {
@@ -21,7 +15,7 @@ namespace BooTS
 		/// </summary>
 		/// <param name="currentTime">TimeSpan representing time of day in Terraria time.</param>
 		internal abstract bool OnUpdate(TimeSpan currentTime);
-		
+
 		//---- Public DSL ---- 
 
 		/// <summary>
@@ -29,20 +23,14 @@ namespace BooTS
 		/// </summary>
 		/// <param name="times"></param>
 		/// <returns></returns>
-		public static Scheduler RunAt(params string[] times)
-		{
-			return new ListScheduler(times);
-		}
+		public static Scheduler RunAt(params string[] times) => new ListScheduler(times);
 
 		/// <summary>
 		/// Creates a Scheduler that runs at an interval, in Terraria time.
 		/// </summary>
 		/// <param name="interval"></param>
 		/// <returns></returns>
-		public static Scheduler RunEvery(string interval)
-		{
-			return new IntervalScheduler(interval);
-		}
+		public static Scheduler RunEvery(string interval) => new IntervalScheduler(interval);
 
 		/// <summary>
 		/// Attaches additional conditions that determine if a Script should run at a scheduled time. 

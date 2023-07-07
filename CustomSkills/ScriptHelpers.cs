@@ -1,12 +1,8 @@
 ﻿using BooTS;
 using Corruption;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace CustomSkills
@@ -69,7 +65,7 @@ namespace CustomSkills
 			assemblies.Add(tshockAss);
 			assemblies.Add(corruptionAss);
 
-			if(addCallingAssembly)
+			if (addCallingAssembly)
 			{
 				var pluginAss = Assembly.GetCallingAssembly();
 				assemblies.Add(pluginAss);

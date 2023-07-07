@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking
 {
@@ -13,8 +9,8 @@ namespace Banking
 		const long waitForItemDuration = 250;//in MS
 
 		Stopwatch stopwatch;
-		ConcurrentDictionary<int, FishingInfo> playerToFishingInfos;		//tracks in progress fishing operations 
-		ConcurrentDictionary<int, FishingInfo> playerToPendingFishingInfos;	//fishing infos get moved here when done, waiting for possible item reward for n time.
+		ConcurrentDictionary<int, FishingInfo> playerToFishingInfos;        //tracks in progress fishing operations 
+		ConcurrentDictionary<int, FishingInfo> playerToPendingFishingInfos; //fishing infos get moved here when done, waiting for possible item reward for n time.
 
 		/// <summary>
 		/// Checks if a projectile type is a fishing bobber.
@@ -22,13 +18,13 @@ namespace Banking
 		/// <param name="type">Projectile type</param>
 		/// <returns>True if a fishing bobber.</returns>
 		public bool IsFishingProjectile(int type) => type >= 360 && type <= 366;
-		
+
 		/// <summary>
 		/// Checks if there are any players waiting on a potential fishing item.
 		/// </summary>
 		/// <returns>True, if there are players waiting.</returns>
 		public bool IsWaitingOnFishingItem() => playerToPendingFishingInfos.Count > 0;
-		
+
 		public PlayerFishingTracker()
 		{
 			playerToFishingInfos = new ConcurrentDictionary<int, FishingInfo>();
@@ -38,10 +34,10 @@ namespace Banking
 
 		public void TryBeginFishing(int playerId, int projectileId, int projectileType)
 		{
-			if( !IsFishingProjectile(projectileType) )
+			if (!IsFishingProjectile(projectileType))
 				return;
 
-			if(!playerToFishingInfos.TryGetValue(playerId, out var fishingInfo))
+			if (!playerToFishingInfos.TryGetValue(playerId, out var fishingInfo))
 			{
 				Debug.Print($"Player #{playerId} has started fishing.");
 
@@ -58,14 +54,14 @@ namespace Banking
 
 		public void TryEndFishing(int playerId, int projectileId)
 		{
-			if(playerToFishingInfos.TryGetValue(playerId, out var fishingInfo))
+			if (playerToFishingInfos.TryGetValue(playerId, out var fishingInfo))
 			{
-				if(fishingInfo.ProjectileId == projectileId)
+				if (fishingInfo.ProjectileId == projectileId)
 				{
 					playerToFishingInfos.TryRemove(playerId, out var unused);
 
 					fishingInfo.finishTime = stopwatch.ElapsedMilliseconds;
-					
+
 					playerToPendingFishingInfos.TryAdd(playerId, fishingInfo);
 
 					Debug.Print($"Player #{playerId} has stopped fishing.");
@@ -75,10 +71,10 @@ namespace Banking
 
 		public bool IsItemFromFishing(int playerId)//, int stack, byte prefix, int itemId)
 		{
-			if( !IsWaitingOnFishingItem() )
+			if (!IsWaitingOnFishingItem())
 				return false;
 
-			if(playerToPendingFishingInfos.TryGetValue(playerId,out var fishingInfo))
+			if (playerToPendingFishingInfos.TryGetValue(playerId, out var fishingInfo))
 			{
 				//player probably(**hopefully**) got this item through fishing.
 				playerToPendingFishingInfos.TryRemove(playerId, out var unused);
@@ -96,12 +92,12 @@ namespace Banking
 		public void OnGameUpdate()
 		{
 			var now = stopwatch.ElapsedMilliseconds;
-			
-			foreach(var k in playerToPendingFishingInfos.Keys.ToArray())
+
+			foreach (var k in playerToPendingFishingInfos.Keys.ToArray())
 			{
-				if(playerToPendingFishingInfos.TryGetValue(k, out var fishingInfo))
+				if (playerToPendingFishingInfos.TryGetValue(k, out var fishingInfo))
 				{
-					if(now - fishingInfo.finishTime >= waitForItemDuration)
+					if (now - fishingInfo.finishTime >= waitForItemDuration)
 					{
 						playerToPendingFishingInfos.TryRemove(k, out var unused);
 					}

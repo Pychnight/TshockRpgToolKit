@@ -1,9 +1,5 @@
 ﻿using CustomQuests.Quests;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomQuests
 {
@@ -23,7 +19,7 @@ namespace CustomQuests
 		/// </summary>
 		public int TallyChange { get; private set; }
 
-		public TallyChangedEventArgs(PartyMember partyMember, int tallyChange )
+		public TallyChangedEventArgs(PartyMember partyMember, int tallyChange)
 		{
 			PartyMember = partyMember;
 			TallyChange = tallyChange;

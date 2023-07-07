@@ -1,9 +1,4 @@
 ﻿using RpgToolsEditor.Controls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -19,7 +14,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			var model = new ShopCommand();
 			var node = new CommandTreeNode();
 			node.AddDefaultChildNodesHack();
-			
+
 			node.Model = model;
 
 			AddSibling(node);
@@ -35,7 +30,7 @@ namespace RpgToolsEditor.Models.NpcShops
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( !CanAcceptDraggedNode(draggedNode) )
+			if (!CanAcceptDraggedNode(draggedNode))
 				return false;
 
 			draggedNode.Remove();

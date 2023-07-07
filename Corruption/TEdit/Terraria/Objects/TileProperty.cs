@@ -1,9 +1,9 @@
-﻿using System.Collections.ObjectModel;
-//using System.Windows.Media;
+﻿//using System.Windows.Media;
 //using System.Windows.Media.Imaging;
 //using TEdit.Geometry.Primitives;
 //using GalaSoft.MvvmLight;
 using Microsoft.Xna.Framework;
+using System.Collections.ObjectModel;
 
 namespace Corruption.TEdit
 {
@@ -62,10 +62,7 @@ namespace Corruption.TEdit
 
 		public bool IsSolid { get; set; }
 
-		public ObservableCollection<FrameProperty> Frames
-		{
-			get { return _frames; }
-		}
+		public ObservableCollection<FrameProperty> Frames => _frames;
 
 		public TileProperty(int id, string name, Color color, bool isFramed = false)
 		{

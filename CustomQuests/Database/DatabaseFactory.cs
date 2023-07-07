@@ -1,11 +1,4 @@
-﻿using CustomQuests.Sessions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CustomQuests.Database
+﻿namespace CustomQuests.Database
 {
 	public class DatabaseFactory
 	{
@@ -13,7 +6,7 @@ namespace CustomQuests.Database
 		{
 			IDatabase db = null;
 
-			switch( databaseType )
+			switch (databaseType)
 			{
 				//case "redis":
 				//	db = new RedisDatabase(connectionString);

@@ -11,7 +11,7 @@ namespace Banking
 		public Reward Reward { get; }
 		public RewardReason RewardReason => Reward.RewardReason;
 		public string PlayerName { get; } //=> Reward.PlayerName; // <-- dont use member! this might be set from a multi reward.
-		//public string PlayerGroup //=> Reward.PlayerGroup;
+										  //public string PlayerGroup //=> Reward.PlayerGroup;
 		public bool IsMultiReward => Reward is MultipleRewardBase;
 		public decimal RewardValue { get; set; }
 		public CurrencyDefinition Currency { get; }

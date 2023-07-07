@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Terraria;
 
 namespace Corruption
@@ -22,13 +18,13 @@ namespace Corruption
 
 			slots = new InventorySlot[items.Length];
 
-			for( var i = 0; i < items.Length; i++ )
+			for (var i = 0; i < items.Length; i++)
 				slots[i] = new InventorySlot(playerIndex, baseIndex, items, i);
 		}
 
 		public void Clear()
 		{
-			foreach( var slot in slots )
+			foreach (var slot in slots)
 				slot.Clear();
 		}
 
@@ -50,13 +46,13 @@ namespace Corruption
 
 		public int IndexOf(int itemId, int prefix)
 		{
-			for( var i = 0; i < slots.Length; i++ )
+			for (var i = 0; i < slots.Length; i++)
 			{
 				var s = slots[i];
 
-				if( s.Stack > 0 &&
+				if (s.Stack > 0 &&
 					s.Id == itemId &&
-					s.Prefix == prefix )
+					s.Prefix == prefix)
 				{
 					return i;
 				}
@@ -69,7 +65,7 @@ namespace Corruption
 		{
 			var id = ItemFunctions.GetItemIdFromName(itemType);
 
-			if( id == null )
+			if (id == null)
 				return -1;
 
 			return IndexOf((int)id, prefix);

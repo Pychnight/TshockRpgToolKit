@@ -2,10 +2,8 @@
 using CustomQuests.Sessions;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TShockAPI;
 
@@ -22,23 +20,23 @@ namespace CustomQuests.Quests
 			quests = new ConcurrentDictionary<string, Quest>();
 		}
 
-		public bool Start(QuestInfo info, Party party, Session session )//we have to pass the session in for now, sadly. 
+		public bool Start(QuestInfo info, Party party, Session session)//we have to pass the session in for now, sadly. 
 		{
-			if( quests.ContainsKey(party.Name) )
+			if (quests.ContainsKey(party.Name))
 				throw new ArgumentException($"Party is already in a Quest.", nameof(party));
 
 			var newQuest = questLoader.CreateInstance(info, party);
 
-			if( newQuest != null )
+			if (newQuest != null)
 			{
-				if(quests.TryAdd(party.Name, newQuest))
+				if (quests.TryAdd(party.Name, newQuest))
 				{
 					session.CurrentQuest = newQuest;
 					newQuest.Run();
 					return true;
 				}
 			}
-			
+
 			return false;
 		}
 
@@ -48,7 +46,7 @@ namespace CustomQuests.Quests
 		//	if( quests.TryGetValue(party.Name, out var quest) )
 		//	{
 		//		var task = quest.MainQuestTask;
-				
+
 		//		if( task.Status == TaskStatus.Running ||
 		//			task.Status == TaskStatus.WaitingToRun ||
 		//			task.Status == TaskStatus.WaitingForChildrenToComplete )
@@ -62,15 +60,15 @@ namespace CustomQuests.Quests
 		{
 			var currentQuests = quests.Values.ToArray();
 
-			for( var i=0; i < currentQuests.Length; i++ )
+			for (var i = 0; i < currentQuests.Length; i++)
 			{
 				var quest = currentQuests[i];
 
 				//HACK work around against a race condition?? MainQuest isn't always set by this point.
-				if( quest.MainQuestTask == null )
+				if (quest.MainQuestTask == null)
 					continue;
 
-				switch( quest.MainQuestTask.Status )
+				switch (quest.MainQuestTask.Status)
 				{
 					case TaskStatus.WaitingForChildrenToComplete:
 						quest.Update();
@@ -83,9 +81,9 @@ namespace CustomQuests.Quests
 					case TaskStatus.RanToCompletion:
 						RemoveQuest(quest.party.Name);
 
-						if( !quest.CalledComplete )
+						if (!quest.CalledComplete)
 							CustomQuestsPlugin.Instance.LogPrint($"'{quest.QuestInfo.Name}' MainQuestTask finished execution, but no call to Complete() was made. ( Did you forget to wait on a Task? )", TraceLevel.Error);
-							
+
 						break;
 
 					case TaskStatus.Canceled:
@@ -94,19 +92,19 @@ namespace CustomQuests.Quests
 
 					case TaskStatus.Faulted:
 						RemoveQuest(quest.party.Name);
-											
-						if(quest.MainQuestTask?.Exception!=null)
+
+						if (quest.MainQuestTask?.Exception != null)
 						{
 							CustomQuestsPlugin.Instance.LogPrint($"'{quest.QuestInfo.Name}' MainQuestTask terminated due to errors or cancellation.", TraceLevel.Warning);
 
-							foreach( var ex in quest.MainQuestTask.Exception.InnerExceptions )
-								CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Warning );
+							foreach (var ex in quest.MainQuestTask.Exception.InnerExceptions)
+								CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Warning);
 
 							//quest.OnAbort("Quest aborted due to error. Please let the server admin know.");
 						}
-						
+
 						quest.OnAbort();
-						
+
 						break;
 				}
 			}
@@ -114,7 +112,7 @@ namespace CustomQuests.Quests
 
 		private void RemoveQuest(string partyName)
 		{
-			if( quests.TryRemove(partyName, out var removedQuest) )
+			if (quests.TryRemove(partyName, out var removedQuest))
 			{
 				removedQuest.Dispose();
 			}

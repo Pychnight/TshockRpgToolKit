@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.CustomQuests
 {
@@ -36,7 +33,7 @@ namespace RpgToolsEditor.Models.CustomQuests
 		{
 			var items = tree.Select(n => (QuestInfo)n.Model).ToList();
 
-			var json = JsonConvert.SerializeObject(items,Formatting.Indented);
+			var json = JsonConvert.SerializeObject(items, Formatting.Indented);
 			File.WriteAllText(path, json);
 		}
 
@@ -63,14 +60,11 @@ namespace RpgToolsEditor.Models.CustomQuests
 			Model = model;
 		}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return node is QuestInfoTreeNode;
-		}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) => node is QuestInfoTreeNode;
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if(CanAcceptDraggedNode(draggedNode))
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				draggedNode.Remove();
 				AddSibling(draggedNode);

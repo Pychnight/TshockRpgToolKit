@@ -1,5 +1,4 @@
-﻿using Boo.Lang.Compiler.Ast;
-using BooTS;
+﻿using BooTS;
 using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
@@ -7,8 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomQuests.Scripting
 {
@@ -21,14 +18,11 @@ namespace CustomQuests.Scripting
 			scriptAssemblies = new Dictionary<string, ScriptAssemblyHolder>();
 		}
 
-		internal void Clear()
-		{
-			scriptAssemblies.Clear();
-		}
+		internal void Clear() => scriptAssemblies.Clear();
 
 		internal Assembly GetOrCompile(string scriptPath)
 		{
-			if(scriptAssemblies.TryGetValue(scriptPath,out var holder))
+			if (scriptAssemblies.TryGetValue(scriptPath, out var holder))
 			{
 				//if(holder.Assembly==null)
 				//{
@@ -45,7 +39,7 @@ namespace CustomQuests.Scripting
 
 			holder = Compile(scriptPath);
 			scriptAssemblies.Add(scriptPath, holder);
-			
+
 			return holder.Assembly;
 		}
 
@@ -70,11 +64,11 @@ namespace CustomQuests.Scripting
 			var assName = $"Quest_{name}.dll";
 			var holder = new ScriptAssemblyHolder(DateTime.Now);
 			var context = bc.Compile(assName, new string[] { scriptPath });
-									
+
 			CustomQuestsPlugin.Instance.LogPrintBooErrors(context);
 			CustomQuestsPlugin.Instance.LogPrintBooWarnings(context);
 
-			if( context.Errors.Count == 0 )
+			if (context.Errors.Count == 0)
 			{
 				holder.Assembly = context.GeneratedAssembly;
 				CustomQuestsPlugin.Instance.LogPrint($"Compiled quest {name}", TraceLevel.Info);
@@ -86,7 +80,7 @@ namespace CustomQuests.Scripting
 
 			return holder;
 		}
-		
+
 		class ScriptAssemblyHolder
 		{
 			internal DateTime LastCompileTime { get; private set; }
@@ -100,7 +94,7 @@ namespace CustomQuests.Scripting
 
 			internal bool shouldRecompile(string scriptPath)
 			{
-				if( File.Exists(scriptPath) && File.GetLastWriteTime(scriptPath) > LastCompileTime )
+				if (File.Exists(scriptPath) && File.GetLastWriteTime(scriptPath) > LastCompileTime)
 					return true;
 
 				return false;

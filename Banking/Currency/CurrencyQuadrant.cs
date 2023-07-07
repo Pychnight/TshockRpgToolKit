@@ -1,11 +1,6 @@
 ﻿using Corruption.PluginSupport;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking
 {
@@ -34,8 +29,8 @@ namespace Banking
 		[JsonProperty(Order = 5, PropertyName = "GainColor")]
 		public string GainColorString
 		{
-			get { return GainColor.PackedValue.ToString("x8"); }
-			set { GainColor = ColorHelpers.FromHexString(value); }
+			get => GainColor.PackedValue.ToString("x8");
+			set => GainColor = ColorHelpers.FromHexString(value);
 		}
 
 		public Color GainColor { get; set; } = Color.White;
@@ -43,16 +38,13 @@ namespace Banking
 		[JsonProperty(Order = 6, PropertyName = "LossColor")]
 		public string LossColorString
 		{
-			get { return LossColor.PackedValue.ToString("x8"); }
-			set { LossColor = ColorHelpers.FromHexString(value); }
+			get => LossColor.PackedValue.ToString("x8");
+			set => LossColor = ColorHelpers.FromHexString(value);
 		}
 
 		public Color LossColor { get; set; } = Color.Red;
 
-		public override string ToString()
-		{
-			return FullName;// ('{Abbreviation}')";
-		}
+		public override string ToString() => FullName;// ('{Abbreviation}')";
 
 		public ValidationResult Validate()
 		{
@@ -64,7 +56,7 @@ namespace Banking
 			if (string.IsNullOrWhiteSpace(Abbreviation))
 				result.Errors.Add(new ValidationError($"{nameof(Abbreviation)} is null or whitespace."));
 
-			if (BaseUnitMultiplier==0)
+			if (BaseUnitMultiplier == 0)
 				result.Warnings.Add(new ValidationWarning($"{nameof(BaseUnitMultiplier)} is 0."));
 
 			return result;

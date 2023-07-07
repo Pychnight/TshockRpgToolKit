@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
-using TShockAPI;
 
 namespace Banking.TileTracking
 {
@@ -23,16 +18,16 @@ namespace Banking.TileTracking
 		Dictionary<string, TileAccessMap> playerTileAccess;
 		//Dictionary<string, DateTime> playerLastSeen;
 		//public TimeSpan CacheDataDuration { get; set; } = new TimeSpan(3, 0, 0, 0, 0);
-		
+
 		public PlayerTileTracker(string dataDirectoryPath)
 		{
 			playerTileAccess = new Dictionary<string, TileAccessMap>();
 			//playerLastSeen = new Dictionary<string, DateTime>();
-						
+
 			worldDataDirectoryPath = Path.Combine(dataDirectoryPath, $"tile-access-{Main.worldID}");
 			Directory.CreateDirectory(worldDataDirectoryPath);
 		}
-		
+
 		/// <summary>
 		/// Gets the flag(status) of a tile relative to a player.  
 		/// </summary>
@@ -61,17 +56,17 @@ namespace Banking.TileTracking
 
 		private TileAccessMap getOrCreateTileAccessMap(string playerName)
 		{
-			if(!playerTileAccess.TryGetValue(playerName,out var result))
+			if (!playerTileAccess.TryGetValue(playerName, out var result))
 			{
 				var filePath = getPathForPlayerName(playerName);
 
-				if(File.Exists(filePath))
+				if (File.Exists(filePath))
 				{
 					try
 					{
 						result = TileAccessMap.Load(filePath);
 					}
-					catch(Exception ex)
+					catch (Exception ex)
 					{
 						Debug.Print("Failed to load TileAccessMap {filePath}");
 						Debug.Print(ex.ToString());
@@ -79,9 +74,9 @@ namespace Banking.TileTracking
 					}
 				}
 
-				if(result == null)
-					result = new TileAccessMap(Main.maxTilesX,Main.maxTilesY);
-				
+				if (result == null)
+					result = new TileAccessMap(Main.maxTilesX, Main.maxTilesY);
+
 				playerTileAccess.Add(playerName, result);
 				//playerLastSeen.Add(playerName, DateTime.Now);
 			}
@@ -101,7 +96,7 @@ namespace Banking.TileTracking
 		/// <param name="playerName">Player name.</param>
 		public void OnPlayerLeave(string playerName)
 		{
-			if( playerTileAccess.TryGetValue(playerName, out var tileAccessMap) )
+			if (playerTileAccess.TryGetValue(playerName, out var tileAccessMap))
 			{
 				//we only get here, if a previous accessMap was created for the player.
 				try
@@ -109,11 +104,11 @@ namespace Banking.TileTracking
 					var filePath = getPathForPlayerName(playerName);
 					tileAccessMap.Save(filePath);
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					Debug.Print(ex.ToString());
 				}
-								
+
 				playerTileAccess.Remove(playerName);
 			}
 		}

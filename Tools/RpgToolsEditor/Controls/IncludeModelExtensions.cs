@@ -1,9 +1,7 @@
-﻿using RpgToolsEditor.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Controls
 {
@@ -17,14 +15,14 @@ namespace RpgToolsEditor.Controls
 			var includedPaths = new HashSet<string>();
 			var duplicatedPaths = new HashSet<string>();
 
-			foreach(var incPath in includeModels.Select( im => im.FullPath))
+			foreach (var incPath in includeModels.Select(im => im.FullPath))
 			{
-				if( !includedPaths.Contains(incPath) )
+				if (!includedPaths.Contains(incPath))
 					includedPaths.Add(incPath);
 				else
 					duplicatedPaths.Add(incPath);
 			}
-			
+
 			return duplicatedPaths;
 		}
 
@@ -35,21 +33,21 @@ namespace RpgToolsEditor.Controls
 		{
 			var duplicates = includeModels.FindDuplicateIncludes();
 
-			if( duplicates.Count() > 0 )
+			if (duplicates.Count() > 0)
 			{
 				var sb = new StringBuilder();
 				var comma = false;
-				
-				foreach(var s in duplicates)
+
+				foreach (var s in duplicates)
 				{
-					if( comma )
+					if (comma)
 						sb.AppendLine(",");
-					
+
 					sb.Append(s);
-									
+
 					comma = true;
 				}
-				
+
 				throw new Exception($"Duplicate include files found:\n{sb.ToString()}");
 			}
 		}
