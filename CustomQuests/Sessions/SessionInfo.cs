@@ -1,34 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using CustomQuests.Quests;
+﻿using CustomQuests.Quests;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 
 namespace CustomQuests.Sessions
 {
-    /// <summary>
-    ///     Represents information about a quest.
-    /// </summary>
-    public sealed class SessionInfo
-    {
+	/// <summary>
+	///     Represents information about a quest.
+	/// </summary>
+	public sealed class SessionInfo
+	{
 		//public int? Id { get; set; }
 		//public string PlayerName { get; set; }
 
-        /// <summary>
-        ///     Gets the unlocked quest names.
-        /// </summary>
-        public HashSet<string> UnlockedQuestNames { get; } = new HashSet<string>();
+		/// <summary>
+		///     Gets the unlocked quest names.
+		/// </summary>
+		public HashSet<string> UnlockedQuestNames { get; } = new HashSet<string>();
 
-        /// <summary>
-        ///     Gets the completed quest names.
-        /// </summary>
-        public HashSet<string> CompletedQuestNames { get; } = new HashSet<string>();
+		/// <summary>
+		///     Gets the completed quest names.
+		/// </summary>
+		public HashSet<string> CompletedQuestNames { get; } = new HashSet<string>();
 
-        /// <summary>
-        ///     Gets or sets the current quest info.
-        /// </summary>
-        [JsonIgnore]
-        public QuestInfo CurrentQuestInfo { get; set; }
-		
+		/// <summary>
+		///     Gets or sets the current quest info.
+		/// </summary>
+		[JsonIgnore]
+		public QuestInfo CurrentQuestInfo { get; set; }
+
 		public string CurrentQuestName => CurrentQuestInfo?.Name ?? null;
 
 		//      /// <summary>
@@ -43,23 +43,23 @@ namespace CustomQuests.Sessions
 
 		//[JsonIgnore]
 		//public QuestStatusCollection QuestStatusManager { get; set; } = new QuestStatusCollection();
-		
+
 		/// <summary>
 		///     Gets the number of attempts per quest.
 		/// </summary>
 		public Dictionary<string, int> QuestAttempts { get; } = new Dictionary<string, int>();
-		
+
 		/// <summary>
 		///		Gets or sets a Dictionary containing time stamps of the first attempt at Quest.
 		/// </summary>
 		/// <remarks>This is used to determine quest reset times.</remarks>
 		public Dictionary<string, DateTime> QuestFirstAttemptTimes { get; set; } = new Dictionary<string, DateTime>();
-		
+
 		[JsonIgnore]
 		public Dictionary<string, QuestStatusCollection> QuestProgress = new Dictionary<string, QuestStatusCollection>();
 
 		//proxy for QuestProgress
-		
+
 
 
 
@@ -112,9 +112,9 @@ namespace CustomQuests.Sessions
 
 		internal void AddDefaultQuestNames(IEnumerable<string> questNames)
 		{
-			foreach( var name in questNames )
+			foreach (var name in questNames)
 			{
-				if(!CompletedQuestNames.Contains(name) )
+				if (!CompletedQuestNames.Contains(name))
 					UnlockedQuestNames.Add(name);
 			}
 		}

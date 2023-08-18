@@ -1,24 +1,14 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace RpgToolsEditor.Models
 {
 	public sealed class ItemNameStringConverter : StringConverter
 	{
-		public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-		{
-			return true;
-		}
+		public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => true;
 
-		public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-		{
-			return false;
-		}
+		public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => false;
 
-		public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-		{
-			return new StandardValuesCollection(value);
-		}
+		public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) => new StandardValuesCollection(value);
 
 		public static string[] value = new string[]
 		{

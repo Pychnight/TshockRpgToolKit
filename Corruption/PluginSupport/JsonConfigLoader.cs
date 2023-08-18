@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TerrariaApi.Server;
 
 namespace Corruption.PluginSupport
@@ -26,12 +22,12 @@ namespace Corruption.PluginSupport
 		public static TConfig LoadOrCreate<TConfig>(TerrariaPlugin plugin, string filePath) where TConfig : JsonConfig, new()
 		{
 			TConfig config = default(TConfig);
-			
+
 			try
 			{
 				Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-				if( File.Exists(filePath) )
+				if (File.Exists(filePath))
 				{
 					ServerApi.LogWriter.PluginWriteLine(plugin, $"Loading config from {filePath} ...", TraceLevel.Info);
 					var json = File.ReadAllText(filePath);
@@ -49,13 +45,13 @@ namespace Corruption.PluginSupport
 
 				validationResult.Source = $"config file {filePath}.";
 				validationResult.GetTotals(ref errors, ref warnings);
-				
-				if( errors > 0 || warnings > 0)
+
+				if (errors > 0 || warnings > 0)
 				{
 					plugin.LogPrint(validationResult);
 				}
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				ServerApi.LogWriter.PluginWriteLine(plugin, ex.Message, TraceLevel.Error);
 			}
@@ -74,9 +70,9 @@ namespace Corruption.PluginSupport
 			try
 			{
 				Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-				config.Save(filePath);				
+				config.Save(filePath);
 			}
-			catch( Exception ex)
+			catch (Exception ex)
 			{
 				ServerApi.LogWriter.PluginWriteLine(plugin, ex.Message, TraceLevel.Error);
 			}
@@ -96,9 +92,6 @@ namespace Corruption.PluginSupport
 		/// JsonConfig types should override this method, and throw for any configuration errors discovered.
 		/// LoadOrCreate() runs this method to inform the server administrator of any issues.
 		/// </summary>
-		public virtual ValidationResult Validate()
-		{
-			return new ValidationResult();
-		}
+		public virtual ValidationResult Validate() => new ValidationResult();
 	}
 }

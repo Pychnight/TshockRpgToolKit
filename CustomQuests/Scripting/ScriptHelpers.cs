@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomQuests.Scripting
 {
@@ -11,15 +7,13 @@ namespace CustomQuests.Scripting
 	{
 		static List<string> defaultImports;
 
-		internal static IEnumerable<Assembly> GetReferences()
-		{
+		internal static IEnumerable<Assembly> GetReferences() =>
 			//we piggyback on customnpcs, for now...
-			return CustomNpcs.ScriptHelpers.GetReferences();
-		}
+			CustomNpcs.ScriptHelpers.GetReferences();
 
 		internal static IEnumerable<string> GetDefaultImports()
 		{
-			return defaultImports ?? ( defaultImports = new List<string>()
+			return defaultImports ?? (defaultImports = new List<string>()
 			{
 				"System",
 				"System.Collections.Generic",
@@ -50,7 +44,7 @@ namespace CustomQuests.Scripting
 				"CustomQuests",
 				"CustomQuests.Quests",
 				"CustomQuests.Triggers"
-			} );
+			});
 		}
 	}
 }

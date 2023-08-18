@@ -1,12 +1,9 @@
 ﻿using Corruption;
 using CustomQuests.Quests;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 
 namespace CustomQuests.Triggers
@@ -27,7 +24,7 @@ namespace CustomQuests.Triggers
 		//bool perMember;//is amount absolute, or per each member?
 
 		int chestItemCount;//amount carried by chest.
-		
+
 		bool success;
 
 		public ChestGatherItems(IEnumerable<PartyMember> partyMembers, int chestX, int chestY, int amount, int itemId, byte itemPrefix) // bool perMember)
@@ -47,7 +44,7 @@ namespace CustomQuests.Triggers
 			: this(partyMembers, chestX, chestY, amount, itemId, 0)
 		{
 		}
-		
+
 		public ChestGatherItems(IEnumerable<PartyMember> partyMembers, int chestX, int chestY, int amount, string itemType, byte itemPrefix) // bool perMember)
 		{
 			chestItemChanges = new ConcurrentQueue<ChestItemChangedEventArgs>();
@@ -67,12 +64,12 @@ namespace CustomQuests.Triggers
 		}
 
 		public ChestGatherItems(PartyMember partyMember, int chestX, int chestY, int amount, string itemType, byte itemPrefix)
-			: this(partyMember.ToEnumerable(),chestX,chestY,amount,itemType,itemPrefix)
+			: this(partyMember.ToEnumerable(), chestX, chestY, amount, itemType, itemPrefix)
 		{
 		}
 
 		public ChestGatherItems(PartyMember partyMember, int chestX, int chestY, int amount, string itemType)
-			: this(partyMember,chestX,chestY,amount,itemType,0)
+			: this(partyMember, chestX, chestY, amount, itemType, 0)
 		{
 		}
 
@@ -88,7 +85,7 @@ namespace CustomQuests.Triggers
 
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 				CustomQuestsPlugin.Instance.ChestItemChanged -= chestItemChanged;
 
 			base.Dispose(disposing);
@@ -100,41 +97,41 @@ namespace CustomQuests.Triggers
 			//ensure chest exists...
 			chestId = Chest.FindChest(chestX, chestY - 1);
 
-			if( chestId == -1 )
+			if (chestId == -1)
 			{
 				success = true; // just pass for now on invalid chests.
-				//return;
+								//return;
 			}
 
 			//try to ensure valid item if we were passed an id string, and not an integer id.
-			if( !string.IsNullOrWhiteSpace(itemType) )
+			if (!string.IsNullOrWhiteSpace(itemType))
 			{
 				var id = ItemFunctions.GetItemIdFromName(itemType);
 
-				if( id != null )
+				if (id != null)
 					itemId = (int)id;
 				else
 					success = true;
 			}
-			
+
 			//ensure the item actually exists in the chest, with enough quantity.
 			chestItemCount = ChestFunctions.CountChestItem(chestX, chestY, itemId, itemPrefix);
 
-			if( chestItemCount < itemsRequired )
+			if (chestItemCount < itemsRequired)
 			{
 				//Debug.Print("There are not enough items in the chest. Skipping.");
 				success = true;
 			}
-			
+
 			CustomQuestsPlugin.Instance.ChestItemChanged += chestItemChanged;
 		}
 
 		private void chestItemChanged(object sender, ChestItemChangedEventArgs args)
 		{
-			if(args.ChestId == chestId)
+			if (args.ChestId == chestId)
 			{
 				Debug.Print("ChestGatherItems Trigger detected chest modifications.");
-				if( partyMembers.Any( m => m.IsValidMember && m.Index == args.PlayerIndex))
+				if (partyMembers.Any(m => m.IsValidMember && m.Index == args.PlayerIndex))
 				{
 					chestItemChanges.Enqueue(args);
 				}
@@ -143,13 +140,13 @@ namespace CustomQuests.Triggers
 
 		protected internal override TriggerStatus UpdateImpl()
 		{
-			while(!success && chestItemChanges.Count>0)
+			while (!success && chestItemChanges.Count > 0)
 			{
-				if( chestItemChanges.TryDequeue(out var args) )
+				if (chestItemChanges.TryDequeue(out var args))
 				{
 					var newCount = ChestFunctions.CountChestItem(chestX, chestY, itemId, itemPrefix);
 
-					if( newCount < chestItemCount )
+					if (newCount < chestItemCount)
 					{
 						var diff = chestItemCount - newCount;
 						itemsGathered += diff;
@@ -157,13 +154,13 @@ namespace CustomQuests.Triggers
 						chestItemCount = newCount;
 					}
 
-					if( itemsGathered >= itemsRequired )
+					if (itemsGathered >= itemsRequired)
 					{
 						success = true;
 					}
 				}
 			}
-			
+
 			return success.ToTriggerStatus();
 		}
 	}

@@ -80,26 +80,20 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 
 		public int Y
 		{
-			get { return _y; }
-			set { _y = value; }
+			get => _y;
+			set => _y = value;
 		}
 
 		public int X
 		{
-			get { return _x; }
-			set { _x = value; }
+			get => _x;
+			set => _x = value;
 		}
 
 
-		public override string ToString()
-		{
-			return $"[Sign: {Text.Substring(0, Math.Max(25, Text.Length))}[{Text.Length}], ({X},{Y})]";
-		}
+		public override string ToString() => $"[Sign: {Text.Substring(0, Math.Max(25, Text.Length))}[{Text.Length}], ({X},{Y})]";
 
 
-		public Sign Copy()
-		{
-			return new Sign(_x, _y, _text);
-		}
+		public Sign Copy() => new Sign(_x, _y, _text);
 	}
 }

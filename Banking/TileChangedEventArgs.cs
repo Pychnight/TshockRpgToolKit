@@ -1,5 +1,4 @@
 ﻿using Banking.TileTracking;
-using OTAPI.Tile;
 using System;
 using TShockAPI;
 
@@ -33,7 +32,7 @@ namespace Banking
 		/// <returns></returns>
 		public ushort GetTypeOrWall()
 		{
-			if( TileSubTarget == TileSubTarget.Tile )
+			if (TileSubTarget == TileSubTarget.Tile)
 				return Type;
 			else
 				return Wall;

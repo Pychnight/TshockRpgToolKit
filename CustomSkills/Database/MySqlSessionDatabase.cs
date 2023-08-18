@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using System;
+using System.Data;
+using System.Diagnostics;
 using TerrariaApi.Server;
 
 namespace CustomSkills.Database
@@ -28,9 +23,9 @@ namespace CustomSkills.Database
 			{
 				ConnectionString = EnsureDatabase(connectionString);
 
-				using(var connection = new SqlConnection(ConnectionString))
+				using (var connection = new SqlConnection(ConnectionString))
 				{
-					using(var cmd = connection.CreateCommand())
+					using (var cmd = connection.CreateCommand())
 					{
 						cmd.CommandText = createTableSql;
 
@@ -39,7 +34,7 @@ namespace CustomSkills.Database
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				ServerApi.LogWriter.PluginWriteLine(CustomSkillsPlugin.Instance, "Failed to open leveling sessions database!", TraceLevel.Error);
 				Console.WriteLine(ex.Message);
@@ -55,8 +50,8 @@ namespace CustomSkills.Database
 			builder.Database = null;
 
 			//try to create db
-			using(var con = new MySqlConnection(builder.ConnectionString))
-			using(var cmd = con.CreateCommand())
+			using (var con = new MySqlConnection(builder.ConnectionString))
+			using (var cmd = con.CreateCommand())
 			{
 				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
 				con.Open();
@@ -73,9 +68,9 @@ namespace CustomSkills.Database
 			Debug.Print($"MySqlSessionRepository.Load({userName})");
 			Session result = null;
 
-			using(var connection = new MySqlConnection(ConnectionString))
+			using (var connection = new MySqlConnection(ConnectionString))
 			{
-				using(var cmd = connection.CreateCommand())
+				using (var cmd = connection.CreateCommand())
 				{
 					cmd.CommandText = "SELECT data FROM sessions " +
 										$"WHERE player='{userName}';";
@@ -83,7 +78,7 @@ namespace CustomSkills.Database
 					connection.Open();
 					var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
 
-					if(reader.HasRows)
+					if (reader.HasRows)
 					{
 						try
 						{
@@ -91,7 +86,7 @@ namespace CustomSkills.Database
 							var json = reader.GetString(0);
 							result = JsonConvert.DeserializeObject<Session>(json);
 						}
-						catch(Exception ex)
+						catch (Exception ex)
 						{
 							ServerApi.LogWriter.PluginWriteLine(CustomSkillsPlugin.Instance, $"Load error: ({ex.Message})", TraceLevel.Error);
 						}
@@ -105,13 +100,13 @@ namespace CustomSkills.Database
 		public void Save(string userName, Session session)
 		{
 			Debug.Print($"MySqlSessionRepository.Save({userName})");
-			using(var connection = new MySqlConnection(ConnectionString))
+			using (var connection = new MySqlConnection(ConnectionString))
 			{
 				try
 				{
 					var json = JsonConvert.SerializeObject(session, Formatting.Indented);
 
-					using(var cmd = connection.CreateCommand())
+					using (var cmd = connection.CreateCommand())
 					{
 						cmd.CommandText = "REPLACE INTO sessions ( player, data ) " +
 											"VALUES ( @player, @data );";
@@ -123,7 +118,7 @@ namespace CustomSkills.Database
 						cmd.ExecuteNonQuery();
 					}
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					ServerApi.LogWriter.PluginWriteLine(CustomSkillsPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
 					ServerApi.LogWriter.PluginWriteLine(CustomSkillsPlugin.Instance, $"Session data not saved.", TraceLevel.Error);

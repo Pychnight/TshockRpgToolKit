@@ -2,12 +2,7 @@
 using Newtonsoft.Json;
 //using OTAPI.Tile;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.Banking
 {
@@ -59,14 +54,11 @@ namespace RpgToolsEditor.Models.Banking
 		//	Wall = tile.wall;
 		//}
 
-		public object Clone()
-		{
-			return new TileKey(this);
-		}
+		public object Clone() => new TileKey(this);
 
 		public TileKey(ushort tileOrWallId, TileSubTarget tileSubTarget)
 		{
-			switch( tileSubTarget )
+			switch (tileSubTarget)
 			{
 				case TileSubTarget.Tile:
 					Type = tileOrWallId;
@@ -76,31 +68,23 @@ namespace RpgToolsEditor.Models.Banking
 					break;
 			}
 		}
-		
-		public override int GetHashCode()
-		{
+
+		public override int GetHashCode() =>
 			//return TileId.GetHashCode() ^ FrameX ^ FrameY ^ WallId;
 			//return Type ^ FrameX ^ FrameY ^ Wall;
-			return Type ^ Wall;
-		}
+			Type ^ Wall;
 
-		public bool Equals(TileKey other)
-		{
-			return Type == other.Type && Wall == other.Wall;
-		}
+		public bool Equals(TileKey other) => Type == other.Type && Wall == other.Wall;
 
 		public override bool Equals(object obj)
 		{
 			var tk = obj as TileKey;
-			if( tk!=null )
+			if (tk != null)
 				return Equals(tk);
 			else
 				return false;
 		}
 
-		public override string ToString()
-		{
-			return $"TileKey(Type:{Type}, Wall:{Wall})";
-		}
+		public override string ToString() => $"TileKey(Type:{Type}, Wall:{Wall})";
 	}
 }

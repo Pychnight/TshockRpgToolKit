@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
@@ -20,12 +17,12 @@ namespace Corruption
 		/// <exception cref="KeyNotFoundException"><paramref name="name" /> is an invalid region name.</exception>
 		public static Region GetRegion(string name)
 		{
-			if( name == null )
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
-			
+
 			var result = TShock.Regions.GetRegionByName(name);
 
-			if( result == null )
+			if (result == null)
 				throw new KeyNotFoundException($"Invalid Region '{name}'.");
 			else
 				return result;
@@ -37,42 +34,24 @@ namespace Corruption
 			var region = GetRegion(name);
 			return region != null && region.InArea((int)x, (int)y);
 		}
-		
+
 		// Utility public static bool for spawning at the cavern level.
-		public static bool AtCavernLevel(TSPlayer player)
-		{
-			return player.TPlayer.ZoneRockLayerHeight;
-		}
+		public static bool AtCavernLevel(TSPlayer player) => player.TPlayer.ZoneRockLayerHeight;
 
 		// Utility public static bool for spawning at the sky level.
-		public static bool AtSkyLevel(TSPlayer player)
-		{
-			return player.TPlayer.ZoneSkyHeight;
-		}
+		public static bool AtSkyLevel(TSPlayer player) => player.TPlayer.ZoneSkyHeight;
 
 		// Utility public static bool for spawning at the surface level.
-		public static bool AtSurfaceLevel(TSPlayer player)
-		{
-			return player.TPlayer.ZoneOverworldHeight;
-		}
+		public static bool AtSurfaceLevel(TSPlayer player) => player.TPlayer.ZoneOverworldHeight;
 
 		// Utility public static bool for spawning at the underground level.
-		public static bool AtUndergroundLevel(TSPlayer player)
-		{
-			return player.TPlayer.ZoneDirtLayerHeight;
-		}
+		public static bool AtUndergroundLevel(TSPlayer player) => player.TPlayer.ZoneDirtLayerHeight;
 
 		// Utility public static bool for spawning at the underworld level.
-		public static bool AtUnderworldLevel(TSPlayer player)
-		{
-			return player.TPlayer.ZoneUnderworldHeight;
-		}
+		public static bool AtUnderworldLevel(TSPlayer player) => player.TPlayer.ZoneUnderworldHeight;
 
 		// Utility public static bool for spawning in the specified region when the player is inside the region.
-		public static bool InAndAroundRegion(TSPlayer player, float x, float y, string name)
-		{
-			return InRegion(player, name) && AroundRegion((int)x, (int)y, name);
-		}
+		public static bool InAndAroundRegion(TSPlayer player, float x, float y, string name) => InRegion(player, name) && AroundRegion((int)x, (int)y, name);
 
 		// Utility for determining if the given tile is within a 10 tile radius of the spawn point.
 		public static bool InSpawn(int tileX, int tileY)
@@ -80,79 +59,55 @@ namespace Corruption
 			var spx = Main.spawnTileX;
 			var spy = Main.spawnTileY;
 
-			if( tileX < spx - 10 )
+			if (tileX < spx - 10)
 				return false;
 
-			if( tileX > spx + 10 )
+			if (tileX > spx + 10)
 				return false;
 
-			if( tileY < spy - 10 )
+			if (tileY < spy - 10)
 				return false;
 
-			if( tileY > spy + 10 )
+			if (tileY > spy + 10)
 				return false;
 
 			return true;
 		}
 
 		// Utility public static bool for spawning in a beach biome.
-		public static bool InBeach(TSPlayer player)
-		{
-			return player.TPlayer.ZoneBeach;
-		}
+		public static bool InBeach(TSPlayer player) => player.TPlayer.ZoneBeach;
 
 		// Utility public static bool for spawning in a corruption biome.
-		public static bool InCorruption(TSPlayer player)
-		{
-			return player.TPlayer.ZoneCorrupt;
-		}
+		public static bool InCorruption(TSPlayer player) => player.TPlayer.ZoneCorrupt;
 
 		// Utility public static bool for spawning in a crimson biome.
-		public static bool InCrimson(TSPlayer player)
-		{
-			return player.TPlayer.ZoneCrimson;
-		}
+		public static bool InCrimson(TSPlayer player) => player.TPlayer.ZoneCrimson;
 
 		// Utility public static bool for spawning in a desert biome.
-		public static bool InDesert(TSPlayer player)
-		{
-			return player.TPlayer.ZoneDesert;
-		}
+		public static bool InDesert(TSPlayer player) => player.TPlayer.ZoneDesert;
 
 		// Utility public static bool for spawning in the dungeon.
-		public static bool InDungeon(TSPlayer player)
-		{
-			return player.TPlayer.ZoneDungeon;
-		}
+		public static bool InDungeon(TSPlayer player) => player.TPlayer.ZoneDungeon;
 
 		// Utility public static bool for spawning in a forest biome (not a special biome).
 		public static bool InForest(TSPlayer player)
 		{
 			var tplayer = player.TPlayer;
-			return ! tplayer.ZoneBeach && ! tplayer.ZoneCorrupt && ! tplayer.ZoneCrimson && ! tplayer.ZoneDesert &&
-				   ! tplayer.ZoneDungeon && ! tplayer.ZoneGlowshroom && ! tplayer.ZoneHoly && ! tplayer.ZoneSnow &&
-				   ! tplayer.ZoneJungle && ! tplayer.ZoneMeteor && ! tplayer.ZoneOldOneArmy &&
-				   ! tplayer.ZoneTowerSolar && ! tplayer.ZoneTowerVortex && ! tplayer.ZoneTowerNebula &&
-				   ! tplayer.ZoneTowerStardust;
+			return !tplayer.ZoneBeach && !tplayer.ZoneCorrupt && !tplayer.ZoneCrimson && !tplayer.ZoneDesert &&
+				   !tplayer.ZoneDungeon && !tplayer.ZoneGlowshroom && !tplayer.ZoneHallow && !tplayer.ZoneSnow &&
+				   !tplayer.ZoneJungle && !tplayer.ZoneMeteor && !tplayer.ZoneOldOneArmy &&
+				   !tplayer.ZoneTowerSolar && !tplayer.ZoneTowerVortex && !tplayer.ZoneTowerNebula &&
+				   !tplayer.ZoneTowerStardust;
 		}
 
 		// Utility public static bool for spawning in a glowing mushroom biome.
-		public static bool InGlowshroom(TSPlayer player)
-		{
-			return player.TPlayer.ZoneGlowshroom;
-		}
+		public static bool InGlowshroom(TSPlayer player) => player.TPlayer.ZoneGlowshroom;
 
 		// Utility public static bool for spawning in a hallow biome.
-		public static bool InHallow(TSPlayer player)
-		{
-			return player.TPlayer.ZoneHoly;
-		}
+		public static bool InHallow(TSPlayer player) => player.TPlayer.ZoneHallow;
 
 		// Utility public static bool for spawning in an ice biome.
-		public static bool InIce(TSPlayer player)
-		{
-			return player.TPlayer.ZoneSnow;
-		}
+		public static bool InIce(TSPlayer player) => player.TPlayer.ZoneSnow;
 
 		// Utility public static bool for spawning when the player is inside the specified region.
 		public static bool InRegion(TSPlayer player, string name)
@@ -162,16 +117,10 @@ namespace Corruption
 		}
 
 		// Utility public static bool for spawning in a jungle biome.
-		public static bool InJungle(TSPlayer player)
-		{
-			return player.TPlayer.ZoneJungle;
-		}
+		public static bool InJungle(TSPlayer player) => player.TPlayer.ZoneJungle;
 
 		// Utility public static bool for spawning in a meteor.
-		public static bool InMeteor(TSPlayer player)
-		{
-			return player.TPlayer.ZoneMeteor;
-		}
+		public static bool InMeteor(TSPlayer player) => player.TPlayer.ZoneMeteor;
 
 		// Utility public static bool for spawning in water.
 		public static bool InWater(float x, float y)

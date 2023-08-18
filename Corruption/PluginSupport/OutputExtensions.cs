@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Corruption.PluginSupport
@@ -11,15 +9,15 @@ namespace Corruption.PluginSupport
 	{
 		public static IEnumerable<T> GetPage<T>(this IEnumerable<T> items, int page, int itemsPerPage)
 		{
-			if( items == null )
+			if (items == null)
 				throw new ArgumentNullException(nameof(items));
 
-			if( page < 0 )
+			if (page < 0)
 				throw new ArgumentOutOfRangeException(nameof(page));
 
-			if( itemsPerPage < 1 )
+			if (itemsPerPage < 1)
 				throw new ArgumentOutOfRangeException(nameof(itemsPerPage));
-			
+
 			int itemsToSkip = page * itemsPerPage;
 
 			var skipped = items.Skip(itemsToSkip);
@@ -30,10 +28,10 @@ namespace Corruption.PluginSupport
 
 		public static int PageCount<T>(this IEnumerable<T> items, int itemsPerPage)
 		{
-			if( items == null )
+			if (items == null)
 				throw new ArgumentNullException(nameof(items));
-							
-			if( itemsPerPage < 1 )
+
+			if (itemsPerPage < 1)
 				throw new ArgumentOutOfRangeException(nameof(itemsPerPage));
 
 			var itemCount = items.Count();
@@ -49,9 +47,6 @@ namespace Corruption.PluginSupport
 		/// <param name="player">TSPlayer.</param>
 		/// <param name="syntax">String containing the correct syntax.</param>
 		/// <param name="commandSpecifier">Optional command specifier.</param>
-		public static void SendSyntaxMessage(this TSPlayer player, string syntax, string commandSpecifier = null)
-		{
-			player?.SendErrorMessage($"Syntax: {commandSpecifier ?? Commands.Specifier}{syntax}");
-		}
+		public static void SendSyntaxMessage(this TSPlayer player, string syntax, string commandSpecifier = null) => player?.SendErrorMessage($"Syntax: {commandSpecifier ?? Commands.Specifier}{syntax}");
 	}
 }

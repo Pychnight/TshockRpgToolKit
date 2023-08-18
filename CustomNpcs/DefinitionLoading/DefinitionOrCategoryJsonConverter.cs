@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomNpcs
 {
@@ -31,7 +27,7 @@ namespace CustomNpcs
 
 			var category = item.Property("Category") ?? item.Property("category");//try to catch either casing.
 
-			if( category != null )
+			if (category != null)
 			{
 				//this is a category object, with includes
 				var result = item.ToObject<CategoryDefinition>();
@@ -48,9 +44,6 @@ namespace CustomNpcs
 			}
 		}
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-		{
-			throw new NotImplementedException();
-		}
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
 	}
 }

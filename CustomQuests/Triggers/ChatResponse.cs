@@ -1,17 +1,17 @@
-﻿using System;
+﻿using CustomQuests.Quests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomQuests.Quests;
 using TerrariaApi.Server;
 
 namespace CustomQuests.Triggers
 {
-    /// <summary>
-    ///     Represents a chat response trigger.
-    /// </summary>
-    public sealed class ChatResponse : Trigger
-    {
-        private readonly string responseString;
+	/// <summary>
+	///     Represents a chat response trigger.
+	/// </summary>
+	public sealed class ChatResponse : Trigger
+	{
+		private readonly string responseString;
 		private IEnumerable<PartyMember> members;
 		private bool responded;
 
@@ -20,7 +20,7 @@ namespace CustomQuests.Triggers
 		/// </summary>
 		/// <param name="partyMembers">The party, which must not be <c>null</c>.</param>
 		/// <param name="responseString">The response string to check for.</param>
-		public ChatResponse( IEnumerable<PartyMember> partyMembers, string responseString)
+		public ChatResponse(IEnumerable<PartyMember> partyMembers, string responseString)
 		{
 			members = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 			this.responseString = responseString ?? throw new ArgumentNullException(nameof(responseString));
@@ -31,35 +31,32 @@ namespace CustomQuests.Triggers
 		/// </summary>
 		/// <param name="partyMember">The PartyMember.</param>
 		/// <param name="responseString">The response string to check for.</param>
-		public ChatResponse( PartyMember partyMember, string responseString)
-			: this(partyMember.ToEnumerable(), responseString )
+		public ChatResponse(PartyMember partyMember, string responseString)
+			: this(partyMember.ToEnumerable(), responseString)
 		{
 		}
-		
+
 		protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+		{
+			if (disposing)
 				ServerApi.Hooks.ServerChat.Deregister(CustomQuestsPlugin.Instance, OnChat);
-            
-            base.Dispose(disposing);
-        }
 
-        /// <inheritdoc />
-        protected override void Initialize()
-        {
-            ServerApi.Hooks.ServerChat.Register(CustomQuestsPlugin.Instance, OnChat, int.MaxValue);
-        }
+			base.Dispose(disposing);
+		}
 
-        /// <inheritdoc />
-        protected internal override TriggerStatus UpdateImpl() => responded.ToTriggerStatus();
+		/// <inheritdoc />
+		protected override void Initialize() => ServerApi.Hooks.ServerChat.Register(CustomQuestsPlugin.Instance, OnChat, int.MaxValue);
 
-        private void OnChat(ServerChatEventArgs args)
-        {
-            if( members.Any(p => p.IsValidMember && p.Index == args.Who) && args.Text.Equals(responseString, StringComparison.OrdinalIgnoreCase) )
+		/// <inheritdoc />
+		protected internal override TriggerStatus UpdateImpl() => responded.ToTriggerStatus();
+
+		private void OnChat(ServerChatEventArgs args)
+		{
+			if (members.Any(p => p.IsValidMember && p.Index == args.Who) && args.Text.Equals(responseString, StringComparison.OrdinalIgnoreCase))
 			{
 				responded = true;
 				args.Handled = true;
 			}
 		}
-    }
+	}
 }

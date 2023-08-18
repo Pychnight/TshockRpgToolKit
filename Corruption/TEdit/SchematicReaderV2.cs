@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Corruption.TEdit
 {
@@ -20,10 +19,10 @@ namespace Corruption.TEdit
 			int verifyVersion = b.ReadInt32();
 			int verifyX = b.ReadInt32();
 			int verifyY = b.ReadInt32();
-			if( sch.Name == verifyName &&
+			if (sch.Name == verifyName &&
 				version == verifyVersion &&
 				sch.Width == verifyX &&
-				sch.Height == verifyY )
+				sch.Height == verifyY)
 			{
 				// valid;
 				return sch;

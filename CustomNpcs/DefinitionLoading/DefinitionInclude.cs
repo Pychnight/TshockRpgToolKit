@@ -1,13 +1,10 @@
 ﻿using Corruption.PluginSupport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomNpcs
 {
@@ -89,19 +86,19 @@ namespace CustomNpcs
 		{
 			var result = new List<TDefinition>(sourceDefinitions.Count);
 
-			foreach(var baseDef in sourceDefinitions )
+			foreach (var baseDef in sourceDefinitions)
 			{
 				var def = baseDef as TDefinition;
 
-				if(def!=null)
+				if (def != null)
 				{
 					result.Add(def);
 				}
-				else if(baseDef is CategoryDefinition)
+				else if (baseDef is CategoryDefinition)
 				{
 					var category = (CategoryDefinition)baseDef;
 
-					foreach(var kvp in category.DefinitionIncludes)
+					foreach (var kvp in category.DefinitionIncludes)
 						result.AddRange(DefinitionInclude.Flatten<TDefinition>(kvp.Value));
 				}
 			}
@@ -113,13 +110,13 @@ namespace CustomNpcs
 		{
 			var result = new ValidationResult();
 
-			foreach(var def in this)
+			foreach (var def in this)
 			{
 				var childResult = def.Validate();
 
 				result.Children.Add(childResult);
 			}
-			
+
 			return result;
 		}
 	}

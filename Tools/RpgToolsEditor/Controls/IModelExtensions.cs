@@ -1,9 +1,7 @@
-﻿using RpgToolsEditor.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Controls
 {
@@ -13,7 +11,7 @@ namespace RpgToolsEditor.Controls
 		{
 			const string suffix = "(Copy)";
 
-			if( !model.Name.EndsWith(suffix) )
+			if (!model.Name.EndsWith(suffix))
 			{
 				model.Name = model.Name + suffix;
 			}
@@ -27,9 +25,9 @@ namespace RpgToolsEditor.Controls
 			var includedNames = new HashSet<string>();
 			var duplicatedNames = new HashSet<string>();
 
-			foreach( var name in imodels.Select(im => im.Name) )
+			foreach (var name in imodels.Select(im => im.Name))
 			{
-				if( !includedNames.Contains(name) )
+				if (!includedNames.Contains(name))
 					includedNames.Add(name);
 				else
 					duplicatedNames.Add(name);
@@ -45,14 +43,14 @@ namespace RpgToolsEditor.Controls
 		{
 			var duplicates = imodels.FindDuplicateNames();
 
-			if( duplicates.Count() > 0 )
+			if (duplicates.Count() > 0)
 			{
 				var sb = new StringBuilder();
 				var comma = false;
 
-				foreach( var s in duplicates )
+				foreach (var s in duplicates)
 				{
-					if( comma )
+					if (comma)
 						sb.AppendLine(",");
 
 					sb.Append(s);

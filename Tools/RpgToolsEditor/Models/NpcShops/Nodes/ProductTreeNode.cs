@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RpgToolsEditor.Controls;
 using System.Windows.Forms;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -48,7 +43,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			//	//clone.Nodes.RemoveAt(0);
 			//	clone.Nodes.Clear();
 			//}
-			
+
 			return clone;
 		}
 

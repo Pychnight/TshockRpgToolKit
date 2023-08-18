@@ -1,18 +1,13 @@
 ﻿using Corruption;
 using Corruption.PluginSupport;
-using Microsoft.Xna.Framework;
-using OTAPI.Tile;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Terraria;
-using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -36,8 +31,8 @@ namespace BooTS
 		internal Script ScriptServerJoin { get; set; }
 		internal Script ScriptServerLeave { get; set; }
 
-		internal ConcurrentDictionary<string,Script> ScheduledScripts { get; set; }
-				
+		internal ConcurrentDictionary<string, Script> ScheduledScripts { get; set; }
+
 		public BooScriptingPlugin(Main game) : base(game)
 		{
 			Instance = this;
@@ -46,24 +41,24 @@ namespace BooTS
 		public override void Initialize()
 		{
 			GeneralHooks.ReloadEvent += OnReload;
-			
+
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-			
+
 			Commands.ChatCommands.Add(new Command("boots.control", CommandLoad, "boo")
 			{
 				HelpText = $"Syntax: {Commands.Specifier}boo run <script>"
 			});
 		}
-		
+
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 			{
 				//JsonConfig.Save(this, Config.Instance, ConfigPath);
-				
+
 				GeneralHooks.ReloadEvent -= OnReload;
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
 				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
@@ -81,29 +76,23 @@ namespace BooTS
 			try
 			{
 				Directory.CreateDirectory(DataDirectory);
-								
+
 				LoadScriptsByConvention();
 				RunScript(ScriptServerStart);
 
 				ScheduledScripts = new ConcurrentDictionary<string, Script>();
-				LoadScheduledScripts();			   
+				LoadScheduledScripts();
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				this.LogPrint(ex.ToString(), TraceLevel.Error);
 			}
 		}
 
-		private void OnPostInitialize(EventArgs args)
-		{
-			onLoad();
-		}
+		private void OnPostInitialize(EventArgs args) => onLoad();
 
-		private void OnReload(ReloadEventArgs e)
-		{
-			onLoad();
-		}
-		
+		private void OnReload(ReloadEventArgs e) => onLoad();
+
 		private void OnServerJoin(JoinEventArgs args)
 		{
 			Debug.Print("OnServerJoin");
@@ -131,7 +120,7 @@ namespace BooTS
 					var scheduler = script.GetSchedulerObject();
 					var shouldRun = scheduler?.OnUpdate(currentTime);
 
-					if(shouldRun==true)
+					if (shouldRun == true)
 						RunScript(script);
 				}
 			}
@@ -142,9 +131,9 @@ namespace BooTS
 		/// </summary>
 		internal void LoadScriptsByConvention()
 		{
-			ScriptServerStart	= TryReloadScript("ServerStart.boo", ScriptServerStart);
-			ScriptServerJoin	= TryReloadScript("ServerJoin.boo", ScriptServerJoin);
-			ScriptServerLeave	= TryReloadScript("ServerLeave.boo", ScriptServerLeave);
+			ScriptServerStart = TryReloadScript("ServerStart.boo", ScriptServerStart);
+			ScriptServerJoin = TryReloadScript("ServerJoin.boo", ScriptServerJoin);
+			ScriptServerLeave = TryReloadScript("ServerLeave.boo", ScriptServerLeave);
 		}
 
 		/// <summary>
@@ -156,16 +145,16 @@ namespace BooTS
 
 			Directory.CreateDirectory(baseDirectory);
 
-			var booFiles = Directory.EnumerateFiles(baseDirectory,"*.boo");
+			var booFiles = Directory.EnumerateFiles(baseDirectory, "*.boo");
 
-			foreach(var file in booFiles)
+			foreach (var file in booFiles)
 			{
 				ScheduledScripts.TryGetValue(file, out var script);
 				script = TryReloadScript(file, script, isScheduled: true);
 				ScheduledScripts[file] = script;
 			}
 		}
-	
+
 		/// <summary>
 		/// Attempts to compile a Script, if it does not exist or is not up to date.
 		/// </summary>
@@ -183,32 +172,32 @@ namespace BooTS
 
 			script = script ?? new Script(path);
 
-			if( script.TryRebuild(Script.Compile, out var context))
+			if (script.TryRebuild(Script.Compile, out var context))
 			{
 				if (context.Errors.Count != 0)// && context.GeneratedAssembly != null)
 				{
 					BooScriptingPlugin.Instance.LogPrint($"Boo script '{path}' compile failed with error(s).", TraceLevel.Error);
 				}
 
-				if(isScheduled && script.GetSchedule!=null)
+				if (isScheduled && script.GetSchedule != null)
 				{
 					try
 					{
 						var scheduler = script.GetSchedule();
 
-						if(scheduler!=null)
+						if (scheduler != null)
 						{
-							script.SetSchedulerObject(scheduler);	
+							script.SetSchedulerObject(scheduler);
 						}
 					}
-					catch(Exception ex)
+					catch (Exception ex)
 					{
 						//BooScriptingPlugin.Instance.LogPrint($"Boo script '{path}' GetSchedule() failed with error(s).", TraceLevel.Error);
 						BooScriptingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 					}
 				}
 			}
-			
+
 			return script;
 		}
 
@@ -221,11 +210,11 @@ namespace BooTS
 		internal bool RunScript(Script script, params object[] args)
 		{
 			if (script == null)
-				throw new ArgumentNullException("script");	
+				throw new ArgumentNullException("script");
 
-			if(script.IsBuilt)
+			if (script.IsBuilt)
 				return script.Run(args);
-			
+
 			return false;
 		}
 
@@ -239,12 +228,12 @@ namespace BooTS
 		{
 			var path = Path.Combine(DataDirectory, fileName);
 
-			if( File.Exists(path) )
+			if (File.Exists(path))
 			{
 				var script = new Script(path);
 				var context = script.Compile();
 
-				if (context!=null && context.Errors.Count == 0 && context.GeneratedAssembly != null)
+				if (context != null && context.Errors.Count == 0 && context.GeneratedAssembly != null)
 					return script.Run(args);
 				else
 				{

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Corruption.PluginSupport
 {
@@ -21,16 +17,16 @@ namespace Corruption.PluginSupport
 			var src = Source;
 
 			//if we dont have a specific source set, try to grab a source from Parent.
-			if(src==null)
+			if (src == null)
 				src = Parent?.Source;
-			
-			if(src!=null)
+
+			if (src != null)
 			{
 				sb.Append(src.ToString());
 				sb.Append(": ");
 			}
-			
-			if ( !string.IsNullOrWhiteSpace(Message) )
+
+			if (!string.IsNullOrWhiteSpace(Message))
 				sb.Append(Message);
 
 			return sb.ToString();

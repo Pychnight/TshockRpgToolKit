@@ -1,9 +1,4 @@
 ﻿using RpgToolsEditor.Controls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.Leveling
@@ -46,7 +41,7 @@ namespace RpgToolsEditor.Models.Leveling
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( !CanAcceptDraggedNode(draggedNode) )
+			if (!CanAcceptDraggedNode(draggedNode))
 				return false;
 
 			draggedNode.Remove();

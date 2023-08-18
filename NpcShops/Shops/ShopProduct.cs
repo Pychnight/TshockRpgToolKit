@@ -3,9 +3,6 @@ using Corruption.PluginSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 //using Wolfje.Plugins.SEconomy;
 
 namespace NpcShops.Shops
@@ -26,7 +23,7 @@ namespace NpcShops.Shops
 		/// Gets the unit price string.
 		/// </summary>
 		public string UnitPriceString { get; set; }
-		
+
 		/// <summary>
 		///     Gets the unit price.
 		/// </summary>
@@ -58,9 +55,9 @@ namespace NpcShops.Shops
 			{
 				var mgr = BankingPlugin.Instance.Bank.CurrencyManager;
 
-				if( mgr.TryFindCurrencyFromString(unitPriceString, out var currency))
+				if (mgr.TryFindCurrencyFromString(unitPriceString, out var currency))
 				{
-					if( currency.GetCurrencyConverter().TryParse(unitPriceString, out var parsedPrice))
+					if (currency.GetCurrencyConverter().TryParse(unitPriceString, out var parsedPrice))
 					{
 						UnitPrice = parsedPrice;
 						Currency = currency;
@@ -68,11 +65,11 @@ namespace NpcShops.Shops
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				NpcShopsPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
 			}
-						
+
 			return false;
 		}
 	}

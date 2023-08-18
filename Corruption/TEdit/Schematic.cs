@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Corruption.TEdit
 {
@@ -27,7 +24,7 @@ namespace Corruption.TEdit
 			Height = height;
 			Tiles = new Tile[width, height];
 		}
-		
+
 		public static Schematic Load(string fileName)
 		{
 			//string ext = Path.GetExtension(filename);
@@ -36,14 +33,14 @@ namespace Corruption.TEdit
 
 			try
 			{
-				using( var stream = new FileStream(fileName, FileMode.Open) )
-				using( var b = new BinaryReader(stream) )
+				using (var stream = new FileStream(fileName, FileMode.Open))
+				using (var b = new BinaryReader(stream))
 				{
 					string name = b.ReadString();
 					int version = b.ReadInt32();
 
 					// check all the old versions
-					if( version < 78 )
+					if (version < 78)
 					{
 						//return Load5(b, name, tVersion, version);
 						var sch = new SchematicReaderV5().Read(b, name, version);
@@ -77,15 +74,15 @@ namespace Corruption.TEdit
 					{
 						// not and old version, use new version
 						//return LoadV2(b, name, tVersion, version);
-						var sch = new SchematicReaderV2().Read(b, name, version); 
+						var sch = new SchematicReaderV2().Read(b, name, version);
 						return sch;
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Debug.Print(ex.ToString());
-				
+
 				return null;
 			}
 		}

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
@@ -31,10 +31,10 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			var json = File.ReadAllText(path);
 			var loader = new CategoryLoader<Npc>();
 			var models = loader.ParseCategorysAndModels(json);
-						
+
 			//var nodes = npcs.Select(p => (ModelTreeNode)new NpcTreeNode(p)).ToList();
 			//try to load in either npcs or categories, and create corresponding nodes for each.
-			var nodes = models.Select(m => m is CategoryModel ? (ModelTreeNode)new CategoryTreeNode<Npc,NpcTreeNode>((CategoryModel)m,path) :
+			var nodes = models.Select(m => m is CategoryModel ? new CategoryTreeNode<Npc, NpcTreeNode>((CategoryModel)m, path) :
 																(ModelTreeNode)new NpcTreeNode((Npc)m))
 							   .ToList();
 
@@ -46,9 +46,9 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			var models = new List<IModel>();
 			var includeModels = new List<IncludeModel>();
 
-			foreach(var node in tree)
+			foreach (var node in tree)
 			{
-				if(node is NpcTreeNode)
+				if (node is NpcTreeNode)
 				{
 					var npcTreeNode = (NpcTreeNode)node;
 					var npc = npcTreeNode.Model as Npc;
@@ -59,7 +59,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 					npc.LootEntries = lootEntries;
 					models.Add(npc);
 				}
-				else if( node is CategoryTreeNode<Npc,NpcTreeNode> )
+				else if (node is CategoryTreeNode<Npc, NpcTreeNode>)
 				{
 					var catTreeNode = (CategoryTreeNode<Npc, NpcTreeNode>)node;
 					var cat = catTreeNode.Model as CategoryModel;
@@ -67,7 +67,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 					cat.Includes.Clear();
 
-					foreach(var child in childModels)
+					foreach (var child in childModels)
 					{
 						var includeModel = (IncludeModel)child;
 
@@ -82,11 +82,11 @@ namespace RpgToolsEditor.Models.CustomNpcs
 					models.Add(cat);
 				}
 			}
-			
+
 			includeModels.ThrowOnDuplicateIncludes();
 
 			//save includes
-			foreach( var im in includeModels )
+			foreach (var im in includeModels)
 				im.Save();
 
 			var json = JsonConvert.SerializeObject(models, Formatting.Indented);

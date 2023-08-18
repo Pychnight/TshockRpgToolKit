@@ -1,11 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace CustomSkills
@@ -26,9 +21,9 @@ namespace CustomSkills
 		internal DateTime ChargeIntervalStartTime;
 		//DateTime CooldownStartTime;
 		internal Vector2 StartLocation;
-        internal bool NotifyUserOnCooldown => Definition.NotifyUserOnCooldown;
-        internal SkillState SkillState { get; private set; }
-		
+		internal bool NotifyUserOnCooldown => Definition.NotifyUserOnCooldown;
+		internal SkillState SkillState { get; private set; }
+
 		internal CustomSkill()
 		{
 		}
@@ -41,8 +36,8 @@ namespace CustomSkills
 			LevelIndex = levelIndex;
 			StartLocation = new Vector2(player.X, player.Y);
 			SkillState = new SkillState(this);
-			
-			if(levelIndex < 0 || levelIndex >= skillDefinition.Levels.Count)
+
+			if (levelIndex < 0 || levelIndex >= skillDefinition.Levels.Count)
 				throw new ArgumentOutOfRangeException($"{nameof(levelIndex)}");
 		}
 
@@ -53,24 +48,24 @@ namespace CustomSkills
 			return currentLocation != StartLocation;
 		}
 
-        internal bool HasCooldownCompleted()
-        {
+		internal bool HasCooldownCompleted()
+		{
 			var session = Session.GetOrCreateSession(Player);
 			var skillInfo = session.PlayerSkillInfos[Definition.Name];
 			var result = (DateTime.Now - skillInfo.CooldownStartTime) >= LevelDefinition.CastingCooldown;
-			
-            return result;
-        }
-		
+
+			return result;
+		}
+
 		internal void Update()
 		{
-			if(!Player.ConnectionAlive)
+			if (!Player.ConnectionAlive)
 			{
 				Phase = SkillPhase.Failed;
 				return;
 			}
 
-			switch(Phase)
+			switch (Phase)
 			{
 				case SkillPhase.Casting:
 					RunOnCast();
@@ -89,7 +84,7 @@ namespace CustomSkills
 					break;
 			}
 		}
-		
+
 		void RunOnCast()
 		{
 			try
@@ -109,21 +104,21 @@ namespace CustomSkills
 
 				SkillState.Progress = completed;
 				SkillState.ElapsedTime = elapsed;
-				
-				if(levelDef.OnCast?.Invoke(Player,SkillState)==false)
+
+				if (levelDef.OnCast?.Invoke(Player, SkillState) == false)
 				{
 					Phase = SkillPhase.Cancelled;
 					return;
 				}
-				
-				if(completed >= 100.0f)
+
+				if (completed >= 100.0f)
 				{
 					ChargeStartTime = DateTime.Now;
 					ChargeIntervalStartTime = ChargeStartTime;
 					Phase = SkillPhase.Charging;
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Phase = SkillPhase.Failed;
 				throw ex;
@@ -138,21 +133,21 @@ namespace CustomSkills
 				var elapsed = DateTime.Now - ChargeStartTime;
 				var completed = (float)(elapsed.TotalMilliseconds / levelDef.ChargingDuration.TotalMilliseconds) * 100.0f;
 				completed = Math.Min(completed, 100.0f);
-				
-				if(!levelDef.CanCasterMove && HasCasterMoved())
+
+				if (!levelDef.CanCasterMove && HasCasterMoved())
 				{
 					Phase = SkillPhase.Cancelled;
 					return;
 				}
-				
-				if(levelDef.ChargingCostInterval > TimeSpan.Zero)
+
+				if (levelDef.ChargingCostInterval > TimeSpan.Zero)
 				{
 					var now = DateTime.Now;
 
 					//time to deduct?
 					var elapsedChargeInterval = now - ChargeIntervalStartTime;
-					
-					if(elapsedChargeInterval >= levelDef.ChargingCostInterval)
+
+					if (elapsedChargeInterval >= levelDef.ChargingCostInterval)
 					{
 						//reset the deduction timer... and account for overages...
 						ChargeIntervalStartTime = now - (elapsedChargeInterval - levelDef.ChargingCostInterval);
@@ -161,22 +156,22 @@ namespace CustomSkills
 
 						//Debug.Print($"Deducting charging cost.");
 
-						if(!session.TryDeductCost(session.Player, levelDef.ChargingCost))
+						if (!session.TryDeductCost(session.Player, levelDef.ChargingCost))
 						{
 							Phase = levelDef.IsLongRunning ? SkillPhase.Firing : SkillPhase.Cancelled;
 							return;
 						}
 					}
 				}
-				
+
 				//Debug.Print($"Charging {Definition.Name}. ({completed}%)");
 
 				SkillState.Progress = completed;
 				SkillState.ElapsedTime = elapsed;
-				
-				if(levelDef.IsLongRunning)
+
+				if (levelDef.IsLongRunning)
 				{
-					if(levelDef.OnCharge?.Invoke(Player, SkillState) == false)
+					if (levelDef.OnCharge?.Invoke(Player, SkillState) == false)
 					{
 						Phase = SkillPhase.Firing;
 						return;
@@ -184,17 +179,17 @@ namespace CustomSkills
 				}
 				else
 				{
-					if(levelDef.OnCharge?.Invoke(Player, SkillState) == false)
+					if (levelDef.OnCharge?.Invoke(Player, SkillState) == false)
 					{
 						Phase = SkillPhase.Cancelled;
 						return;
 					}
 
-					if(completed >= 100.0f)
+					if (completed >= 100.0f)
 						Phase = SkillPhase.Firing;
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Phase = SkillPhase.Failed;
 				throw ex;
@@ -209,7 +204,7 @@ namespace CustomSkills
 
 				//Debug.Print($"Firing {Definition.Name}.");
 
-				if(!levelDef.CanCasterMove && HasCasterMoved())
+				if (!levelDef.CanCasterMove && HasCasterMoved())
 				{
 					Phase = SkillPhase.Cancelled;
 					return;
@@ -218,19 +213,19 @@ namespace CustomSkills
 				SkillState.Progress = 100f;
 				SkillState.ElapsedTime = new TimeSpan(0);
 
-				levelDef.OnFire?.Invoke(Player,SkillState);
+				levelDef.OnFire?.Invoke(Player, SkillState);
 				//only fires once, but should spark something that can continue for some time afterwards.
 				//check if we moved up a level..
 
 				var session = Session.GetOrCreateSession(Player);
-				
-				if(session.PlayerSkillInfos.TryGetValue(Definition.Name, out var playerSkillInfo))
+
+				if (session.PlayerSkillInfos.TryGetValue(Definition.Name, out var playerSkillInfo))
 				{
 					playerSkillInfo.CurrentUses++;
 
-					if(Definition.CanLevelUp(playerSkillInfo.CurrentLevel))
+					if (Definition.CanLevelUp(playerSkillInfo.CurrentLevel))
 					{
-						if(playerSkillInfo.CurrentUses >= levelDef.UsesToLevelUp)
+						if (playerSkillInfo.CurrentUses >= levelDef.UsesToLevelUp)
 						{
 							//level up
 							playerSkillInfo.CurrentLevel++;
@@ -250,7 +245,7 @@ namespace CustomSkills
 					throw new KeyNotFoundException($"Tried to get PlayerSkillInfo for key '{Definition.Name}', but none was found.");
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Phase = SkillPhase.Failed;
 				throw ex;
@@ -265,15 +260,15 @@ namespace CustomSkills
 			{
 				var session = Session.GetOrCreateSession(Player);
 				var levelDef = LevelDefinition;
-				
+
 				levelDef.OnCancelled?.Invoke(Player, SkillState);
 
 				SkillState.Emitters.Destroy();
-				
+
 				session.PlayerSkillInfos[Definition.Name].CooldownStartTime = DateTime.Now;
 				Phase = SkillPhase.Failed;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Phase = SkillPhase.Failed;
 				throw ex;

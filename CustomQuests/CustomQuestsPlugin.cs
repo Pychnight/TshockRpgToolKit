@@ -1,21 +1,18 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using CustomQuests.Configuration;
+using CustomQuests.Quests;
+using CustomQuests.Sessions;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CustomQuests.Quests;
-using CustomQuests.Sessions;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
-using System.Diagnostics;
-using Corruption.PluginSupport;
-using Microsoft.Xna.Framework;
-using System.Threading.Tasks;
-using CustomQuests.Scripting;
-using CustomQuests.Configuration;
 
 namespace CustomQuests
 {
@@ -100,7 +97,7 @@ namespace CustomQuests
 		///		Event fired when a sign is changed.
 		/// </summary>
 		public event EventHandler<SignChangedEventArgs> SignChanged;
-		
+
 		/// <summary>
 		///     Gets the corresponding session for the specified player.
 		/// </summary>
@@ -109,7 +106,7 @@ namespace CustomQuests
 		/// <exception cref="ArgumentNullException"><paramref name="player" /> is <c>null</c>.</exception>
 		public Session GetSession(TSPlayer player)
 		{
-			if( player == null )
+			if (player == null)
 			{
 				throw new ArgumentNullException(nameof(player));
 			}
@@ -118,10 +115,7 @@ namespace CustomQuests
 		}
 
 		//compatibility shim.
-		internal Session GetSession(PartyMember member)
-		{
-			return GetSession(member.Player);
-		}
+		internal Session GetSession(PartyMember member) => GetSession(member.Player);
 
 		/// <summary>
 		///     Initializes the plugin.
@@ -137,12 +131,12 @@ namespace CustomQuests
 			ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 			ServerApi.Hooks.NetSendData.Register(this, OnSendData);
 			ServerApi.Hooks.NetGetData.Register(this, onGetData);
-			
+
 			GeneralHooks.ReloadEvent += OnReload;
 			GetDataHandlers.PlayerTeam += OnPlayerTeam;
 			//GetDataHandlers.PlayerSpawn += OnPlayerSpawn;
 			GetDataHandlers.TileEdit += OnTileEdit;
-												
+
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("p"));
 			Commands.ChatCommands.RemoveAll(c => c.Names.Contains("party"));
 			Commands.ChatCommands.Add(new Command("customquests.party", P, "p"));
@@ -150,24 +144,21 @@ namespace CustomQuests
 			Commands.ChatCommands.Add(new Command("customquests.quest", Quest, "quest"));
 			Commands.ChatCommands.Add(new Command("customquests.tileinfo", TileInfo, "tileinfo"));
 		}
-				
-		private void OnPostInitialize(EventArgs args)
-		{
-			load();
-		}
+
+		private void OnPostInitialize(EventArgs args) => load();
 
 		private void load()
 		{
 			_config = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
-			
+
 			//_sessionManager = new SessionManager(_config);
-			
+
 			QuestLoader.LoadQuests(QuestInfosPath);
 
 			//new session manager must be initialized after quest loader loads the quest infos, since it requires them as well.
 
 			//workaround, to preserve parties but still react to changed db config.
-			if(_sessionManager==null)
+			if (_sessionManager == null)
 			{
 				_sessionManager = new SessionManager(_config);
 			}
@@ -180,8 +171,8 @@ namespace CustomQuests
 		private void OnReload(ReloadEventArgs args)
 		{
 			_sessionManager.OnReload();//abort in play quests
-			//_parties.Clear();
-			
+									   //_parties.Clear();
+
 			load();
 		}
 
@@ -200,16 +191,16 @@ namespace CustomQuests
 
 		//	args.Handled = true;
 		//}
-		
+
 		private void onGetData(GetDataEventArgs args)
 		{
-			if( args.Handled )
+			if (args.Handled)
 				return;
 
-			switch(args.MsgID)
+			switch (args.MsgID)
 			{
 				case PacketTypes.CatchNPC:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var npcId = reader.ReadInt16();
 						//var who = reader.ReadByte();
@@ -219,25 +210,25 @@ namespace CustomQuests
 					break;
 
 				case PacketTypes.ReleaseNPC:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var x = reader.ReadInt32();
 						var y = reader.ReadInt32();
 						var npcType = reader.ReadInt16();
 						var style = reader.ReadByte();
-						
+
 						onReleaseNpc(args.Msg.whoAmI, x, y, npcType, style);
 					}
 					break;
 
 				case PacketTypes.ChestUnlock:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var type = reader.ReadByte();
 						var x = reader.ReadInt16();
 						var y = reader.ReadInt16();
 
-						if(type==1)
+						if (type == 1)
 						{
 							onChestUnlock(args.Msg.whoAmI, x, y);
 						}
@@ -246,7 +237,7 @@ namespace CustomQuests
 					break;
 
 				case PacketTypes.ChestItem:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var chestId = reader.ReadInt16();
 						var itemSlot = reader.ReadByte();
@@ -259,7 +250,7 @@ namespace CustomQuests
 					break;
 
 				case PacketTypes.SignRead:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var x = reader.ReadInt16();
 						var y = reader.ReadInt16();
@@ -269,7 +260,7 @@ namespace CustomQuests
 					break;
 
 				case PacketTypes.SignNew:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var signId = reader.ReadInt16();
 						var x = reader.ReadInt16();
@@ -281,23 +272,23 @@ namespace CustomQuests
 					}
 					break;
 
-				//case PacketTypes.PlayerSpawn:
-				//	var id = args.Msg.whoAmI;
-				//	var player = TShock.Players[id];
-					
-				//	if(!player.InitSpawn)
-				//	{
-				//		player.Spawn(2137,242);
-				//	}
+					//case PacketTypes.PlayerSpawn:
+					//	var id = args.Msg.whoAmI;
+					//	var player = TShock.Players[id];
 
-				//	break;
+					//	if(!player.InitSpawn)
+					//	{
+					//		player.Spawn(2137,242);
+					//	}
 
-				//case PacketTypes.PlayerSpawnSelf:
-				//	break;
+					//	break;
+
+					//case PacketTypes.PlayerSpawnSelf:
+					//	break;
 			}
 		}
 
-		void onCatchNpc(int playerIndex, int npcId )
+		void onCatchNpc(int playerIndex, int npcId)
 		{
 			Debug.Print("CatchNPC!");
 			Debug.Print($"PlayerIndex: {playerIndex}");
@@ -352,7 +343,7 @@ namespace CustomQuests
 			SignRead?.Invoke(this, new SignReadEventArgs(playerIndex, x, y));
 		}
 
-		void onSignChanged(int playerIndex, int signId, int x, int y, string txt )
+		void onSignChanged(int playerIndex, int signId, int x, int y, string txt)
 		{
 			Debug.Print("Sign changed!");
 			Debug.Print($"playerIndex: {playerIndex}");
@@ -450,89 +441,89 @@ namespace CustomQuests
 		/// </summary>
 		/// <param name="disposing"><c>true</c> to dispose managed resources; otherwise, <c>false</c>.</param>
 		protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _sessionManager.Dispose();
-				
-                GeneralHooks.ReloadEvent -= OnReload;
-                GetDataHandlers.PlayerTeam -= OnPlayerTeam;
-                GetDataHandlers.TileEdit -= OnTileEdit;
-                ServerApi.Hooks.NetSendData.Deregister(this, OnSendData);
+		{
+			if (disposing)
+			{
+				_sessionManager.Dispose();
+
+				GeneralHooks.ReloadEvent -= OnReload;
+				GetDataHandlers.PlayerTeam -= OnPlayerTeam;
+				GetDataHandlers.TileEdit -= OnTileEdit;
+				ServerApi.Hooks.NetSendData.Deregister(this, OnSendData);
 				ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
-                ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
-                ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
-            }
+				ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
+				ServerApi.Hooks.GameUpdate.Deregister(this, OnGameUpdate);
+			}
 
-            base.Dispose(disposing);
-        }
+			base.Dispose(disposing);
+		}
 
-        private void LeaveParty(TSPlayer player)
-        {
-            var session = GetSession(player);
-            var party = session.Party;
-            if (party == null)
-            {
-                return;
-            }
+		private void LeaveParty(TSPlayer player)
+		{
+			var session = GetSession(player);
+			var party = session.Party;
+			if (party == null)
+			{
+				return;
+			}
 
 			var isLeader = player == party.Leader.Player;
 
-    //        var questSession = player == party.Leader.Player ? session : GetSession(party.Leader);
-    //        if (questSession.CurrentQuest != null)
-    //        {
-				//try
-				//{
-				//	var bquest = session.CurrentQuest;
-				//	bquest.Abort();
-				//}
-				//catch( Exception ex )
-				//{
-				//	CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
-				//}
+			//        var questSession = player == party.Leader.Player ? session : GetSession(party.Leader);
+			//        if (questSession.CurrentQuest != null)
+			//        {
+			//try
+			//{
+			//	var bquest = session.CurrentQuest;
+			//	bquest.Abort();
+			//}
+			//catch( Exception ex )
+			//{
+			//	CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
+			//}
 
-    //            party.SendInfoMessage("Aborted quest.");
-    //        }
+			//            party.SendInfoMessage("Aborted quest.");
+			//        }
 
-            //if (player == party.Leader.Player)
-            //{
-            //    foreach (var player2 in party)
-            //    {
-            //        var session2 = GetSession(player2);
-            //        session2.Party = null;
-            //        party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
-            //    }
-            //    _parties.Remove(party.Name);
-            //    party.SendInfoMessage($"{player.Name} disbanded the party.");
-            //}
-            //else
-            //{
+			//if (player == party.Leader.Player)
+			//{
+			//    foreach (var player2 in party)
+			//    {
+			//        var session2 = GetSession(player2);
+			//        session2.Party = null;
+			//        party.SendData(PacketTypes.PlayerTeam, "", player2.Index);
+			//    }
+			//    _parties.Remove(party.Name);
+			//    party.SendInfoMessage($"{player.Name} disbanded the party.");
+			//}
+			//else
+			//{
 
-            session.Party = null;
-            party.SendData(PacketTypes.PlayerTeam, "", player.Index);
+			session.Party = null;
+			party.SendData(PacketTypes.PlayerTeam, "", player.Index);
 			party.Remove(player);//,true);
 			party.SendInfoMessage($"{player.Name} left the party.");
 			player.SendInfoMessage("You have left the party.");
-			
-			if( isLeader && party.Count > 0 )
+
+			if (isLeader && party.Count > 0)
 				party.SendInfoMessage($"{party.Leader.Name} is the new party leader.");
-			   
-			if(party.Count<1)
+
+			if (party.Count < 1)
 			{
 				_parties.Remove(party.Name);
 			}
-        }
+		}
 
 		private void OnJoin(JoinEventArgs args)
 		{
-			if( args.Who < 0 || args.Who >= Main.maxPlayers )
+			if (args.Who < 0 || args.Who >= Main.maxPlayers)
 			{
 				return;
 			}
 
 			var player = TShock.Players[args.Who];
 
-			if( player != null )
+			if (player != null)
 			{
 				Task.Delay(1750).ContinueWith(t =>
 				{
@@ -542,101 +533,101 @@ namespace CustomQuests
 			}
 		}
 
-        private void OnLeave(LeaveEventArgs args)
-        {
-            if (args.Who < 0 || args.Who >= Main.maxPlayers)
-            {
-                return;
-            }
-			
-            var player = TShock.Players[args.Who];
-            if (player != null)
-            {
-                var session = GetSession(player);
-                if (session.Party != null)
-                {
-					if(session.CurrentQuest!=null && session.CurrentQuest.MainQuestTask.Status == TaskStatus.Running)
+		private void OnLeave(LeaveEventArgs args)
+		{
+			if (args.Who < 0 || args.Who >= Main.maxPlayers)
+			{
+				return;
+			}
+
+			var player = TShock.Players[args.Who];
+			if (player != null)
+			{
+				var session = GetSession(player);
+				if (session.Party != null)
+				{
+					if (session.CurrentQuest != null && session.CurrentQuest.MainQuestTask.Status == TaskStatus.Running)
 					{
 						session.CurrentQuest.TryAddRejoinablePlayer(player);
 					}
 
 					session.Dispose();
 					Debug.Print("Disabled SetQuestState() in OnLeave().");
-                    //session.SetQuestState(null);
-                }
+					//session.SetQuestState(null);
+				}
 
-                LeaveParty(player);
-                _sessionManager.Remove(player);
-            }
-        }
+				LeaveParty(player);
+				_sessionManager.Remove(player);
+			}
+		}
 
-        private void OnPlayerTeam(object sender, GetDataHandlers.PlayerTeamEventArgs args)
-        {
-            var player = TShock.Players[args.PlayerId];
-            if (player != null)
-            {
-                args.Handled = true;
-                var session = GetSession(player);
-                player.TPlayer.team = session.Party != null ? 1 : 0;
-                player.SendData(PacketTypes.PlayerTeam, "", player.Index);
-                player.TPlayer.team = 0;
-            }
-        }
-		
+		private void OnPlayerTeam(object sender, GetDataHandlers.PlayerTeamEventArgs args)
+		{
+			var player = TShock.Players[args.PlayerId];
+			if (player != null)
+			{
+				args.Handled = true;
+				var session = GetSession(player);
+				player.TPlayer.team = session.Party != null ? 1 : 0;
+				player.SendData(PacketTypes.PlayerTeam, "", player.Index);
+				player.TPlayer.team = 0;
+			}
+		}
+
 		private void OnSendData(SendDataEventArgs args)
-        {
+		{
 			//if(args.MsgId == PacketTypes.PlayerSpawnSelf)
 			//{
 			//	Debug.Print("SpawnSelf!");
 			//}
 
-            if (args.Handled || args.MsgId != PacketTypes.Status)
-            {
-                return;
-            }
+			if (args.Handled || args.MsgId != PacketTypes.Status)
+			{
+				return;
+			}
 
-            // Just don't send this
-            if (args.text.ToString() == "Receiving tile data")
-            {
-                args.Handled = true;
-            }
-        }
+			// Just don't send this
+			if (args.text.ToString() == "Receiving tile data")
+			{
+				args.Handled = true;
+			}
+		}
 
-        private void OnTileEdit(object sender, GetDataHandlers.TileEditEventArgs args)
-        {
-            var player = args.Player;
-            if (args.Handled || player.AwaitingTempPoint != -1)
-            {
-                return;
-            }
+		private void OnTileEdit(object sender, GetDataHandlers.TileEditEventArgs args)
+		{
+			var player = args.Player;
+			if (args.Handled || player.AwaitingTempPoint != -1)
+			{
+				return;
+			}
 
-            var x = args.X;
-            var y = args.Y;
-            var tile = Main.tile[x, y];
-            player.SendInfoMessage($"X: {x}, Y: {y}");
-            player.SendInfoMessage($"Type: {tile.type}, FrameX: {tile.frameX}, FrameY: {tile.frameY}");
-            player.AwaitingTempPoint = 0;
-            args.Handled = true;
-            player.SendTileSquare(x, y, 5);
-        }
+			var x = args.X;
+			var y = args.Y;
+			var tile = Main.tile[x, y];
+			player.SendInfoMessage($"X: {x}, Y: {y}");
+			player.SendInfoMessage($"Type: {tile.type}, FrameX: {tile.frameX}, FrameY: {tile.frameY}");
+			player.AwaitingTempPoint = 0;
+			args.Handled = true;
+			player.SendTileSquare(x, y, 5);
+		}
 
-        private void OnGameUpdate(EventArgs args)
-        {
+		private void OnGameUpdate(EventArgs args)
+		{
 			QuestRunner.Update();
 
-			foreach( var player in TShock.Players.Where(p => p?.User != null) )
+			foreach (var player in TShock.Players.Where(p => p?.User != null))
 			{
 				var session = GetSession(player);
-					
+
 				session.CheckQuestCompleted();
 				session.CheckRepeatInterval();
 			}
 
-			if( DateTime.UtcNow > _lastSave + _config.SavePeriod )
+			if (DateTime.UtcNow > _lastSave + _config.SavePeriod)
 			{
 				_lastSave = DateTime.UtcNow;
 				_sessionManager.SaveAll();
 			}
 		}
-    }
+	}
 }

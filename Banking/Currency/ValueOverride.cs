@@ -1,11 +1,5 @@
 ﻿using Newtonsoft.Json;
-using OTAPI.Tile;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking.Currency
 {
@@ -43,18 +37,18 @@ namespace Banking.Currency
 		{
 			Debug.Assert(currency != null, "CurrencyDefinition must not be null.");
 
-			if( string.IsNullOrWhiteSpace(ValueString) )
+			if (string.IsNullOrWhiteSpace(ValueString))
 				return;
 
 			var converter = currency.GetCurrencyConverter();
-			
-			if(	converter.TryParse(ValueString, out var newValue))
+
+			if (converter.TryParse(ValueString, out var newValue))
 			{
 				Value = newValue;
 				return;
 			}
 
-			if( decimal.TryParse(ValueString, out newValue))
+			if (decimal.TryParse(ValueString, out newValue))
 			{
 				Value = newValue;
 				return;

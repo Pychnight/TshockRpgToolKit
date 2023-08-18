@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RpgToolsEditor.Controls;
 using System.Windows.Forms;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.NpcShops
 {
@@ -35,14 +30,11 @@ namespace RpgToolsEditor.Models.NpcShops
 			//do nothing, this is not allowed for shop products.
 		}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return node is RequiredItemTreeNode;
-		}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) => node is RequiredItemTreeNode;
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				draggedNode.Remove();
 				AddSibling(draggedNode);

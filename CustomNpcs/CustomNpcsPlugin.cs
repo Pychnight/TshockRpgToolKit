@@ -1,21 +1,16 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
-using Terraria;
-using TerrariaApi.Server;
-using OTAPI.Tile;
-using TShockAPI;
-using TShockAPI.Hooks;
+﻿using Corruption.PluginSupport;
 using CustomNpcs.Invasions;
 using CustomNpcs.Npcs;
 using CustomNpcs.Projectiles;
-using System.Diagnostics;
-using Corruption.PluginSupport;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using Terraria;
+using TerrariaApi.Server;
+using TShockAPI;
+using TShockAPI.Hooks;
 
 namespace CustomNpcs
 {
@@ -47,7 +42,7 @@ namespace CustomNpcs
 
 		private static readonly string ConfigPath = Path.Combine("npcs", "config.json");
 		public static CustomNpcsPlugin Instance = null;
-		
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="CustomNpcsPlugin" /> class using the specified Main instance.
 		/// </summary>
@@ -63,7 +58,7 @@ namespace CustomNpcs
 		public override void Initialize()
 		{
 			GeneralHooks.ReloadEvent += OnReload;
-			ServerApi.Hooks.GamePostInitialize.Register(this,OnGamePostInitialize);
+			ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
 
 			Commands.ChatCommands.Add(new Command("customnpcs.cinvade", CustomInvade, "cinvade"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cmaxspawns", CustomMaxSpawns, "cmaxspawns"));
@@ -73,14 +68,14 @@ namespace CustomNpcs
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnmob", CustomMobControl, "cmob"));
 			Commands.ChatCommands.Add(new Command("customnpcs.cspawnprojectile", CustomProjectileControl, "cprojectile"));
 		}
-		
+
 		/// <summary>
 		///     Disposes the plugin.
 		/// </summary>
 		/// <param name="disposing"><c>true</c> to dispose managed resources; otherwise, <c>false</c>.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 			{
 				//File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Config.Instance, Formatting.Indented));
 
@@ -98,10 +93,7 @@ namespace CustomNpcs
 			base.Dispose(disposing);
 		}
 
-		private void OnGamePostInitialize(EventArgs args)
-		{
-			OnLoad();
-		}
+		private void OnGamePostInitialize(EventArgs args) => OnLoad();
 
 		private void OnLoad()
 		{
@@ -111,10 +103,10 @@ namespace CustomNpcs
 			NpcManager.Instance = NpcManager.Instance ?? new NpcManager(this);
 			ProjectileManager.Instance = ProjectileManager.Instance ?? new ProjectileManager(this);
 		}
-		
+
 		private void sendGroupedInfoMessage(TSPlayer player, IEnumerable<string> items, int itemsPerLine, string separator = ", ")
 		{
-			if( player == null || items == null || itemsPerLine < 1 )
+			if (player == null || items == null || itemsPerLine < 1)
 				return;
 
 			//var testItems = new List<string>(48);			
@@ -130,15 +122,15 @@ namespace CustomNpcs
 			var sb = new StringBuilder(256);
 			var lineItems = 0;
 
-			foreach( var i in items )
+			foreach (var i in items)
 			{
-				if( lineItems > 0 )
+				if (lineItems > 0)
 					sb.Append(separator);
 
 				sb.Append(i);
 				lineItems++;
 
-				if( lineItems == itemsPerLine )
+				if (lineItems == itemsPerLine)
 				{
 					player.SendInfoMessage(sb.ToString());
 					sb.Clear();
@@ -147,32 +139,32 @@ namespace CustomNpcs
 			}
 
 			//send any remaining.
-			if( lineItems > 0 )
+			if (lineItems > 0)
 				player.SendInfoMessage(sb.ToString());
 		}
 
 		private void sendPagedInfoMessage(TSPlayer player, IList<string> items, int page, int itemsPerPage)
 		{
-			if( player == null || items == null || items.Count == 0 || itemsPerPage < 1 || page < 1 )
+			if (player == null || items == null || items.Count == 0 || itemsPerPage < 1 || page < 1)
 				return;
 
-			var pageCount = ( items.Count / itemsPerPage ) +
-							( items.Count % itemsPerPage > 0 ? 1 : 0 );
+			var pageCount = (items.Count / itemsPerPage) +
+							(items.Count % itemsPerPage > 0 ? 1 : 0);
 
-			if( page > pageCount )
+			if (page > pageCount)
 				page = pageCount;
 
-			var startIndex = ( page - 1 ) * itemsPerPage;
-			
-			for(var i = 0; i<itemsPerPage;i++)
+			var startIndex = (page - 1) * itemsPerPage;
+
+			for (var i = 0; i < itemsPerPage; i++)
 			{
 				var lineNumber = startIndex + i;
 
 				//reached end
-				if( lineNumber >= items.Count )
+				if (lineNumber >= items.Count)
 					break;
 
-				player.SendInfoMessage($"{lineNumber+1}. {items[lineNumber]}");
+				player.SendInfoMessage($"{lineNumber + 1}. {items[lineNumber]}");
 			}
 
 			//page number out of pages
@@ -180,9 +172,9 @@ namespace CustomNpcs
 		}
 
 		private void OnReload(ReloadEventArgs args)
-        {
+		{
 			OnLoad();
-            args.Player.SendSuccessMessage("[CustomNpcs] Reloaded config!");
-        }
-    }
+			args.Player.SendSuccessMessage("[CustomNpcs] Reloaded config!");
+		}
+	}
 }

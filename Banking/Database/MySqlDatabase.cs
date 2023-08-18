@@ -1,11 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 
 namespace Banking.Database
@@ -19,10 +13,10 @@ namespace Banking.Database
 		public MySqlDatabase(string connectionString)
 		{
 			ConnectionString = ensureDatabase(connectionString);
-						
-			using( var con = new MySqlConnection(ConnectionString) )
+
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = "CREATE TABLE IF NOT EXISTS BankAccounts (" +
 										"WorldId INTEGER," +
@@ -40,13 +34,13 @@ namespace Banking.Database
 		private string ensureDatabase(string connectionString)
 		{
 			var builder = new MySqlConnectionStringBuilder(connectionString);
-			var dbName = string.IsNullOrWhiteSpace(builder.Database) ?  DefaultDatabaseName : builder.Database;
+			var dbName = string.IsNullOrWhiteSpace(builder.Database) ? DefaultDatabaseName : builder.Database;
 
 			builder.Database = null;
-			
+
 			//try to create db
-			using( var con = new MySqlConnection(builder.ConnectionString) )
-			using( var cmd = con.CreateCommand() )
+			using (var con = new MySqlConnection(builder.ConnectionString))
+			using (var cmd = con.CreateCommand())
 			{
 				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
 				con.Open();
@@ -60,9 +54,9 @@ namespace Banking.Database
 
 		public void Create(BankAccount account)
 		{
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = "INSERT INTO BankAccounts ( WorldId, OwnerName, Name, Balance ) " +
 										"VALUES ( @WORLDID, @OWNERNAME, @NAME, @BALANCE )";
@@ -81,23 +75,23 @@ namespace Banking.Database
 		public void Create(IEnumerable<BankAccount> accounts)
 		{
 			//later use transaction
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Create(acc);
 		}
 
 		public void Delete(BankAccount account)
 		{
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = "DELETE FROM BankAccounts " +
 										"WHERE WorldId=@WORLDID AND OwnerName=@OWNERNAME AND Name=@NAME";
-					
+
 					cmd.Parameters.AddWithValue("@WORLDID", Main.worldID);
 					cmd.Parameters.AddWithValue("@OWNERNAME", account.OwnerName);
 					cmd.Parameters.AddWithValue("@NAME", account.Name);
-					
+
 					con.Open();
 					cmd.ExecuteNonQuery();
 				}
@@ -107,7 +101,7 @@ namespace Banking.Database
 		public void Delete(IEnumerable<BankAccount> accounts)
 		{
 			//later use transaction
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Delete(acc);
 		}
 
@@ -115,20 +109,20 @@ namespace Banking.Database
 		{
 			var results = new List<BankAccount>();
 
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = "SELECT * FROM BankAccounts WHERE WorldId=@ID";
 					cmd.Parameters.AddWithValue("@ID", Main.worldID);
 
 					con.Open();
 
-					using( var reader = cmd.ExecuteReader() )
+					using (var reader = cmd.ExecuteReader())
 					{
-						if( reader.HasRows )
+						if (reader.HasRows)
 						{
-							while( reader.Read() )
+							while (reader.Read())
 							{
 								var ownerName = reader.GetString(1);
 								var name = reader.GetString(2);
@@ -145,16 +139,13 @@ namespace Banking.Database
 			return results;
 		}
 
-		public void Save(IEnumerable<BankAccount> accounts)
-		{
-			Update(accounts);
-		}
+		public void Save(IEnumerable<BankAccount> accounts) => Update(accounts);
 
 		public void Update(BankAccount account)
 		{
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = "UPDATE BankAccounts SET Balance = @BALANCE " +
 										"WHERE WorldId=@WORLDID AND OwnerName=@OWNERNAME AND Name=@NAME";
@@ -173,7 +164,7 @@ namespace Banking.Database
 		public void Update(IEnumerable<BankAccount> accounts)
 		{
 			//later use transaction
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Update(acc);
 		}
 	}

@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CustomSkills.Database
+﻿namespace CustomSkills.Database
 {
-    public class SessionDatabaseFactory
-    {
-        public static ISessionDatabase LoadOrCreateDatabase(string databaseType, string connectionString)
-        {
-            ISessionDatabase db = null;
+	public class SessionDatabaseFactory
+	{
+		public static ISessionDatabase LoadOrCreateDatabase(string databaseType, string connectionString)
+		{
+			ISessionDatabase db = null;
 
-            switch(databaseType)
-            {
+			switch (databaseType)
+			{
 				//case "redis":
 				//    db = new RedisSessionDatabase(connectionString);
 				//    break;
@@ -23,12 +17,12 @@ namespace CustomSkills.Database
 					break;
 
 				case "sqlite":
-                default:
-                    db = new SqliteSessionDatabase(connectionString);
-                    break;
-            }
+				default:
+					db = new SqliteSessionDatabase(connectionString);
+					break;
+			}
 
-            return db;
-        }
-    }
+			return db;
+		}
+	}
 }

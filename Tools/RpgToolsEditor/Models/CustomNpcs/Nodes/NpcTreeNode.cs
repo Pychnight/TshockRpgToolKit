@@ -1,5 +1,4 @@
 ﻿using RpgToolsEditor.Controls;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace RpgToolsEditor.Models.CustomNpcs
@@ -35,7 +34,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			//var container = new LootEntrysContainerTreeNode(model);
 			var container = new LootEntrysContainerTreeNode();
 
-			container.AddChildModels(( (Npc)Model ).LootEntries.Cast<IModel>().ToList());
+			container.AddChildModels(((Npc)Model).LootEntries.Cast<IModel>().ToList());
 
 			Nodes.Add(container);
 		}
@@ -53,12 +52,12 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
 			return node is NpcTreeNode ||
-					( node is CategoryTreeNode<Npc,NpcTreeNode> && Parent == null );//dont accept CategoryTreeNodes, if were not in the root treeview( else bad things happen ).
+					(node is CategoryTreeNode<Npc, NpcTreeNode> && Parent == null);//dont accept CategoryTreeNodes, if were not in the root treeview( else bad things happen ).
 		}
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				AddSibling(draggedNode);
 

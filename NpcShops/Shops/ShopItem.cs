@@ -1,5 +1,4 @@
 ﻿using Corruption.PluginSupport;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -26,16 +25,16 @@ namespace NpcShops.Shops
 			_definition = definition;
 
 			IsValid = TryResolvePricing(_definition.UnitPrice);
-			if( !IsValid )
+			if (!IsValid)
 			{
 				NpcShopsPlugin.Instance.LogPrint($"Unable to find Currency for ShopItem {_definition.ItemName}, hiding item.", TraceLevel.Warning);
 			}
 
 			//we don't really need to do anything past here, if IsValid is false, but for now...
-			
+
 			var item = TShock.Utils.GetItemByIdOrName(definition.ItemName).SingleOrDefault();
 
-			if(item==null)
+			if (item == null)
 			{
 				throw new KeyNotFoundException($"Could not find Id or Name '{definition.ItemName}'.");
 			}
@@ -49,7 +48,7 @@ namespace NpcShops.Shops
 			var items = distinct.Select(d => new RequiredItem(d));
 
 			RequiredItems.AddRange(items);
-		
+
 		}
 
 		/// <summary>
@@ -71,13 +70,10 @@ namespace NpcShops.Shops
 		///     Gets the prefix ID.
 		/// </summary>
 		public byte PrefixId => _definition.PrefixId;
-		
+
 		/// <summary>
 		///     Restocks the shop item.
 		/// </summary>
-		public override void Restock()
-        {
-            StackSize = _definition.StackSize;
-        }
+		public override void Restock() => StackSize = _definition.StackSize;
 	}
 }

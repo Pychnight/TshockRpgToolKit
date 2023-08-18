@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Banking.Currency
+﻿namespace Banking.Currency
 {
 	/// <summary>
 	/// Helper class to minimize parsing and duplicated code by caching common pricing information. 
@@ -54,23 +48,23 @@ namespace Banking.Currency
 		/// <returns>True if succeeded, false if the PriceInfo is invalid.</returns>
 		public bool SetPrice(string priceString, bool foldPrice = true)
 		{
-			if(!BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(priceString, out var currency))
+			if (!BankingPlugin.Instance.Bank.CurrencyManager.TryFindCurrencyFromString(priceString, out var currency))
 			{
 				Reset();
 				return false;
 			}
 
-			if(!currency.GetCurrencyConverter().TryParse(priceString, out var value))
+			if (!currency.GetCurrencyConverter().TryParse(priceString, out var value))
 			{
 				Reset();
 				return false;
 			}
 
-			if(foldPrice)
-				Price = currency.GetCurrencyConverter().ToString(value);	
+			if (foldPrice)
+				Price = currency.GetCurrencyConverter().ToString(value);
 			else
 				Price = priceString;
-			
+
 			Value = value;
 			Currency = currency;
 
@@ -87,9 +81,6 @@ namespace Banking.Currency
 			Currency = null;
 		}
 
-		public override string ToString()
-		{
-			return Price;
-		}
+		public override string ToString() => Price;
 	}
 }

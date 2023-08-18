@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 
 namespace BooTS
 {
@@ -18,8 +15,8 @@ namespace BooTS
 		Dictionary<string, MethodInfo> methods;
 
 		public string FilePath { get; private set; }
-		public string ModuleName {  get { return type.Name; } }
-		public int MethodCount {  get { return methods.Count;  } }
+		public string ModuleName => type.Name;
+		public int MethodCount => methods.Count;
 
 		public MethodInfo this[string methodName]
 		{
@@ -43,19 +40,19 @@ namespace BooTS
 
 			type = assembly.GetType(moduleName, false, true);//ignore case.
 
-			if(type!=null)
+			if (type != null)
 			{
 				var methods = type.GetMethods(bindingFlags);
 
 				this.methods = new Dictionary<string, MethodInfo>(methods.Length);
 
-				foreach( var m in methods )
+				foreach (var m in methods)
 					this.methods.Add(m.Name, m);
 			}
 			else
 				this.methods = new Dictionary<string, MethodInfo>();
 		}
-		
+
 		/// <summary>
 		/// Constructs a Boo module name for the given file path.
 		/// </summary>
@@ -71,7 +68,7 @@ namespace BooTS
 
 			return moduleName;
 		}
-		
+
 		/// <summary>
 		/// Attempts to find and creates a delegate for the named static method.
 		/// </summary>
@@ -86,7 +83,7 @@ namespace BooTS
 			{
 				result = this[methodName]?.CreateDelegate(typeof(T)) as T;
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				Debug.Print(ex.Message);
 			}

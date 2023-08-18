@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.Banking
 {
@@ -22,7 +18,7 @@ namespace RpgToolsEditor.Models.Banking
 		public byte Prefix { get; set; }
 
 		public ItemKey() { }
-		
+
 		//prefix
 		public ItemKey(int itemId, byte prefix)
 		{
@@ -36,34 +32,22 @@ namespace RpgToolsEditor.Models.Banking
 			Prefix = source.Prefix;
 		}
 
-		public object Clone()
-		{
-			return new ItemKey(this);
-		}
+		public object Clone() => new ItemKey(this);
 
-		public bool Equals(ItemKey other)
-		{
-			return ItemId == other.ItemId && Prefix == other.Prefix;
-		}
+		public bool Equals(ItemKey other) => ItemId == other.ItemId && Prefix == other.Prefix;
 
 		public override bool Equals(object obj)
 		{
 			ItemKey other = obj as ItemKey;
 
-			if( other != null )
+			if (other != null)
 				return Equals(other);
 			else
 				return false;
 		}
 
-		public override int GetHashCode()
-		{
-			return ItemId ^ Prefix;
-		}
+		public override int GetHashCode() => ItemId ^ Prefix;
 
-		public override string ToString()
-		{
-			return $"ItemKey(ItemId: {ItemId}, Prefix: {Prefix})";
-		}
+		public override string ToString() => $"ItemKey(ItemId: {ItemId}, Prefix: {Prefix})";
 	}
 }

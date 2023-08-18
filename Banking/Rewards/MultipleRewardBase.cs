@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
@@ -12,9 +9,7 @@ namespace Banking.Rewards
 	public abstract class MultipleRewardBase : Reward
 	{
 		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardEvaluator = null)
-		{
-			throw new NotImplementedException();
-		}
+=> throw new NotImplementedException();
 
 		/// <summary>
 		/// Computes an IEnumerable of Tuple's containing the player name, and reward amount, in generic units.

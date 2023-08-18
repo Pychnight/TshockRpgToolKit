@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Corruption.PluginSupport
+﻿namespace Corruption.PluginSupport
 {
 	/// <summary>
 	/// The location of data or an object within a text file. This is generally used for error reporting. 
@@ -17,7 +11,7 @@ namespace Corruption.PluginSupport
 
 		public FilePosition() : this(null) { }
 
-		public FilePosition(string filePath, int line = 0, int column = 0 )
+		public FilePosition(string filePath, int line = 0, int column = 0)
 		{
 			FilePath = filePath ?? "";
 			Line = line;

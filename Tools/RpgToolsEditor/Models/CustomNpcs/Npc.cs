@@ -1,16 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 //using Terraria;
 //using CustomNpcs.Projectiles;
-using System.Reflection;
 //using TShockAPI;
-using System.Diagnostics;
 using System.Windows.Forms.Design;
-using RpgToolsEditor.Controls;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
@@ -31,7 +28,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		[JsonProperty(Order = 0)]
 		public string Name
 		{
-			get { return name; }
+			get => name;
 			set
 			{
 				name = value;
@@ -59,14 +56,14 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		[JsonProperty("Spawning", Order = 5)]
 		internal SpawningDefinition spawning = new SpawningDefinition();
-		
+
 		[Category("Override Properties")]
 		public int? AiStyle
 		{
 			get => baseOverride.AiStyle;
 			set => baseOverride.AiStyle = value;
 		}
-		
+
 		[Category("Override Properties")]
 		public int[] BuffImmunities
 		{
@@ -237,7 +234,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		//public bool ShouldUpdateOnHit =>
 		//	_baseOverride.Defense != null || _baseOverride.IsImmortal != null ||
 		//	_baseOverride.KnockbackMultiplier != null;
-				
+
 		[Category("Spawning")]
 		public bool ShouldReplace
 		{
@@ -259,7 +256,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			set => spawning.SpawnRateOverride = value;
 		}
 
-		public Npc() 
+		public Npc()
 		{
 		}
 
@@ -273,11 +270,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			loot = new LootDefinition(other.loot);
 			spawning = new SpawningDefinition(other.spawning);
 		}
-		
-		object ICloneable.Clone()
-		{
-			return new Npc(this);
-		}
+
+		object ICloneable.Clone() => new Npc(this);
 	}
 
 	[JsonObject(MemberSerialization.OptIn)]
@@ -373,7 +367,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		//		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
 		//	}
 		//}
-		
+
 		[JsonProperty(Order = 2)]
 		public List<LootEntry> Entries { get; set; } = new List<LootEntry>();
 
@@ -382,7 +376,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		[JsonProperty(Order = 0)]
 		public bool TallyKills { get; set; }
-		
+
 		public LootDefinition()
 		{
 		}
@@ -393,11 +387,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			IsOverride = other.IsOverride;
 			Entries = other.Entries.Select(e => new LootEntry(e)).ToList();
 		}
-		
-		public object Clone()
-		{
-			return new LootDefinition(this);
-		}
+
+		public object Clone() => new LootDefinition(this);
 	}
 
 	[JsonObject(MemberSerialization.OptIn)]

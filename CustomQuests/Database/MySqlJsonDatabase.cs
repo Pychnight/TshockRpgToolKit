@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
+﻿using Corruption.PluginSupport;
 using CustomQuests.Sessions;
-using Corruption.PluginSupport;
-using System.Diagnostics;
-using Terraria;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using System;
 using System.Data;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Terraria;
 
 namespace CustomQuests.Database
 {
@@ -25,9 +22,9 @@ namespace CustomQuests.Database
 			//ConnectionString = connectionString;
 			ConnectionString = ensureDatabase(connectionString);
 
-			using( var con = new MySqlConnection(ConnectionString) )
+			using (var con = new MySqlConnection(ConnectionString))
 			{
-				using( var cmd = con.CreateCommand() )
+				using (var cmd = con.CreateCommand())
 				{
 					cmd.CommandText = "CREATE TABLE IF NOT EXISTS QuestSessions (" +
 										"WorldId INTEGER," +
@@ -49,8 +46,8 @@ namespace CustomQuests.Database
 			builder.Database = null;
 
 			//try to create db
-			using( var con = new MySqlConnection(builder.ConnectionString) )
-			using( var cmd = con.CreateCommand() )
+			using (var con = new MySqlConnection(builder.ConnectionString))
+			using (var cmd = con.CreateCommand())
 			{
 				cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS {dbName}";
 				con.Open();
@@ -68,11 +65,11 @@ namespace CustomQuests.Database
 
 			try
 			{
-				using( var connection = new MySqlConnection(ConnectionString) )
+				using (var connection = new MySqlConnection(ConnectionString))
 				{
 					connection.Open();
 
-					using( var cmd = connection.CreateCommand() )
+					using (var cmd = connection.CreateCommand())
 					{
 						cmd.CommandText = "SELECT SessionData FROM QuestSessions " +
 											$"WHERE WorldId=@WorldId and PlayerName=@Player;";
@@ -82,7 +79,7 @@ namespace CustomQuests.Database
 
 						var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
 
-						if( reader.HasRows )
+						if (reader.HasRows)
 						{
 							reader.Read();
 
@@ -97,7 +94,7 @@ namespace CustomQuests.Database
 					}
 				}
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				CustomQuestsPlugin.Instance.LogPrint($"Failed to read Session: ({ex.Message})", TraceLevel.Error);
 			}
@@ -115,12 +112,13 @@ namespace CustomQuests.Database
 				//Debug.Print(json);
 
 				//temp kludge to hide latency, since ExecuteNonQuery() blocks...
-				Task.Run( () => {
-					using( var connection = new MySqlConnection(ConnectionString) )
+				Task.Run(() =>
+				{
+					using (var connection = new MySqlConnection(ConnectionString))
 					{
 						connection.Open();
 
-						using( var cmd = connection.CreateCommand() )
+						using (var cmd = connection.CreateCommand())
 						{
 							cmd.CommandText = "REPLACE INTO QuestSessions ( WorldId, PlayerName, SessionData ) " +
 												"VALUES ( @WorldId, @Player, @Data );";
@@ -134,7 +132,7 @@ namespace CustomQuests.Database
 					}
 				});
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				CustomQuestsPlugin.Instance.LogPrint($"Failed to write Session: ({ex.Message})", TraceLevel.Error);
 			}

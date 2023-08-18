@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using BooTS;
+﻿using BooTS;
 using Corruption.PluginSupport;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace CustomNpcs.Invasions
 {
-    /// <summary>
-    ///     Represents an invasion definition.
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class InvasionDefinition : DefinitionBase, IDisposable
-    {
-       	/// <summary>
+	/// <summary>
+	///     Represents an invasion definition.
+	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
+	public sealed class InvasionDefinition : DefinitionBase, IDisposable
+	{
+		/// <summary>
 		///     Gets the name.
 		/// </summary>
 		[JsonProperty(Order = 0)]
@@ -25,13 +24,13 @@ namespace CustomNpcs.Invasions
 		///     Gets the script path.
 		/// </summary>
 		[JsonProperty(Order = 1)]
-        public override string ScriptPath { get; set; }
-		
-        /// <summary>
-        ///     Gets the NPC point values.
-        /// </summary>
-        [JsonProperty(Order = 2)]
-        public Dictionary<string, int> NpcPointValues { get; set; } = new Dictionary<string, int>();
+		public override string ScriptPath { get; set; }
+
+		/// <summary>
+		///     Gets the NPC point values.
+		/// </summary>
+		[JsonProperty(Order = 2)]
+		public Dictionary<string, int> NpcPointValues { get; set; } = new Dictionary<string, int>();
 
 		/// <summary>
 		///     Gets the completed message.
@@ -49,13 +48,13 @@ namespace CustomNpcs.Invasions
 		///     Gets a value indicating whether the invasion should scale by the number of players.
 		/// </summary>
 		[JsonProperty(Order = 5)]
-        public bool ScaleByPlayers { get; set; }
+		public bool ScaleByPlayers { get; set; }
 
-        /// <summary>
-        ///     Gets the waves.
-        /// </summary>
-        [JsonProperty(Order = 6)]
-        public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
+		/// <summary>
+		///     Gets the waves.
+		/// </summary>
+		[JsonProperty(Order = 6)]
+		public List<WaveDefinition> Waves { get; set; } = new List<WaveDefinition>();
 
 		/// <summary>
 		///		Used to keep OnGameUpdate from firing events too early.
@@ -101,7 +100,7 @@ namespace CustomNpcs.Invasions
 		///     Disposes the definition.
 		/// </summary>
 		public void Dispose()
-        {
+		{
 			OnInvasionStart = null;
 			OnInvasionEnd = null;
 			OnUpdate = null;
@@ -109,18 +108,18 @@ namespace CustomNpcs.Invasions
 			OnWaveEnd = null;
 			OnWaveUpdate = null;
 			OnBossDefeated = null;
-        }
-		
+		}
+
 		protected override bool OnLinkToScriptAssembly(Assembly ass)
 		{
-			if( ass == null )
+			if (ass == null)
 				return false;
 
-			if( string.IsNullOrWhiteSpace(ScriptPath) )
+			if (string.IsNullOrWhiteSpace(ScriptPath))
 				return false;
 
 			var linker = new BooModuleLinker(ass, ScriptPath);
-			
+
 			OnInvasionStart = linker.TryCreateDelegate<InvasionStartHandler>("OnInvasionStart");
 			OnInvasionEnd = linker.TryCreateDelegate<InvasionEndHandler>("OnInvasionEnd");
 			OnUpdate = linker.TryCreateDelegate<InvasionUpdateHandler>("OnUpdate");
@@ -135,10 +134,10 @@ namespace CustomNpcs.Invasions
 		public override ValidationResult Validate()
 		{
 			var result = new ValidationResult(DefinitionBase.CreateValidationSourceString(this));
-					
-			if( string.IsNullOrWhiteSpace(Name) )
-				result.Errors.Add( new ValidationError($"{nameof(Name)} is null or whitespace."));
-			
+
+			if (string.IsNullOrWhiteSpace(Name))
+				result.Errors.Add(new ValidationError($"{nameof(Name)} is null or whitespace."));
+
 			//Disabling this check for rooted, because at the point this is ran, InvasionManager may not have been set yet, causing 
 			//an NRE to get logged.
 			//var rooted = Path.Combine(InvasionManager.Instance.BasePath, ScriptPath ?? "");
@@ -148,25 +147,25 @@ namespace CustomNpcs.Invasions
 			//	//throw new FormatException($"{nameof(ScriptPath)} points to an invalid script file.");
 			//	result.AddError($"{nameof(ScriptPath)} points to an invalid script file.", FilePath, LineNumber, LinePosition);
 			//}
-			if( NpcPointValues == null )
-				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} is null."));
-			
-			if( NpcPointValues.Count == 0 )
-				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must not be empty."));
-			
-			if( NpcPointValues.Any(kvp => kvp.Value <= 0) )
-				result.Errors.Add( new ValidationError($"{nameof(NpcPointValues)} must contain positive values."));
-			
-			if( CompletedMessage == null )
-				result.Errors.Add( new ValidationError($"{nameof(CompletedMessage)} is null."));
-			
-			if( Waves == null )
-				result.Errors.Add( new ValidationError($"{nameof(Waves)} is null."));
-			
-			if( Waves.Count == 0 )
-				result.Errors.Add( new ValidationError($"{nameof(Waves)} must not be empty."));
-			
-			foreach( var wave in Waves )
+			if (NpcPointValues == null)
+				result.Errors.Add(new ValidationError($"{nameof(NpcPointValues)} is null."));
+
+			if (NpcPointValues.Count == 0)
+				result.Errors.Add(new ValidationError($"{nameof(NpcPointValues)} must not be empty."));
+
+			if (NpcPointValues.Any(kvp => kvp.Value <= 0))
+				result.Errors.Add(new ValidationError($"{nameof(NpcPointValues)} must contain positive values."));
+
+			if (CompletedMessage == null)
+				result.Errors.Add(new ValidationError($"{nameof(CompletedMessage)} is null."));
+
+			if (Waves == null)
+				result.Errors.Add(new ValidationError($"{nameof(Waves)} is null."));
+
+			if (Waves.Count == 0)
+				result.Errors.Add(new ValidationError($"{nameof(Waves)} must not be empty."));
+
+			foreach (var wave in Waves)
 			{
 				var waveResult = wave.Validate();
 				result.Children.Add(waveResult);

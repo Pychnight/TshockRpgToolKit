@@ -1,12 +1,7 @@
 ﻿#define SCHEMATIC_ENABLE_SIGNS //toggles signs in paste/grab operations ( sign cleanup is not working as expected currently...prob not sending right packets )
 
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
@@ -28,7 +23,7 @@ namespace Corruption.TEdit
 
 			worldRect.Intersects(ref clippedRect, out var intersects);
 
-			if( !intersects )
+			if (!intersects)
 				return;
 
 			//starting position within schematic to read from.
@@ -46,16 +41,16 @@ namespace Corruption.TEdit
 			//copy tiles
 			var readRow = readRowStart;
 
-			for( var row = clippedRect.Top; row < clippedRect.Bottom; row++ )
+			for (var row = clippedRect.Top; row < clippedRect.Bottom; row++)
 			{
 				var readColumn = readColumnStart;
 
-				for( var column = clippedRect.Left; column < clippedRect.Right; column++ )
+				for (var column = clippedRect.Left; column < clippedRect.Right; column++)
 				{
 					var readTile = Tiles[readColumn, readRow];
 					Main.tile[column, row].CopyFrom(readTile);
 					//TSPlayer.All.SendTileSquare(column, row, 1);
-										
+
 					readColumn++;
 				}
 
@@ -66,19 +61,19 @@ namespace Corruption.TEdit
 			SendTileUpdates(TSPlayer.All, ref clippedRect);
 
 			//paste chests
-			foreach( var chest in Chests )
+			foreach (var chest in Chests)
 			{
 				const int frameSize = 16 + 2; //presumably, this is the frame size.
 
-				var tile = Tiles[chest.X,chest.Y];
+				var tile = Tiles[chest.X, chest.Y];
 				var chestStyle = tile.U / frameSize;
 				var chestX = x + chest.X;
 				var chestY = y + chest.Y + 1; // we have to add 1, because create chest uses an offset.
 				var chestId = ChestFunctions.CreateChest(chestX, chestY, chestStyle);
-				
-				if( chestId != -1 )
+
+				if (chestId != -1)
 				{
-					foreach(var item in chest.Items)
+					foreach (var item in chest.Items)
 					{
 						ChestFunctions.PutItemIntoChest(chestId, item.NetId, item.StackSize, item.Prefix);
 					}
@@ -88,7 +83,7 @@ namespace Corruption.TEdit
 					//failed to create chest for some reason, maybe one already in the way.
 					Debug.Print($"Failed to create schematic chest at {chestX}, {chestY}.");
 				}
-								
+
 				//This is a bug in terraria server? or tshock?
 				//PacketType 34 should be PlaceChest, not TileKill. Sigh.
 				//TSPlayer.All.SendData(PacketTypes.TileKill, "", chestId, tileX, tileY, style, 0);//0 = ChestID to destroy, but we dont use this here..
@@ -97,14 +92,14 @@ namespace Corruption.TEdit
 
 #if SCHEMATIC_ENABLE_SIGNS
 			//paste signs
-			foreach(var sign in Signs)
+			foreach (var sign in Signs)
 			{
 				var signX = x + sign.X;
 				var signY = y + sign.Y;
 
 				var result = SignFunctions.TryCreateSignDirect(signX, signY, sign.Text);
 
-				if( result )
+				if (result)
 					Debug.Print($"Pasted sign at {signX}, {signY}.");
 				else
 					Debug.Print($"Failed to paste sign at {signX}, {signY}.");
@@ -112,7 +107,7 @@ namespace Corruption.TEdit
 #endif
 
 		}
-		
+
 		/// <summary>
 		/// Creates a Schematic, from existing tiles in the world. 
 		/// </summary>
@@ -130,26 +125,26 @@ namespace Corruption.TEdit
 
 			worldRect.Intersects(ref clippedRect, out var intersects);
 
-			var result = new Schematic(clippedRect.Width,clippedRect.Height);
+			var result = new Schematic(clippedRect.Width, clippedRect.Height);
 
 			result.IsGrabbed = true;
 			result.GrabbedX = clippedRect.Left;
 			result.GrabbedY = clippedRect.Top;
 
-			if( !intersects )
+			if (!intersects)
 				return result;
 
 			//starting position within schematic to read from.
 			var writeColumnStart = clippedRect.Left - x;
 			var writeRowStart = clippedRect.Top - y;
-			
+
 			var writeRow = writeRowStart;
 
-			for( var row = clippedRect.Top; row < clippedRect.Bottom; row++ )
+			for (var row = clippedRect.Top; row < clippedRect.Bottom; row++)
 			{
 				var writeColumn = writeColumnStart;
 
-				for( var column = clippedRect.Left; column < clippedRect.Right; column++ )
+				for (var column = clippedRect.Left; column < clippedRect.Right; column++)
 				{
 					//var readTile = Tiles[readColumn, readRow];
 					var itile = Main.tile[column, row];
@@ -166,11 +161,11 @@ namespace Corruption.TEdit
 
 			//grab chests
 			var chestIds = ChestFunctions.FindChests(clippedRect.Left, clippedRect.Top, clippedRect.Right, clippedRect.Bottom);
-			foreach(var id in chestIds)
+			foreach (var id in chestIds)
 			{
 				var srcChest = Main.chest[id];
 
-				if(srcChest!=null)
+				if (srcChest != null)
 				{
 					Corruption.TEdit.Chest dst = new Corruption.TEdit.Chest(srcChest);
 
@@ -187,11 +182,11 @@ namespace Corruption.TEdit
 			//grab signs
 
 			var signIds = SignFunctions.FindSigns(clippedRect.Left, clippedRect.Top, clippedRect.Right, clippedRect.Bottom);
-			foreach(var id in signIds)
+			foreach (var id in signIds)
 			{
 				var srcSign = Main.sign[id];
 
-				if(srcSign!=null)
+				if (srcSign != null)
 				{
 					Corruption.TEdit.Sign dst = new Corruption.TEdit.Sign();
 
@@ -212,12 +207,12 @@ namespace Corruption.TEdit
 		/// </summary>
 		public void Restore()
 		{
-			if( IsGrabbed )
+			if (IsGrabbed)
 			{
 				Paste(GrabbedX, GrabbedY);
 			}
 		}
-		
+
 		/// <summary>
 		/// Shortcut that combines Grab() and Paste() into a single method.
 		/// </summary>
@@ -234,7 +229,7 @@ namespace Corruption.TEdit
 		}
 
 		//should we expose this publicly?
-		internal static void SendTileUpdates(TSPlayer player, ref Rectangle rectangle )
+		internal static void SendTileUpdates(TSPlayer player, ref Rectangle rectangle)
 		{
 			//try to send update, using the pasted schematics center point, and radius
 			var updateX = rectangle.Center.X;
@@ -246,7 +241,7 @@ namespace Corruption.TEdit
 
 			//Debug.Print("Sending tile section...");
 			//Debug.Print($"{rectangle.X}, {rectangle.Y}, {rectangle.Width}, {rectangle.Height}");
-			
+
 			//TSPlayer.All.SendData(PacketTypes.TileSendSection, "", rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
 
 			//TSPlayer.All.SendTileSquare(updateX, updateY, updateSize);

@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NpcShops.Shops
 {
@@ -31,9 +27,6 @@ namespace NpcShops.Shops
 		[JsonProperty("Prefix", Order = 2)]
 		public byte PrefixId { get; private set; }
 
-		public bool Equals(RequiredItemDefinition other)
-		{
-			return ItemName == other.ItemName && PrefixId == other.PrefixId;
-		}
+		public bool Equals(RequiredItemDefinition other) => ItemName == other.ItemName && PrefixId == other.PrefixId;
 	}
 }

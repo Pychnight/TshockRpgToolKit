@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.Steps;
+﻿using System.Diagnostics;
 
 namespace CustomQuests.Scripting
 {
@@ -39,14 +31,11 @@ namespace CustomQuests.Scripting
 
 		public TypeMemberModifiers TargetMethodModifiers { get; set; } = TypeMemberModifiers.Public;
 
-		public override void Run()
-		{
-			base.Visit<Module>(base.CompileUnit.Modules);
-		}
+		public override void Run() => base.Visit<Module>(base.CompileUnit.Modules);
 
 		public override void OnModule(Module node)
 		{
-			if( node.FullName != SourceModuleName )
+			if (node.FullName != SourceModuleName)
 				return;
 
 			Debug.Print($"Converting module '{node.FullName}' to instance class...");
@@ -65,12 +54,12 @@ namespace CustomQuests.Scripting
 
 			var meth = new Method(TargetMethodName);
 			meth.Visibility = TargetMethodModifiers; //TypeMemberModifiers.Protected | TypeMemberModifiers.Override;
-			//meth.ReturnType = typeref
+													 //meth.ReturnType = typeref
 			meth.Body = globals;
-				
+
 			klass.Members.Add(meth);
 
-			foreach(var m in members)
+			foreach (var m in members)
 				klass.Members.Add(m);
 
 			node.Members.Add(klass);

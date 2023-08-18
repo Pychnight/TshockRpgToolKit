@@ -1,11 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using OTAPI.Tile;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Terraria;
 using TShockAPI;
 
@@ -20,7 +13,7 @@ namespace Corruption
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <param name="text"></param>
-		internal static void CreateSignDirect(int slot, int x, int y, string text )
+		internal static void CreateSignDirect(int slot, int x, int y, string text)
 		{
 			//if( slot == -1 )
 			//	return false;
@@ -32,7 +25,7 @@ namespace Corruption
 
 			Main.sign[slot] = sign;
 			TSPlayer.All.SendTileSquare(x, y);
-			
+
 			//return true;
 		}
 
@@ -47,10 +40,10 @@ namespace Corruption
 		{
 			var newSignSlot = FindEmptySignSlot();
 
-			if( newSignSlot > -1 )
+			if (newSignSlot > -1)
 			{
 				CreateSignDirect(newSignSlot, x, y, text);
-				
+
 				return true;
 			}
 
@@ -63,11 +56,11 @@ namespace Corruption
 
 			var newSignSlot = FindEmptySignSlot();
 
-			if( newSignSlot > -1 )
+			if (newSignSlot > -1)
 			{
 				var result = WorldGen.PlaceSign(x, y + 1, (ushort)type, style);
 
-				if( result )
+				if (result)
 				{
 					CreateSignDirect(newSignSlot, x, y, text);
 				}
@@ -78,25 +71,13 @@ namespace Corruption
 			return false;
 		}
 
-		public static bool CreateSign(int x, int y, int type)
-		{
-			return CreateSign(x, y, type, "");
-		}
+		public static bool CreateSign(int x, int y, int type) => CreateSign(x, y, type, "");
 
-		public static bool CreateSign(int x, int y, SignTypes type)
-		{
-			return CreateSign(x, y, (int)type);
-		}
+		public static bool CreateSign(int x, int y, SignTypes type) => CreateSign(x, y, (int)type);
 
-		public static bool CreateSign(int x, int y)
-		{
-			return CreateSign(x, y, (int)SignTypes.Sign);
-		}
+		public static bool CreateSign(int x, int y) => CreateSign(x, y, (int)SignTypes.Sign);
 
-		public static bool KillSign(int x, int y)
-		{
-			return KillSign(x, y, effectOnly: false, noItem: false);
-		}
+		public static bool KillSign(int x, int y) => KillSign(x, y, effectOnly: false, noItem: false);
 
 		public static bool KillSign(int x, int y, bool effectOnly, bool noItem)
 		{
@@ -105,11 +86,11 @@ namespace Corruption
 
 			var result = false;
 
-			for( int i = 0; i < Main.sign.Length; i++ )
+			for (int i = 0; i < Main.sign.Length; i++)
 			{
 				var sign = Main.sign[i];
 
-				if( sign != null && sign.x == x && sign.y == y )
+				if (sign != null && sign.x == x && sign.y == y)
 				{
 					Main.sign[i] = null;
 					result = true;
@@ -117,7 +98,7 @@ namespace Corruption
 				}
 			}
 
-			if(result)
+			if (result)
 			{
 				//TileFunctions.KillTile(x, y);
 				WorldGen.KillTile(x, y, false, effectOnly, noItem);//effectOnly = we don't want items to be produced from this. 
@@ -131,7 +112,7 @@ namespace Corruption
 		{
 			var id = FindSignId(x, y);
 
-			if( id > -1 )
+			if (id > -1)
 			{
 				Sign.TextSign(id, txt);
 
@@ -143,9 +124,9 @@ namespace Corruption
 
 		internal static int FindSignId(int x, int y)
 		{
-			for( int i = 0; i < Main.sign.Length; i++ )
+			for (int i = 0; i < Main.sign.Length; i++)
 			{
-				if( Main.sign[i] != null && Main.sign[i].x == x && Main.sign[i].y == y )
+				if (Main.sign[i] != null && Main.sign[i].x == x && Main.sign[i].y == y)
 				{
 					return i;
 				}
@@ -156,9 +137,9 @@ namespace Corruption
 
 		internal static int FindEmptySignSlot()
 		{
-			for( int i = 0; i < Main.sign.Length; i++ )
+			for (int i = 0; i < Main.sign.Length; i++)
 			{
-				if( Main.sign[i] == null )
+				if (Main.sign[i] == null)
 				{
 					return i;
 				}
@@ -179,15 +160,15 @@ namespace Corruption
 		{
 			var results = new List<int>();
 
-			for( var i = 0; i < Main.sign.Length; i++ )
+			for (var i = 0; i < Main.sign.Length; i++)
 			{
 				var sign = Main.sign[i];
 
-				if( sign != null )
+				if (sign != null)
 				{
-					if( sign.x >= xMin && sign.x <= xMax )
+					if (sign.x >= xMin && sign.x <= xMax)
 					{
-						if( sign.y >= yMin && sign.y <= yMax )
+						if (sign.y >= yMin && sign.y <= yMax)
 						{
 							results.Add(i);
 						}
@@ -211,19 +192,19 @@ namespace Corruption
 		{
 			var results = FindSigns(xMin, yMin, xMax, yMax);
 
-			for( var i = 0; i < results.Count; i++ )
+			for (var i = 0; i < results.Count; i++)
 			{
 				var signId = results[i];
 				var sign = Main.sign[signId];
 
-				if( sign != null )
+				if (sign != null)
 					results[i] = KillSign(sign.x, sign.y, effectOnly, noItem: true) ? results[i] : -1;
 				else
 					results[i] = -1;//we couldn't remove this sign, mark its id as failure/invalid.
 
 				//Debug.Print($"ClearSigns: result[{i}] = {results[i]}");
 			}
-			
+
 			return results;
 		}
 	}

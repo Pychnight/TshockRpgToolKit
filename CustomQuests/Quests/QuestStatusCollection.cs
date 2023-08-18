@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomQuests.Quests
 {
@@ -19,14 +16,11 @@ namespace CustomQuests.Quests
 			items = new Dictionary<int, QuestStatus>();
 		}
 
-		public void Clear()
-		{
-			items.Clear();
-		}
+		public void Clear() => items.Clear();
 
 		public void SetQuestStatus(int index, string text, Color color)
 		{
-			if( !items.TryGetValue(index, out var questStatus) )
+			if (!items.TryGetValue(index, out var questStatus))
 			{
 				questStatus = new QuestStatus();
 				items.Add(index, questStatus);
@@ -36,21 +30,15 @@ namespace CustomQuests.Quests
 			questStatus.Color = color;
 		}
 
-		public void SetQuestStatus(int index, string text)
-		{
-			SetQuestStatus(index, text, Color.White);
-		}
+		public void SetQuestStatus(int index, string text) => SetQuestStatus(index, text, Color.White);
 
-		public void SetQuestStatus(string text)
-		{
-			SetQuestStatus(0, text);
-		}
+		public void SetQuestStatus(string text) => SetQuestStatus(0, text);
 
 		public QuestStatus GetQuestStatus(int index)
 		{
-			if( !items.TryGetValue(index, out var questStatus) )
+			if (!items.TryGetValue(index, out var questStatus))
 			{
-				if(index==0)
+				if (index == 0)
 				{
 					//create a default status, esp. for overloads that dont use indices. 
 					questStatus = new QuestStatus();
@@ -61,23 +49,17 @@ namespace CustomQuests.Quests
 			return questStatus;
 		}
 
-		public QuestStatus GetQuestStatus()
-		{
-			return GetQuestStatus(0);
-		}
+		public QuestStatus GetQuestStatus() => GetQuestStatus(0);
 
 		public IEnumerator<QuestStatus> GetEnumerator()
 		{
 			var ordered = items.OrderBy(i => i.Key)
-								.Select( i => i.Value);
+								.Select(i => i.Value);
 
-			foreach( var q in ordered )
+			foreach (var q in ordered)
 				yield return q;
 		}
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 	}
 }

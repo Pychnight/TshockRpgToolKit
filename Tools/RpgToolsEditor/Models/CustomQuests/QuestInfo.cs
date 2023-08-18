@@ -20,7 +20,7 @@ namespace RpgToolsEditor.Models.CustomQuests
 		[Description("Gets or sets the name.")]
 		public string Name
 		{
-			get { return name; }
+			get => name;
 			set
 			{
 				name = value;
@@ -117,14 +117,8 @@ namespace RpgToolsEditor.Models.CustomQuests
 			AllowRejoin = other.AllowRejoin;
 		}
 
-		object ICloneable.Clone()
-		{
-			return new QuestInfo(this);
-		}
-		
-		public override string ToString()
-		{
-			return $"{{{Name}|'{FriendlyName}'}}";
-		}
+		object ICloneable.Clone() => new QuestInfo(this);
+
+		public override string ToString() => $"{{{Name}|'{FriendlyName}'}}";
 	}
 }

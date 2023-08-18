@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-//using Banking;
+﻿//using Banking;
 //using Leveling.Levels;
 //using Leveling.Sessions;
 using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 //using TerrariaApi.Server;
 
 namespace RpgToolsEditor.Models.Leveling
@@ -57,7 +55,7 @@ namespace RpgToolsEditor.Models.Leveling
 		[Category("Prerequisites")]
 		[JsonProperty(Order = 3)]
 		public BindingList<StringHolder> PrerequisitePermissions { get; set; } = new BindingList<StringHolder>();
-		
+
 		/// <summary>
 		///		Gets the Currency cost to enter this class.
 		/// </summary>
@@ -145,18 +143,12 @@ namespace RpgToolsEditor.Models.Leveling
 			DeathPenaltyMultiplierOverride = other.DeathPenaltyMultiplierOverride;
 			CommandsOnClassChangeOnce = other.CommandsOnClassChangeOnce.DeepClone();
 			LevelDefinitions = other.LevelDefinitions.Select(ld => new Level(ld)).ToList();
-			NpcNameToExpReward = new Dictionary<string,string>(other.NpcNameToExpReward);
+			NpcNameToExpReward = new Dictionary<string, string>(other.NpcNameToExpReward);
 		}
 
-		public override string ToString()
-		{
-			return $"[ClassDefinition '{Name}']";
-		}
+		public override string ToString() => $"[ClassDefinition '{Name}']";
 
-		public object Clone()
-		{
-			return new Class(this);
-		}
+		public object Clone() => new Class(this);
 	}
 
 	public static class BindingListExtensions

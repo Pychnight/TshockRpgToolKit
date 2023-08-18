@@ -1,22 +1,22 @@
-﻿using System;
+﻿using Corruption;
+using CustomQuests.Quests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Corruption;
-using CustomQuests.Quests;
 using Terraria;
 using TShockAPI;
 using TShockAPI.Localization;
 
 namespace CustomQuests.Triggers
 {
-    /// <summary>
-    ///     Represents a drop items trigger.
-    /// </summary>
-    public sealed class DropItems : Trigger
-    {
-        private readonly string _itemName;
+	/// <summary>
+	///     Represents a drop items trigger.
+	/// </summary>
+	public sealed class DropItems : Trigger
+	{
+		private readonly string _itemName;
 		private IEnumerable<PartyMember> partyMembers;
-        private int _amount;
+		private int _amount;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="DropItems" /> class with the specified party, item name, and amount.
@@ -46,7 +46,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMembers" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public DropItems(IEnumerable<PartyMember> partyMembers, string itemName) : this(partyMembers,itemName,1)
+		public DropItems(IEnumerable<PartyMember> partyMembers, string itemName) : this(partyMembers, itemName, 1)
 		{
 		}
 
@@ -85,7 +85,7 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="partyMember" /> or <paramref name="itemName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public DropItems(PartyMember partyMember, string itemName, int amount) : this(partyMember.ToEnumerable(),itemName,amount)
+		public DropItems(PartyMember partyMember, string itemName, int amount) : this(partyMember.ToEnumerable(), itemName, amount)
 		{
 		}
 
@@ -129,43 +129,40 @@ namespace CustomQuests.Triggers
 
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                GetDataHandlers.ItemDrop -= OnItemDrop;
-            }
+		{
+			if (disposing)
+			{
+				GetDataHandlers.ItemDrop -= OnItemDrop;
+			}
 
-            base.Dispose(disposing);
-        }
+			base.Dispose(disposing);
+		}
 
-        /// <inheritdoc />
-        protected override void Initialize()
-        {
-            GetDataHandlers.ItemDrop += OnItemDrop;
-        }
+		/// <inheritdoc />
+		protected override void Initialize() => GetDataHandlers.ItemDrop += OnItemDrop;
 
-        /// <inheritdoc />
-        protected internal override TriggerStatus UpdateImpl() => (_amount <= 0).ToTriggerStatus();
+		/// <inheritdoc />
+		protected internal override TriggerStatus UpdateImpl() => (_amount <= 0).ToTriggerStatus();
 
-        private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
-        {
-            var player = args.Player;
-            if (args.Handled || args.ID != Main.maxItems || partyMembers.All(p => p.Player.Index != player.Index))
-            {
-                return;
-            }
+		private void OnItemDrop(object sender, GetDataHandlers.ItemDropEventArgs args)
+		{
+			var player = args.Player;
+			if (args.Handled || args.ID != Main.maxItems || partyMembers.All(p => p.Player.Index != player.Index))
+			{
+				return;
+			}
 
-            var itemIdName = EnglishLanguage.GetItemNameById(args.Type);
-            if (_itemName?.Equals(itemIdName, StringComparison.OrdinalIgnoreCase) ?? true)
-            {
-                _amount -= args.Stacks;
-                if (_amount < 0)
-                {
-                    player.GiveItem(args.Type, "", 20, 42, -_amount, args.Prefix);
-                    _amount = 0;
-                }
-                args.Handled = true;
-            }
-        }
-    }
+			var itemIdName = EnglishLanguage.GetItemNameById(args.Type);
+			if (_itemName?.Equals(itemIdName, StringComparison.OrdinalIgnoreCase) ?? true)
+			{
+				_amount -= args.Stacks;
+				if (_amount < 0)
+				{
+					player.GiveItem(args.Type, "", 20, 42, -_amount, args.Prefix);
+					_amount = 0;
+				}
+				args.Handled = true;
+			}
+		}
+	}
 }

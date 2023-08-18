@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Terraria;
-using TerrariaApi.Server;
-using System.Diagnostics;
-using TShockAPI.Localization;
+﻿using Corruption;
 using CustomQuests.Quests;
-using System.Collections.Concurrent;
-using Corruption;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using TerrariaApi.Server;
 
 namespace CustomQuests.Triggers
 {
-    /// <summary>
-    ///     Represents a kill NPCs trigger.
-    /// </summary>
+	/// <summary>
+	///     Represents a kill NPCs trigger.
+	/// </summary>
 	public sealed class KillNpcs : TallyTrigger
-    {
+	{
 		private Dictionary<int, int> LastStrucks = new Dictionary<int, int>();
 		private HashSet<string> npcTypes;
 		private IEnumerable<PartyMember> partyMembers;
@@ -58,7 +55,7 @@ namespace CustomQuests.Triggers
 		public KillNpcs(PartyMember partyMember, int amount, params object[] npcTypes) : this(partyMember.ToEnumerable(), amount, npcTypes)
 		{
 		}
-		
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party, NPC name, and amount.
 		/// </summary>
@@ -69,10 +66,10 @@ namespace CustomQuests.Triggers
 		///     Either <paramref name="party" /> or <paramref name="npcName" /> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="amount" /> is not positive.</exception>
-		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes) : this(partyMembers,null,amount,npcTypes)
+		public KillNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes) : this(partyMembers, null, amount, npcTypes)
 		{
 		}
-		
+
 		/// <summary>
 		///		Initializes a new instance of the <see cref="KillNpcs" /> class with the specified party and amount, accepting any NPC type.
 		/// </summary>
@@ -91,25 +88,25 @@ namespace CustomQuests.Triggers
 		public KillNpcs(PartyMember partyMember) : this(partyMember.ToEnumerable(), 1)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                ServerApi.Hooks.NpcKilled.Deregister(CustomQuestsPlugin.Instance, OnNpcKilled);
-                ServerApi.Hooks.NpcStrike.Deregister(CustomQuestsPlugin.Instance, OnNpcStrike);
-            }
+		{
+			if (disposing)
+			{
+				ServerApi.Hooks.NpcKilled.Deregister(CustomQuestsPlugin.Instance, OnNpcKilled);
+				ServerApi.Hooks.NpcStrike.Deregister(CustomQuestsPlugin.Instance, OnNpcStrike);
+			}
 
-            base.Dispose(disposing);
-        }
+			base.Dispose(disposing);
+		}
 
-        /// <inheritdoc />
-        protected override void Initialize()
-        {
-            ServerApi.Hooks.NpcKilled.Register(CustomQuestsPlugin.Instance, OnNpcKilled);
-            ServerApi.Hooks.NpcStrike.Register(CustomQuestsPlugin.Instance, OnNpcStrike);
-        }
+		/// <inheritdoc />
+		protected override void Initialize()
+		{
+			ServerApi.Hooks.NpcKilled.Register(CustomQuestsPlugin.Instance, OnNpcKilled);
+			ServerApi.Hooks.NpcStrike.Register(CustomQuestsPlugin.Instance, OnNpcStrike);
+		}
 
 		/// <inheritdoc />
 		protected internal override TriggerStatus UpdateImpl()
@@ -119,8 +116,8 @@ namespace CustomQuests.Triggers
 			return (_amount <= 0).ToTriggerStatus();
 		}
 
-        private void OnNpcKilled(NpcKilledEventArgs args)
-        {
+		private void OnNpcKilled(NpcKilledEventArgs args)
+		{
 			var npc = args.npc;
 
 			//Debug.Print($"DebugId: {debugId}");
@@ -130,77 +127,77 @@ namespace CustomQuests.Triggers
 			Debug.Print($"NpcKilled type: {npc.type}");
 			//Debug.Print($"Contains name? {npcTypes.Contains(npc.GivenOrTypeName)}");
 
-			if(!AnyNcpType && !npcTypes.Contains(MiscFunctions.StripTags(npc.GivenOrTypeName)))
+			if (!AnyNcpType && !npcTypes.Contains(MiscFunctions.StripTags(npc.GivenOrTypeName)))
 				return;
 
 			//if (LastStrucks.TryGetValue(npc.whoAmI, out var lastStruck) && _party.Any(p => p.Index == lastStruck) &&
 			//             (_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? true))
 
 			int lastStruck = 0;
-						
-			if( LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) && partyMembers.Any(m => m.Player.Index == lastStruck) )
+
+			if (LastStrucks.TryGetValue(npc.whoAmI, out lastStruck) && partyMembers.Any(m => m.Player.Index == lastStruck))
 			{
 				//Debug.Print("Kill counted!");
-				
-				if(HasTallyChangedAction)
+
+				if (HasTallyChangedAction)
 				{
 					var member = partyMembers.FirstOrDefault(pm => pm.Player.Index == lastStruck);
 					if (member != null)
-						TryEnqueueTallyChange(member,1);
+						TryEnqueueTallyChange(member, 1);
 				}
 
 				LastStrucks.Remove(npc.whoAmI);
 				--_amount;
 			}
-				
+
 			return;
 		}
 
-        private void OnNpcStrike(NpcStrikeEventArgs args)
-        {
-            var playerIndex = args.Player.whoAmI;
+		private void OnNpcStrike(NpcStrikeEventArgs args)
+		{
+			var playerIndex = args.Player.whoAmI;
 			var npc = args.Npc;
 			var npcId = npc.whoAmI;
 
 			//if (!_npcName?.Equals(npc.GivenOrTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
-			if( args.Handled || (!AnyNcpType && !npcTypes.Contains(MiscFunctions.StripTags(npc.GivenOrTypeName ))) )
+			if (args.Handled || (!AnyNcpType && !npcTypes.Contains(MiscFunctions.StripTags(npc.GivenOrTypeName))))
 				return;
-			
-			if( partyMembers.All(m => m.Player.Index != playerIndex) )
+
+			if (partyMembers.All(m => m.Player.Index != playerIndex))
 				return;
-						
+
 			Debug.Print($"NpcStruck name: {npc.GivenOrTypeName}");
 			Debug.Print($"NpcStruck id: {npc.whoAmI}");
-						
-            LastStrucks[npcId] = playerIndex;
+
+			LastStrucks[npcId] = playerIndex;
 
 			Debug.Print($"Strike Player index: {playerIndex}");
 
 			//DISABLED becuase the bottom clause is removing all registered strikes, and thus kills are failing.
 			//no idea why this stuff is here, other than the commit that said "Fix KillNpcs"...
 			//var defense = npc.defense;
-   //         if (npc.ichor)
-   //         {
-   //             defense -= 20;
-   //         }
-   //         if (npc.betsysCurse)
-   //         {
-   //             defense -= 40;
-   //         }
-   //         defense = Math.Max(0, defense);
-   //         var damage = Main.CalculateDamage(args.Damage, defense);
-   //         if (args.Critical)
-   //         {
-   //             damage *= 2.0;
-   //         }
-   //         damage *= Math.Max(1.0, npc.takenDamageMultiplier);
+			//         if (npc.ichor)
+			//         {
+			//             defense -= 20;
+			//         }
+			//         if (npc.betsysCurse)
+			//         {
+			//             defense -= 40;
+			//         }
+			//         defense = Math.Max(0, defense);
+			//         var damage = Main.CalculateDamage(args.Damage, defense);
+			//         if (args.Critical)
+			//         {
+			//             damage *= 2.0;
+			//         }
+			//         damage *= Math.Max(1.0, npc.takenDamageMultiplier);
 
-   //         var actualNpc = npc.realLife >= 0 ? Main.npc[npc.realLife] : npc;
-   //         if (actualNpc.life - damage <= 0)
-   //         {
-   //             LastStrucks.Remove(npcId);
-   //             --_amount;
-   //         }
-        }
-    }
+			//         var actualNpc = npc.realLife >= 0 ? Main.npc[npc.realLife] : npc;
+			//         if (actualNpc.life - damage <= 0)
+			//         {
+			//             LastStrucks.Remove(npcId);
+			//             --_amount;
+			//         }
+		}
+	}
 }

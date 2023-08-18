@@ -132,10 +132,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		//}
 		#endregion
 
-		public object Clone()
-		{
-			return MemberwiseClone();
-		}
+		public object Clone() => MemberwiseClone();
 
 		public void Reset()
 		{
@@ -177,9 +174,9 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 
 		public override bool Equals(object obj)
 		{
-			if( ReferenceEquals(null, obj) ) return false;
-			if( ReferenceEquals(this, obj) ) return true;
-			if( obj.GetType() != GetType() ) return false;
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
 			return Equals((Tile)obj);
 		}
 
@@ -188,50 +185,35 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			unchecked
 			{
 				int hashCode = IsActive.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ WireRed.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ WireGreen.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ WireBlue.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ WireYellow.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ LiquidType.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ TileColor.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ Wall.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ Type.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ WallColor.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ LiquidAmount.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ BrickStyle.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ Actuator.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ BrickStyle.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ InActive.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ U.GetHashCode();
-				hashCode = ( hashCode * 397 ) ^ V.GetHashCode();
+				hashCode = (hashCode * 397) ^ WireRed.GetHashCode();
+				hashCode = (hashCode * 397) ^ WireGreen.GetHashCode();
+				hashCode = (hashCode * 397) ^ WireBlue.GetHashCode();
+				hashCode = (hashCode * 397) ^ WireYellow.GetHashCode();
+				hashCode = (hashCode * 397) ^ LiquidType.GetHashCode();
+				hashCode = (hashCode * 397) ^ TileColor.GetHashCode();
+				hashCode = (hashCode * 397) ^ Wall.GetHashCode();
+				hashCode = (hashCode * 397) ^ Type.GetHashCode();
+				hashCode = (hashCode * 397) ^ WallColor.GetHashCode();
+				hashCode = (hashCode * 397) ^ LiquidAmount.GetHashCode();
+				hashCode = (hashCode * 397) ^ BrickStyle.GetHashCode();
+				hashCode = (hashCode * 397) ^ Actuator.GetHashCode();
+				hashCode = (hashCode * 397) ^ BrickStyle.GetHashCode();
+				hashCode = (hashCode * 397) ^ InActive.GetHashCode();
+				hashCode = (hashCode * 397) ^ U.GetHashCode();
+				hashCode = (hashCode * 397) ^ V.GetHashCode();
 				return hashCode;
 			}
 		}
 
-		public static bool operator ==(Tile left, Tile right)
-		{
-			return Equals(left, right);
-		}
+		public static bool operator ==(Tile left, Tile right) => Equals(left, right);
 
-		public static bool operator !=(Tile left, Tile right)
-		{
-			return !Equals(left, right);
-		}
+		public static bool operator !=(Tile left, Tile right) => !Equals(left, right);
 
-		public static bool IsChest(int tileType)
-		{
-			return tileType == (int)TileType.Chest || tileType == (int)TileType.Dresser || tileType == (int)TileType.Chest2;
-		}
+		public static bool IsChest(int tileType) => tileType == (int)TileType.Chest || tileType == (int)TileType.Dresser || tileType == (int)TileType.Chest2;
 
-		public static bool IsSign(int tileType)
-		{
-			return tileType == (int)TileType.Sign || tileType == (int)TileType.GraveMarker || tileType == (int)TileType.AnnouncementBox;
-		}
+		public static bool IsSign(int tileType) => tileType == (int)TileType.Sign || tileType == (int)TileType.GraveMarker || tileType == (int)TileType.AnnouncementBox;
 
-		public static bool IsTileEntity(int tileType)
-		{
-			return tileType == (int)TileType.Dummy || tileType == (int)TileType.ItemFrame || tileType == (int)TileType.LogicSensor;
-		}
+		public static bool IsTileEntity(int tileType) => tileType == (int)TileType.Dummy || tileType == (int)TileType.ItemFrame || tileType == (int)TileType.LogicSensor;
 
 	}
 }

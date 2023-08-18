@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Banking.Database
 {
@@ -15,7 +11,7 @@ namespace Banking.Database
 
 		void Create(BankAccount account);
 		void Create(IEnumerable<BankAccount> accounts);
-		
+
 		void Update(BankAccount account);
 		void Update(IEnumerable<BankAccount> accounts);
 

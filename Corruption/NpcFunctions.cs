@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
 using TShockAPI;
 using TShockAPI.Localization;
 
@@ -38,7 +40,7 @@ namespace Corruption
 		}
 
 		[Obsolete("Use SpawnNpc(nameOrType,x,y,radius,amount) instead.")]
-		public static NPC[] SpawnMob(string nameOrType, int x, int y, int radius = 10, int amount = 1) => SpawnNpc(nameOrType,x,y,radius,amount);
+		public static NPC[] SpawnMob(string nameOrType, int x, int y, int radius = 10, int amount = 1) => SpawnNpc(nameOrType, x, y, radius, amount);
 
 		/// <summary>
 		///     Spawns the NPC with the specified name, coordinates, and amount.
@@ -65,7 +67,7 @@ namespace Corruption
 			for (var i = 0; i < amount; ++i)
 			{
 				TShock.Utils.GetRandomClearTileWithInRange(x, y, radius, radius, out var spawnX, out var spawnY);
-				var npcIndex = NPC.NewNPC(16 * spawnX, 16 * spawnY, type);
+				var npcIndex = NPC.NewNPC(new EntitySource_SpawnNPC(), 16 * spawnX, 16 * spawnY, type);
 				if (npcIndex != Main.maxNPCs)
 				{
 					npcs.Add(Main.npc[npcIndex]);
@@ -76,7 +78,7 @@ namespace Corruption
 
 		[Obsolete("Use SpawnNpc(type,x,y,radius,amount) instead.")]
 		public static NPC[] SpawnMob(int type, int x, int y, int radius = 10, int amount = 1) => SpawnNpc(type, x, y, radius, amount);
-		
+
 
 #if USE_FAST_ID_LOOKUP
 
@@ -112,10 +114,10 @@ namespace Corruption
 		//id should really be called type -- ugh @ terraria
 		static int? getNpcTypeFromNameImpl(string name)
 		{
-			for( var i = -65; i < Main.maxNPCTypes; ++i )
+			for (var i = -65; i < NPCID.Count; ++i)
 			{
 				var npcName = EnglishLanguage.GetNpcNameById(i);
-				if( npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false )
+				if (npcName?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false)
 				{
 					return i;
 				}
@@ -128,23 +130,23 @@ namespace Corruption
 
 		public static int? GetNpcIdFromName(string name)
 		{
-			if( string.IsNullOrWhiteSpace(name) )
+			if (string.IsNullOrWhiteSpace(name))
 				return null;
 
 			return getNpcTypeFromNameImpl(name);
 		}
-				
+
 		public static int? GetNpcIdFromNameOrType(string nameOrType)
 		{
-			if( string.IsNullOrWhiteSpace(nameOrType) )
+			if (string.IsNullOrWhiteSpace(nameOrType))
 				return null;
-						
-			if( int.TryParse(nameOrType, out var id) && -65 <= id && id < Main.maxNPCTypes )
+
+			if (int.TryParse(nameOrType, out var id) && -65 <= id && id < NPCID.Count)
 				return id;
 
 			return getNpcTypeFromNameImpl(nameOrType);
 		}
-		
+
 		/// <summary>
 		/// Counts the number of NPCs in the area matching the name. (Uses GivenOrTypeName)
 		/// </summary>
@@ -158,11 +160,11 @@ namespace Corruption
 
 			//normally, we'd use npc.Length to avoid bounds checks... but we're in Terraria, where nothing is as it should be.
 			//maxNPCs = 200, but the npc array is sized at 201. ?!?!
-			for( var i = 0; i < Main.maxNPCs; i++ )
-			{ 
+			for (var i = 0; i < Main.maxNPCs; i++)
+			{
 				var npc = Main.npc[i];
-				if( npc.active && npc.position.X > 16 * minX && npc.position.X< 16 * maxX &&
-				   npc.position.Y> 16 * minY && npc.position.Y< 16 * maxY && npc.GivenOrTypeName == name)
+				if (npc.active && npc.position.X > 16 * minX && npc.position.X < 16 * maxX &&
+				   npc.position.Y > 16 * minY && npc.position.Y < 16 * maxY && npc.GivenOrTypeName == name)
 				{
 					count++;
 				}
@@ -207,14 +209,14 @@ namespace Corruption
 			var results = new List<NPC>();
 			var center = new Vector2(x, y);
 
-			foreach(var npc in Main.npc)
+			foreach (var npc in Main.npc)
 			{
-				if(npc?.active == true)
+				if (npc?.active == true)
 				{
 					var pos = npc.position;
 					var delta = pos - center;
 
-					if(delta.LengthSquared() <= (radius * radius))
+					if (delta.LengthSquared() <= (radius * radius))
 						results.Add(npc);
 				}
 			}
@@ -228,11 +230,11 @@ namespace Corruption
 		/// <param name="name">GivenOrTypeName to find.</param>
 		/// <returns>NPC if found, null if not.</returns>
 		public static NPC FindNpcByName(string name)
-		{ 
-			for( var i = 0; i < Main.maxNPCs; i++ )
+		{
+			for (var i = 0; i < Main.maxNPCs; i++)
 			{
 				var npc = Main.npc[i];
-				if( npc.active && npc.GivenOrTypeName == name )
+				if (npc.active && npc.GivenOrTypeName == name)
 					return npc;
 			}
 
@@ -246,10 +248,10 @@ namespace Corruption
 		/// <returns>NPC if found, null if not.</returns>
 		public static NPC FindNpcByType(int type)
 		{
-			for( var i = 0; i < Main.maxNPCs; i++ )
+			for (var i = 0; i < Main.maxNPCs; i++)
 			{
 				var npc = Main.npc[i];
-				if( npc.active && npc.netID == type )
+				if (npc.active && npc.netID == type)
 					return npc;
 			}
 
@@ -274,7 +276,7 @@ namespace Corruption
 		public static void SetNpcBuff(NPC npc, int buffType, int buffTime, bool quiet)
 		{
 			npc.AddBuff(buffType, buffTime, quiet);
-			TSPlayer.All.SendData(PacketTypes.NpcAddBuff, "", npc.whoAmI, (float)buffType, (float)buffTime, 0f, 0);
+			TSPlayer.All.SendData(PacketTypes.NpcAddBuff, "", npc.whoAmI, buffType, buffTime, 0f, 0);
 		}
 
 		/// <summary>
@@ -282,7 +284,7 @@ namespace Corruption
 		/// </summary>
 		/// <param name="npc"></param>
 		public static void SendNpcUpdate(NPC npc) => SendNpcUpdate(TSPlayer.All, npc);
-		
+
 		/// <summary>
 		/// Sends an npc update packet to the specified player, for the given npc.
 		/// </summary>
@@ -290,10 +292,10 @@ namespace Corruption
 		/// <param name="npc"></param>
 		public static void SendNpcUpdate(TSPlayer player, NPC npc)
 		{
-			if(player == null)
+			if (player == null)
 				return;
 
-			if(npc == null || npc.active == false)
+			if (npc == null || npc.active == false)
 				return;
 
 			player.SendData(PacketTypes.NpcUpdate, "", npc.whoAmI);

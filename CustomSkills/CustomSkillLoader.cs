@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace CustomSkills
@@ -34,12 +32,12 @@ namespace CustomSkills
 
 		private CustomSkillDefinitionLoader(List<CustomSkillCategory> customSkillCategories) : this()
 		{
-			foreach(var srcCategory in customSkillCategories)
+			foreach (var srcCategory in customSkillCategories)
 			{
-				if(Categories.TryGetValue(srcCategory.Name, out var dstCategory))
+				if (Categories.TryGetValue(srcCategory.Name, out var dstCategory))
 				{
 					//copy to existing
-					foreach(var kvp in srcCategory)
+					foreach (var kvp in srcCategory)
 						dstCategory.Add(kvp.Key, kvp.Value);
 				}
 				else
@@ -54,21 +52,21 @@ namespace CustomSkills
 			LoadScripts();
 		}
 
-		private Dictionary<string,CustomSkillDefinition> MapTriggeredDefinitions()
+		private Dictionary<string, CustomSkillDefinition> MapTriggeredDefinitions()
 		{
 			var result = new Dictionary<string, CustomSkillDefinition>();
 
-			foreach(var cat in Categories.Values)
+			foreach (var cat in Categories.Values)
 			{
-				foreach(var skill in cat.Values)
+				foreach (var skill in cat.Values)
 				{
-					if(skill.HasTriggerWords)
+					if (skill.HasTriggerWords)
 					{
 						result[skill.Name] = skill;
 					}
 				}
 			}
-			
+
 			return result;
 		}
 
@@ -117,9 +115,9 @@ namespace CustomSkills
 		{
 			DefinitionFile<List<CustomSkillCategory>> fileDef = null;
 
-			if(!File.Exists(filePath))
+			if (!File.Exists(filePath))
 			{
-				if(createIfNeeded)
+				if (createIfNeeded)
 				{
 					fileDef = CreateDefaultDataDefinition();
 
@@ -135,21 +133,21 @@ namespace CustomSkills
 
 			//convert file def into a customskillmanager...
 			var mgr = new CustomSkillDefinitionLoader(fileDef.Data);
-			
+
 			return mgr;
 		}
-		
+
 		private HashSet<string> GetScriptPaths()
 		{
 			var result = new HashSet<string>();
 
-			foreach(var cat in Categories.Values)
+			foreach (var cat in Categories.Values)
 			{
-				foreach(var skill in cat.Values)
+				foreach (var skill in cat.Values)
 				{
-					foreach(var level in skill.Levels)
+					foreach (var level in skill.Levels)
 					{
-						if(!string.IsNullOrWhiteSpace(level.ScriptPath))
+						if (!string.IsNullOrWhiteSpace(level.ScriptPath))
 						{
 							result.Add(CustomSkillsPlugin.Instance.PluginRelativePath(level.ScriptPath));
 						}
@@ -159,53 +157,53 @@ namespace CustomSkills
 
 			return result;
 		}
-		
+
 		private void LoadScripts()
 		{
 			var moduleManager = GetModuleManager();
 			var scriptPaths = GetScriptPaths();
 
-			foreach(var path in scriptPaths)
+			foreach (var path in scriptPaths)
 				moduleManager.Add(path);
 
 			var results = moduleManager.Compile();
 
-			foreach(var cat in Categories.Values)
+			foreach (var cat in Categories.Values)
 			{
-				foreach(var skill in cat.Values)
+				foreach (var skill in cat.Values)
 				{
-					foreach(var level in skill.Levels)
+					foreach (var level in skill.Levels)
 					{
-						if(results.TryGetValue(CustomSkillsPlugin.Instance.PluginRelativePath(level.ScriptPath),out var compilerContext))
+						if (results.TryGetValue(CustomSkillsPlugin.Instance.PluginRelativePath(level.ScriptPath), out var compilerContext))
 						{
 							CustomSkillsPlugin.Instance.LogPrintBooErrors(compilerContext);
 							CustomSkillsPlugin.Instance.LogPrintBooWarnings(compilerContext);
 
-							if(compilerContext.Errors.Count<1)
+							if (compilerContext.Errors.Count < 1)
 							{
 								var linker = new BooModuleLinker(compilerContext.GeneratedAssembly, level.ScriptPath);
 
-								if(level.OnCancelled == null)
-									level.OnCancelled = linker.TryCreateDelegate<Action<TSPlayer,SkillState>>("OnCancelled");
+								if (level.OnCancelled == null)
+									level.OnCancelled = linker.TryCreateDelegate<Action<TSPlayer, SkillState>>("OnCancelled");
 
-								if(level.OnLevelUp==null)
+								if (level.OnLevelUp == null)
 									level.OnLevelUp = linker.TryCreateDelegate<Action<TSPlayer>>("OnLevelUp");
 
-								if(level.OnCast == null)
-									level.OnCast = linker.TryCreateDelegate<Func<TSPlayer,SkillState,bool>>("OnCast");
+								if (level.OnCast == null)
+									level.OnCast = linker.TryCreateDelegate<Func<TSPlayer, SkillState, bool>>("OnCast");
 
-								if(level.OnCharge == null)
-									level.OnCharge = linker.TryCreateDelegate<Func<TSPlayer,SkillState,bool>>("OnCharge");
+								if (level.OnCharge == null)
+									level.OnCharge = linker.TryCreateDelegate<Func<TSPlayer, SkillState, bool>>("OnCharge");
 
-								if(level.OnFire == null)
-									level.OnFire = linker.TryCreateDelegate<Action<TSPlayer,SkillState>>("OnFire");
+								if (level.OnFire == null)
+									level.OnFire = linker.TryCreateDelegate<Action<TSPlayer, SkillState>>("OnFire");
 							}
 						}
 					}
 				}
 			}
 		}
-				
+
 		private BooModuleManager GetModuleManager()
 		{
 			//if(booModuleManager == null)
@@ -218,7 +216,7 @@ namespace CustomSkills
 				mgr.AssemblyNamePrefix = "skill_";
 
 			}
-			
+
 			return booModuleManager;
 		}
 

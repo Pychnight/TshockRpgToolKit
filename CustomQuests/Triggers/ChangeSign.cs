@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CustomQuests.Quests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomQuests.Quests;
 
 namespace CustomQuests.Triggers
 {
@@ -26,7 +26,7 @@ namespace CustomQuests.Triggers
 		/// <param name="requireEveryone"><c>true</c> if everyone in the party must change the sign; otherwise, <c>false</c>.</param>
 		/// <param name="changeFunc">Optional callback that runs per text change, and can succeed or fail.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="partyMembers" /> is <c>null</c>.</exception>
-		public ChangeSign(IEnumerable<PartyMember> partyMembers, int x, int y, bool requireEveryone, Func<PartyMember,string,bool> changeFunc)
+		public ChangeSign(IEnumerable<PartyMember> partyMembers, int x, int y, bool requireEveryone, Func<PartyMember, string, bool> changeFunc)
 		{
 			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
 			signX = x;
@@ -55,28 +55,25 @@ namespace CustomQuests.Triggers
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 				CustomQuestsPlugin.Instance.SignChanged += onSignChanged;
 
 			base.Dispose(disposing);
 		}
 
 		/// <inheritdoc />
-		protected override void Initialize()
-		{
-			CustomQuestsPlugin.Instance.SignChanged += onSignChanged;
-		}
+		protected override void Initialize() => CustomQuestsPlugin.Instance.SignChanged += onSignChanged;
 
 		private void onSignChanged(object sender, SignChangedEventArgs args)
 		{
-			if( args.X != signX || args.Y != signY )
+			if (args.X != signX || args.Y != signY)
 				return;
 
 			var partyMember = partyMembers.FirstOrDefault(m => m.Index == args.PlayerIndex);
 
-			if( partyMember != null )
+			if (partyMember != null)
 			{
-				if(changeFunc!=null)
+				if (changeFunc != null)
 				{
 					var result = changeFunc(partyMember, args.Text);
 					playerOkay[args.PlayerIndex] = result;
@@ -91,11 +88,11 @@ namespace CustomQuests.Triggers
 		/// <inheritdoc />
 		protected internal override TriggerStatus UpdateImpl()
 		{
-			if( requireEveryone )
+			if (requireEveryone)
 			{
 				var validMembers = partyMembers.GetValidMembers();
 
-				if( validMembers.Any() )
+				if (validMembers.Any())
 				{
 					return validMembers.All(m => playerOkay.ContainsKey(m.Index) && playerOkay[m.Index] == true)
 										.ToTriggerStatus();

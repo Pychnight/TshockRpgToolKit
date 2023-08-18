@@ -1,11 +1,5 @@
-﻿using CustomNpcs.Projectiles;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
@@ -73,7 +67,7 @@ namespace CustomSkills
 		/// Gets or sets an optional string for identification. This is only for user convienience, and not use by any code.
 		/// </summary>
 		public string Name { get; set; } = "";
-				
+
 		public event Action<EntityEmitter> Emit;
 
 		public EntityEmitter() : this(default(Entity))
@@ -92,36 +86,33 @@ namespace CustomSkills
 			IsActive = true;
 		}
 
-		public void Destroy()
-		{
-			IsActive = false;
-		}
+		public void Destroy() => IsActive = false;
 
 		public void Update()
 		{
-			if(!IsActive)
+			if (!IsActive)
 				return;
 
 			var now = DateTime.Now;
 
-			if(!CanOutliveParent)
+			if (!CanOutliveParent)
 			{
-				if(Parent == null || Parent.active == false)
+				if (Parent == null || Parent.active == false)
 				{
 					Destroy();
 					return;
 				}
 			}
 
-			if((now - CreationTime) >= Lifetime)
+			if ((now - CreationTime) >= Lifetime)
 			{
 				Destroy();
 				return;
 			}
 
-			if(UseRelativePositioning)
+			if (UseRelativePositioning)
 			{
-				if(Parent.active)
+				if (Parent.active)
 				{
 					Position.X = Parent.position.X + RelativePosition.X;
 					Position.Y = Parent.position.Y + RelativePosition.Y;
@@ -129,7 +120,7 @@ namespace CustomSkills
 			}
 
 			//are we ready to emit?
-			if((now - LastEmitTime) >= Cooldown)
+			if ((now - LastEmitTime) >= Cooldown)
 			{
 				//do emit
 				//Debug.Print("Emit Entity!");
@@ -149,20 +140,20 @@ namespace CustomSkills
 
 		public void SetAngle(float angleDegrees)
 		{
-			var radians  = Math.PI * angleDegrees / 180.0d;
+			var radians = Math.PI * angleDegrees / 180.0d;
 			var x = (float)Math.Cos(radians);
 			var y = (float)Math.Sin(radians);
 
 			SetTarget(x, y, true);
 		}
 
-		public void FaceUp()			=> SetTarget(0, -1, true);
-		public void FaceDown()			=> SetTarget(0, 1, true);
-		public void FaceRight()			=> SetTarget(1, 0, true);
-		public void FaceLeft()			=> SetTarget(-1, 0, true);
-		public void FaceTopLeft()		=> SetTarget(-1, -1, true);
-		public void FaceTopRight()		=> SetTarget(1, -1, true);
-		public void FaceBottomRight()	=> SetTarget(1, 1, true);
-		public void FaceBottomLeft()	=> SetTarget(-1, 1, true);
+		public void FaceUp() => SetTarget(0, -1, true);
+		public void FaceDown() => SetTarget(0, 1, true);
+		public void FaceRight() => SetTarget(1, 0, true);
+		public void FaceLeft() => SetTarget(-1, 0, true);
+		public void FaceTopLeft() => SetTarget(-1, -1, true);
+		public void FaceTopRight() => SetTarget(1, -1, true);
+		public void FaceBottomRight() => SetTarget(1, 1, true);
+		public void FaceBottomLeft() => SetTarget(-1, 1, true);
 	}
 }

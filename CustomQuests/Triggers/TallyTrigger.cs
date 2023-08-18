@@ -1,10 +1,6 @@
 ﻿using CustomQuests.Quests;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomQuests.Triggers
 {
@@ -17,18 +13,18 @@ namespace CustomQuests.Triggers
 		private Action<PartyMember, int> tallyChangedAction;
 
 		//we use a concurrent queue to avoid running on the thread that listens/handles the ItemDrop
-		private ConcurrentQueue<TallyChangedEventArgs> tallyChangesQueue;   
-		
+		private ConcurrentQueue<TallyChangedEventArgs> tallyChangesQueue;
+
 		/// <summary>
 		/// Gets whether this TallyTrigger has an Action set to run on tally changes.
 		/// </summary>
-		protected bool HasTallyChangedAction => tallyChangedAction != null; 
-		
+		protected bool HasTallyChangedAction => tallyChangedAction != null;
+
 		/// <summary>
 		/// Sets an Action to be run for each recorded tally change, in <see cref="TryProcessTallyChanges" />.
 		/// </summary>
 		/// <param name="tallyChangedAction"></param>
-		protected void SetTallyChangedAction(Action<PartyMember,int> tallyChangedAction)
+		protected void SetTallyChangedAction(Action<PartyMember, int> tallyChangedAction)
 		{
 			if (tallyChangedAction != null)
 			{
@@ -36,7 +32,7 @@ namespace CustomQuests.Triggers
 				tallyChangesQueue = new ConcurrentQueue<TallyChangedEventArgs>();
 			}
 		}
-		
+
 		/// <summary>
 		/// Attempts to add tally change event information to the internal queue. If HasTallyChangedAction is false, this method will not enqueue anything.
 		/// </summary>
@@ -44,7 +40,7 @@ namespace CustomQuests.Triggers
 		/// <param name="tallyChange"></param>
 		protected void TryEnqueueTallyChange(PartyMember partyMember, int tallyChange)
 		{
-			if(HasTallyChangedAction)
+			if (HasTallyChangedAction)
 			{
 				var tallyArgs = new TallyChangedEventArgs(partyMember, tallyChange);
 				tallyChangesQueue.Enqueue(tallyArgs);
@@ -57,7 +53,7 @@ namespace CustomQuests.Triggers
 		/// </summary>
 		protected void TryProcessTallyChanges()
 		{
-			if(HasTallyChangedAction)
+			if (HasTallyChangedAction)
 			{
 				while (!tallyChangesQueue.IsEmpty)
 				{

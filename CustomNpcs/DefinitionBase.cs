@@ -1,11 +1,6 @@
 ﻿using Corruption.PluginSupport;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomNpcs
 {
@@ -19,7 +14,7 @@ namespace CustomNpcs
 
 		[JsonIgnore]
 		public FilePosition FilePosition { get; set; }
-				
+
 		/// <summary>
 		/// Runs validation for the definition, to check for and report on any error or warning conditions.
 		/// </summary>
@@ -47,22 +42,17 @@ namespace CustomNpcs
 		/// Links a definition to an Assembly generated from a script. 
 		/// </summary>
 		/// <param name="assembly">Generated Assembly for ScriptPath.</param>
-		public bool LinkToScriptAssembly(Assembly assembly)
-		{
+		public bool LinkToScriptAssembly(Assembly assembly) =>
 			//later add better error reporting / handling here!
 			//...
 
-			return OnLinkToScriptAssembly(assembly);
-		}
+			OnLinkToScriptAssembly(assembly);
 
 		/// <summary>
 		/// Allows a derived definition class to control the linking process to an Assembly generated from a script. 
 		/// </summary>
 		/// <param name="assembly">Generated Assembly for ScriptPath.</param>
-		protected virtual bool OnLinkToScriptAssembly(Assembly assembly)
-		{
-			return false;
-		}
+		protected virtual bool OnLinkToScriptAssembly(Assembly assembly) => false;
 
 		public virtual void OnDispose()
 		{

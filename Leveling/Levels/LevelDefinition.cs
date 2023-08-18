@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using Corruption.PluginSupport;
+﻿using Corruption.PluginSupport;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Leveling.Levels
 {
-    /// <summary>
-    ///     Represents a level definition.
-    /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class LevelDefinition : IValidator
-    {
+	/// <summary>
+	///     Represents a level definition.
+	/// </summary>
+	[JsonObject(MemberSerialization.OptIn)]
+	public sealed class LevelDefinition : IValidator
+	{
 		/// <summary>
 		///     Gets the name.
 		/// </summary>
@@ -34,35 +34,35 @@ namespace Leveling.Levels
 		[JsonProperty("CurrencyRequired", Order = 3)]
 		public string CurrencyRequired { get; set; }
 
-        /// <summary>
-        ///     Gets the prefix for the level.
-        /// </summary>
-        [JsonProperty("Prefix", Order = 4)]
-        public string Prefix { get; internal set; } = "";
+		/// <summary>
+		///     Gets the prefix for the level.
+		/// </summary>
+		[JsonProperty("Prefix", Order = 4)]
+		public string Prefix { get; internal set; } = "";
 
-        /// <summary>
-        ///     Gets the set of item names allowed.
-        /// </summary>
-        [JsonProperty("ItemsAllowed", Order = 5)]
-        public ISet<string> ItemNamesAllowed { get; internal set; } = new HashSet<string>();
-		
-        /// <summary>
-        ///     Gets the set of permissions granted.
-        /// </summary>
-        [JsonProperty("PermissionsGranted", Order = 6)]
-        public ISet<string> PermissionsGranted { get; internal set; } = new HashSet<string>();
+		/// <summary>
+		///     Gets the set of item names allowed.
+		/// </summary>
+		[JsonProperty("ItemsAllowed", Order = 5)]
+		public ISet<string> ItemNamesAllowed { get; internal set; } = new HashSet<string>();
+
+		/// <summary>
+		///     Gets the set of permissions granted.
+		/// </summary>
+		[JsonProperty("PermissionsGranted", Order = 6)]
+		public ISet<string> PermissionsGranted { get; internal set; } = new HashSet<string>();
 
 		/// <summary>
 		///     Gets the list of commands to execute on leveling up.
 		/// </summary>
 		[JsonProperty("CommandsOnLevelUp", Order = 7)]
-        public IList<string> CommandsOnLevelUp { get; internal set; } = new List<string>();
+		public IList<string> CommandsOnLevelUp { get; internal set; } = new List<string>();
 
-        /// <summary>
-        ///     Gets the list of commands to execute on leveling up, but only once.
-        /// </summary>
-        [JsonProperty("CommandsOnLevelUpOnce", Order = 8)]
-        public IList<string> CommandsOnLevelUpOnce { get; internal set; } = new List<string>();
+		/// <summary>
+		///     Gets the list of commands to execute on leveling up, but only once.
+		/// </summary>
+		[JsonProperty("CommandsOnLevelUpOnce", Order = 8)]
+		public IList<string> CommandsOnLevelUpOnce { get; internal set; } = new List<string>();
 
 		/// <summary>
 		///     Gets the list of commands to execute on leveling down.
@@ -85,7 +85,7 @@ namespace Leveling.Levels
 			if (string.IsNullOrWhiteSpace(DisplayName))
 				result.Warnings.Add(new ValidationWarning($"{nameof(DisplayName)} is null or whitespace."));
 
-			if (ExpRequired<1)
+			if (ExpRequired < 1)
 				result.Errors.Add(new ValidationError($"{nameof(ExpRequired)} is less than 1."));
 
 			return result;

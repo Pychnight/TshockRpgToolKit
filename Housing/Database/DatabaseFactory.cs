@@ -1,16 +1,4 @@
-﻿using System;
-using System.Data;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Mono.Data.Sqlite;
-using MySql.Data;
-using MySql.Data.MySqlClient;
-
-namespace Housing.Database
+﻿namespace Housing.Database
 {
 	public static class DatabaseFactory
 	{
@@ -18,8 +6,8 @@ namespace Housing.Database
 		{
 			IDatabase result = null;
 			//Debug.Print($"connectionstring: {config.Database.ConnectionString}");
-			
-			switch(config.Database.DatabaseType)
+
+			switch (config.Database.DatabaseType)
 			{
 				case "mysql":
 					var connectionString = config.Database.ConnectionString;
@@ -32,7 +20,7 @@ namespace Housing.Database
 					result = new SqliteDatabase(connection);
 					break;
 			}
-			
+
 			return result;
 		}
 	}

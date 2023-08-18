@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
-using TShockAPI.Localization;
 
 namespace Corruption
 {
@@ -23,30 +18,30 @@ namespace Corruption
 		public static int CreateChest(int x, int y, int style, int groundTile = -1)
 		{
 			var chestId = Chest.FindChest(x, y - 1);
-			if( chestId != -1 )
+			if (chestId != -1)
 			{
 				//chest already exists here.
 				return -1;
 			}
 
 			chestId = WorldGen.PlaceChest(x, y, style: style);
-			if( chestId != -1 )
+			if (chestId != -1)
 			{
 				TSPlayer.All.SendData((PacketTypes)34, "", 0, x, y, style, chestId);
 				return chestId;
 			}
 
 			//...add supporting tile/ground?
-			for( var i = x; i < x + 2; ++i )
+			for (var i = x; i < x + 2; ++i)
 			{
-				for( var j = y - 1; j < y + 2; ++j )
+				for (var j = y - 1; j < y + 2; ++j)
 				{
 					var tile = Main.tile[i, j];
-					if( j == y + 1 )
+					if (j == y + 1)
 					{
 						tile.active(true);
 
-						if( groundTile > -1 )
+						if (groundTile > -1)
 							tile.type = (ushort)groundTile;
 					}
 					else
@@ -58,7 +53,7 @@ namespace Corruption
 			TSPlayer.All.SendTileSquare(x, y, 3);
 
 			chestId = WorldGen.PlaceChest(x, y, style: style);
-			if( chestId != -1 )
+			if (chestId != -1)
 			{
 				TSPlayer.All.SendData((PacketTypes)34, "", 0, x, y, style, chestId);
 
@@ -76,10 +71,7 @@ namespace Corruption
 		/// <param name="y">The Y coordinate, which must be within the bounds of the world.</param>
 		/// <param name="style">The style.</param>
 		/// <remarks>New code should use CreateChest() instead, which returns the chest id, or -1 on failure.</remarks>
-		public static void PlaceChest(int x, int y, int style)
-		{
-			CreateChest(x, y, style, 0);// 0 = support with dirt
-		}
+		public static void PlaceChest(int x, int y, int style) => CreateChest(x, y, style, 0);// 0 = support with dirt
 
 		/// <summary>
 		/// Destroys a Chest at the specified coordinates, if one exists. 
@@ -90,7 +82,7 @@ namespace Corruption
 		internal static bool DestroyChest(int x, int y)
 		{
 			var chestId = Chest.FindChest(x, y - 1);
-			if( chestId == -1 )
+			if (chestId == -1)
 			{
 				return false;
 			}
@@ -130,7 +122,7 @@ namespace Corruption
 		public static void PutItemIntoChest(int x, int y, int type, int stack = 1, byte prefix = 0)
 		{
 			var chestId = Chest.FindChest(x, y - 1);
-			if( chestId == -1 )
+			if (chestId == -1)
 			{
 				return;
 			}
@@ -150,10 +142,10 @@ namespace Corruption
 		internal static void PutItemIntoChest(int chestId, int type, int stack = 1, byte prefix = 0)
 		{
 			var chest = Main.chest[chestId];
-			for( var i = 0; i < Chest.maxItems; ++i )
+			for (var i = 0; i < Chest.maxItems; ++i)
 			{
 				var item = chest.item[i];
-				if( item.netID == 0 )
+				if (item.netID == 0)
 				{
 					item.netID = type;
 					item.stack = stack;
@@ -176,7 +168,7 @@ namespace Corruption
 		{
 			var id = ItemFunctions.GetItemIdFromName(itemType);
 
-			if( id == null )
+			if (id == null)
 			{
 				//CustomQuestsPlugin.Instance.LogPrint($"Can't put item in chest. No id found for '{itemType}'.", TraceLevel.Error);
 				return;
@@ -196,17 +188,17 @@ namespace Corruption
 		public static int CountChestItem(int x, int y, int itemId, byte prefix = 0)
 		{
 			var chestId = Chest.FindChest(x, y - 1);
-			if( chestId == -1 )
+			if (chestId == -1)
 			{
 				return 0;
 			}
 
 			var count = 0;
 			var chest = Main.chest[chestId];
-			for( var i = 0; i < Chest.maxItems; i++ )
+			for (var i = 0; i < Chest.maxItems; i++)
 			{
 				var item = chest.item[i];
-				if( item.netID == itemId && item.prefix == prefix )
+				if (item.netID == itemId && item.prefix == prefix)
 				{
 					//Debug.Print($"Stack: {item.stack}");
 					count += item.stack;
@@ -228,7 +220,7 @@ namespace Corruption
 		{
 			var id = ItemFunctions.GetItemIdFromName(itemType);
 
-			if( id == null )
+			if (id == null)
 				return 0;
 
 			return CountChestItem(x, y, (int)id, prefix);
@@ -246,15 +238,15 @@ namespace Corruption
 		{
 			var results = new List<int>();
 
-			for( var i = 0; i < Main.chest.Length; i++ )
+			for (var i = 0; i < Main.chest.Length; i++)
 			{
 				var chest = Main.chest[i];
 
-				if( chest != null )
+				if (chest != null)
 				{
-					if( chest.x >= xMin && chest.x <= xMax )
+					if (chest.x >= xMin && chest.x <= xMax)
 					{
-						if( chest.y >= yMin && chest.y <= yMax )
+						if (chest.y >= yMin && chest.y <= yMax)
 						{
 							results.Add(i);
 						}
@@ -277,12 +269,12 @@ namespace Corruption
 		{
 			var results = FindChests(xMin, yMin, xMax, yMax);
 
-			for( var i = 0; i < results.Count; i++ )
+			for (var i = 0; i < results.Count; i++)
 			{
 				var chestId = results[i];
 				var chest = Main.chest[chestId];
 
-				if( chest != null ) // we have to offset y + 1... because this whole thing is madness. Thats why >_<
+				if (chest != null) // we have to offset y + 1... because this whole thing is madness. Thats why >_<
 					results[i] = DestroyChest(chest.x, chest.y + 1) ? results[i] : -1;
 				else
 					results[i] = -1;//we never removed this chest, mark its id as failure/invalid.

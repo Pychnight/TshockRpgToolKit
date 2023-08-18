@@ -1,11 +1,7 @@
 ﻿using CustomQuests.Quests;
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
 
 namespace CustomQuests.Triggers
 {
@@ -15,7 +11,7 @@ namespace CustomQuests.Triggers
 		int amount;
 		HashSet<string> npcTypes;
 		//Rectangle releaseArea; //because Triggers are composable, we dont have a need for release area right now... TBD.
-		
+
 		public ReleaseNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes)
 		{
 			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
@@ -41,7 +37,7 @@ namespace CustomQuests.Triggers
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 			{
 				CustomQuestsPlugin.Instance.ReleaseNpc -= onReleaseNpc;
 			}
@@ -50,20 +46,17 @@ namespace CustomQuests.Triggers
 		}
 
 		/// <inheritdoc />
-		protected override void Initialize()
-		{
-			CustomQuestsPlugin.Instance.ReleaseNpc += onReleaseNpc;
-		}
+		protected override void Initialize() => CustomQuestsPlugin.Instance.ReleaseNpc += onReleaseNpc;
 
 		private void onReleaseNpc(object sender, ReleaseNpcEventArgs e)
 		{
-			if( partyMembers.Any(m => m.IsValidMember && m.Index == e.PlayerIndex) )
+			if (partyMembers.Any(m => m.IsValidMember && m.Index == e.PlayerIndex))
 			{
-				if( npcTypes != null )
+				if (npcTypes != null)
 				{
 					var name = GetNPCName((int)e.NpcType);
-					
-					if( !string.IsNullOrWhiteSpace(name) && npcTypes.Contains(name) )
+
+					if (!string.IsNullOrWhiteSpace(name) && npcTypes.Contains(name))
 					{
 						amount--;
 					}
@@ -75,9 +68,6 @@ namespace CustomQuests.Triggers
 			}
 		}
 
-		protected internal override TriggerStatus UpdateImpl()
-		{
-			return amount < 1 ? TriggerStatus.Success : TriggerStatus.Running;
-		}
+		protected internal override TriggerStatus UpdateImpl() => amount < 1 ? TriggerStatus.Success : TriggerStatus.Running;
 	}
 }

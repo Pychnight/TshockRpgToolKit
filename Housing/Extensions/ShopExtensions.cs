@@ -18,13 +18,10 @@ namespace Housing
 		/// <param name="delay"></param>
 		public static void TryShowStock(this Shop shop, TSPlayer player, int delay)
 		{
-			if(delay<0)
+			if (delay < 0)
 				delay = 0;
 
-			Task.Delay(delay).ContinueWith(t =>
-			{
-				TryShowStock(shop, player);
-			});
+			Task.Delay(delay).ContinueWith(t => TryShowStock(shop, player));
 		}
 
 		/// <summary>
@@ -34,17 +31,17 @@ namespace Housing
 		/// <param name="player">Player</param>
 		public static void TryShowStock(this Shop shop, TSPlayer player)
 		{
-			if( player == null )
+			if (player == null)
 				return;
 
-			if( !shop.IsOpen )
+			if (!shop.IsOpen)
 			{
 				Debug.WriteLine($"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
 				player.SendErrorMessage("This shop is closed.");
 				return;
 			}
 
-			if( shop.IsBeingChanged )
+			if (shop.IsBeingChanged)
 			{
 				Debug.WriteLine($"DEBUG: {player.Name} tried to view shop at {shop.ChestX}, {shop.ChestY}");
 				player.SendErrorMessage("This shop is being changed right now.");
@@ -61,20 +58,20 @@ namespace Housing
 		/// <param name="player">Player</param>
 		public static void ShowStock(this Shop shop, TSPlayer player)
 		{
-			if( player == null )
+			if (player == null)
 				return;
 
 			player.SendInfoMessage("Current stock:");
 			var sb = new StringBuilder();
-			for( var i = 0; i < Chest.maxItems; ++i )
+			for (var i = 0; i < Chest.maxItems; ++i)
 			{
 				var shopItem = shop.Items.FirstOrDefault(si => si.Index == i);
-				if( shopItem?.StackSize > 0 )
+				if (shopItem?.StackSize > 0)
 				{
 					sb.Append(
 						$"[{i + 1}:[i/s{shopItem.StackSize},p{shopItem.PrefixId}:{shopItem.ItemId}]] ");
 				}
-				if( ( i + 1 ) % 10 == 0 && sb.Length > 0 )
+				if ((i + 1) % 10 == 0 && sb.Length > 0)
 				{
 					player.SendInfoMessage(sb.ToString());
 					sb.Clear();

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Banking.Database
+﻿namespace Banking.Database
 {
 	public class DatabaseFactory
 	{
@@ -12,7 +6,7 @@ namespace Banking.Database
 		{
 			IDatabase db = null;
 
-			switch( databaseType )
+			switch (databaseType)
 			{
 				case "redis":
 					db = new RedisDatabase(connectionString);

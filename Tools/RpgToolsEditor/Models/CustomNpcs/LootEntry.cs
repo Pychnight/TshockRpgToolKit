@@ -1,8 +1,7 @@
-﻿using System;
-using System.ComponentModel;
-//using Corruption.PluginSupport;
+﻿//using Corruption.PluginSupport;
 using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
+using System.ComponentModel;
 //using Terraria.ID;
 
 namespace RpgToolsEditor.Models.CustomNpcs
@@ -73,10 +72,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			Prefix = other.Prefix;
 			Chance = other.Chance;
 		}
-		
-		public object Clone()
-		{
-			return new LootEntry(this);
-		}
+
+		public object Clone() => new LootEntry(this);
 	}
 }

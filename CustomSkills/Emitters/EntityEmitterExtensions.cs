@@ -1,10 +1,6 @@
 ﻿using CustomNpcs.Projectiles;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomSkills
 {
@@ -12,13 +8,13 @@ namespace CustomSkills
 	{
 		public static void Update(this IEnumerable<EntityEmitter> emitters)
 		{
-			foreach(var e in emitters)
+			foreach (var e in emitters)
 				e.Update();
 		}
 
 		public static void Destroy(this IEnumerable<EntityEmitter> emitters)
 		{
-			foreach(var e in emitters)
+			foreach (var e in emitters)
 				e.Destroy();
 		}
 
@@ -26,19 +22,19 @@ namespace CustomSkills
 		{
 			var emitPos = emitter.Position + emitter.EmitOffset;
 			var unitDir = Vector2.Zero;
-			
-			if(emitter.UseRelativeTarget)
+
+			if (emitter.UseRelativeTarget)
 			{
 				//must treat target as relative to our EmitPos..
-				unitDir = emitter.Target; 
+				unitDir = emitter.Target;
 			}
 			else
 			{
 				unitDir = emitter.Target - emitPos;
 			}
-			
+
 			unitDir.Normalize();
-			
+
 			var emitVel = unitDir * emitter.EmitVelocity;
 
 			return emitter.SpawnCustomProjectile(projectileName, emitPos.X, emitPos.Y, emitVel.X, emitVel.Y);

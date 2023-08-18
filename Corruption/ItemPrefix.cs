@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Corruption
+﻿namespace Corruption
 {
 	//from https://tshock.readme.io/v4.3.25/docs/slot-indexes
 	public enum ItemPrefix

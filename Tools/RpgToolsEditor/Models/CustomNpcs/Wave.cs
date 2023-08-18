@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using Newtonsoft.Json;
-using RpgToolsEditor.Controls;
 using Wexman.Design;
 
 namespace RpgToolsEditor.Models.CustomNpcs
-{ 
+{
 	/// <summary>
 	///     Represents a wave definition.
 	/// </summary>
@@ -34,7 +32,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		/// <summary>
 		///     Gets the NPC weights.
 		/// </summary>
-		[Editor(typeof(GenericDictionaryEditor<string,int>), typeof(System.Drawing.Design.UITypeEditor))]
+		[Editor(typeof(GenericDictionaryEditor<string, int>), typeof(System.Drawing.Design.UITypeEditor))]
 		[JsonProperty(Order = 1)]
 		public Dictionary<string, int> NpcWeights { get; set; } = new Dictionary<string, int>();
 
@@ -67,7 +65,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		/// </summary>
 		[JsonProperty(Order = 6)]
 		public string Miniboss { get; set; }
-		
+
 		public Wave()
 		{
 		}
@@ -84,15 +82,10 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			Name = other.Name;
 		}
 
-		public override string ToString()
-		{
+		public override string ToString() =>
 			//return $"Wave: \"{StartMessage}\"";
-			return Name;
-		}
+			Name;
 
-		public object Clone()
-		{
-			return new Wave(this);
-		}
+		public object Clone() => new Wave(this);
 	}
 }

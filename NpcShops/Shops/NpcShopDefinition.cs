@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Corruption.PluginSupport;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Corruption.PluginSupport;
-using Newtonsoft.Json;
 
 namespace NpcShops.Shops
 {
-    /// <summary>
-    ///     Represents an NPC shop definition.
-    /// </summary>
+	/// <summary>
+	///     Represents an NPC shop definition.
+	/// </summary>
 	[JsonObject(MemberSerialization.OptIn)]
-    public class NpcShopDefinition : IValidator
-    {
+	public class NpcShopDefinition : IValidator
+	{
 		/// <summary>
 		///     Gets the opening time.
 		/// </summary>
@@ -23,13 +23,13 @@ namespace NpcShops.Shops
 		///     Gets the closing time.
 		/// </summary>
 		[JsonProperty(Order = 2)]
-        public string ClosingTime { get; private set; }
+		public string ClosingTime { get; private set; }
 
-        /// <summary>
-        ///     Gets the message.
-        /// </summary>
-        [JsonProperty(Order = 3)]
-        public string Message { get; private set; }
+		/// <summary>
+		///     Gets the message.
+		/// </summary>
+		[JsonProperty(Order = 3)]
+		public string Message { get; private set; }
 
 		/// <summary>
 		///     Gets the closed message.
@@ -74,7 +74,7 @@ namespace NpcShops.Shops
 		/// </summary>
 		[JsonProperty(Order = 10)]
 		public IList<ShopCommandDefinition> ShopCommands { get; private set; } = new List<ShopCommandDefinition>();
-				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -92,12 +92,12 @@ namespace NpcShops.Shops
 
 				return result;
 			}
-			catch( JsonReaderException jrex )
+			catch (JsonReaderException jrex)
 			{
 				NpcShopsPlugin.Instance.LogPrint($"A json error occured while trying to load NpcShop {filePath}.", TraceLevel.Error);
 				NpcShopsPlugin.Instance.LogPrint(jrex.Message, TraceLevel.Error);
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				NpcShopsPlugin.Instance.LogPrint($"An error occured while trying to load NpcShop {filePath}.", TraceLevel.Error);
 				NpcShopsPlugin.Instance.LogPrint(ex.Message, TraceLevel.Error);
@@ -112,21 +112,21 @@ namespace NpcShops.Shops
 		{
 			var result = new ValidationResult(this);
 
-			if(OverrideNpcTypes==null || OverrideNpcTypes.Count<1)
+			if (OverrideNpcTypes == null || OverrideNpcTypes.Count < 1)
 				result.Warnings.Add(new ValidationWarning($"OverrideNpcTypes is null or empty. This shop will never be used."));
-			
-			if ((ShopItems==null || ShopItems.Count == 0) &&
-				(ShopCommands==null || ShopCommands.Count == 0))
+
+			if ((ShopItems == null || ShopItems.Count == 0) &&
+				(ShopCommands == null || ShopCommands.Count == 0))
 				result.Warnings.Add(new ValidationWarning($"There are no ShopItems or ShopCommands defined. This shop can never sell anything."));
-			
-			if(ShopItems.Count>0)
+
+			if (ShopItems.Count > 0)
 			{
 				//copy each item error and warning 
-				for(var i=0;i<ShopItems.Count;i++)
+				for (var i = 0; i < ShopItems.Count; i++)
 				{
 					var item = ShopItems[i];
-									   					 				  
-					if(item != null)
+
+					if (item != null)
 					{
 						var itemName = !string.IsNullOrWhiteSpace(item.ItemName) ? $" '{item.ItemName}'" : "";
 						var itemResult = item.Validate();

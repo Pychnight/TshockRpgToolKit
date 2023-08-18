@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TerrariaApi.Server;
 
 namespace Corruption.PluginSupport
@@ -16,17 +12,17 @@ namespace Corruption.PluginSupport
 		/// <param name="plugin"></param>
 		/// <param name="message"></param>
 		/// <param name="kind"></param>
-		public static void LogPrint(this TerrariaPlugin plugin, string message, TraceLevel kind = TraceLevel.Info )
+		public static void LogPrint(this TerrariaPlugin plugin, string message, TraceLevel kind = TraceLevel.Info)
 		{
 			try
 			{
 				//try safeguard against occasional NREs thrown on abrupt shutdown.
-				if(plugin == null)
+				if (plugin == null)
 					return;
 
 				ServerApi.LogWriter?.PluginWriteLine(plugin, message, kind);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Debug.Print(ex.ToString());
 			}
@@ -48,16 +44,16 @@ namespace Corruption.PluginSupport
 
 			if (warnings == 0 && errors == 0)
 				return;
-						
-			if (warnings>0)
+
+			if (warnings > 0)
 				traceLevel = TraceLevel.Warning;
 
-			if (errors>0)
+			if (errors > 0)
 				traceLevel = TraceLevel.Error;
 
-			if(validationResult.Source!=null)
+			if (validationResult.Source != null)
 				endPart = $" in {validationResult.Source.ToString()}.";
-						
+
 			plugin.LogPrint($"Found {errors} Errors, {warnings} Warnings{endPart}", traceLevel);
 
 			RecurseLogPrintValidationResult(plugin, validationResult);
@@ -67,10 +63,10 @@ namespace Corruption.PluginSupport
 		{
 			foreach (var err in validationResult.Errors)
 				plugin.LogPrint(err.ToString(), TraceLevel.Error);
-			
+
 			foreach (var warn in validationResult.Warnings)
 				plugin.LogPrint(warn.ToString(), TraceLevel.Warning);
-			
+
 			foreach (var ch in validationResult.Children)
 				RecurseLogPrintValidationResult(plugin, ch);
 		}

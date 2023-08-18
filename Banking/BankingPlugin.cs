@@ -3,8 +3,6 @@ using Banking.Rewards;
 using Banking.TileTracking;
 using Corruption;
 using Corruption.PluginSupport;
-using Microsoft.Xna.Framework;
-using OTAPI.Tile;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +10,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
@@ -29,7 +26,7 @@ namespace Banking
 		public override string Description => "A simple, banking and currency system for TShock.";
 		public override string Name => "Banking";
 		public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-		
+
 		internal static string DataDirectory { get; set; } = "banking";
 		internal static string ConfigPath => Path.Combine(DataDirectory, "config.json");
 
@@ -41,14 +38,14 @@ namespace Banking
 		/// Gets a Dictionary that records spawned NPC's starting hit points.
 		/// </summary>
 		/// <remarks>This is exposed publicly for BankingPlugin interaction.</remarks>
-		public ConcurrentDictionary<int,int> NpcSpawnHP { get; private set; }
+		public ConcurrentDictionary<int, int> NpcSpawnHP { get; private set; }
 		internal NpcStrikeTracker NpcStrikeTracker;
 		internal PlayerFishingTracker PlayerFishingTracker;
 		internal PlayerTileTracker PlayerTileTracker;
 		internal PlayingRewardTracker PlayerSessionTracker;
 		public RewardDistributor RewardDistributor { get; private set; }
 		internal VoteChecker VoteChecker { get; set; }
-				
+
 		public BankingPlugin(Main game) : base(game)
 		{
 			Instance = this;
@@ -57,7 +54,7 @@ namespace Banking
 		public override void Initialize()
 		{
 			GeneralHooks.ReloadEvent += OnReload;
-			
+
 			ServerApi.Hooks.GamePostInitialize.Register(this, OnPostInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnGameUpdate);
 			ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
@@ -67,7 +64,7 @@ namespace Banking
 			ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
 			ServerApi.Hooks.WorldSave.Register(this, OnWorldSave);
-									
+
 			Commands.ChatCommands.Add(new Command("banking.bank", BankCommands.Bank, "bank")
 			{
 				HelpText = $"Syntax: {Commands.Specifier}bank bal <currency>\n" +
@@ -92,16 +89,16 @@ namespace Banking
 				HelpText = $"Syntax: {Commands.Specifier}reward\n" +
 						   "Reward players if they vote for the server."
 			});
-			
+
 		}
-		
+
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 			{
 				//JsonConfig.Save(this, Config.Instance, ConfigPath);
 				//Bank.Save();
-				
+
 				GeneralHooks.ReloadEvent -= OnReload;
 				//	PlayerHooks.PlayerChat -= OnPlayerChat;
 				//	PlayerHooks.PlayerPermission -= OnPlayerPermission;
@@ -117,7 +114,7 @@ namespace Banking
 
 			base.Dispose(disposing);
 		}
-		
+
 		private void onLoad()
 		{
 			Config.Instance = JsonConfig.LoadOrCreate<Config>(this, ConfigPath);
@@ -125,8 +122,8 @@ namespace Banking
 			try
 			{
 				Debug.Print($"Loading Bank.");
-				
-				if( Bank == null )
+
+				if (Bank == null)
 				{
 					PlayerRewardNotificationDistributor = new PlayerRewardNotificationDistributor();
 					Bank = new Bank();
@@ -143,26 +140,17 @@ namespace Banking
 				NpcStrikeTracker.Clear();
 				Bank.Load();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				this.LogPrint(ex.ToString(), TraceLevel.Error);
 			}
 		}
 
-		private void OnPostInitialize(EventArgs args)
-		{
-			onLoad();
-		}
+		private void OnPostInitialize(EventArgs args) => onLoad();
 
-		private void OnReload(ReloadEventArgs e)
-		{
-			onLoad();
-		}
-		
-		private void OnWorldSave(WorldSaveEventArgs args)
-		{
-			BankAccount.PersistDirtyAccounts();
-		}
+		private void OnReload(ReloadEventArgs e) => onLoad();
+
+		private void OnWorldSave(WorldSaveEventArgs args) => BankAccount.PersistDirtyAccounts();
 
 		private void OnServerJoin(JoinEventArgs args)
 		{
@@ -179,17 +167,17 @@ namespace Banking
 
 		private void OnNetGetData(GetDataEventArgs args)
 		{
-			if( args.Handled )
+			if (args.Handled)
 				return;
 
-			switch(args.MsgID)
+			switch (args.MsgID)
 			{
 				case PacketTypes.Tile:
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var action = reader.ReadByte();
 
-						if(action>=0 && action<= 3)//0 kill, 1 place tile, 2 kill, 3 place wall
+						if (action >= 0 && action <= 3)//0 kill, 1 place tile, 2 kill, 3 place wall
 						{
 							var tileX = reader.ReadInt16();
 							var tileY = reader.ReadInt16();
@@ -205,26 +193,26 @@ namespace Banking
 							var player = TShock.Players[args.Msg.whoAmI];
 							TileSubTarget tileSubTarget;
 
-							if( action < 2 )
+							if (action < 2)
 								tileSubTarget = TileSubTarget.Tile;
 							else
-								tileSubTarget = TileSubTarget.Wall;	
+								tileSubTarget = TileSubTarget.Wall;
 
-							if( ( action==0 || action == 2) && var1 == 0 )
+							if ((action == 0 || action == 2) && var1 == 0)
 							{
 								var tile = Main.tile[tileX, tileY];
 
 								//kill tile
-								if(action==2 || tile.collisionType>0 ) //ignore grass
+								if (action == 2 || tile.collisionType > 0) //ignore grass
 								{
 									OnTileKilled(new TileChangedEventArgs(player, tileX, tileY, tile.type, tile.wall, tileSubTarget));
 									return;
 								}
 							}
-							else if(action==1 || action==3)// && var1 > 0)
+							else if (action == 1 || action == 3)// && var1 > 0)
 							{
 								//var1 should hold the type of the tile or wall we placed.
-								
+
 								//place tile
 								OnTilePlaced(new TileChangedEventArgs(player, tileX, tileY, (ushort)var1, (byte)var1, tileSubTarget));
 								return;
@@ -236,7 +224,7 @@ namespace Banking
 
 				case PacketTypes.PlayerDeathV2:
 					//based off of MarioE's original code from the Leveling plugin...
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var player = TShock.Players[args.Msg.whoAmI];
 
@@ -244,20 +232,20 @@ namespace Banking
 						var deathReason = PlayerDeathReason.FromReader(reader);
 						reader.ReadInt16();
 						reader.ReadByte();
-						var wasPvP = ( (BitsByte)reader.ReadByte() )[0];
-						if( wasPvP )
+						var wasPvP = ((BitsByte)reader.ReadByte())[0];
+						if (wasPvP)
 						{
 							var otherPlayer = deathReason.SourcePlayerIndex >= 0
 								? TShock.Players[deathReason.SourcePlayerIndex]
 								: null;
-							if( otherPlayer == player )
+							if (otherPlayer == player)
 							{
 								return;
 							}
 
-							if( otherPlayer != null )
+							if (otherPlayer != null)
 							{
-								var reward = new DeathReward(player.Name,RewardReason.DeathPvP, otherPlayer.Name);
+								var reward = new DeathReward(player.Name, RewardReason.DeathPvP, otherPlayer.Name);
 								RewardDistributor.EnqueueReward(reward);
 
 							}
@@ -276,11 +264,11 @@ namespace Banking
 					}
 
 					break;
-				
+
 				case PacketTypes.ProjectileNew:
 					//Debug.Print("ProjectileNew!");
 
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var projectileId = reader.ReadInt16();
 						reader.ReadSingle();
@@ -303,7 +291,7 @@ namespace Banking
 
 				case PacketTypes.ProjectileDestroy:
 					//Debug.Print("ProjectileDestroy!");
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var projectileId = reader.ReadInt16();
 						var ownerId = reader.ReadByte();
@@ -315,7 +303,7 @@ namespace Banking
 
 				case PacketTypes.PlayerSlot:
 					//Debug.Print("PlayerSlot!");
-					using( var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)) )
+					using (var reader = new BinaryReader(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length)))
 					{
 						var playerId = reader.ReadByte();
 						var slotId = reader.ReadByte();
@@ -323,21 +311,21 @@ namespace Banking
 						var prefix = reader.ReadByte();
 						var itemId = reader.ReadInt16();
 
-						if(PlayerFishingTracker.IsItemFromFishing(playerId))//, stack, prefix, itemId))
+						if (PlayerFishingTracker.IsItemFromFishing(playerId))//, stack, prefix, itemId))
 						{
 							var player = TShock.Players[args.Msg.whoAmI];
 							var reward = new FishingReward(player.Name, stack, prefix, itemId);
 							RewardDistributor.EnqueueReward(reward);
 						}
 					}
-					
+
 					break;
 
 				default:
 					break;
 			}
 		}
-		
+
 		private void OnGameUpdate(EventArgs args)
 		{
 			NpcStrikeTracker.OnGameUpdate();
@@ -346,7 +334,7 @@ namespace Banking
 			RewardDistributor.OnGameUpdate();
 			PlayerRewardNotificationDistributor.Send(400);
 		}
-		
+
 		private void OnNpcSpawn(NpcSpawnEventArgs args)
 		{
 			var npc = Main.npc[args.NpcId];
@@ -364,7 +352,7 @@ namespace Banking
 				//Debug.Print("** Regular set life.");
 				NpcSpawnHP[args.NpcId] = life;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Debug.Print(ex.ToString());
 			}
@@ -383,8 +371,8 @@ namespace Banking
 		{
 			//Debug.Print($"NpcKilled! #{args.npc.whoAmI} - {args.npc.GivenOrTypeName}");
 			//Debug.Print($"Value: {args.npc.value}");
-			
-			if(!NpcSpawnHP.TryGetValue(args.npc.whoAmI,out var spawnHp))
+
+			if (!NpcSpawnHP.TryGetValue(args.npc.whoAmI, out var spawnHp))
 			{
 				throw new Exception("Unable to retrieve NpcSpawnHP!");
 			}
@@ -393,16 +381,14 @@ namespace Banking
 			//NpcStrikeTracker.OnNpcKilled(args.npc);
 
 			Task.Run(() =>
-			{
 				//Debug.Print("Task.Run() => OnNpcKilled!");
-				NpcStrikeTracker.OnNpcKilled(args.npc, spawnHp);
-			});
+				NpcStrikeTracker.OnNpcKilled(args.npc, spawnHp));
 		}
 
 		private void OnStruckNpcKilled(object sender, StruckNpcKilledEventArgs args)
 		{
 			//Debug.Print("OnStruckNpcKilled!");
-		
+
 			var reward = new KillingReward(args.PlayerStrikeInfo, args.NpcGivenOrTypeName, args.NpcHitPoints, args.NpcSpawnedFromStatue);
 			RewardDistributor.EnqueueReward(reward);
 		}
@@ -412,23 +398,23 @@ namespace Banking
 			//Debug.Print("OnTileKilled!");
 
 			var player = args.Player;
-			
-			if(!CanBuild(args.TileX,args.TileY,player))
+
+			if (!CanBuild(args.TileX, args.TileY, player))
 			{
 				Debug.Print("Cannot build here.");
 				return;
 			}
 
-			if( !PlayerTileTracker.HasModifiedTile(player.Name,args.TileX,args.TileY))
+			if (!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
 			{
 				//ignore walls and grass.. this should be filtered already...
 				//if( tile.collisionType > 0 )
 				{
 					PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
-					if( player != null )
+					if (player != null)
 					{
-						var reward = new MiningReward(player, args.GetTypeOrWall() , args.TileSubTarget, RewardReason.Mining);
+						var reward = new MiningReward(player, args.GetTypeOrWall(), args.TileSubTarget, RewardReason.Mining);
 						RewardDistributor.EnqueueReward(reward);
 					}
 				}
@@ -436,24 +422,24 @@ namespace Banking
 			else
 				Debug.Print("Already destroyed.");
 		}
-		
+
 		private void OnTilePlaced(TileChangedEventArgs args)
 		{
 			//Debug.Print("OnTilePlaced!");
 
 			var player = args.Player;
-			
-			if( !CanBuild(args.TileX, args.TileY, player) )
+
+			if (!CanBuild(args.TileX, args.TileY, player))
 			{
 				Debug.Print("Cannot build here.");
 				return;
 			}
-			
-			if(!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
+
+			if (!PlayerTileTracker.HasModifiedTile(player.Name, args.TileX, args.TileY))
 			{
 				PlayerTileTracker.ModifyTile(player.Name, args.TileX, args.TileY);
 
-				if( args.Player != null )
+				if (args.Player != null)
 				{
 					var reward = new MiningReward(args.Player, args.GetTypeOrWall(), args.TileSubTarget, RewardReason.Placing);
 					RewardDistributor.EnqueueReward(reward);
@@ -465,32 +451,23 @@ namespace Banking
 
 		private bool CanBuild(int tileX, int tileY, TSPlayer player)
 		{
-			if( AreaFunctions.InSpawn(tileX, tileY) )
+			if (AreaFunctions.InSpawn(tileX, tileY))
 				return false;
-			
+
 			return TShock.Regions.CanBuild(tileX, tileY, player);
 		}
 
-		public BankAccount GetBankAccount(TSPlayer player, string accountType)
-		{
-			return Bank.GetBankAccount(player.Name,accountType);
-		}
+		public BankAccount GetBankAccount(TSPlayer player, string accountType) => Bank.GetBankAccount(player.Name, accountType);
 
-		public BankAccount GetBankAccount(string playerName, string accountType)
-		{
-			return Bank.GetBankAccount(playerName,accountType);
-		}
-		
+		public BankAccount GetBankAccount(string playerName, string accountType) => Bank.GetBankAccount(playerName, accountType);
+
 		public IEnumerable<BankAccount> GetAllBankAccountsForPlayer(string playerName)
 		{
 			var playerBankAccountMap = Bank[playerName];
 			return playerBankAccountMap?.ToList() ?? new List<BankAccount>();
 		}
 
-		public IEnumerable<CurrencyDefinition> EnumerateCurrencies()
-		{
-			return Bank.CurrencyManager.AsEnumerable();
-		}
+		public IEnumerable<CurrencyDefinition> EnumerateCurrencies() => Bank.CurrencyManager.AsEnumerable();
 
 		public bool TryGetCurrency(string currencyType, out CurrencyDefinition result)
 		{

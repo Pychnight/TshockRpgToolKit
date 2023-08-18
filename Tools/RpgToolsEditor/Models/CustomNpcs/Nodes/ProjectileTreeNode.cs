@@ -1,9 +1,4 @@
 ﻿using RpgToolsEditor.Controls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
@@ -32,7 +27,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 			return node;
 		}
-		
+
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
 			var result = node is ProjectileTreeNode ||
@@ -43,7 +38,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				AddSibling(draggedNode);
 

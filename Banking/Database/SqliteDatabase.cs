@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Mono.Data.Sqlite;
 using Terraria;
 using TShockAPI.DB;
 
@@ -20,7 +16,7 @@ namespace Banking.Database
 		{
 			ConnectionString = connectionString;
 
-			using(var con = new SqliteConnection(ConnectionString))
+			using (var con = new SqliteConnection(ConnectionString))
 			{
 				con.Query("CREATE TABLE IF NOT EXISTS BankAccounts (" +
 							"WorldId INTEGER," +
@@ -33,7 +29,7 @@ namespace Banking.Database
 
 		public void Create(BankAccount account)
 		{
-			using( var con = new SqliteConnection(ConnectionString) )
+			using (var con = new SqliteConnection(ConnectionString))
 			{
 				con.Query("INSERT INTO BankAccounts ( WorldId, OwnerName, Name, Balance ) " +
 							"VALUES ( @0, @1, @2, @3 )",
@@ -44,13 +40,13 @@ namespace Banking.Database
 		public void Create(IEnumerable<BankAccount> accounts)
 		{
 			//later use transaction
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Create(acc);
 		}
 
 		public void Delete(BankAccount account)
 		{
-			using( var con = new SqliteConnection(ConnectionString) )
+			using (var con = new SqliteConnection(ConnectionString))
 			{
 				con.Query("DELETE FROM BankAccounts " +
 							"WHERE WorldId=@0 AND OwnerName=@1 AND Name=@2",
@@ -61,13 +57,13 @@ namespace Banking.Database
 		public void Delete(IEnumerable<BankAccount> accounts)
 		{
 			//later use transaction
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Delete(acc);
 		}
-		
+
 		public void Update(BankAccount account)
 		{
-			using( var con = new SqliteConnection(ConnectionString) )
+			using (var con = new SqliteConnection(ConnectionString))
 			{
 				con.Query("UPDATE BankAccounts SET Balance = @0 " +
 							"WHERE WorldId=@1 AND OwnerName=@2 AND Name=@3",
@@ -78,7 +74,7 @@ namespace Banking.Database
 		public void Update(IEnumerable<BankAccount> accounts)
 		{
 			//later use transaction
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 				Update(acc);
 		}
 
@@ -86,9 +82,9 @@ namespace Banking.Database
 		{
 			var results = new List<BankAccount>();
 
-			using( var con = new SqliteConnection(ConnectionString))
+			using (var con = new SqliteConnection(ConnectionString))
 			{
-				using( var cmd = new SqliteCommand(con) )
+				using (var cmd = new SqliteCommand(con))
 				{
 					cmd.CommandText = "SELECT * FROM BankAccounts WHERE WorldId=@ID";
 					cmd.Parameters.Add("@ID", DbType.Int32);
@@ -96,11 +92,11 @@ namespace Banking.Database
 
 					con.Open();
 
-					using( var reader = cmd.ExecuteReader() )
+					using (var reader = cmd.ExecuteReader())
 					{
-						if(reader.HasRows)
+						if (reader.HasRows)
 						{
-							while(reader.Read())
+							while (reader.Read())
 							{
 								var ownerName = reader.GetString(1);
 								var name = reader.GetString(2);
@@ -113,13 +109,10 @@ namespace Banking.Database
 					}
 				}
 			}
-			
+
 			return results;
 		}
 
-		public void Save(IEnumerable<BankAccount> accounts)
-		{
-			Update(accounts);
-		}
+		public void Save(IEnumerable<BankAccount> accounts) => Update(accounts);
 	}
 }

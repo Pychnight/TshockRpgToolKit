@@ -1,11 +1,8 @@
-﻿using RpgToolsEditor.Controls;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 
 namespace RpgToolsEditor.Models.CustomNpcs
@@ -23,7 +20,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		[JsonProperty(Order = 0)]
 		public string Name
 		{
-			get { return name; }
+			get => name;
 			set
 			{
 				name = value;
@@ -41,7 +38,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		[Description("The Terraria Projectile type this Custom Projectile is based upon.")]
 		[JsonProperty(Order = 2)]
 		public int BaseType { get; set; }
-				
+
 		private ProjectileBaseOverride baseOverride = new ProjectileBaseOverride();
 
 		[Browsable(false)]
@@ -174,11 +171,8 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			ScriptPath = other.ScriptPath;
 			ProjectileBaseOverride = new ProjectileBaseOverride(other.ProjectileBaseOverride);
 		}
-		
-		object ICloneable.Clone()
-		{
-			return new Projectile(this);
-		}
+
+		object ICloneable.Clone() => new Projectile(this);
 	}
 
 	//[TypeConverter(typeof(ExpandableObjectConverter))]
@@ -251,7 +245,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public ProjectileBaseOverride(ProjectileBaseOverride other)
 		{
-			if( other == null )
+			if (other == null)
 				return;
 
 			AiStyle = other.AiStyle;
@@ -270,7 +264,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			TileCollide = other.TileCollide;
 			IgnoreWater = other.IgnoreWater;
 		}
-		
+
 		//public override string ToString()
 		//{
 		//	return "";

@@ -1,12 +1,5 @@
-﻿using Newtonsoft.Json;
-using RpgToolsEditor.Controls;
+﻿using RpgToolsEditor.Controls;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.Banking
@@ -69,15 +62,13 @@ namespace RpgToolsEditor.Models.Banking
 		//	return dstNode;
 		//}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) =>
 			//return node is CurrencyTreeNode;
-			return false;
-		}
+			false;
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				AddSibling(draggedNode);
 

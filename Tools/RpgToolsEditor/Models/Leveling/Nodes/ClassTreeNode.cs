@@ -1,10 +1,5 @@
 ﻿using RpgToolsEditor.Controls;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.Leveling
 {
@@ -24,11 +19,11 @@ namespace RpgToolsEditor.Models.Leveling
 			Model = model;
 
 			var levelsNode = new LevelsContainerTreeNode();
-			
+
 			//NpcShopCommandsContainerNode.Model = model.ShopCommands;
 			//NpcShopItemsContainerNode.Model = model.ShopItems;
 			Nodes.Add(levelsNode);
-			
+
 			levelsNode.AddChildModels(model.LevelDefinitions.Cast<IModel>().ToList());
 			//itemsNode.AddChildModels(model.ShopItems.Cast<IModel>().ToList());
 		}
@@ -48,14 +43,11 @@ namespace RpgToolsEditor.Models.Leveling
 		//	base.AddSibling(node);
 		//}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return node is ClassTreeNode;
-		}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) => node is ClassTreeNode;
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				AddSibling(draggedNode);
 
@@ -74,7 +66,7 @@ namespace RpgToolsEditor.Models.Leveling
 		//{
 		//	return base.Copy();
 		//}
-		
+
 		//public override void TryDropWithNoTarget(TreeView treeView)
 		//{
 		//	base.TryDropWithNoTarget(treeView);

@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models
 {
@@ -19,21 +14,15 @@ namespace RpgToolsEditor.Models
 		public string Value { get; set; }
 
 		public StringHolder() : this("") { }
-		
+
 		public StringHolder(string source)
 		{
 			Value = source;
 		}
 
-		public override string ToString()
-		{
-			return !string.IsNullOrWhiteSpace(Value) ? Value : "<Empty String>";
-		}
+		public override string ToString() => !string.IsNullOrWhiteSpace(Value) ? Value : "<Empty String>";
 
-		public object Clone()
-		{
-			return this.MemberwiseClone();
-		}
+		public object Clone() => this.MemberwiseClone();
 	}
 
 	/// <summary>
@@ -53,15 +42,9 @@ namespace RpgToolsEditor.Models
 			Value = source;
 		}
 
-		public override string ToString()
-		{
-			return !string.IsNullOrWhiteSpace(Value) ? Value : "<Empty Item String>";
-		}
+		public override string ToString() => !string.IsNullOrWhiteSpace(Value) ? Value : "<Empty Item String>";
 
-		public object Clone()
-		{
-			return this.MemberwiseClone();
-		}
+		public object Clone() => this.MemberwiseClone();
 	}
 
 	/// <summary>

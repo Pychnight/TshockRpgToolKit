@@ -1,12 +1,5 @@
-﻿using Banking.Currency;
-using Banking.TileTracking;
-using OTAPI.Tile;
-using System;
-using System.Collections.Generic;
+﻿using Banking.TileTracking;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Banking.Rewards
@@ -18,7 +11,7 @@ namespace Banking.Rewards
 	{
 		public TileSubTarget TileSubTarget { get; set; }
 		public ushort TileOrWallId { get; set; }
-				
+
 		public MiningReward(TSPlayer player, ushort tileOrWallId, TileSubTarget tileSubTarget, RewardReason rewardReason = RewardReason.Mining)
 		{
 			Debug.Assert(rewardReason == RewardReason.Mining || rewardReason == RewardReason.Placing,
@@ -36,7 +29,7 @@ namespace Banking.Rewards
 		{
 			decimal value;
 
-			if(RewardReason == RewardReason.Mining)
+			if (RewardReason == RewardReason.Mining)
 				value = currency.GetBaseMiningValue(TileOrWallId, TileSubTarget, PlayerGroup);
 			else
 				value = currency.GetBasePlacingValue(TileOrWallId, TileSubTarget, PlayerGroup);
@@ -47,7 +40,7 @@ namespace Banking.Rewards
 			//}
 
 			value *= (decimal)currency.Multiplier;
-						
+
 			return value;
 		}
 	}

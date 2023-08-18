@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using RpgToolsEditor.Controls;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Newtonsoft.Json;
-using System.Windows.Forms.Design;
 using System.ComponentModel;
-using RpgToolsEditor.Controls;
+using System.Linq;
+using System.Windows.Forms.Design;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
@@ -22,7 +15,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 	public sealed class Invasion : IModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
-		
+
 		string name = "New Invasion";
 
 		/// <summary>
@@ -32,7 +25,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		[JsonProperty(Order = 0)]
 		public string Name
 		{
-			get { return name; }
+			get => name;
 			set
 			{
 				name = value;
@@ -94,7 +87,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			ScriptPath = other.ScriptPath;
 
 			//make a copy function
-			NpcPointValues = new Dictionary<string,int>(other.NpcPointValues);
+			NpcPointValues = new Dictionary<string, int>(other.NpcPointValues);
 
 			CompletedMessage = other.CompletedMessage;
 			AtSpawnOnly = other.AtSpawnOnly;
@@ -103,10 +96,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			//make better copy function
 			Waves = other.Waves.Select(w => new Wave(w)).ToList();
 		}
-		
-		object ICloneable.Clone()
-		{
-			return new Invasion(this);
-		}
+
+		object ICloneable.Clone() => new Invasion(this);
 	}
 }

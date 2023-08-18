@@ -33,7 +33,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		{
 			var container = new WavesContainerTreeNode();
 
-			container.AddChildModels(( (Invasion)Model ).Waves.Cast<IModel>().ToList());
+			container.AddChildModels(((Invasion)Model).Waves.Cast<IModel>().ToList());
 
 			Nodes.Add(container);
 		}
@@ -58,7 +58,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				AddSibling(draggedNode);
 

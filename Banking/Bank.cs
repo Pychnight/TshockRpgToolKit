@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace Banking
@@ -26,9 +24,9 @@ namespace Banking
 		/// Gets the CurrencyManager.
 		/// </summary>
 		public CurrencyManager CurrencyManager { get; private set; }
-		
+
 		private Dictionary<string, PlayerBankAccountMap> playerAccountMaps;
-						
+
 		/// <summary>
 		/// Gets all BankAccounts linked to a player.
 		/// </summary>
@@ -46,14 +44,14 @@ namespace Banking
 		//scripting points
 		//private void ScriptHook(string playerName, CurrencyDefinition currency, ref decimal value, Reward reward)
 		internal Func<string, Reward, CurrencyDefinition, decimal, decimal> ScriptOnPreReward;
-		private Action<Bank,BalanceChangedEventArgs> scriptOnAccountDeposit;
-		private Action<Bank,BalanceChangedEventArgs> scriptOnAccountWithdraw;
+		private Action<Bank, BalanceChangedEventArgs> scriptOnAccountDeposit;
+		private Action<Bank, BalanceChangedEventArgs> scriptOnAccountWithdraw;
 
 		/// <summary>
 		/// Raised when a deposit into a BankAccount succeeds.
 		/// </summary>
 		public event EventHandler<BalanceChangedEventArgs> AccountDeposit;
-		
+
 		/// <summary>
 		/// Raised when a withdraw from a BankAccount succeeds.
 		/// </summary>
@@ -64,10 +62,10 @@ namespace Banking
 			CurrencyManager = new CurrencyManager();
 			playerAccountMaps = new Dictionary<string, PlayerBankAccountMap>();
 		}
-				
+
 		internal void InvokeAccountDeposit(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)
 		{
-			if( AccountDeposit != null || scriptOnAccountDeposit != null )
+			if (AccountDeposit != null || scriptOnAccountDeposit != null)
 			{
 				var args = new BalanceChangedEventArgs(bankAccount, ref newBalance, ref previousBalance);
 				AccountDeposit?.Invoke(this, args);
@@ -76,16 +74,16 @@ namespace Banking
 				{
 					scriptOnAccountDeposit?.Invoke(this, args);
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
-					BankingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);	
+					BankingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 				}
 			}
 		}
 
 		internal void InvokeAccountWithdraw(BankAccount bankAccount, ref decimal newBalance, ref decimal previousBalance)
 		{
-			if( AccountWithdraw != null || scriptOnAccountWithdraw != null )
+			if (AccountWithdraw != null || scriptOnAccountWithdraw != null)
 			{
 				var args = new BalanceChangedEventArgs(bankAccount, ref newBalance, ref previousBalance);
 				AccountWithdraw?.Invoke(this, args);
@@ -94,7 +92,7 @@ namespace Banking
 				{
 					scriptOnAccountWithdraw?.Invoke(this, args);
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					BankingPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 				}
@@ -111,23 +109,23 @@ namespace Banking
 
 			playerAccountMaps.Clear();
 
-			if(!string.IsNullOrWhiteSpace(Config.Instance.ScriptPath) )
-				LoadScripts(Path.Combine(BankingPlugin.DataDirectory,Config.Instance.ScriptPath));
-						
+			if (!string.IsNullOrWhiteSpace(Config.Instance.ScriptPath))
+				LoadScripts(Path.Combine(BankingPlugin.DataDirectory, Config.Instance.ScriptPath));
+
 			var cfg = Config.Instance.Database;
-			
+
 			//Database = new SqliteDatabase(Config.Instance.Database.ConnectionString);
 			//Database = DatabaseFactory.LoadOrCreateDatabase("mysql", "Server=localhost;Database=db_banking;Uid=xxx;Pwd=xxx;");
 			//Database = DatabaseFactory.LoadOrCreateDatabase("redis", "localhost:6379");
 			Database = DatabaseFactory.LoadOrCreateDatabase(cfg.DatabaseType, cfg.ConnectionString);
-			
+
 			var accounts = Database.Load();
 
-			foreach( var acc in accounts )
+			foreach (var acc in accounts)
 			{
 				PlayerBankAccountMap playerAccounts = null;
 
-				if(!playerAccountMaps.TryGetValue(acc.OwnerName,out playerAccounts))
+				if (!playerAccountMaps.TryGetValue(acc.OwnerName, out playerAccounts))
 				{
 					playerAccounts = new PlayerBankAccountMap(acc.OwnerName);
 					playerAccountMaps.Add(acc.OwnerName, playerAccounts);
@@ -138,9 +136,9 @@ namespace Banking
 
 			EnsureBankAccountsExist(TSPlayer.Server.Name);
 
-			foreach(var player in TShock.Players)
+			foreach (var player in TShock.Players)
 			{
-				if(player?.IsLoggedIn == true) // && player?.Active == true)
+				if (player?.IsLoggedIn == true) // && player?.Active == true)
 				{
 					EnsureBankAccountsExist(player.Name);
 				}
@@ -151,18 +149,18 @@ namespace Banking
 		{
 			const string assemblyPrefix = "Banking_";
 
-			if( string.IsNullOrWhiteSpace(scriptPath) )
+			if (string.IsNullOrWhiteSpace(scriptPath))
 			{
 				return;
 			}
 
-			if( !File.Exists(scriptPath) )
+			if (!File.Exists(scriptPath))
 			{
 				BankingPlugin.Instance.LogPrint($"Unable to find script file '{scriptPath}'.", TraceLevel.Error);
 				return;
 			}
-			
-			var scriptName = Path.GetFileNameWithoutExtension(scriptPath);		
+
+			var scriptName = Path.GetFileNameWithoutExtension(scriptPath);
 			var assemblyName = $"{assemblyPrefix}{scriptName}.dll";
 			var scripts = new List<string>() { scriptPath };
 			var compiler = new BooScriptCompiler();
@@ -172,12 +170,12 @@ namespace Banking
 								ScriptHelpers.GetEnsuredMethodSignatures());
 			var context = compiler.Compile(assemblyName, scripts);
 
-			if(context.Errors.Count>0)
+			if (context.Errors.Count > 0)
 			{
 				BankingPlugin.Instance.LogPrintBooErrors(context);
 				return;
 			}
-			else if(context.Warnings.Count>0)
+			else if (context.Warnings.Count > 0)
 			{
 				BankingPlugin.Instance.LogPrintBooWarnings(context);
 			}
@@ -185,7 +183,7 @@ namespace Banking
 			var ass = context.GeneratedAssembly;
 			var linker = new BooModuleLinker(ass, scriptPath);
 
-			ScriptOnPreReward = linker.TryCreateDelegate<Func<string,Reward,CurrencyDefinition,decimal,decimal>>("OnPreReward");
+			ScriptOnPreReward = linker.TryCreateDelegate<Func<string, Reward, CurrencyDefinition, decimal, decimal>>("OnPreReward");
 			scriptOnAccountDeposit = linker.TryCreateDelegate<Action<Bank, BalanceChangedEventArgs>>("OnAccountDeposit");
 			scriptOnAccountWithdraw = linker.TryCreateDelegate<Action<Bank, BalanceChangedEventArgs>>("OnAccountWithdraw");
 		}
@@ -199,29 +197,29 @@ namespace Banking
 			//Database.Save(bankAccounts.Values.ToArray());
 			throw new NotImplementedException("This method is for future expansion.");
 		}
-		
+
 		/// <summary>
 		/// Ensures that a player has BankAccounts for each configured Currency.
 		/// </summary>
 		/// <param name="playerName"></param>
 		internal void EnsureBankAccountsExist(string playerName)
 		{
-			if( !playerAccountMaps.TryGetValue(playerName, out var playerAccountMap) )
+			if (!playerAccountMaps.TryGetValue(playerName, out var playerAccountMap))
 			{
 				Debug.Print($"Creating bank account map for user {playerName}...");
 				playerAccountMap = new PlayerBankAccountMap(playerName);
 				playerAccountMaps.Add(playerName, playerAccountMap);
 			}
-			
+
 			var currencyNames = CurrencyManager.Select(v => v.InternalName);
 			playerAccountMap.EnsureBankAccountNamesExist(currencyNames);
-			
+
 			//lets set/reset a default mapping from currency's to bank accounts for reward purposes. Anything subscribed to EnsuringPlayerAccounts event
 			//will have a chance to change the mapping again.
-			foreach(var name in currencyNames)
+			foreach (var name in currencyNames)
 				playerAccountMap.SetAccountNameOverride(name, name);
 		}
-		
+
 		/// <summary>
 		/// Tries to get the named BankAccount for the given player, if it exists.
 		/// </summary>
@@ -232,9 +230,9 @@ namespace Banking
 		{
 			BankAccount bankAccount = null;
 
-			if(playerAccountMaps.TryGetValue(playerName, out var accountMap))
+			if (playerAccountMaps.TryGetValue(playerName, out var accountMap))
 				bankAccount = accountMap.TryGetBankAccount(accountName);
-						
+
 			return bankAccount;
 		}
 

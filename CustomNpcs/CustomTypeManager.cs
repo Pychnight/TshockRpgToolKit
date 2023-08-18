@@ -1,6 +1,4 @@
-﻿using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.IO;
-using BooTS;
+﻿using BooTS;
 using Corruption.PluginSupport;
 using Newtonsoft.Json;
 using System;
@@ -8,8 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomNpcs
 {
@@ -43,25 +39,25 @@ namespace CustomNpcs
 		/// </summary>
 		/// <returns>IEnumerable of EnsuredMethodSignature.</returns>
 		protected abstract IEnumerable<EnsuredMethodSignature> GetEnsuredMethodSignatures();
-		
+
 		/// <summary>
 		/// Loads in json definition files, and attempts to compile and link to any related scripts.
 		/// </summary>
 		protected virtual void LoadDefinitions()
 		{
-			if(!File.Exists(ConfigPath))
+			if (!File.Exists(ConfigPath))
 			{
 				CustomNpcsPlugin.Instance.LogPrint($"Unable to find definition file, creating default file at {ConfigPath}.", TraceLevel.Warning);
-				SaveDefaultFile(ConfigPath);	
+				SaveDefaultFile(ConfigPath);
 			}
 
 			var include = DefinitionInclude.Load<TCustomType>(ConfigPath);
 			Definitions = DefinitionInclude.Flatten<TCustomType>(include);
-			
+
 			var rootResult = new ValidationResult(ConfigPath);
 			rootResult.Source = ConfigPath;
 
-			foreach(var def in Definitions)
+			foreach (var def in Definitions)
 			{
 				var name = "";
 				var result = def.Validate();
@@ -70,7 +66,7 @@ namespace CustomNpcs
 					name = $" - '{def.Name}'";
 
 				//result.Source = $"{def.FilePath}[{def.LineNumber},{def.LinePosition}]{name}";
-				
+
 				//CustomNpcsPlugin.Instance.LogPrint(result);
 				rootResult.Children.Add(result);
 			}
@@ -93,30 +89,30 @@ namespace CustomNpcs
 
 			newModuleManager.AssemblyNamePrefix = AssemblyNamePrefix;
 
-			foreach( var f in booScripts )
+			foreach (var f in booScripts)
 				newModuleManager.Add(f);
-			
+
 			Dictionary<string, CompilerContext> results = null;
 
-			if( ModuleManager != null )
+			if (ModuleManager != null)
 				results = newModuleManager.IncrementalCompile(ModuleManager);
 			else
 				results = newModuleManager.Compile();
-			
+
 			ModuleManager = newModuleManager;
 
 			var scriptedDefinitions = Definitions.Where(d => !string.IsNullOrWhiteSpace(d.ScriptPath));
 
-			foreach(var def in scriptedDefinitions)
+			foreach (var def in scriptedDefinitions)
 			{
 				var fileName = Path.Combine(BasePath, def.ScriptPath);
 
 				//if newly compile assembly, examine the context, and try to link to the new assembly
-				if( results.TryGetValue(fileName, out var context) )
+				if (results.TryGetValue(fileName, out var context))
 				{
 					var scriptAssembly = context.GeneratedAssembly;
 
-					if( scriptAssembly != null )
+					if (scriptAssembly != null)
 					{
 						var result = def.LinkToScriptAssembly(scriptAssembly);
 
@@ -128,7 +124,7 @@ namespace CustomNpcs
 				{
 					var scriptAssembly = ModuleManager[fileName];
 
-					if(scriptAssembly!=null)
+					if (scriptAssembly != null)
 					{
 						var result = def.LinkToScriptAssembly(scriptAssembly);
 
@@ -140,9 +136,9 @@ namespace CustomNpcs
 
 			definitionMap = new Dictionary<string, TCustomType>();
 
-			foreach(var def in Definitions)
+			foreach (var def in Definitions)
 				definitionMap.Add(def.Name.ToLowerInvariant(), def);
-			
+
 		}
 
 		public void ClearDefinitions()
@@ -181,7 +177,7 @@ namespace CustomNpcs
 			var array = new TCustomType[0];
 			var json = JsonConvert.SerializeObject(array);
 
-			File.WriteAllText(filePath,json);
+			File.WriteAllText(filePath, json);
 		}
 	}
 }

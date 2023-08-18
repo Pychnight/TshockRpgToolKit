@@ -1,5 +1,4 @@
 ﻿using Corruption.PluginSupport;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,25 +7,25 @@ using TShockAPI;
 
 namespace NpcShops.Shops
 {
-    /// <summary>
-    ///     Represents a shop command.
-    /// </summary>
-    public sealed class ShopCommand : ShopProduct
-    {
-        private readonly ShopCommandDefinition _definition;
+	/// <summary>
+	///     Represents a shop command.
+	/// </summary>
+	public sealed class ShopCommand : ShopProduct
+	{
+		private readonly ShopCommandDefinition _definition;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ShopCommand" /> class with the specified definition.
-        /// </summary>
-        /// <param name="definition">The definition, which must not be <c>null</c>.</param>
-        public ShopCommand(ShopCommandDefinition definition)
-        {
-            Debug.Assert(definition != null, "Definition must not be null.");
+		/// <summary>
+		///     Initializes a new instance of the <see cref="ShopCommand" /> class with the specified definition.
+		/// </summary>
+		/// <param name="definition">The definition, which must not be <c>null</c>.</param>
+		public ShopCommand(ShopCommandDefinition definition)
+		{
+			Debug.Assert(definition != null, "Definition must not be null.");
 
-            _definition = definition;
+			_definition = definition;
 
 			IsValid = TryResolvePricing(_definition.UnitPrice);
-			if(!IsValid)
+			if (!IsValid)
 			{
 				NpcShopsPlugin.Instance.LogPrint($"Unable to find Currency for ShopCommand {_definition.Name}, hiding item.", TraceLevel.Warning);
 			}
@@ -43,23 +42,20 @@ namespace NpcShops.Shops
 			RequiredItems.AddRange(items);
 		}
 
-        /// <summary>
-        ///     Gets the command.
-        /// </summary>
-        public string Command => _definition.Command;
+		/// <summary>
+		///     Gets the command.
+		/// </summary>
+		public string Command => _definition.Command;
 
-        /// <summary>
-        ///     Gets the name.
-        /// </summary>
-        public string Name => _definition.Name;
-		
+		/// <summary>
+		///     Gets the name.
+		/// </summary>
+		public string Name => _definition.Name;
+
 		/// <summary>
 		///     Restocks the shop command.
 		/// </summary>
-		public override void Restock()
-        {
-            StackSize = _definition.StackSize;
-        }
+		public override void Restock() => StackSize = _definition.StackSize;
 
 		/// <summary>
 		/// Allows a TSPlayer to run a command, regardless of permissions, while not being restricted to the Server player instance. 
@@ -87,5 +83,5 @@ namespace NpcShops.Shops
 			player.AwaitingTempPoint = fakePlayer.AwaitingTempPoint;
 			player.TempPoints = fakePlayer.TempPoints;
 		}
-    }
+	}
 }

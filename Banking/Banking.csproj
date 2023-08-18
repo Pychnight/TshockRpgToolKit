@@ -1,178 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <!-- Additional props and targets for RPGTools -->
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{89FAFFB0-5BFD-4548-876E-E863D2BE3E82}</ProjectGuid>
+    <TargetFramework>net6.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Banking</RootNamespace>
-    <AssemblyName>Banking</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyTitle>Banking</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup>
     <RpgToolsPropsPath>..\RpgTools.props</RpgToolsPropsPath>
     <RpgToolsTargetsPath>..\RpgTools.targets</RpgToolsTargetsPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <Import Project="$(RpgToolsPropsPath)" Condition="Exists('$(RpgToolsPropsPath)')" />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <!-- <OutputPath>bin\Debug\</OutputPath> -->
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <!-- <OutputPath>bin\Release\</OutputPath> -->
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Boo.Lang">
-      <HintPath>..\refs\boo-custom\Boo.Lang.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.CodeDom">
-      <HintPath>..\refs\boo-custom\Boo.Lang.CodeDom.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Compiler">
-      <HintPath>..\refs\boo-custom\Boo.Lang.Compiler.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Extensions">
-      <HintPath>..\refs\boo-custom\Boo.Lang.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Interpreter">
-      <HintPath>..\refs\boo-custom\Boo.Lang.Interpreter.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Parser">
-      <HintPath>..\refs\boo-custom\Boo.Lang.Parser.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.PatternMatching">
-      <HintPath>..\refs\boo-custom\Boo.Lang.PatternMatching.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Useful">
-      <HintPath>..\refs\boo-custom\Boo.Lang.Useful.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Protobuf, Version=3.5.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Protobuf.3.5.1\lib\net45\Google.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\refs\Mono.Data.Sqlite.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MySql.Data, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.Data.8.0.15\lib\net452\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="OTAPI">
-      <HintPath>..\refs\OTAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="StackExchange.Redis, Version=1.2.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\StackExchange.Redis.1.2.6\lib\net45\StackExchange.Redis.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Design" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="TerrariaServer">
-      <HintPath>..\refs\TerrariaServer.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="TShockAPI">
-      <HintPath>..\refs\TShockAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BalanceChangedEventArgs.cs" />
-    <Compile Include="BankAccount.cs" />
-    <Compile Include="Bank.cs" />
-    <Compile Include="Configuration\VotingConfig.cs" />
-    <Compile Include="Currency\GroupValueOverrides.cs" />
-    <Compile Include="Currency\RewardEventArgs.cs" />
-    <Compile Include="Currency\PriceInfo.cs" />
-    <Compile Include="Currency\ValueOverride.cs" />
-    <Compile Include="Currency\ValueOverrideList.cs" />
-    <Compile Include="PlayerFishingTracker.cs" />
-    <Compile Include="PlayerSessionTracker.cs" />
-    <Compile Include="Rewards\DeathReward.cs" />
-    <Compile Include="Rewards\FishingReward.cs" />
-    <Compile Include="Rewards\ItemKey.cs" />
-    <Compile Include="Rewards\KillingReward.cs" />
-    <Compile Include="Rewards\MiningReward.cs" />
-    <Compile Include="Rewards\PlayingReward.cs" />
-    <Compile Include="ScriptHelpers.cs" />
-    <Compile Include="TileTracking\TileSubTarget.cs" />
-    <Compile Include="Rewards\MultipleRewardBase.cs" />
-    <Compile Include="Rewards\RewardDistributor.cs" />
-    <Compile Include="Rewards\Reward.cs" />
-    <Compile Include="Rewards\PlayerRewardNotification.cs" />
-    <Compile Include="Rewards\PlayerRewardNotificationDistributor.cs" />
-    <Compile Include="Rewards\TileKey.cs" />
-    <Compile Include="TileTracking\PlayerTileTracker.cs" />
-    <Compile Include="TileTracking\TileAccessMap.cs" />
-    <Compile Include="VoteChecker.cs" />
-    <Compile Include="Rewards\VoteReward.cs" />
-    <Compile Include="Database\DatabaseFactory.cs" />
-    <Compile Include="Database\MySqlDatabase.cs" />
-    <Compile Include="Database\RedisDatabase.cs" />
-    <Compile Include="PlayerBankAccountMap.cs" />
-    <Compile Include="BankCommands.cs" />
-    <Compile Include="BankingPlugin.cs" />
-    <Compile Include="Currency\CurrencyRewardDefinition.cs" />
-    <Compile Include="Rewards\RewardReason.cs" />
-    <Compile Include="TileChangedEventArgs.cs" />
-    <Compile Include="Configuration\Config.cs" />
-    <Compile Include="Currency\CurrencyConverter.cs" />
-    <Compile Include="Currency\CurrencyDefinition.cs" />
-    <Compile Include="Currency\CurrencyManager.cs" />
-    <Compile Include="Currency\CurrencyQuadrant.cs" />
-    <Compile Include="Database\SqliteDatabase.cs" />
-    <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="WithdrawalMode.cs" />
-    <Compile Include="StrikeTracking\NpcStrikeTracker.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StrikeTracking\PlayerStrikeInfo.cs" />
-    <Compile Include="StrikeTracking\StrikeInfo.cs" />
-    <Compile Include="StrikeTracking\StruckNpcKilledEventArgs.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="docs\MySqlCommand.xml" />
@@ -188,21 +31,17 @@
     <Content Include="docs\MySqlTransaction.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BooTS\BooTS.csproj">
-      <Project>{a74d2d6c-99ab-465b-bc81-935b9139bfba}</Project>
-      <Name>BooTS</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Corruption\Corruption.csproj">
-      <Project>{be70224b-39c2-4274-bff6-4096fa664857}</Project>
-      <Name>Corruption</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Corruption\Corruption.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets" Condition="Exists('..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.Extension.Pack.1.9.1\build\net40\MSBuild.Extension.Pack.targets'))" />
-  </Target>
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.23.3" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.33" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.116" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
+    <PackageReference Include="System.Management" Version="8.0.0-preview.5.23280.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0-preview.5.23280.8" />
+  </ItemGroup>
 </Project>

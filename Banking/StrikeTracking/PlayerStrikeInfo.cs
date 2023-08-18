@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TShockAPI;
 
 namespace Banking
 {
@@ -17,13 +13,13 @@ namespace Banking
 
 		public void AddStrike(string playerName, int damage, int damageDefended, string itemName)
 		{
-			if( itemName == null )
+			if (itemName == null)
 				throw new Exception();
 
-			if( !ContainsKey(playerName) )
+			if (!ContainsKey(playerName))
 				Add(playerName, new StrikeInfo());
 
-			if( damage < 1 )
+			if (damage < 1)
 			{
 				//we only add damageDefended if we hurt the npc
 				damageDefended = 0;

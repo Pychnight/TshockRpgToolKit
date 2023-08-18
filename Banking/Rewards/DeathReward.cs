@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Banking.Rewards
 {
@@ -25,21 +22,21 @@ namespace Banking.Rewards
 		}
 
 		//we cant easily use bankAccount.TransferTo() here, hence why we've gone with an iterator
-		protected internal override IEnumerable<Tuple<string,decimal>> OnEvaluateMultiple(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
+		protected internal override IEnumerable<Tuple<string, decimal>> OnEvaluateMultiple(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
 			var rewardAccount = BankingPlugin.Instance.Bank.GetBankAccount(PlayerName, currency.InternalName);
 
-			if( RewardReason == RewardReason.Death )
+			if (RewardReason == RewardReason.Death)
 			{
 				var factor = 1.0m; // ( session.Class.DeathPenaltyMultiplierOverride ?? 1.0 );
 
 				decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyMultiplier * factor * rewardAccount.Balance,
 															(decimal)currency.DeathPenaltyMinimum), 2);
-				if( loss == 0.0m )
+				if (loss == 0.0m)
 					yield break;
 
 				loss = -loss;//this will cause a withdrawal
-				yield return new Tuple<string, decimal>(PlayerName,loss);
+				yield return new Tuple<string, decimal>(PlayerName, loss);
 			}
 			else //RewardReason.DeathPvP:
 			{
@@ -47,13 +44,13 @@ namespace Banking.Rewards
 				//decimal loss = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum));
 				decimal lossPvP = Math.Round(Math.Max((decimal)currency.DeathPenaltyPvPMultiplier * rewardAccount.Balance, (decimal)currency.DeathPenaltyMinimum), 2);
 
-				if( lossPvP == 0.0m )
+				if (lossPvP == 0.0m)
 					yield break;
 
-				if( string.IsNullOrWhiteSpace(OtherPlayerName) )//no info on other guy(?)
+				if (string.IsNullOrWhiteSpace(OtherPlayerName))//no info on other guy(?)
 				{
 					lossPvP = -lossPvP;//withdrawal
-					yield return new Tuple<string, decimal>(PlayerName,lossPvP);
+					yield return new Tuple<string, decimal>(PlayerName, lossPvP);
 				}
 				else
 				{
@@ -61,7 +58,7 @@ namespace Banking.Rewards
 
 					lossPvP = -lossPvP;//withdraw from dead player's account.
 					yield return new Tuple<string, decimal>(PlayerName, lossPvP);
-						
+
 					lossPvP = -lossPvP;//deposit into winning player's account.
 					yield return new Tuple<string, decimal>(OtherPlayerName, lossPvP);
 				}

@@ -1,13 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
 using TShockAPI;
+using TShockAPI.DB;
 
 namespace Corruption
 {
@@ -18,10 +16,7 @@ namespace Corruption
 		/// </summary>
 		/// <param name="message">The message string.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
-		public static void Broadcast(string message)
-		{
-			Broadcast(message, Color.White);
-		}
+		public static void Broadcast(string message) => Broadcast(message, Color.White);
 
 		/// <summary>
 		///     Broadcasts the specified message.
@@ -29,11 +24,11 @@ namespace Corruption
 		/// <param name="message">The message, which must not be <c>null</c>.</param>
 		/// <param name="color">The color.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
-		public static void Broadcast( string message, Color color)
+		public static void Broadcast(string message, Color color)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
-			
+
 			TShock.Utils.Broadcast(message, color);
 		}
 
@@ -45,11 +40,11 @@ namespace Corruption
 		/// <param name="g">The green component.</param>
 		/// <param name="b">The blue component.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="message" /> is <c>null</c>.</exception>
-		public static void Broadcast( string message, byte r, byte g, byte b)
+		public static void Broadcast(string message, byte r, byte g, byte b)
 		{
-			if( message == null )
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
-			
+
 			TShock.Utils.Broadcast(message, r, g, b);
 		}
 
@@ -64,8 +59,8 @@ namespace Corruption
 		{
 			if (message == null)
 				throw new ArgumentNullException(nameof(player));
-			
-			TShock.Utils.Ban(player, message, true, message2);
+
+			TShock.Bans.InsertBan($"{Identifier.Name}{player.Name}", message, TSPlayer.Server.Name, DateTime.UtcNow, DateTime.MaxValue);
 		}
 
 		/// <summary>
@@ -75,10 +70,7 @@ namespace Corruption
 		/// <param name="text"></param>
 		/// <param name="color"></param>
 		/// <param name="position"></param>
-		public static void CreateCombatText(TSPlayer player, string text, Color color, Vector2 position)
-		{
-			player.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
-		}
+		public static void CreateCombatText(TSPlayer player, string text, Color color, Vector2 position) => player.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
 
 		/// <summary>
 		/// Sends a combat text with the specified color and position to all players.
@@ -91,7 +83,7 @@ namespace Corruption
 		{
 			if (text == null)
 				throw new ArgumentNullException(nameof(text));
-			
+
 			TSPlayer.All.SendData((PacketTypes)119, text, (int)color.PackedValue, position.X, position.Y);
 		}
 
@@ -101,10 +93,7 @@ namespace Corruption
 		/// <param name="player"></param>
 		/// <param name="buffType"></param>
 		/// <param name="time"></param>
-		public static void SetPlayerBuff(TSPlayer player, int buffType, int time)
-		{
-			SetPlayerBuff(player, buffType, time, false);
-		}
+		public static void SetPlayerBuff(TSPlayer player, int buffType, int time) => SetPlayerBuff(player, buffType, time, false);
 
 		/// <summary>
 		/// Sets a players buff.
@@ -113,21 +102,18 @@ namespace Corruption
 		/// <param name="buffType"></param>
 		/// <param name="time"></param>
 		/// <param name="bypass"></param>
-		public static void SetPlayerBuff(TSPlayer player, int buffType, int time, bool bypass)
-		{
-			player.SetBuff(buffType, time, bypass);
-		}
+		public static void SetPlayerBuff(TSPlayer player, int buffType, int time, bool bypass) => player.SetBuff(buffType, time, bypass);
 
 		//we stripped attacker from calling functions for now, but in case it gets readded again later we keep it.
 		static PlayerDeathReason createPlayerDeathReason(object attacker, string reason)
 		{
-			if( string.IsNullOrWhiteSpace(reason) )
+			if (string.IsNullOrWhiteSpace(reason))
 				return PlayerDeathReason.LegacyDefault();
 			else
 			{
 				var result = new PlayerDeathReason();
 
-				result.SourceCustomReason = reason;
+				result._sourceCustomReason = reason;
 
 				//Disabled following when we created CorruptionLib, since it has no references to CustomNpcs, and the attacker field currently goes unused.
 				//will need to reinvestigate how to handle this best.
@@ -170,17 +156,12 @@ namespace Corruption
 		/// </summary>
 		/// <param name="player"></param>
 		/// <param name="hp"></param>
-		public static void HealPlayer(TSPlayer player, int hp)
-		{
+		public static void HealPlayer(TSPlayer player, int hp) =>
 			//send player life packet
 			TSPlayer.All.SendData(PacketTypes.PlayerHealOther, "", player.Index, hp);
-		}
 
-		public static void HurtPlayer(TSPlayer player, int damage, bool critical)
-		{
-			HurtPlayer(player, damage, critical, null);
-		}
-		
+		public static void HurtPlayer(TSPlayer player, int damage, bool critical) => HurtPlayer(player, damage, critical, null);
+
 		public static void HurtPlayer(TSPlayer player, int damage, bool critical, string deathReason)
 		{
 			var reason = createPlayerDeathReason(null, deathReason);
@@ -190,20 +171,17 @@ namespace Corruption
 			//player.TPlayer.Hurt(reason, damage, dir, false, false, critical);
 
 			//so we use what player.DamagePlayer(damage) does...
-			
+
 			//NetMessage.SendPlayerHurt(player.Index, reason, damage, 0, critical, false, 0, -1, -1);
 			NetMessage.SendPlayerHurt(player.Index, reason, damage, dir, critical, false, 0, -1, -1);
 		}
 
-		public static void KillPlayer(TSPlayer player)
-		{
-			KillPlayer(player, null);
-		}
+		public static void KillPlayer(TSPlayer player) => KillPlayer(player, null);
 
 		public static void KillPlayer(TSPlayer player, string deathReason) //, bool pvp = false)
 		{
 			var reason = createPlayerDeathReason(null, deathReason);
-			
+
 			//player.TPlayer.KillMe(reason, 99999, new Random().Next(-1, 1), false);
 			//player.KillPlayer();
 			NetMessage.SendPlayerDeath(player.Index, reason, 99999, new Random().Next(-1, 1), false, -1, -1);
@@ -211,27 +189,27 @@ namespace Corruption
 
 		public static void RadialHurtPlayer(int x, int y, int radius, int damage, float falloff, string deathReason)
 		{
-			if( radius < 1 )
+			if (radius < 1)
 				return;
 
 			var center = new Vector2(x, y);
 			//falloff = Math.Min(falloff, 1.0f);//clip to 1
 
-			foreach( var player in FindPlayersInRadius(x, y, radius) )
+			foreach (var player in FindPlayersInRadius(x, y, radius))
 			{
 				var pos = new Vector2(player.X, player.Y);
 				var delta = pos - center;
 				var dist = delta.LengthSquared();
-				var damageStep = dist / ( radius * radius );
+				var damageStep = dist / (radius * radius);
 
-				var adjustedDamage = damage * ( 1.0f - ( damageStep * falloff ) );
+				var adjustedDamage = damage * (1.0f - (damageStep * falloff));
 
-				if( adjustedDamage > 1 )
+				if (adjustedDamage > 1)
 				{
 					//player.DamagePlayer((int)adjustedDamage);
 					HurtPlayer(player, (int)adjustedDamage, false, deathReason);
 				}
-					
+
 
 				//...internally, DamagePlayer looks like this: 
 				//NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.LegacyDefault(), damage, new Random().Next(-1, 1), false, false, 0, -1, -1);
@@ -252,14 +230,14 @@ namespace Corruption
 			var results = new List<TSPlayer>();
 			var center = new Vector2(x, y);
 
-			foreach( var player in TShock.Players )
+			foreach (var player in TShock.Players)
 			{
-				if( player?.Active==true )
+				if (player?.Active == true)
 				{
 					var pos = new Vector2(player.X, player.Y);
 					var delta = pos - center;
 
-					if( delta.LengthSquared() <= ( radius * radius ) )
+					if (delta.LengthSquared() <= (radius * radius))
 						results.Add(player);
 				}
 			}
@@ -273,7 +251,7 @@ namespace Corruption
 			var player = TShock.Players.Where(n => n?.Name == name).SingleOrDefault();
 			return player;
 		}
-		
+
 		/// <summary>
 		/// Returns whether the topmost region at (x,y) contains a minimum amount of players.
 		/// </summary>
@@ -283,30 +261,30 @@ namespace Corruption
 		/// <returns></returns>
 		public static bool PlayerAmountInRegion(string regionName, int minAmount)
 		{
-			if( minAmount < 0 )
+			if (minAmount < 0)
 				return true;
 
 			var region = TShock.Regions.GetRegionByName(regionName);
 
-			if(region!=null)
+			if (region != null)
 			{
 				var activePlayers = TShock.Players.Where(p => p?.Active == true);
-				
-				foreach(var player in activePlayers)
+
+				foreach (var player in activePlayers)
 				{
-					if(region.InArea(player.TileX, player.TileY))
+					if (region.InArea(player.TileX, player.TileY))
 					{
 						minAmount--;
 
-						if( minAmount < 1 )
+						if (minAmount < 1)
 							break;
 					}
 				}
 			}
 
-			return minAmount<1;
+			return minAmount < 1;
 		}
-		
+
 		/// <summary>
 		/// Returns whether the minimum amount of players are currently connected and active.
 		/// </summary>
@@ -314,18 +292,18 @@ namespace Corruption
 		/// <returns></returns>
 		public static bool PlayerAmountConnected(int minAmount)
 		{
-			foreach(var p in TShock.Players)
+			foreach (var p in TShock.Players)
 			{
-				if( p.Active )
+				if (p.Active)
 				{
 					minAmount--;
 
-					if( minAmount < 1 )
+					if (minAmount < 1)
 						break;
 				}
 			}
 
-			return minAmount<1;
+			return minAmount < 1;
 		}
 
 		/// <summary>
@@ -334,10 +312,7 @@ namespace Corruption
 		/// <param name="player">TSPlayer instance.</param>
 		/// <param name="permissions">String params, or array of permission strings.</param>
 		/// <returns></returns>
-		public static bool PlayerHasPermission(TSPlayer player, params string[] permissions)
-		{
-			return PlayerHasPermission(player, permissions);
-		}
+		public static bool PlayerHasPermission(TSPlayer player, params string[] permissions) => PlayerHasPermission(player, permissions);
 
 		/// <summary>
 		/// Returns whether the player has all of the supplied permissions.
@@ -347,15 +322,15 @@ namespace Corruption
 		/// <returns></returns>
 		public static bool PlayerHasPermission(TSPlayer player, IEnumerable<string> permissions)
 		{
-			if(permissions==null) // || permissions.Length < 1 )
+			if (permissions == null) // || permissions.Length < 1 )
 				return false;
 
-			if(player == null )
+			if (player == null)
 				return false;
 
-			foreach( var perm in permissions )
+			foreach (var perm in permissions)
 			{
-				if( string.IsNullOrWhiteSpace(perm) || !player.HasPermission(perm) )
+				if (string.IsNullOrWhiteSpace(perm) || !player.HasPermission(perm))
 					return false;
 			}
 
@@ -372,9 +347,9 @@ namespace Corruption
 		{
 			var playerGroup = player.Group;
 
-			while( playerGroup != null )
+			while (playerGroup != null)
 			{
-				if( playerGroup.Name == group )
+				if (playerGroup.Name == group)
 					return true;
 
 				playerGroup = playerGroup.Parent;
@@ -391,12 +366,12 @@ namespace Corruption
 		/// <returns>True on success, false otherwise.</returns>
 		public static bool PlayerHasGroup(TSPlayer player, params string[] groups)
 		{
-			if( groups == null || groups.Length < 1 )
+			if (groups == null || groups.Length < 1)
 				return false;
-			
-			foreach(var g in groups)
+
+			foreach (var g in groups)
 			{
-				if( g!=null && !PlayerHasGroup(player, g) )
+				if (g != null && !PlayerHasGroup(player, g))
 					return false;
 			}
 

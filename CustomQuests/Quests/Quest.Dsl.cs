@@ -1,14 +1,8 @@
-﻿using CustomQuests.Quests;
-using CustomQuests.Triggers;
+﻿using CustomQuests.Triggers;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TShockAPI;
 
 namespace CustomQuests.Quests
 {
@@ -23,23 +17,14 @@ namespace CustomQuests.Quests
 		public Party party { get; internal set; }
 		public PartyMember leader => party.Leader;
 		public TeamManager teams => party.Teams;
-		
+
 		//the Delay methods have been ported to Corruption -- HOWEVER, quest scripts resolve to these versions, and should continue doing so
 		//since these versions make use of the QuestCancellationToken.
-		protected void Delay(int milliseconds)
-		{
-			Task.Delay(milliseconds,QuestCancellationToken).Wait();
-		}
+		protected void Delay(int milliseconds) => Task.Delay(milliseconds, QuestCancellationToken).Wait();
 
-		protected void Delay(TimeSpan timeSpan)
-		{
-			Task.Delay(timeSpan, QuestCancellationToken).Wait();
-		}
+		protected void Delay(TimeSpan timeSpan) => Task.Delay(timeSpan, QuestCancellationToken).Wait();
 
-		protected Task CreateTask(Action action)
-		{
-			return CreateTask(QuestCancellationToken, action);
-		}
+		protected Task CreateTask(Action action) => CreateTask(QuestCancellationToken, action);
 
 		protected Task CreateTask(CancellationToken cancellationToken, Action action)
 		{
@@ -47,14 +32,11 @@ namespace CustomQuests.Quests
 			return t;
 		}
 
-		protected bool IsCancellationRequested()
+		protected bool IsCancellationRequested() => QuestCancellationToken.IsCancellationRequested;
+
+		private void AddTrigger(Trigger trigger, CancellationToken cancellationToken)
 		{
-			return QuestCancellationToken.IsCancellationRequested;
-		}
-		
-		private void AddTrigger(Trigger trigger, CancellationToken cancellationToken )
-		{
-			if( trigger.Id != 0 )
+			if (trigger.Id != 0)
 				throw new InvalidOperationException("Trigger has already been used.");
 
 			trigger.Id = nextTriggerId++;
@@ -62,13 +44,13 @@ namespace CustomQuests.Quests
 			//{
 			//	trigger.Signal.Wait(cancellationToken);
 			//}, cancellationToken);
-			
+
 			trigger.Task = Task.Factory.StartNew(() =>
 			{
 				trigger.Signal.Wait(cancellationToken);
 				return trigger.Status;
 			}, cancellationToken, TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
-						
+
 			triggers.TryAdd(trigger.Id, trigger);
 		}
 
@@ -77,7 +59,7 @@ namespace CustomQuests.Quests
 			var tasks = new Task<TriggerStatus>[triggers.Length];
 			var i = 0;
 
-			foreach( var trigger in triggers )
+			foreach (var trigger in triggers)
 			{
 				AddTrigger(trigger, cancellationToken);
 				tasks[i++] = trigger.Task;
@@ -86,63 +68,39 @@ namespace CustomQuests.Quests
 			return tasks;
 		}
 
-		protected bool TriggerWaitAll(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)
-		{
-			return TriggerWaitAll((int)timeout.TotalMilliseconds, cancellationToken, triggers);
-		}
+		protected bool TriggerWaitAll(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers) => TriggerWaitAll((int)timeout.TotalMilliseconds, cancellationToken, triggers);
 
 		protected bool TriggerWaitAll(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
 		{
 			var tasks = AddTrigger(triggers, cancellationToken);
 			var result = Task.WaitAll(tasks, timeoutMilliseconds, cancellationToken);
 
-			if( result && tasks.All(t => t.Result == TriggerStatus.Success) )
+			if (result && tasks.All(t => t.Result == TriggerStatus.Success))
 				return true;
 			else
 				return false;
 		}
 
-		protected bool TriggerWaitAll(TimeSpan timeout, params Trigger[] triggers)
-		{
-			return TriggerWaitAll((int)timeout.TotalMilliseconds, triggers);
-		}
+		protected bool TriggerWaitAll(TimeSpan timeout, params Trigger[] triggers) => TriggerWaitAll((int)timeout.TotalMilliseconds, triggers);
 
-		protected bool TriggerWaitAll(int timeoutMilliseconds, params Trigger[] triggers)
-		{
-			return TriggerWaitAll(timeoutMilliseconds, QuestCancellationToken, triggers);
-		}
+		protected bool TriggerWaitAll(int timeoutMilliseconds, params Trigger[] triggers) => TriggerWaitAll(timeoutMilliseconds, QuestCancellationToken, triggers);
 
-		protected bool TriggerWaitAll(params Trigger[] triggers)
-		{
-			return TriggerWaitAll(-1, triggers);
-		}
-		
+		protected bool TriggerWaitAll(params Trigger[] triggers) => TriggerWaitAll(-1, triggers);
+
 		protected int TriggerWaitAny(int timeoutMilliseconds, CancellationToken cancellationToken, params Trigger[] triggers)
 		{
 			var tasks = AddTrigger(triggers, cancellationToken);
 			var waitResult = Task.WaitAny(tasks, timeoutMilliseconds, cancellationToken);
-			
+
 			return waitResult;
 		}
 
-		protected int TriggerWaitAny(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers)
-		{
-			return TriggerWaitAny((int)timeout.TotalMilliseconds, cancellationToken, triggers);
-		}
+		protected int TriggerWaitAny(TimeSpan timeout, CancellationToken cancellationToken, params Trigger[] triggers) => TriggerWaitAny((int)timeout.TotalMilliseconds, cancellationToken, triggers);
 
-		protected int TriggerWaitAny(int timeoutMilliseconds, params Trigger[] triggers)
-		{
-			return TriggerWaitAny(timeoutMilliseconds, QuestCancellationToken, triggers);
-		}
+		protected int TriggerWaitAny(int timeoutMilliseconds, params Trigger[] triggers) => TriggerWaitAny(timeoutMilliseconds, QuestCancellationToken, triggers);
 
-		protected int TriggerWaitAny(TimeSpan timeout, params Trigger[] triggers)
-		{
-			return TriggerWaitAny((int)timeout.TotalMilliseconds, triggers);
-		}
+		protected int TriggerWaitAny(TimeSpan timeout, params Trigger[] triggers) => TriggerWaitAny((int)timeout.TotalMilliseconds, triggers);
 
-		protected int TriggerWaitAny(params Trigger[] triggers)
-		{
-			return TriggerWaitAny(-1, triggers);
-		}
+		protected int TriggerWaitAny(params Trigger[] triggers) => TriggerWaitAny(-1, triggers);
 	}
 }

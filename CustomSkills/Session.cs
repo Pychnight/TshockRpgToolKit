@@ -6,9 +6,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 
 namespace CustomSkills
@@ -20,12 +17,12 @@ namespace CustomSkills
 	public class Session
 	{
 		internal static ConcurrentDictionary<string, Session> ActiveSessions { get; private set; } = new ConcurrentDictionary<string, Session>();
-		
+
 		/// <summary>
 		/// Gets the CustomSkillsPlugin.Instance.SessionRepository
 		/// </summary>
 		internal static ISessionDatabase SessionRepository => CustomSkillsPlugin.Instance.SessionRepository;
-		
+
 		//Player can be wiped by the time we save(), so its best to store the name string.
 		public string PlayerName { get; set; }
 
@@ -41,8 +38,8 @@ namespace CustomSkills
 		/// <summary>
 		/// Maps trigger words to skills.
 		/// </summary>
-		internal Dictionary<string,CustomSkillDefinition> TriggerWordsToSkillDefinitions { get; set; } = new Dictionary<string, CustomSkillDefinition>();
-		
+		internal Dictionary<string, CustomSkillDefinition> TriggerWordsToSkillDefinitions { get; set; } = new Dictionary<string, CustomSkillDefinition>();
+
 		public Session() { }
 
 		public Session(TSPlayer player)
@@ -53,12 +50,12 @@ namespace CustomSkills
 
 		public static Session GetOrCreateSession(TSPlayer player)
 		{
-			if(!ActiveSessions.TryGetValue(player.Name, out var playerSession))
+			if (!ActiveSessions.TryGetValue(player.Name, out var playerSession))
 			{
 				//session is not active, try to get it from the db
 				playerSession = SessionRepository.Load(player.Name);
 
-				if(playerSession==null)
+				if (playerSession == null)
 				{
 					//otherwise, create new
 					playerSession = new Session(player);
@@ -66,7 +63,7 @@ namespace CustomSkills
 				else
 				{
 					//update all trigger words
-					foreach(var skillName in playerSession.PlayerSkillInfos.Keys)
+					foreach (var skillName in playerSession.PlayerSkillInfos.Keys)
 						playerSession.UpdateTriggerWords(skillName);
 
 					//have to re-add these
@@ -79,10 +76,10 @@ namespace CustomSkills
 
 			return playerSession;
 		}
-				
+
 		public static void SaveAll()
 		{
-			foreach(var session in ActiveSessions.Values)
+			foreach (var session in ActiveSessions.Values)
 				session?.Save();
 		}
 
@@ -92,7 +89,7 @@ namespace CustomSkills
 			{
 				SessionRepository.Save(PlayerName, this);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				CustomSkillsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
 			}
@@ -110,15 +107,15 @@ namespace CustomSkills
 			skillDefinition = CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TryGetDefinition(skillName);
 			levelDefinition = null;
 
-			if(skillDefinition != null)
+			if (skillDefinition != null)
 			{
-				if(PlayerSkillInfos.TryGetValue(skillName, out var skillInfo))
+				if (PlayerSkillInfos.TryGetValue(skillName, out var skillInfo))
 				{
 					levelDefinition = skillDefinition.Levels[skillInfo.CurrentLevel];
 					return true;
 				}
 			}
-			
+
 			return false;
 		}
 
@@ -126,7 +123,7 @@ namespace CustomSkills
 
 		public bool LearnSkill(string skillName)
 		{
-			if(!HasLearned(skillName))
+			if (!HasLearned(skillName))
 			{
 				PlayerSkillInfos.Add(skillName, new PlayerSkillInfo());
 				UpdateTriggerWords(skillName);
@@ -140,9 +137,9 @@ namespace CustomSkills
 		{
 			var definition = CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TryGetDefinition(skillName);
 
-			if(definition!=null)
+			if (definition != null)
 			{
-				if(PlayerSkillInfos.TryGetValue(skillName, out var skillInfo))
+				if (PlayerSkillInfos.TryGetValue(skillName, out var skillInfo))
 				{
 					var levelDef = definition.Levels[skillInfo.CurrentLevel];
 
@@ -155,45 +152,45 @@ namespace CustomSkills
 
 		public bool CanAfford(TSPlayer player, CustomSkillCost cost)
 		{
-			if(cost == null)
+			if (cost == null)
 				return true;
 			else
 			{
-				if(cost.RequiresHp)
+				if (cost.RequiresHp)
 				{
-					if(Player.TPlayer.statLife < cost.Hp)
+					if (Player.TPlayer.statLife < cost.Hp)
 						return false;
 				}
 
-				if(cost.RequiresMp)
+				if (cost.RequiresMp)
 				{
-					if(Player.TPlayer.statMana < cost.Mp)
+					if (Player.TPlayer.statMana < cost.Mp)
 						return false;
 				}
 
 				var bank = BankingPlugin.Instance.Bank;
-				if(bank == null)
+				if (bank == null)
 					return true;//probably an error condition, but let the admin deal with this.
 
-				if(cost.RequiresExp)
+				if (cost.RequiresExp)
 				{
 					var account = BankingPlugin.Instance.GetBankAccount(player, "Exp");
-					if(account != null)
+					if (account != null)
 					{
-						if(account.Balance < Math.Abs(cost.Exp))
+						if (account.Balance < Math.Abs(cost.Exp))
 							return false;//player cant cover balance
 					}
 					else
 						return false;
 				}
 
-				if(cost.RequiresCurrency)
+				if (cost.RequiresCurrency)
 				{
-					if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
+					if (bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
 					{
 						var account = bank.GetBankAccount(Player.Name, currency.InternalName);
 
-						if(account!=null)
+						if (account != null)
 						{
 							//check for funds...
 							Debug.Print($"Found bank account for {currency.InternalName}");
@@ -201,7 +198,7 @@ namespace CustomSkills
 							//parse
 							currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
 
-							if(account.Balance < rawValue)
+							if (account.Balance < rawValue)
 							{
 								Debug.Print("Player bank balance is less than skill cost.");
 								return false;
@@ -220,16 +217,16 @@ namespace CustomSkills
 
 		public bool TryDeductCost(TSPlayer player, CustomSkillCost cost)
 		{
-			if(!CanAfford(player, cost))
+			if (!CanAfford(player, cost))
 				return false;
 
-			if(cost == null)
+			if (cost == null)
 				return true;
 			else
 			{
 				var tPlayer = Player.TPlayer;
 
-				if(cost.RequiresHp)
+				if (cost.RequiresHp)
 				{
 					tPlayer.statLife = Math.Max(0, tPlayer.statLife - cost.Hp);
 
@@ -237,7 +234,7 @@ namespace CustomSkills
 					TSPlayer.All.SendData(PacketTypes.PlayerHp, "", Player.Index);//, tPlayer.statLife, tPlayer.statLifeMax );
 				}
 
-				if(cost.RequiresMp)
+				if (cost.RequiresMp)
 				{
 					tPlayer.statMana = Math.Max(0, tPlayer.statMana - cost.Mp);
 
@@ -246,28 +243,28 @@ namespace CustomSkills
 				}
 
 				var bank = BankingPlugin.Instance.Bank;
-				if(bank == null)
+				if (bank == null)
 					return true;//this probably is an error condition, but for now we just get out of dodge.
 
-				if(cost.RequiresExp)
+				if (cost.RequiresExp)
 				{
 					var account = BankingPlugin.Instance.GetBankAccount(player, "Exp");
-					if(account!=null)
+					if (account != null)
 					{
 						var result = account.TryWithdraw(Math.Abs(cost.Exp), WithdrawalMode.RequireFullBalance);
-						if(result == false)//player cant cover balance
+						if (result == false)//player cant cover balance
 							return false;
 					}
 					else
 						return false;
 				}
 
-				if(cost.RequiresCurrency)
+				if (cost.RequiresCurrency)
 				{
-					if(bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
+					if (bank.CurrencyManager.TryFindCurrencyFromString(cost.Currency, out var currency))
 					{
 						var account = bank.GetBankAccount(Player.Name, currency.InternalName);
-						if(account != null)
+						if (account != null)
 						{
 							//check for funds...
 							Debug.Print($"Found bank account for {currency.InternalName}");
@@ -275,7 +272,7 @@ namespace CustomSkills
 							//parse
 							currency.GetCurrencyConverter().TryParse(cost.Currency, out var rawValue);
 
-							if(!account.TryWithdraw(rawValue,WithdrawalMode.RequireFullBalance))
+							if (!account.TryWithdraw(rawValue, WithdrawalMode.RequireFullBalance))
 							{
 								Debug.Print("Player bank balance is less than skill cost.");
 								return false;
@@ -292,15 +289,15 @@ namespace CustomSkills
 
 		public bool CanAffordCastingSkill(string skillName)
 		{
-			if(TryGetSkillAndLevel(skillName,out var skillDef, out var levelDef))
-				return CanAfford(Player,levelDef.CastingCost);
+			if (TryGetSkillAndLevel(skillName, out var skillDef, out var levelDef))
+				return CanAfford(Player, levelDef.CastingCost);
 
 			return false;
 		}
 
 		public bool CanAffordChargingSkill(string skillName)
 		{
-			if(TryGetSkillAndLevel(skillName, out var skillDef, out var levelDef))
+			if (TryGetSkillAndLevel(skillName, out var skillDef, out var levelDef))
 				return CanAfford(Player, levelDef.ChargingCost);
 
 			return false;
@@ -308,9 +305,9 @@ namespace CustomSkills
 
 		private void UpdateTriggerWords(string skillName)
 		{
-			if(CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TriggeredDefinitions.TryGetValue(skillName, out var skill))
+			if (CustomSkillsPlugin.Instance.CustomSkillDefinitionLoader.TriggeredDefinitions.TryGetValue(skillName, out var skill))
 			{
-				foreach(var word in skill.TriggerWords)
+				foreach (var word in skill.TriggerWords)
 					TriggerWordsToSkillDefinitions[word] = skill;
 			}
 		}

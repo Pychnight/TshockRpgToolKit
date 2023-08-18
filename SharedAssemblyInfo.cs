@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 // This file is shared by all plugins and dependencies to globally set the version, and other metadata relating to copyright and ownership.
 // each individual project also has its own private AssemblyInfo.cs in the Properties folder, to set the Title and Description( Or Configuration ).

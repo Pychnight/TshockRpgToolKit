@@ -41,7 +41,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( !CanAcceptDraggedNode(draggedNode) )
+			if (!CanAcceptDraggedNode(draggedNode))
 				return false;
 
 			draggedNode.Remove();

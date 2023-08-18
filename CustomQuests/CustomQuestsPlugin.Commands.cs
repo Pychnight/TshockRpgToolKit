@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -21,13 +19,13 @@ namespace CustomQuests
 		private void P(CommandArgs args)
 		{
 			var player = args.Player;
-			if( args.Message.Length < 2 )
+			if (args.Message.Length < 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}p <message>");
 				return;
 			}
 
-			if( player.mute )
+			if (player.mute)
 			{
 				player.SendErrorMessage("You are muted.");
 				return;
@@ -35,7 +33,7 @@ namespace CustomQuests
 
 			var session = GetSession(player);
 			var party = session.Party;
-			if( party == null )
+			if (party == null)
 			{
 				player.SendErrorMessage("You are not in a party.");
 				return;
@@ -50,27 +48,27 @@ namespace CustomQuests
 			var parameters = args.Parameters;
 			var player = args.Player;
 			var subcommand = parameters.Count == 0 ? "" : parameters[0];
-			if( subcommand.Equals("form", StringComparison.OrdinalIgnoreCase) )
+			if (subcommand.Equals("form", StringComparison.OrdinalIgnoreCase))
 			{
 				PartyForm(args);
 			}
-			else if( subcommand.Equals("invite", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("invite", StringComparison.OrdinalIgnoreCase))
 			{
 				PartyInvite(args);
 			}
-			else if( subcommand.Equals("kick", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("kick", StringComparison.OrdinalIgnoreCase))
 			{
 				PartyKick(args);
 			}
-			else if( subcommand.Equals("leave", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("leave", StringComparison.OrdinalIgnoreCase))
 			{
 				PartyLeave(args);
 			}
-			else if( subcommand.Equals("leader", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("leader", StringComparison.OrdinalIgnoreCase))
 			{
 				PartyLeader(args);
 			}
-			else if( subcommand.Equals("info", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("info", StringComparison.OrdinalIgnoreCase))
 			{
 				PartyInfo(args);
 			}
@@ -89,26 +87,26 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 2 )
+			if (parameters.Count != 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party form <name>.");
 				return;
 			}
 
 			var session = GetSession(player);
-			if( session.CurrentQuest != null )
+			if (session.CurrentQuest != null)
 			{
 				player.SendErrorMessage("You cannot form a party while in a quest.");
 				return;
 			}
-			if( session.Party != null )
+			if (session.Party != null)
 			{
 				player.SendErrorMessage("You are already in a party.");
 				return;
 			}
 
 			var inputName = parameters[1];
-			if( _parties.ContainsKey(inputName) )
+			if (_parties.ContainsKey(inputName))
 			{
 				player.SendErrorMessage($"A party with the name '{inputName}' already exists.");
 				return;
@@ -127,40 +125,40 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 2 )
+			if (parameters.Count != 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party invite <player>.");
 				return;
 			}
 
 			var session = GetSession(player);
-			if( session.CurrentQuest != null )
+			if (session.CurrentQuest != null)
 			{
 				player.SendErrorMessage("You cannot invite a player while in a quest.");
 				return;
 			}
 
 			var party = session.Party;
-			if( party == null )
+			if (party == null)
 			{
 				player.SendErrorMessage("You are not in a party.");
 				return;
 			}
-						
-			if( player != party.Leader.Player )
+
+			if (player != party.Leader.Player)
 			{
 				player.SendErrorMessage("You are not the party leader.");
 				return;
 			}
-			
+
 			var inputPlayer = parameters[1];
 			var players = TShock.Utils.FindPlayer(inputPlayer);
-			if( players.Count == 0 )
+			if (players.Count == 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
 				return;
 			}
-			if( players.Count > 1 )
+			if (players.Count > 1)
 			{
 				TShock.Utils.SendMultipleMatchError(player, players);
 				return;
@@ -168,7 +166,7 @@ namespace CustomQuests
 
 			var player2 = players[0];
 			var session2 = GetSession(player2);
-			if( session2.Party != null )
+			if (session2.Party != null)
 			{
 				player.SendErrorMessage($"{player2.Name} is already in a party.");
 				return;
@@ -178,7 +176,7 @@ namespace CustomQuests
 			player2.SendInfoMessage("Use /accept or /decline.");
 			player2.AwaitingResponse.Add("accept", args2 =>
 			{
-				if( session.CurrentQuest != null )
+				if (session.CurrentQuest != null)
 				{
 					player.SendErrorMessage("You cannot accept the invite while the party is on a quest.");
 					return;
@@ -187,7 +185,7 @@ namespace CustomQuests
 				session2.Party = party;
 				party.SendInfoMessage($"{player2.Name} has joined the party.");
 				party.Add(player2);
-				foreach( var player3 in party )
+				foreach (var player3 in party)
 				{
 					player3.Player.TPlayer.team = 1;
 					player2.SendData(PacketTypes.PlayerTeam, "", player3.Index);
@@ -212,7 +210,7 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 2 )
+			if (parameters.Count != 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party kick <player>.");
 				return;
@@ -220,7 +218,7 @@ namespace CustomQuests
 
 			var session = GetSession(player);
 			var party = session.Party;
-			if( party == null )
+			if (party == null)
 			{
 				player.SendErrorMessage("You are not in a party.");
 				return;
@@ -228,7 +226,7 @@ namespace CustomQuests
 
 			var isAdmin = player.HasPermission("customquests.quest.admin");
 
-			if( !isAdmin && party.Leader.Player != player )
+			if (!isAdmin && party.Leader.Player != player)
 			{
 				player.SendErrorMessage("You are not the leader of your party.");
 				return;
@@ -243,12 +241,12 @@ namespace CustomQuests
 			//var players = TShock.Utils.FindPlayer(inputPlayer);
 			var targetIndex = party.IndexOf(inputPlayer);
 
-			if( targetIndex < 0 )
+			if (targetIndex < 0)
 			{
 				player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
 				return;
 			}
-			if( targetIndex == 0 )
+			if (targetIndex == 0)
 			{
 				player.SendErrorMessage("You cannot kick yourself from the party.");
 				return;
@@ -280,7 +278,7 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 1 )
+			if (parameters.Count != 1)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party leave.");
 				return;
@@ -288,12 +286,12 @@ namespace CustomQuests
 
 			var session = GetSession(player);
 			var party = session.Party;
-			if( party == null )
+			if (party == null)
 			{
 				player.SendErrorMessage("You are not in a party.");
 				return;
 			}
-			if( session.CurrentQuest != null )
+			if (session.CurrentQuest != null)
 			{
 				player.SendErrorMessage("You cannot leave the party while in a quest.");
 				return;
@@ -307,7 +305,7 @@ namespace CustomQuests
 			var parameters = args.Parameters;
 			var player = args.Player;
 
-			if( parameters.Count != 2 )
+			if (parameters.Count != 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}party leader <player>.");
 				return;
@@ -317,26 +315,26 @@ namespace CustomQuests
 			var party = session.Party;
 			var newLeader = parameters[1];
 
-			if( party == null )
+			if (party == null)
 			{
 				player.SendErrorMessage("You are not in a party.");
 				return;
 			}
-			if( player != party.Leader.Player )
+			if (player != party.Leader.Player)
 			{
 				player.SendErrorMessage("You are not the party leader.");
 				return;
 			}
 
 			var newLeaderIndex = party.IndexOf(newLeader);
-			if( newLeaderIndex == -1 )
+			if (newLeaderIndex == -1)
 			{
 				player.SendErrorMessage($"{newLeader} is not a member of your party.");
 				return;
 			}
 
 			var result = party.SetLeader(newLeaderIndex);
-			if( result )
+			if (result)
 			{
 				player.SendInfoMessage("You are no longer party leader.");
 				party.SendInfoMessage($"{newLeader} is now the party leader.");
@@ -356,40 +354,40 @@ namespace CustomQuests
 			var session = GetSession(player);
 			var party = session.Party;
 			var pageIndex = 1;
-			
-			if( party == null )
+
+			if (party == null)
 			{
 				player.SendErrorMessage("You are not in a party.");
 				return;
 			}
 
-			if( args.Parameters.Count == 2 )
+			if (args.Parameters.Count == 2)
 			{
-				if(int.TryParse(args.Parameters[1], out var requestedPageIndex))
+				if (int.TryParse(args.Parameters[1], out var requestedPageIndex))
 				{
 					pageIndex = requestedPageIndex;
 				}
 			}
 
-			player.SendMessage($"Party '{party.Name}' has {party.Count} members.",Color.Green);
-			
+			player.SendMessage($"Party '{party.Name}' has {party.Count} members.", Color.Green);
+
 			const int itemsPerPage = 5;
 			var totalPages = party.PageCount(itemsPerPage);
 
-			if( pageIndex < 1 )
+			if (pageIndex < 1)
 				pageIndex = 1;
-			else if( pageIndex > totalPages )
+			else if (pageIndex > totalPages)
 				pageIndex = totalPages;
 
-			var pagedMembers = party.GetPage(pageIndex-1, itemsPerPage);
-									
-			foreach( var member in pagedMembers )
-				if(member == party.Leader)
+			var pagedMembers = party.GetPage(pageIndex - 1, itemsPerPage);
+
+			foreach (var member in pagedMembers)
+				if (member == party.Leader)
 					player.SendInfoMessage($"{member.Name} (Leader)");
 				else
 					player.SendInfoMessage($"{member.Name}");
 
-			player.SendMessage($"Page # {pageIndex} / {totalPages}",Color.Green);
+			player.SendMessage($"Page # {pageIndex} / {totalPages}", Color.Green);
 		}
 
 		#endregion
@@ -402,21 +400,21 @@ namespace CustomQuests
 			var player = args.Player;
 			var isAdmin = player.HasPermission("customquests.quest.admin");
 			var subcommand = parameters.Count == 0 ? "" : parameters[0];
-			if( subcommand.Equals("abort", StringComparison.OrdinalIgnoreCase) )
+			if (subcommand.Equals("abort", StringComparison.OrdinalIgnoreCase))
 			{
 				QuestAbort(args);
 			}
-			else if( subcommand.Equals("accept", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("accept", StringComparison.OrdinalIgnoreCase))
 			{
 				QuestAccept(args);
 			}
-			else if( subcommand.Equals("list", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("list", StringComparison.OrdinalIgnoreCase))
 			{
 				QuestList(args);
 			}
-			else if( subcommand.Equals("revoke", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("revoke", StringComparison.OrdinalIgnoreCase))
 			{
-				if( !isAdmin )
+				if (!isAdmin)
 				{
 					player.SendErrorMessage("You do not have access to this command.");
 					return;
@@ -424,9 +422,9 @@ namespace CustomQuests
 
 				QuestRevoke(args);
 			}
-			else if( subcommand.Equals("unlock", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("unlock", StringComparison.OrdinalIgnoreCase))
 			{
-				if( !isAdmin )
+				if (!isAdmin)
 				{
 					player.SendErrorMessage("You do not have access to this command.");
 					return;
@@ -434,11 +432,11 @@ namespace CustomQuests
 
 				QuestUnlock(args);
 			}
-			else if( subcommand.Equals("status", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("status", StringComparison.OrdinalIgnoreCase))
 			{
 				QuestStatus(args);
 			}
-			else if( subcommand.Equals("clear", StringComparison.OrdinalIgnoreCase) )
+			else if (subcommand.Equals("clear", StringComparison.OrdinalIgnoreCase))
 			{
 				QuestClear(args);
 			}
@@ -448,7 +446,7 @@ namespace CustomQuests
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest status.");
-				if( isAdmin )
+				if (isAdmin)
 				{
 					player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
 					player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
@@ -461,7 +459,7 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 1 )
+			if (parameters.Count != 1)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest abort.");
 				return;
@@ -469,22 +467,22 @@ namespace CustomQuests
 
 			var session = GetSession(player);
 			var quest = session.CurrentQuest;
-			if( quest == null )
+			if (quest == null)
 			{
 				player.SendErrorMessage("You are not in a quest.");
 				return;
 			}
 
 			var party = session.Party;
-			if( party != null )
+			if (party != null)
 			{
-				if( party.Leader.Player != player )
+				if (party.Leader.Player != player)
 				{
 					player.SendErrorMessage("Only the party leader can abort the quest.");
 					return;
 				}
 
-				foreach( var player2 in party )
+				foreach (var player2 in party)
 				{
 					var session2 = GetSession(player2);
 					session2.IsAborting = true;
@@ -495,12 +493,12 @@ namespace CustomQuests
 					var bquest = session.CurrentQuest;
 					bquest.Abort();
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				}
 
-				foreach( var player2 in party )
+				foreach (var player2 in party)
 				{
 					var session2 = GetSession(player2);
 					session2.HasAborted = true;
@@ -518,7 +516,7 @@ namespace CustomQuests
 					var bquest = session.CurrentQuest;
 					bquest.Abort();
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					CustomQuestsPlugin.Instance.LogPrint(ex.ToString());
 				}
@@ -533,14 +531,14 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count < 2 )
+			if (parameters.Count < 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest accept <name>.");
 				return;
 			}
 
 			var session = GetSession(player);
-			if( session.CurrentQuest != null )
+			if (session.CurrentQuest != null)
 			{
 				player.SendErrorMessage("You are already in a quest. Either abort it or complete it.");
 				return;
@@ -552,15 +550,15 @@ namespace CustomQuests
 											.ToList();
 
 			var inputName = string.Join(" ", parameters.Skip(1));
-			var questInfo = availableQuests.FirstOrDefault( q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
-			if( questInfo == null )
+			var questInfo = availableQuests.FirstOrDefault(q => q.FriendlyName.Equals(inputName, StringComparison.OrdinalIgnoreCase) || q.Name == inputName);
+			if (questInfo == null)
 			{
 				player.SendErrorMessage($"Invalid quest name '{inputName}'.");
 				return;
 			}
 
 			var path = Path.Combine("quests", questInfo.ScriptPath ?? $"{questInfo.Name}.boo");
-			if( !File.Exists(path) )
+			if (!File.Exists(path))
 			{
 				player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 				CustomQuestsPlugin.Instance.LogPrint($"Failed to start quest '{questInfo.Name}'. Script file not found at '{path}'.", TraceLevel.Error);
@@ -570,33 +568,33 @@ namespace CustomQuests
 
 			var concurrentParties = _parties.Values.Select(p => GetSession(p.Leader))
 											.Count(s => s.CurrentQuestName == inputName);
-			if( concurrentParties >= questInfo.MaxConcurrentParties )
+			if (concurrentParties >= questInfo.MaxConcurrentParties)
 			{
 				player.SendErrorMessage($"There are too many parties currently performing the quest '{questInfo.FriendlyName}'.");
 				return;
 			}
 
 			var party = session.Party;
-			if( party != null )
+			if (party != null)
 			{
-				if( party.Leader.Player != player )
+				if (party.Leader.Player != player)
 				{
 					player.SendErrorMessage("Only the party leader can accept a quest.");
 					return;
 				}
-				if( party.Select(GetSession).Any(s => !s.UnlockedQuestNames.Contains(questInfo.Name) &&
+				if (party.Select(GetSession).Any(s => !s.UnlockedQuestNames.Contains(questInfo.Name) &&
 													  !s.CompletedQuestNames.Contains(questInfo.Name)) ||
-					party.Select(GetSession).Any(s => !s.CanAcceptQuest(questInfo)) )
+					party.Select(GetSession).Any(s => !s.CanAcceptQuest(questInfo)))
 				{
 					player.SendErrorMessage($"Not everyone can start the quest '{questInfo.FriendlyName}'.");
 					return;
 				}
-				if( party.Count < questInfo.MinPartySize )
+				if (party.Count < questInfo.MinPartySize)
 				{
 					player.SendErrorMessage($"Quest requires a larger party size of {questInfo.MinPartySize}.");
 					return;
 				}
-				if( party.Count > questInfo.MaxPartySize )
+				if (party.Count > questInfo.MaxPartySize)
 				{
 					player.SendErrorMessage($"Quest requires a smaller party size of {questInfo.MaxPartySize}.");
 					return;
@@ -608,7 +606,7 @@ namespace CustomQuests
 					//session.LoadQuest(questInfo);
 					session.LoadQuest(questInfo);
 
-					foreach( var player2 in party.Where(p => p.Player != player) )
+					foreach (var player2 in party.Where(p => p.Player != player))
 					{
 						player2.SendSuccessMessage($"Starting quest '{questInfo.FriendlyName}'!");
 						var session2 = GetSession(player2);
@@ -616,7 +614,7 @@ namespace CustomQuests
 						session2.CurrentQuest = session.CurrentQuest;
 					}
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 					CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
@@ -625,7 +623,7 @@ namespace CustomQuests
 			}
 			else
 			{
-				if( questInfo.MinPartySize > 1 )
+				if (questInfo.MinPartySize > 1)
 				{
 					player.SendErrorMessage($"Quest requires a party size of {questInfo.MinPartySize}.");
 					return;
@@ -637,7 +635,7 @@ namespace CustomQuests
 					//session.LoadQuest(questInfo);
 					session.LoadQuest(questInfo);
 				}
-				catch( Exception ex )
+				catch (Exception ex)
 				{
 					player.SendErrorMessage($"Quest '{questInfo.FriendlyName}' is corrupted.");
 					CustomQuestsPlugin.Instance.LogPrint(ex.ToString(), TraceLevel.Error);
@@ -650,7 +648,7 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count > 2 )
+			if (parameters.Count > 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest list [page].");
 				return;
@@ -666,25 +664,25 @@ namespace CustomQuests
 			var completedQuests = validCompletedQuests.Select(s => QuestLoader[s]).ToList();
 
 			var totalQuestCount = availableQuests.Count + completedQuests.Count;
-			var maxPage = ( totalQuestCount - 1 ) / QuestsPerPage + 1;
+			var maxPage = ((totalQuestCount - 1) / QuestsPerPage) + 1;
 			var inputPageNumber = parameters.Count == 1 ? "1" : parameters[1];
-			if( !int.TryParse(inputPageNumber, out var pageNumber) || pageNumber <= 0 || pageNumber > maxPage )
+			if (!int.TryParse(inputPageNumber, out var pageNumber) || pageNumber <= 0 || pageNumber > maxPage)
 			{
 				player.SendErrorMessage($"Invalid page number '{inputPageNumber}'");
 				return;
 			}
 
-			if( totalQuestCount == 0 )
+			if (totalQuestCount == 0)
 			{
 				player.SendErrorMessage("No quests found.");
 				return;
 			}
 
 			player.SendSuccessMessage($"Quests (page {pageNumber} out of {maxPage})");
-			var offset = ( pageNumber - 1 ) * QuestsPerPage;
-			for( var i = offset; i < offset + 5 && i < totalQuestCount; ++i )
+			var offset = (pageNumber - 1) * QuestsPerPage;
+			for (var i = offset; i < offset + 5 && i < totalQuestCount; ++i)
 			{
-				if( i < availableQuests.Count )
+				if (i < availableQuests.Count)
 				{
 					var questInfo = availableQuests[i];
 					player.SendInfoMessage(questInfo.Name == session.CurrentQuestName
@@ -697,7 +695,7 @@ namespace CustomQuests
 					player.SendSuccessMessage($"{questInfo.FriendlyName} (COMPLETED): {questInfo.Description}");
 				}
 			}
-			if( pageNumber != maxPage )
+			if (pageNumber != maxPage)
 			{
 				player.SendSuccessMessage($"Type {Commands.Specifier}quest list {pageNumber + 1} for more.");
 			}
@@ -707,23 +705,23 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 2 && parameters.Count != 3 )
+			if (parameters.Count != 2 && parameters.Count != 3)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest revoke [player] <name>.");
 				return;
 			}
 
 			var player2 = args.Player;
-			if( parameters.Count == 3 )
+			if (parameters.Count == 3)
 			{
 				var inputPlayer = parameters[1];
 				var players = TShock.Utils.FindPlayer(inputPlayer);
-				if( players.Count == 0 )
+				if (players.Count == 0)
 				{
 					player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
 					return;
 				}
-				if( players.Count > 1 )
+				if (players.Count > 1)
 				{
 					TShock.Utils.SendMultipleMatchError(player, players);
 					return;
@@ -734,13 +732,13 @@ namespace CustomQuests
 
 			var session2 = GetSession(player2);
 			var inputName = parameters.Last();
-			if( !session2.UnlockedQuestNames.Contains(inputName) && !session2.CompletedQuestNames.Contains(inputName) )
+			if (!session2.UnlockedQuestNames.Contains(inputName) && !session2.CompletedQuestNames.Contains(inputName))
 			{
 				player.SendErrorMessage(
-					$"{( player2 == player ? "You have" : $"{player2.Name} has" )} not unlocked quest '{inputName}'.");
+					$"{(player2 == player ? "You have" : $"{player2.Name} has")} not unlocked quest '{inputName}'.");
 				return;
 			}
-			if( QuestLoader.All(q => q.Name != inputName) )
+			if (QuestLoader.All(q => q.Name != inputName))
 			{
 				player.SendErrorMessage($"Invalid quest name '{inputName}'.");
 				return;
@@ -749,7 +747,7 @@ namespace CustomQuests
 			session2.RevokeQuest(inputName);
 			var questInfo = QuestLoader.First(q => q.Name == inputName);
 			player2.SendSuccessMessage($"Revoked quest '{questInfo.Name}'.");
-			if( player2 != player )
+			if (player2 != player)
 			{
 				player.SendSuccessMessage($"Revoked quest '{questInfo.Name}' for {player2.Name}.");
 			}
@@ -759,23 +757,23 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 2 && parameters.Count != 3 )
+			if (parameters.Count != 2 && parameters.Count != 3)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest unlock [player] <name>.");
 				return;
 			}
 
 			var player2 = args.Player;
-			if( parameters.Count == 3 )
+			if (parameters.Count == 3)
 			{
 				var inputPlayer = parameters[1];
 				var players = TShock.Utils.FindPlayer(inputPlayer);
-				if( players.Count == 0 )
+				if (players.Count == 0)
 				{
 					player.SendErrorMessage($"Invalid player '{inputPlayer}'.");
 					return;
 				}
-				if( players.Count > 1 )
+				if (players.Count > 1)
 				{
 					TShock.Utils.SendMultipleMatchError(player, players);
 					return;
@@ -786,19 +784,19 @@ namespace CustomQuests
 
 			var session2 = GetSession(player2);
 			var inputName = parameters.Last();
-			if( session2.UnlockedQuestNames.Contains(inputName) )
+			if (session2.UnlockedQuestNames.Contains(inputName))
 			{
 				player.SendErrorMessage(
-					$"{( player2 == player ? "You have" : $"{player2.Name} has" )} already unlocked quest '{inputName}'.");
+					$"{(player2 == player ? "You have" : $"{player2.Name} has")} already unlocked quest '{inputName}'.");
 				return;
 			}
-			if( session2.CompletedQuestNames.Contains(inputName) )
+			if (session2.CompletedQuestNames.Contains(inputName))
 			{
 				player.SendErrorMessage(
-					$"{( player2 == player ? "You have" : $"{player2.Name} has" )} already completed quest '{inputName}'.");
+					$"{(player2 == player ? "You have" : $"{player2.Name} has")} already completed quest '{inputName}'.");
 				return;
 			}
-			if( QuestLoader.All(q => q.Name != inputName) )
+			if (QuestLoader.All(q => q.Name != inputName))
 			{
 				player.SendErrorMessage($"Invalid quest name '{inputName}'.");
 				return;
@@ -807,7 +805,7 @@ namespace CustomQuests
 			session2.UnlockQuest(inputName);
 			var questInfo = QuestLoader.First(q => q.Name == inputName);
 			player2.SendSuccessMessage($"Unlocked quest '{questInfo.Name}'.");
-			if( player2 != player )
+			if (player2 != player)
 			{
 				player.SendSuccessMessage($"Unlocked quest '{questInfo.Name}' for {player2.Name}.");
 			}
@@ -818,7 +816,7 @@ namespace CustomQuests
 			var player = args.Player;
 			var session = GetSession(player);
 
-			if( session.CurrentQuest == null )
+			if (session.CurrentQuest == null)
 			{
 				player.SendErrorMessage("You are not currently on a quest!");
 			}
@@ -828,14 +826,14 @@ namespace CustomQuests
 				var questName = session.CurrentQuest.QuestInfo.FriendlyName;
 				var party = session.Party;
 				var index = party.IndexOf(player);
-								
+
 				player.SendInfoMessage($"Current Quest: {questName}");
-				
-				if( index > -1)
+
+				if (index > -1)
 				{
 					var member = party[index];
 
-					foreach( var qs in member.QuestStatuses )
+					foreach (var qs in member.QuestStatuses)
 						player.SendMessage(qs.Text ?? "", qs.Color);
 				}
 			}
@@ -845,7 +843,7 @@ namespace CustomQuests
 		{
 			var parameters = args.Parameters;
 			var player = args.Player;
-			if( parameters.Count != 2 )
+			if (parameters.Count != 2)
 			{
 				player.SendErrorMessage($"Syntax: {Commands.Specifier}quest clear player.");
 				return;
@@ -854,14 +852,14 @@ namespace CustomQuests
 			var targetPlayerName = parameters[1];
 			var targetPlayer = TShock.Utils.FindPlayer(targetPlayerName).FirstOrDefault();
 
-			if( targetPlayer == null )
+			if (targetPlayer == null)
 			{
 				player.SendErrorMessage($"Unable to find player {targetPlayerName}.");
 				return;
 			}
 
 			var session = GetSession(targetPlayer);
-			if( session.CurrentQuest != null )
+			if (session.CurrentQuest != null)
 			{
 				player.SendErrorMessage($"Unable to clear a player's data, while they are on a quest.");
 				return;

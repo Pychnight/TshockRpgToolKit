@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using TShockAPI;
 
 namespace Corruption
@@ -31,7 +28,7 @@ namespace Corruption
 
 			for (var i = 0; i < projectiles.Length; i++)
 			{
-				var projectileId = Projectile.NewProjectile(x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
+				var projectileId = Projectile.NewProjectile(new EntitySource_ByProjectileSourceId(i), x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
 				TSPlayer.All.SendData(PacketTypes.ProjectileNew, "", projectileId);
 				projectiles[i] = Main.projectile[projectileId];
 			}
@@ -49,14 +46,14 @@ namespace Corruption
 			var maxX = Math.Max(x, x2);
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
-			
-			for( var i = 0; i < Main.maxProjectiles; i++ )
+
+			for (var i = 0; i < Main.maxProjectiles; i++)
 			{
 				var proj = Main.projectile[i];
-				if( proj !=null )
+				if (proj != null)
 				{
-					if( proj.active && proj.position.X > 16 * minX && proj.position.X < 16 * maxX &&
-					   proj.position.Y > 16 * minY && proj.position.Y < 16 * maxY && proj.Name == name )
+					if (proj.active && proj.position.X > 16 * minX && proj.position.X < 16 * maxX &&
+					   proj.position.Y > 16 * minY && proj.position.Y < 16 * maxY && proj.Name == name)
 					{
 						count++;
 					}
@@ -77,13 +74,13 @@ namespace Corruption
 			var minY = Math.Min(y, y2);
 			var maxY = Math.Max(y, y2);
 
-			for( var i = 0; i < Main.maxProjectiles; i++ )
+			for (var i = 0; i < Main.maxProjectiles; i++)
 			{
 				var proj = Main.projectile[i];
-				if( proj != null )
+				if (proj != null)
 				{
-					if( proj.active && proj.position.X > 16 * minX && proj.position.X < 16 * maxX &&
-					   proj.position.Y > 16 * minY && proj.position.Y < 16 * maxY && proj.type == type )
+					if (proj.active && proj.position.X > 16 * minX && proj.position.X < 16 * maxX &&
+					   proj.position.Y > 16 * minY && proj.position.Y < 16 * maxY && proj.type == type)
 					{
 						count++;
 					}

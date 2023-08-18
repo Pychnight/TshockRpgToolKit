@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TShockAPI;
+﻿using Banking;
 //using Wolfje.Plugins.SEconomy;
 //using Wolfje.Plugins.SEconomy.Journal;
 using Housing.Extensions;
-using Banking;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using TShockAPI;
 
 namespace Housing
 {
@@ -20,7 +18,7 @@ namespace Housing
 		/// Gets or sets whether tax collectors will recieve tax payments.
 		/// </summary>
 		public bool IsEnabled { get; set; }
-		
+
 		public TaxService(HousingPlugin plugin)
 		{
 			this.plugin = plugin;
@@ -34,7 +32,7 @@ namespace Housing
 		/// <param name="playerName">Player name.</param>
 		/// <param name="payment">Total payment size, in generic units.</param>
 		/// <returns>IEnumerable<Tuple<decimal,BankAccount>> containing the pay and account per iteration.</returns>
-		public IEnumerable<Tuple<decimal,BankAccount>> PayTaxIterator(string playerName, decimal payment)
+		public IEnumerable<Tuple<decimal, BankAccount>> PayTaxIterator(string playerName, decimal payment)
 		{
 			//no account has been specified for this player. So...
 			//get all accounts for this player, sorted by largest balance
@@ -43,15 +41,15 @@ namespace Housing
 									.OrderByDescending(ac => ac.Balance);
 
 			//deduct tax from account
-			foreach( var acct in playerAccounts )
+			foreach (var acct in playerAccounts)
 			{
-				if( payment <= 0m )
+				if (payment <= 0m)
 					break;
 
-				if( payment <= acct.Balance )
+				if (payment <= acct.Balance)
 				{
 					PayTax(acct, payment);
-					yield return new Tuple<decimal,BankAccount>(payment, acct);
+					yield return new Tuple<decimal, BankAccount>(payment, acct);
 
 					payment = 0m;
 				}
@@ -80,16 +78,16 @@ namespace Housing
 			//no account has been specified for this player. So...
 			//get all accounts for this player, sorted by largest balance
 			var playerAccounts = BankingPlugin.Instance.GetAllBankAccountsForPlayer(playerName)
-									.Where( ac => ac.Balance > 0m )	
+									.Where(ac => ac.Balance > 0m)
 									.OrderByDescending(ac => ac.Balance);
 
 			//deduct tax from account
-			foreach(var acct in playerAccounts)
+			foreach (var acct in playerAccounts)
 			{
-				if( payment <= 0m )
+				if (payment <= 0m)
 					break;
 
-				if(payment<= acct.Balance)
+				if (payment <= acct.Balance)
 				{
 					PayTax(acct, payment);
 					payment = 0m;
@@ -108,31 +106,31 @@ namespace Housing
 
 		public void PayTax(BankAccount sourceAccount, decimal payment)
 		{
-			if( sourceAccount == null )
+			if (sourceAccount == null)
 				return;
 
 			var remainder = payment;
 
-			if( IsEnabled )
+			if (IsEnabled)
 			{
 				var taxCollectors = plugin.database.GetTaxCollectors();
-				var cut = payment / ( taxCollectors.Count > 0 ? taxCollectors.Count : 1m );
+				var cut = payment / (taxCollectors.Count > 0 ? taxCollectors.Count : 1m);
 
 				Debug.Print($"Tax payment is {remainder}");
 				Debug.Print($"{taxCollectors.Count} tax collectors get {cut} each.");
 
 				//split revenue between the tax collectors.
-				foreach( var tc in taxCollectors )
+				foreach (var tc in taxCollectors)
 				{
-					var collectorAccount = BankingPlugin.Instance.GetBankAccount(tc.PlayerName,sourceAccount.Name);
+					var collectorAccount = BankingPlugin.Instance.GetBankAccount(tc.PlayerName, sourceAccount.Name);
 
-					if( collectorAccount != null )
+					if (collectorAccount != null)
 					{
 						//skip the transfer if the source account belongs to a tax collector 
-						if( sourceAccount == collectorAccount )
+						if (sourceAccount == collectorAccount)
 						{
 							remainder -= cut;//still take cut so it doesn't go to world account.
-							//Debug.Print($"Skipping transfer, account belongs to tax collector {tc.PlayerName}");
+											 //Debug.Print($"Skipping transfer, account belongs to tax collector {tc.PlayerName}");
 						}
 						else
 						{
@@ -157,7 +155,7 @@ namespace Housing
 			var plugin = HousingPlugin.Instance;
 			var taxService = plugin.TaxService;
 			var taxCollectors = plugin.database.GetTaxCollectors();
-						
+
 			if (subcommand.Equals("list", StringComparison.OrdinalIgnoreCase))
 			{
 				player.SendInfoMessage($"There are {taxCollectors.Count} registered tax collectors.");
@@ -169,7 +167,7 @@ namespace Housing
 
 				return;
 			}
-			else if(subcommand.Equals("enable", StringComparison.OrdinalIgnoreCase))
+			else if (subcommand.Equals("enable", StringComparison.OrdinalIgnoreCase))
 			{
 				player.SendInfoMessage($"Tax collectors will now receive taxes.");
 				taxService.IsEnabled = true;
@@ -189,7 +187,7 @@ namespace Housing
 				if (subcommand.Equals("add", StringComparison.OrdinalIgnoreCase))
 				{
 					var tc = plugin.database.AddTaxCollector(name);
-					if( tc == null )
+					if (tc == null)
 						player.SendErrorMessage($"Unable to add TaxCollector {name}.");
 
 					return;
@@ -197,7 +195,7 @@ namespace Housing
 				else if (subcommand.Equals("remove", StringComparison.OrdinalIgnoreCase))
 				{
 					var tc = plugin.database.GetTaxCollector(name);
-					if(tc!=null)
+					if (tc != null)
 						plugin.database.Remove(tc);
 
 					return;
@@ -219,7 +217,7 @@ namespace Housing
 				Console.WriteLine($"Syntax: {Commands.Specifier}tax remove <player-name>");
 				return;
 			}
-			
+
 			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax list");
 			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax enable");
 			player.SendErrorMessage($"Syntax: {Commands.Specifier}tax disable");

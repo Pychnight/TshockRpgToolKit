@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Banking.Rewards
+﻿namespace Banking.Rewards
 {
 	/// <summary>
 	/// Reward for playing a certain amount of time.
@@ -12,7 +6,7 @@ namespace Banking.Rewards
 	public class PlayingReward : Reward
 	{
 		public CurrencyDefinition Currency { get; private set; }
-		
+
 		public PlayingReward(string playerName, string playerGroup, CurrencyDefinition currency)
 		{
 			PlayerName = playerName;
@@ -20,10 +14,10 @@ namespace Banking.Rewards
 			RewardReason = RewardReason.Playing;
 			Currency = currency;
 		}
-		
+
 		protected internal override decimal OnEvaluate(CurrencyDefinition currency)//, IRewardModifier rewardModifier = null)
 		{
-			if( currency != Currency )
+			if (currency != Currency)
 				return 0m;
 
 			var value = currency.GetBasePlayingValue(PlayerGroup);

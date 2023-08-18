@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Leveling.Database
+﻿namespace Leveling.Database
 {
 	public class SessionDatabaseFactory
 	{
@@ -12,7 +6,7 @@ namespace Leveling.Database
 		{
 			ISessionDatabase db = null;
 
-			switch(databaseType)
+			switch (databaseType)
 			{
 				case "redis":
 					db = new RedisSessionDatabase(connectionString);
@@ -27,7 +21,7 @@ namespace Leveling.Database
 					db = new SqliteSessionDatabase(connectionString);
 					break;
 			}
-			
+
 			return db;
 		}
 	}

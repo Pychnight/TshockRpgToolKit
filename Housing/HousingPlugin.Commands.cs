@@ -7,8 +7,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -448,8 +446,8 @@ namespace Housing
 			{
 				var rect = house.Rectangle;
 
-				var cx = (rect.X * 16) + (rect.Width / 2) * 16;
-				var cy = (rect.Y * 16) + (rect.Height / 2) * 16;
+				var cx = (rect.X * 16) + (rect.Width / 2 * 16);
+				var cy = (rect.Y * 16) + (rect.Height / 2 * 16);
 
 				player.Teleport(cx, cy);
 				player.SendErrorMessage($"Teleporting you to your house.");

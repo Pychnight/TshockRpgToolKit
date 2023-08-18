@@ -1,13 +1,8 @@
 ﻿using Newtonsoft.Json;
 using RpgToolsEditor.Controls;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.Banking
 {
@@ -32,7 +27,7 @@ namespace RpgToolsEditor.Models.Banking
 
 			folderTreeNode.Text = directory;
 
-			foreach( var filePath in shopPaths )
+			foreach (var filePath in shopPaths)
 			{
 				var json = File.ReadAllText(filePath);
 				var item = JsonConvert.DeserializeObject<CurrencyDefinition>(json);
@@ -53,12 +48,12 @@ namespace RpgToolsEditor.Models.Banking
 			var folderNode = tree.FirstOrDefault() as FolderTreeNode;
 
 			//duplicate name safeguard
-			var shopModels = folderNode.Nodes.Cast<CurrencyTreeNode>().Select(n => ( (CurrencyDefinition)n.Model ));
+			var shopModels = folderNode.Nodes.Cast<CurrencyTreeNode>().Select(n => (CurrencyDefinition)n.Model);
 
 			shopModels.ThrowOnDuplicateNames();
 
 			//save
-			foreach( var node in folderNode.Nodes )
+			foreach (var node in folderNode.Nodes)
 			{
 				var currencyNode = (CurrencyTreeNode)node;
 				var shopModel = (CurrencyDefinition)currencyNode.Model;

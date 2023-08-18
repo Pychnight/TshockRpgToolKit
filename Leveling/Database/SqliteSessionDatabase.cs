@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Mono.Data.Sqlite;
-using TerrariaApi.Server;
-using System.Diagnostics;
-using Newtonsoft.Json;
-using System.Data;
-using Leveling.Database;
+﻿using Leveling.Database;
 using Leveling.Sessions;
+using Newtonsoft.Json;
+using System;
+using System.Data;
+using System.Diagnostics;
+using System.Text;
+using TerrariaApi.Server;
 
 namespace Leveling
 {
@@ -19,16 +16,16 @@ namespace Leveling
 										data text )";
 
 		public string ConnectionString { get; private set; }
-				
+
 		public SqliteSessionDatabase(string connectionString)
 		{
 			try
 			{
 				ConnectionString = connectionString;
 
-				using( var connection = new SqliteConnection(ConnectionString) )
+				using (var connection = new SqliteConnection(ConnectionString))
 				{
-					using( var cmd = connection.CreateCommand() )
+					using (var cmd = connection.CreateCommand())
 					{
 						cmd.CommandText = createTableSql;
 
@@ -37,7 +34,7 @@ namespace Leveling
 					}
 				}
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, "Failed to open leveling sessions database!", TraceLevel.Error);
 				Console.WriteLine(ex.Message);
@@ -49,10 +46,10 @@ namespace Leveling
 		{
 			Debug.Print($"SqliteSessionRepository.Load({userName})");
 			SessionDefinition result = null;
-			
-			using(var connection = new SqliteConnection(ConnectionString))
+
+			using (var connection = new SqliteConnection(ConnectionString))
 			{
-				using(var cmd = connection.CreateCommand())
+				using (var cmd = connection.CreateCommand())
 				{
 					cmd.CommandText = "SELECT data FROM sessions " +
 										$"WHERE player='{userName}';";
@@ -60,7 +57,7 @@ namespace Leveling
 					connection.Open();
 					var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
 
-					if(reader.HasRows)
+					if (reader.HasRows)
 					{
 						try
 						{
@@ -68,21 +65,21 @@ namespace Leveling
 							var json = reader.GetString(0);
 							result = JsonConvert.DeserializeObject<SessionDefinition>(json);
 						}
-						catch(Exception ex)
+						catch (Exception ex)
 						{
 							ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Load error: ({ex.Message})", TraceLevel.Error);
 						}
 					}
 				}
 			}
-			
+
 			return result;
 		}
 
 		public void Save(string userName, SessionDefinition sessionDefinition)
 		{
 			//Debug.Print($"SqliteSessionRepository.Save({userName})");
-			using(var connection = new SqliteConnection(ConnectionString))
+			using (var connection = new SqliteConnection(ConnectionString))
 			{
 				//we now try to copy the session definition, in hopes of minimizing "rare" exceptions from definition collections being touched during serialization.
 				//we also catch the exception, and just log the error. Hopefully next call to save will work.
@@ -91,7 +88,7 @@ namespace Leveling
 					var defCopy = new SessionDefinition(sessionDefinition);
 					var json = JsonConvert.SerializeObject(defCopy, Formatting.Indented);
 
-					using( var cmd = connection.CreateCommand() )
+					using (var cmd = connection.CreateCommand())
 					{
 						cmd.CommandText = "INSERT OR REPLACE INTO sessions ( player, data ) " +
 											"VALUES ( @player, @data );";
@@ -103,7 +100,7 @@ namespace Leveling
 						cmd.ExecuteNonQuery();
 					}
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Error: {ex.Message}", TraceLevel.Error);
 					ServerApi.LogWriter.PluginWriteLine(LevelingPlugin.Instance, $"Session data not saved.", TraceLevel.Error);

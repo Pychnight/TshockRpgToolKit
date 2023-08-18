@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RpgToolsEditor.Controls
@@ -14,10 +10,7 @@ namespace RpgToolsEditor.Controls
 		public IModel Model
 		{
 			get => model;
-			set
-			{
-				onModelChange(value, model);
-			}
+			set => onModelChange(value, model);
 		}
 
 		public bool CanEditModel { get; protected set; }
@@ -38,7 +31,7 @@ namespace RpgToolsEditor.Controls
 			dst.CanDelete = src.CanDelete;
 			dst.CanDrag = src.CanDrag;
 
-			if(Model!=null)
+			if (Model != null)
 			{
 				dst.Model = (IModel)src.Model.Clone();
 			}
@@ -48,14 +41,14 @@ namespace RpgToolsEditor.Controls
 
 		void onModelChange(IModel newModel, IModel oldModel)
 		{
-			if( oldModel != null )
+			if (oldModel != null)
 			{
 				oldModel.PropertyChanged -= onModelPropertyChanged;
 			}
 
 			model = newModel;
 
-			if( newModel != null )
+			if (newModel != null)
 			{
 				newModel.PropertyChanged += onModelPropertyChanged;
 
@@ -65,7 +58,7 @@ namespace RpgToolsEditor.Controls
 
 		private void onModelPropertyChanged(object sender, PropertyChangedEventArgs args)
 		{
-			switch( args.PropertyName )
+			switch (args.PropertyName)
 			{
 				case "Name":
 					this.Text = Model.Name;
@@ -80,10 +73,7 @@ namespace RpgToolsEditor.Controls
 		//	this.Text = model.Name;
 		//}
 
-		public virtual ModelTreeNode AddItem()
-		{
-			return null;
-		}
+		public virtual ModelTreeNode AddItem() => null;
 
 		public virtual ModelTreeNode Copy()
 		{
@@ -113,11 +103,11 @@ namespace RpgToolsEditor.Controls
 		{
 			var models = new List<IModel>();
 
-			foreach( var n in Nodes )
+			foreach (var n in Nodes)
 			{
 				var modelTreeNode = n as ModelTreeNode;
 
-				if( modelTreeNode != null && modelTreeNode.Model != null )
+				if (modelTreeNode != null && modelTreeNode.Model != null)
 				{
 					models.Add(modelTreeNode.Model);
 				}
@@ -131,7 +121,7 @@ namespace RpgToolsEditor.Controls
 			node.Remove();
 			Nodes.Add(node);
 
-			if( this.Parent != null )
+			if (this.Parent != null)
 			{
 				Parent.Expand();
 			}
@@ -142,26 +132,23 @@ namespace RpgToolsEditor.Controls
 			node.Remove();
 			this.InsertAfter(node);
 
-			if(this.Parent!=null)
+			if (this.Parent != null)
 			{
 				Parent.Expand();
 			}
 		}
 
-		public virtual bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return true;
-		}
+		public virtual bool CanAcceptDraggedNode(ModelTreeNode node) => true;
 
 		public virtual bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( !CanAcceptDraggedNode(draggedNode) )
+			if (!CanAcceptDraggedNode(draggedNode))
 				return false;
 
 			draggedNode.Remove();
 
 			Nodes.Add(draggedNode);
-			
+
 			return true;
 		}
 
@@ -172,7 +159,7 @@ namespace RpgToolsEditor.Controls
 
 			this.Remove();
 			treeView.Nodes.Add(this);
-			
+
 			//not sure how to resolve updating dirty status for now...
 			//IsTreeDirty = true;
 		}

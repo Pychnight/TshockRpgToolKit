@@ -3,10 +3,7 @@ using CustomNpcs.Npcs;
 using CustomNpcs.Projectiles;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -154,8 +151,8 @@ namespace CustomNpcs
 			var facing = args.Player.TPlayer.direction;
 			var playerX = args.Player.TileX + (facing * 3);//fire from 2 tiles in front/back of player
 			var playerY = args.Player.TileY;
-			var targetX = (int)(playerX + (facing * 22));//2+20 tiles
-			var targetY = (int)playerY;
+			var targetX = playerX + (facing * 22);//2+20 tiles
+			var targetY = playerY;
 
 			var targetString = parameters.Count >= 2 ? parameters[1] : $"({targetX},{targetY})";
 			if (!targetString.StartsWith("(") || !targetString.EndsWith(")"))

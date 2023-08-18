@@ -19,7 +19,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 	//		return (Item)this.MemberwiseClone();
 	//	}
 	//}
-	
+
 	[Serializable]
 	public class Chest //: ObservableObject
 	{
@@ -27,7 +27,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 
 		public Chest()
 		{
-			for( int i = 0; i < MaxItems; i++ )
+			for (int i = 0; i < MaxItems; i++)
 			{
 				_items.Add(new Item());
 			}
@@ -52,13 +52,13 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		/// Creates a Corruption.TEdit.Chest from a Terraria.Chest.
 		/// </summary>
 		/// <param name="tChest"></param>
-		public Chest(Terraria.Chest tChest) : this( tChest.x, tChest.y, tChest.name)
+		public Chest(Terraria.Chest tChest) : this(tChest.x, tChest.y, tChest.name)
 		{
-			for( int i = 0; i < MaxItems; i++ )
+			for (int i = 0; i < MaxItems; i++)
 			{
 				var src = tChest.item[i];
 
-				if(src!=null)
+				if (src != null)
 				{
 					var dst = _items[i];
 
@@ -68,7 +68,7 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 				}
 			}
 		}
-		
+
 		private int _x;
 		private int _y;
 
@@ -127,21 +127,18 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 		public string Name { get => _name; set => _name = value; }
 		public int X { get => _x; set => _x = value; }
 		public int Y { get => _y; set => _y = value; }
-		
+
 		private readonly ObservableCollection<Item> _items = new ObservableCollection<Item>();
-		public ObservableCollection<Item> Items
-		{
-			get { return _items; }
-		}
+		public ObservableCollection<Item> Items => _items;
 
 		public Chest Copy()
 		{
 			var chest = new Chest(_x, _y);
 			chest.Name = Name;
 			//chest.Items.Clear();
-			for( int i = 0; i < MaxItems; i++ )
+			for (int i = 0; i < MaxItems; i++)
 			{
-				if( Items.Count > i )
+				if (Items.Count > i)
 				{
 					//throw new NotImplementedException("fixme");
 					chest.Items[i] = Items[i].Copy();
@@ -155,9 +152,6 @@ namespace Corruption.TEdit //TEditXNA.Terraria
 			return chest;
 		}
 
-		public override string ToString()
-		{
-			return $"[Chest: ({X},{Y})]";
-		}
+		public override string ToString() => $"[Chest: ({X},{Y})]";
 	}
 }

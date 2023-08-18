@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Collections.Generic;
 
 namespace RpgToolsEditor.Controls
 {
@@ -13,7 +7,7 @@ namespace RpgToolsEditor.Controls
 		public abstract IList<ModelTreeNode> CreateTree();
 		public abstract IList<ModelTreeNode> LoadTree(string path);
 		public abstract void SaveTree(IList<ModelTreeNode> tree, string path);
-		
+
 		/// <summary>
 		/// Called when the user Adds an item when no node is selected.
 		/// </summary>

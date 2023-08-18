@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
@@ -14,7 +12,7 @@ namespace CustomNpcs
 	/// </summary>
 	/// <typeparam name="TEntity"></typeparam>
 	/// <typeparam name="TCustomDefinition"></typeparam>
-	public abstract class CustomEntity<TEntity,TCustomDefinition> 
+	public abstract class CustomEntity<TEntity, TCustomDefinition>
 												where TEntity : Entity
 												where TCustomDefinition : DefinitionBase
 	{
@@ -25,7 +23,7 @@ namespace CustomNpcs
 		///     Gets the custom entity definition.
 		/// </summary>
 		public TCustomDefinition Definition { get; set; }
-		
+
 		/// <summary>
 		///     Gets the Center of the Entity and sets it.
 		///     Useful for Custom AI
@@ -93,20 +91,17 @@ namespace CustomNpcs
 				_variables.TryGetValue(key, out var result);
 				return result;
 			}
-			set
-			{
-				_variables[key] = value;
-			}
+			set => _variables[key] = value;
 		}
 
-		public float AngleFrom(Vector2 source)					=> Entity.AngleFrom(source);
-		public float AngleTo(Vector2 destination)				=> Entity.AngleTo(destination);
-		public Vector2 DirectionFrom(Vector2 source)			=> Entity.DirectionFrom(source);
-		public Vector2 DirectionTo(Vector2 destination)			=> Entity.DirectionTo(destination);
-		public float Distance(Vector2 other)					=> Entity.Distance(other);
-		public float DistanceSQ(Vector2 other)					=> Entity.DistanceSQ(other);
+		public float AngleFrom(Vector2 source) => Entity.AngleFrom(source);
+		public float AngleTo(Vector2 destination) => Entity.AngleTo(destination);
+		public Vector2 DirectionFrom(Vector2 source) => Entity.DirectionFrom(source);
+		public Vector2 DirectionTo(Vector2 destination) => Entity.DirectionTo(destination);
+		public float Distance(Vector2 other) => Entity.Distance(other);
+		public float DistanceSQ(Vector2 other) => Entity.DistanceSQ(other);
 		public bool WithinRange(Vector2 target, float maxRange) => Entity.WithinRange(target, maxRange);
-		
+
 		/// <summary>
 		///     Determines whether the variable with the specified name exists.
 		/// </summary>
@@ -117,7 +112,7 @@ namespace CustomNpcs
 		{
 			if (variableName == null)
 				throw new ArgumentNullException(nameof(variableName));
-			
+
 			return _variables.ContainsKey(variableName);
 		}
 
@@ -132,7 +127,7 @@ namespace CustomNpcs
 		{
 			if (variableName == null)
 				throw new ArgumentNullException(nameof(variableName));
-			
+
 			return _variables.TryGetValue(variableName, out var value) ? value : defaultValue;
 		}
 
@@ -146,7 +141,7 @@ namespace CustomNpcs
 		{
 			if (variableName == null)
 				throw new ArgumentNullException(nameof(variableName));
-			
+
 			_variables[variableName] = value;
 		}
 
@@ -161,10 +156,10 @@ namespace CustomNpcs
 		{
 			if (callback == null)
 				throw new ArgumentNullException(nameof(callback));
-			
+
 			if (tileRadius <= 0)
 				throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
-			
+
 			foreach (var player in TShock.Players.Where(
 				p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
 					 256 * tileRadius * tileRadius))
@@ -186,10 +181,10 @@ namespace CustomNpcs
 		{
 			if (seconds <= 0)
 				throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be positive.");
-			
+
 			if (tileRadius <= 0)
 				throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
-			
+
 			foreach (var player in TShock.Players.Where(
 				p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
 					 256 * tileRadius * tileRadius))
@@ -210,10 +205,10 @@ namespace CustomNpcs
 		{
 			if (message == null)
 				throw new ArgumentNullException(nameof(message));
-			
+
 			if (tileRadius <= 0)
 				throw new ArgumentOutOfRangeException(nameof(tileRadius), "Tile radius must be positive.");
-			
+
 			foreach (var player in TShock.Players.Where(
 				p => p != null && p.Active && Vector2.DistanceSquared(Position, p.TPlayer.position) <
 					 256 * tileRadius * tileRadius))
@@ -232,7 +227,7 @@ namespace CustomNpcs
 		{
 			if (callback == null)
 				throw new ArgumentNullException(nameof(callback));
-			
+
 			if (!HasVariable($"OnlyOnce{key}"))
 			{
 				SetVariable($"OnlyOnce{key}", true);
@@ -252,10 +247,10 @@ namespace CustomNpcs
 		{
 			if (callback == null)
 				throw new ArgumentNullException(nameof(callback));
-			
+
 			if (period <= 0)
 				throw new ArgumentOutOfRangeException(nameof(period), "Period must be positive.");
-			
+
 			// ReSharper disable once PossibleNullReferenceException
 			var timer = (int)GetVariable($"Periodically{key}", 0);
 			if (timer++ == 0)

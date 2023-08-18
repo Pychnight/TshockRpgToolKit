@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria.ID;
 
 namespace Corruption.PluginSupport
@@ -17,11 +14,7 @@ namespace Corruption.PluginSupport
 		Dictionary<string, byte> wallIds;
 
 		static TileNameMap instance;
-		public static TileNameMap Instance
-		{
-			get { return instance ?? ( instance = new TileNameMap()); }
-			//set { instance = value; }
-		}
+		public static TileNameMap Instance => instance ?? (instance = new TileNameMap());
 
 		public TileNameMap()
 		{
@@ -33,7 +26,7 @@ namespace Corruption.PluginSupport
 		{
 			var dict = new Dictionary<string, TValue>();
 
-			foreach(var fi in getConstants(type))
+			foreach (var fi in getConstants(type))
 			{
 				var key = fi.Name.ToLower();
 				var value = (TValue)fi.GetValue(null);
@@ -52,11 +45,8 @@ namespace Corruption.PluginSupport
 			return fields;
 		}
 
-		private string getKeyString(string name)
-		{
-			return name.ToLower().Replace(" ", "");
-		}
-						
+		private string getKeyString(string name) => name.ToLower().Replace(" ", "");
+
 		public bool TryGetTileId(string tileName, out ushort tileId)
 		{
 			var key = getKeyString(tileName);
@@ -72,7 +62,7 @@ namespace Corruption.PluginSupport
 		//public bool TryGetTileName(ushort id, out string tileName)
 		//{
 		//}
-		
+
 		//public bool TryGetWallName(byte wallId, out string wallName )
 		//{
 		//}

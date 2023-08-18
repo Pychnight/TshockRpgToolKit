@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace RpgToolsEditor.Models.CustomNpcs
 {
-	public class CategoryTreeNode<TModel,TNode> : ModelTreeStaticContainerNode where TNode : ModelTreeNode, new()
-																				where TModel : IModel, new() 
+	public class CategoryTreeNode<TModel, TNode> : ModelTreeStaticContainerNode where TNode : ModelTreeNode, new()
+																				where TModel : IModel, new()
 	{
 		public CategoryTreeNode() : base()
 		{
@@ -24,7 +24,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 			Model = model;
 
 			//try to load in subnodes....
-			var includeModels = model.Includes.Select( i=> new IncludeModel(basePath, i))
+			var includeModels = model.Includes.Select(i => new IncludeModel(basePath, i))
 										.Cast<IModel>()
 										.ToList();
 
@@ -36,15 +36,15 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		{
 			var incModel = (IncludeModel)model;
 			var childModels = incModel.Load<TModel>();
-						
-			var node = new IncludeTreeNode<TModel,TNode>()
+
+			var node = new IncludeTreeNode<TModel, TNode>()
 			{
 				Model = model
 			};
 
 			node.AddDefaultChildNodesHack();
 			node.AddChildModels(childModels.Cast<IModel>().ToList());
-			
+
 			//add to tree
 			Nodes.Add(node);
 		}
@@ -53,14 +53,14 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		{
 			var models = new List<IModel>();
 
-			foreach( var n in Nodes )
+			foreach (var n in Nodes)
 			{
-				var includeTreeNode = n as IncludeTreeNode<TModel,TNode>;
+				var includeTreeNode = n as IncludeTreeNode<TModel, TNode>;
 				var includeModel = includeTreeNode.Model as IncludeModel;
-				
+
 				includeModel.Items.Clear();
-				
-				if( includeTreeNode != null && includeTreeNode.Model != null )
+
+				if (includeTreeNode != null && includeTreeNode.Model != null)
 				{
 					//var childModels = includeTreeNode.Nodes.Cast<TNode>().Select(tn => tn.Model);
 					var childModels = includeTreeNode.GetChildModels();
@@ -79,7 +79,7 @@ namespace RpgToolsEditor.Models.CustomNpcs
 		{
 			var item = new IncludeModel();
 			//should be typed to something more specific
-			var node = new IncludeTreeNode<TModel,TNode>()
+			var node = new IncludeTreeNode<TModel, TNode>()
 			{
 				Model = item
 			};
@@ -89,19 +89,19 @@ namespace RpgToolsEditor.Models.CustomNpcs
 
 			return node;
 		}
-		
+
 		public override bool CanAcceptDraggedNode(ModelTreeNode node)
 		{
 			return node is TNode || //make sibling
-					( node is CategoryTreeNode<TModel, TNode> && Parent == null ) || //make sibling
-					( node is IncludeTreeNode<TModel, TNode>); //make child
+					(node is CategoryTreeNode<TModel, TNode> && Parent == null) || //make sibling
+					(node is IncludeTreeNode<TModel, TNode>); //make child
 		}
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
-				if( draggedNode is IncludeTreeNode<TModel, TNode> )
+				if (draggedNode is IncludeTreeNode<TModel, TNode>)
 					AddChild(draggedNode);
 				else
 					AddSibling(draggedNode);

@@ -1,12 +1,6 @@
-﻿using Newtonsoft.Json;
-using RpgToolsEditor.Controls;
+﻿using RpgToolsEditor.Controls;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RpgToolsEditor.Models.NpcShops
@@ -59,14 +53,11 @@ namespace RpgToolsEditor.Models.NpcShops
 		//	return dstNode;
 		//}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return node is NpcShopTreeNode;
-		}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) => node is NpcShopTreeNode;
 
 		public override bool TryAcceptDraggedNode(ModelTreeNode draggedNode)
 		{
-			if( CanAcceptDraggedNode(draggedNode) )
+			if (CanAcceptDraggedNode(draggedNode))
 			{
 				AddSibling(draggedNode);
 
@@ -87,7 +78,7 @@ namespace RpgToolsEditor.Models.NpcShops
 			var folderNode = (FolderTreeNode)treeView.Nodes[0];
 
 			folderNode.AddChild(this);
-			
+
 			//not sure how to resolve updating dirty status for now...
 			//IsTreeDirty = true;
 		}

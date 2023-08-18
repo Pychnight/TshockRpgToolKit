@@ -1,11 +1,8 @@
-﻿using Boo.Lang.Compiler;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BooTS
 {
@@ -61,12 +58,12 @@ namespace BooTS
 
 			var mscorAss = Assembly.LoadWithPartialName("mscorlib");
 			var sysAss = Assembly.LoadWithPartialName("System");
-			
+
 #pragma warning restore 612, 618
 
 			result.Add(mscorAss);
 			result.Add(sysAss);
-			
+
 			return result;
 		}
 
@@ -84,7 +81,7 @@ namespace BooTS
 			{
 				result = methodInfo.CreateDelegate(typeof(T)) as T;
 			}
-			catch( Exception ex )
+			catch (Exception ex)
 			{
 				throw ex;
 			}
@@ -99,7 +96,7 @@ namespace BooTS
 
 			Debug.Print($"Assembly {assembly}");
 
-			foreach( var r in refs )
+			foreach (var r in refs)
 				Debug.Print($"Reference: {r}");
 		}
 	}

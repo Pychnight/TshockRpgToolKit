@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RpgToolsEditor.Models.Banking
 {
@@ -43,7 +39,7 @@ namespace RpgToolsEditor.Models.Banking
 
 		protected override object CreateInstance(Type itemType)
 		{
-			if( itemType == typeof(ValueOverride<TileKey>) )
+			if (itemType == typeof(ValueOverride<TileKey>))
 			{
 				var item = new ValueOverride<TileKey>();
 				item.Key = new TileKey();
@@ -59,16 +55,13 @@ namespace RpgToolsEditor.Models.Banking
 			var key = item.Key;
 			string val = item.ValueString;
 
-			if( string.IsNullOrWhiteSpace(item.ValueString) )
+			if (string.IsNullOrWhiteSpace(item.ValueString))
 				val = "???";
-			
+
 			return $"Tile:{key.Type}, Wall:{key.Wall} = {val}";
 		}
 
-		protected override void ShowHelp()
-		{
-			base.ShowHelp();
-		}
+		protected override void ShowHelp() => base.ShowHelp();
 	}
 
 	public class ItemKeyCollectionEditor : CaptionedCollectionEditor
@@ -78,7 +71,7 @@ namespace RpgToolsEditor.Models.Banking
 
 		protected override object CreateInstance(Type itemType)
 		{
-			if( itemType == typeof(ValueOverride<ItemKey>) )
+			if (itemType == typeof(ValueOverride<ItemKey>))
 			{
 				var item = new ValueOverride<ItemKey>();
 				item.Key = new ItemKey();
@@ -94,7 +87,7 @@ namespace RpgToolsEditor.Models.Banking
 			var key = item.Key;
 			string val = item.ValueString;
 
-			if( string.IsNullOrWhiteSpace(item.ValueString) )
+			if (string.IsNullOrWhiteSpace(item.ValueString))
 				val = "???";
 
 			return $"ItemId:{key.ItemId}, Prefix:{key.Prefix} = {val}";
@@ -105,10 +98,10 @@ namespace RpgToolsEditor.Models.Banking
 	{
 		public StringKeyCollectionEditor() : this("String Overrides Editor") { }
 		public StringKeyCollectionEditor(string caption) : base(caption, typeof(ValueOverrideList<string>)) { }
-		
+
 		protected override object CreateInstance(Type itemType)
 		{
-			if( itemType == typeof(ValueOverride<string>) )
+			if (itemType == typeof(ValueOverride<string>))
 			{
 				var item = new ValueOverride<string>();
 				item.Key = "";
@@ -124,7 +117,7 @@ namespace RpgToolsEditor.Models.Banking
 			var key = item.Key;
 			string val = item.ValueString;
 
-			if( string.IsNullOrWhiteSpace(item.ValueString) )
+			if (string.IsNullOrWhiteSpace(item.ValueString))
 				val = "???";
 
 			return $"Key:{key} = {val}";
@@ -132,7 +125,7 @@ namespace RpgToolsEditor.Models.Banking
 	}
 
 	// Collection editors with custom captions to match the properties they are tied to.
-	
+
 	public class KillingCollectionEditor : StringKeyCollectionEditor
 	{
 		public KillingCollectionEditor() : base("Killing Overrides") { }
@@ -143,7 +136,7 @@ namespace RpgToolsEditor.Models.Banking
 			var key = item.Key;
 			string val = item.ValueString;
 
-			if( string.IsNullOrWhiteSpace(item.ValueString) )
+			if (string.IsNullOrWhiteSpace(item.ValueString))
 				val = "???";
 
 			return $"NPC:{key} = {val}";

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CustomQuests.Triggers
+﻿namespace CustomQuests.Triggers
 {
 	public enum TriggerStatus
 	{
@@ -15,9 +9,6 @@ namespace CustomQuests.Triggers
 
 	public static class TriggerStatusExtensions
 	{
-		public static TriggerStatus ToTriggerStatus(this bool value)
-		{
-			return value ? TriggerStatus.Success : TriggerStatus.Running;
-		}
+		public static TriggerStatus ToTriggerStatus(this bool value) => value ? TriggerStatus.Success : TriggerStatus.Running;
 	}
 }

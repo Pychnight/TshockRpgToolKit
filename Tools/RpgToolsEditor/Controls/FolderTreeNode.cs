@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RpgToolsEditor.Controls
+﻿namespace RpgToolsEditor.Controls
 {
 	public class FolderTreeNode : ModelTreeNode
 	{
@@ -13,13 +7,10 @@ namespace RpgToolsEditor.Controls
 			CanDelete = false;
 			CanCopy = false;
 			CanDrag = false;
-			
+
 			ImageIndex = SelectedImageIndex = 2;//yeah, were hardcoded into using index 2 for now :/
 		}
 
-		public override bool CanAcceptDraggedNode(ModelTreeNode node)
-		{
-			return false;
-		}
+		public override bool CanAcceptDraggedNode(ModelTreeNode node) => false;
 	}
 }

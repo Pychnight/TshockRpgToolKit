@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 
 namespace CustomQuests.Triggers
@@ -13,7 +11,7 @@ namespace CustomQuests.Triggers
 		IEnumerable<PartyMember> partyMembers;
 		int amount;
 		HashSet<string> npcTypes;
-		
+
 		public CatchNpcs(IEnumerable<PartyMember> partyMembers, int amount, params object[] npcTypes)
 		{
 			this.partyMembers = partyMembers ?? throw new ArgumentNullException(nameof(partyMembers));
@@ -39,7 +37,7 @@ namespace CustomQuests.Triggers
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
 		{
-			if( disposing )
+			if (disposing)
 			{
 				CustomQuestsPlugin.Instance.CatchNpc -= onCatchNpc;
 			}
@@ -48,20 +46,17 @@ namespace CustomQuests.Triggers
 		}
 
 		/// <inheritdoc />
-		protected override void Initialize()
-		{
-			CustomQuestsPlugin.Instance.CatchNpc += onCatchNpc;
-		}
+		protected override void Initialize() => CustomQuestsPlugin.Instance.CatchNpc += onCatchNpc;
 
 		private void onCatchNpc(object sender, CatchNpcEventArgs e)
 		{
-			if( partyMembers.Any(m => m.IsValidMember && m.Index == e.PlayerIndex) )
+			if (partyMembers.Any(m => m.IsValidMember && m.Index == e.PlayerIndex))
 			{
-				if( npcTypes != null )
+				if (npcTypes != null)
 				{
 					var name = Main.npc[e.NpcId]?.GivenOrTypeName;
 
-					if(name!=null && npcTypes.Contains(name))
+					if (name != null && npcTypes.Contains(name))
 					{
 						amount--;
 					}
@@ -73,9 +68,6 @@ namespace CustomQuests.Triggers
 			}
 		}
 
-		protected internal override TriggerStatus UpdateImpl()
-		{
-			return amount < 1 ? TriggerStatus.Success : TriggerStatus.Running;
-		}
+		protected internal override TriggerStatus UpdateImpl() => amount < 1 ? TriggerStatus.Success : TriggerStatus.Running;
 	}
 }
